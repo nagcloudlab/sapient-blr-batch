@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 10: Capstone — Responsive Landing Page</title>
+    <style>
+        /* ============================================
+           CAPSTONE PROJECT
+           Combines ALL CSS concepts from Modules 1-9:
+           - CSS Variables (Module 9)
+           - Box Model (Module 2)
+           - Selectors & Specificity (Module 3)
+           - Flexbox (Module 5)
+           - Grid (Module 6)
+           - Responsive Design (Module 7)
+           - Transitions & Animations (Module 8)
+           - Modern CSS: clamp, nesting, gradients (Module 9)
+           ============================================ */
+
+        /* === CSS VARIABLES (Theming) === */
+        :root {
+            --primary: #667eea;
+            --primary-dark: #5a6fd6;
+            --secondary: #764ba2;
+            --accent: #f093fb;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --bg: #ffffff;
+            --bg-alt: #f8f9fa;
+            --card-bg: #ffffff;
+            --border: #e0e0e0;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 15px rgba(0,0,0,0.1);
+            --shadow-lg: 0 15px 40px rgba(0,0,0,0.15);
+            --radius: 12px;
+            --transition: 0.3s ease;
+        }
+
+        .dark-theme {
+            --primary: #818cf8;
+            --primary-dark: #6366f1;
+            --secondary: #a78bfa;
+            --text: #e2e8f0;
+            --text-light: #94a3b8;
+            --bg: #0f172a;
+            --bg-alt: #1e293b;
+            --card-bg: #1e293b;
+            --border: #334155;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.3);
+            --shadow-md: 0 4px 15px rgba(0,0,0,0.3);
+            --shadow-lg: 0 15px 40px rgba(0,0,0,0.4);
+        }
+
+        /* === RESET & BASE === */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+            line-height: 1.6;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        img {
+            max-width: 100%;
+            display: block;
+        }
+
+        /* === NAVBAR (Flexbox) === */
+        .navbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 5%;
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            transition: background var(--transition);
+        }
+
+        .navbar .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .navbar .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .navbar .nav-links a {
+            color: var(--text-light);
+            font-weight: 500;
+            transition: color var(--transition);
+            position: relative;
+        }
+
+        .navbar .nav-links a::after {
+            content: "";
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width var(--transition);
+        }
+
+        .navbar .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .navbar .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .theme-btn {
+            background: var(--bg-alt);
+            border: 1px solid var(--border);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all var(--transition);
+        }
+
+        .theme-btn:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* === HERO SECTION (Flexbox + Gradient + Animation) === */
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 80vh;
+            padding: 40px 5%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+            top: -200px;
+            right: -100px;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 50%;
+            bottom: -100px;
+            left: -50px;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 6vw, 4rem);
+            color: white;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2.5vw, 1.3rem);
+            color: rgba(255,255,255,0.85);
+            max-width: 600px;
+            margin: 0 auto 30px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            border: 2px solid transparent;
+        }
+
+        .btn-primary {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+
+        .btn-outline:hover {
+            background: white;
+            color: var(--primary);
+            border-color: white;
+        }
+
+        /* === FEATURES SECTION (Grid) === */
+        .features {
+            padding: 80px 5%;
+            background: var(--bg-alt);
+            transition: background var(--transition);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .section-title h2 {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            margin-bottom: 10px;
+        }
+
+        .section-title p {
+            color: var(--text-light);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            transition: all var(--transition);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .feature-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+            font-size: 0.95rem;
+        }
+
+        /* === STATS SECTION (Flexbox) === */
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            flex-wrap: wrap;
+            padding: 60px 5%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .stat-item {
+            text-align: center;
+            color: white;
+        }
+
+        .stat-item .number {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 800;
+        }
+
+        .stat-item .stat-label {
+            font-size: 1rem;
+            opacity: 0.85;
+        }
+
+        /* === PRICING SECTION (Grid) === */
+        .pricing {
+            padding: 80px 5%;
+            background: var(--bg);
+            transition: background var(--transition);
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            padding: 40px 30px;
+            text-align: center;
+            transition: all var(--transition);
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured::before {
+            content: "Popular";
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary);
+            color: white;
+            padding: 4px 20px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .pricing-card:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pricing-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .pricing-card .price {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin: 15px 0;
+        }
+
+        .pricing-card .price span {
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--text-light);
+        }
+
+        .pricing-card ul {
+            list-style: none;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .pricing-card ul li {
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-light);
+        }
+
+        .pricing-card ul li::before {
+            content: "  ";
+            margin-right: 8px;
+        }
+
+        .pricing-btn {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+        }
+
+        .pricing-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        /* === TESTIMONIALS (Grid) === */
+        .testimonials {
+            padding: 80px 5%;
+            background: var(--bg-alt);
+            transition: background var(--transition);
+        }
+
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .testimonial-card {
+            background: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            transition: all var(--transition);
+        }
+
+        .testimonial-card:hover {
+            box-shadow: var(--shadow-md);
+        }
+
+        .testimonial-card .stars {
+            color: #f39c12;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .testimonial-card .quote-text {
+            color: var(--text-light);
+            font-style: italic;
+            margin-bottom: 20px;
+            line-height: 1.7;
+        }
+
+        .testimonial-card .author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .testimonial-card .author-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .testimonial-card .author-name {
+            font-weight: 600;
+        }
+
+        .testimonial-card .author-role {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+
+        /* === CTA SECTION === */
+        .cta {
+            text-align: center;
+            padding: 80px 5%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .cta h2 {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            margin-bottom: 15px;
+        }
+
+        .cta p {
+            opacity: 0.85;
+            max-width: 500px;
+            margin: 0 auto 30px;
+        }
+
+        .cta-input-group {
+            display: flex;
+            gap: 10px;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        .cta-input-group input {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .cta-input-group button {
+            padding: 14px 25px;
+            background: white;
+            color: var(--primary);
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition);
+            white-space: nowrap;
+        }
+
+        .cta-input-group button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* === FOOTER (Grid) === */
+        .footer {
+            background: var(--bg-alt);
+            padding: 60px 5% 30px;
+            transition: background var(--transition);
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-brand .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+
+        .footer-brand p {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .footer-col h4 {
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+
+        .footer-col ul {
+            list-style: none;
+        }
+
+        .footer-col ul li {
+            margin-bottom: 8px;
+        }
+
+        .footer-col ul a {
+            color: var(--text-light);
+            transition: color var(--transition);
+        }
+
+        .footer-col ul a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 40px;
+            border-top: 1px solid var(--border);
+            color: var(--text-light);
+            font-size: 0.85rem;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* === RESPONSIVE (Mobile-First enhancements) === */
+        @media (max-width: 768px) {
+            .navbar .nav-links {
+                display: none; /* In real project: add hamburger menu */
+            }
+
+            .hero {
+                min-height: 60vh;
+            }
+
+            .stats {
+                gap: 30px;
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+
+            .cta-input-group {
+                flex-direction: column;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="logo">LaunchPad</div>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#pricing">Pricing</a></li>
+            <li><a href="#testimonials">Reviews</a></li>
+            <li><a href="#cta">Contact</a></li>
+        </ul>
+        <button class="theme-btn" onclick="document.body.classList.toggle('dark-theme'); this.textContent = document.body.classList.contains('dark-theme') ? '&#9728;' : '&#9790;'">&#9790;</button>
+    </nav>
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Build Something<br>Amazing Today</h1>
+            <p>A modern platform that helps you ship faster, scale effortlessly, and delight your users with every interaction.</p>
+            <div class="hero-buttons">
+                <a href="#" class="btn btn-primary">Get Started Free</a>
+                <a href="#" class="btn btn-outline">Watch Demo</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="features" id="features">
+        <div class="section-title">
+            <h2>Why Choose Us?</h2>
+            <p>Everything you need to build modern web applications</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="icon">&#9889;</div>
+                <h3>Lightning Fast</h3>
+                <p>Optimized for performance with sub-second load times and smooth 60fps animations throughout.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">&#128274;</div>
+                <h3>Secure by Default</h3>
+                <p>Enterprise-grade security with end-to-end encryption and automatic vulnerability scanning.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">&#127912;</div>
+                <h3>Beautiful Design</h3>
+                <p>Pixel-perfect components with dark mode support and responsive layouts out of the box.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">&#128640;</div>
+                <h3>Easy to Scale</h3>
+                <p>From prototype to production — scales automatically to handle millions of requests.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">&#129520;</div>
+                <h3>Developer Tools</h3>
+                <p>Powerful CLI, comprehensive docs, and an active community to help you every step of the way.</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">&#127760;</div>
+                <h3>Global CDN</h3>
+                <p>Content delivered from 200+ edge locations worldwide for the best possible user experience.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- STATS -->
+    <section class="stats">
+        <div class="stat-item">
+            <div class="number">50K+</div>
+            <div class="stat-label">Developers</div>
+        </div>
+        <div class="stat-item">
+            <div class="number">99.9%</div>
+            <div class="stat-label">Uptime</div>
+        </div>
+        <div class="stat-item">
+            <div class="number">200+</div>
+            <div class="stat-label">Countries</div>
+        </div>
+        <div class="stat-item">
+            <div class="number">4.9/5</div>
+            <div class="stat-label">Rating</div>
+        </div>
+    </section>
+
+    <!-- PRICING -->
+    <section class="pricing" id="pricing">
+        <div class="section-title">
+            <h2>Simple Pricing</h2>
+            <p>No hidden fees. Upgrade or downgrade anytime.</p>
+        </div>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Starter</h3>
+                <div class="price">$0<span>/month</span></div>
+                <ul>
+                    <li>3 Projects</li>
+                    <li>1GB Storage</li>
+                    <li>Community Support</li>
+                    <li>Basic Analytics</li>
+                </ul>
+                <button class="pricing-btn">Get Started</button>
+            </div>
+            <div class="pricing-card featured">
+                <h3>Pro</h3>
+                <div class="price">$29<span>/month</span></div>
+                <ul>
+                    <li>Unlimited Projects</li>
+                    <li>100GB Storage</li>
+                    <li>Priority Support</li>
+                    <li>Advanced Analytics</li>
+                </ul>
+                <button class="pricing-btn">Start Free Trial</button>
+            </div>
+            <div class="pricing-card">
+                <h3>Enterprise</h3>
+                <div class="price">$99<span>/month</span></div>
+                <ul>
+                    <li>Everything in Pro</li>
+                    <li>Unlimited Storage</li>
+                    <li>Dedicated Support</li>
+                    <li>Custom Integrations</li>
+                </ul>
+                <button class="pricing-btn">Contact Sales</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="testimonials" id="testimonials">
+        <div class="section-title">
+            <h2>What People Say</h2>
+            <p>Trusted by teams of all sizes around the world</p>
+        </div>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <p class="quote-text">"This platform completely transformed our workflow. We shipped 3x faster within the first month."</p>
+                <div class="author">
+                    <div class="author-avatar">S</div>
+                    <div>
+                        <div class="author-name">Sarah Chen</div>
+                        <div class="author-role">CTO, TechStart</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <p class="quote-text">"The best developer experience I've ever had. The docs are incredible and the community is super helpful."</p>
+                <div class="author">
+                    <div class="author-avatar">M</div>
+                    <div>
+                        <div class="author-name">Marcus Rivera</div>
+                        <div class="author-role">Lead Developer, DataFlow</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testimonial-card">
+                <div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                <p class="quote-text">"We migrated our entire infrastructure in a weekend. The performance improvements were immediate."</p>
+                <div class="author">
+                    <div class="author-avatar">A</div>
+                    <div>
+                        <div class="author-name">Aisha Patel</div>
+                        <div class="author-role">VP Engineering, ScaleUp</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="cta" id="cta">
+        <h2>Ready to Get Started?</h2>
+        <p>Join thousands of developers building the future of the web.</p>
+        <div class="cta-input-group">
+            <input type="email" placeholder="Enter your email">
+            <button>Start Free</button>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <div class="logo">LaunchPad</div>
+                <p>Building the future of web development, one component at a time. Modern, fast, and beautiful.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Product</h4>
+                <ul>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Changelog</a></li>
+                    <li><a href="#">Roadmap</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Resources</h4>
+                <ul>
+                    <li><a href="#">Documentation</a></li>
+                    <li><a href="#">Tutorials</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Community</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Contact</a></li>
+                    <li><a href="#">Privacy</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            &copy; 2026 LaunchPad. All rights reserved. | Built with pure CSS
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoodExpress - Order Food Online</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #2c3e50;">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold" href="#">FoodExpress</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMenu">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link active" href="#">Restaurants</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">My Orders</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Track Delivery</a></li>
+          <li class="nav-item"><a class="nav-link" href="#">Support</a></li>
+        </ul>
+        <span class="navbar-text">
+          <span class="badge bg-danger" id="cart-badge">Cart: 0</span>
+        </span>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Banner -->
+  <div class="hero-banner">
+    <div class="container text-center text-white py-5">
+      <h1 class="display-4 fw-bold">Hungry? We've Got You Covered</h1>
+      <p class="lead">Order from the best restaurants near you. Fast delivery, great prices.</p>
+      <a href="#restaurants" class="btn btn-light btn-lg">Browse Restaurants</a>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="container-fluid mt-4" id="restaurants">
+    <div class="row">
+
+      <!-- Restaurant Listing -->
+      <main class="col-md-9">
+        <h2 class="mb-4">Popular Restaurants</h2>
+
+        <!-- Cuisine Filter -->
+        <div class="mb-4">
+          <select class="form-select w-25" id="cuisineFilter">
+            <option value="all">All Cuisines</option>
+            <option value="american">American</option>
+            <option value="italian">Italian</option>
+            <option value="chinese">Chinese</option>
+            <option value="indian">Indian</option>
+            <option value="healthy">Healthy</option>
+            <option value="desserts">Desserts</option>
+          </select>
+        </div>
+
+        <!-- Restaurant Grid -->
+        <!-- BUG #1: Missing col-sm-6 class - on tablet, cards don't split into 2 columns -->
+        <div class="row" id="restaurant-grid">
+
+          <div class="col-md-4 mb-4">
+            <!-- BUG #4: No loading="lazy" attribute - all images load immediately -->
+            <div class="card h-100">
+              <img src="https://placehold.co/400x200/e84c3d/fff?text=Burger+Barn" class="card-img-top" alt="Burger Barn">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">Burger Barn</h5>
+                <p class="card-text text-muted">American</p>
+                <p class="card-text fw-bold">$8.99 - $15.99</p>
+                <p class="card-text"><small class="text-success">Open | 25-35 min delivery</small></p>
+                <!-- BUG #5: No "Free Delivery" badge on restaurants that qualify -->
+                <button class="btn btn-danger mt-auto view-menu" data-restaurant="burger-barn">View Menu</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <img src="https://placehold.co/400x200/f39c12/fff?text=Pizza+Palace" class="card-img-top" alt="Pizza Palace">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">Pizza Palace</h5>
+                <p class="card-text text-muted">Italian</p>
+                <p class="card-text fw-bold">$12.99 - $24.99 <span class="text-decoration-line-through text-muted">$29.99</span></p>
+                <p class="card-text"><small class="text-success">Open | 30-40 min delivery</small></p>
+                <button class="btn btn-danger mt-auto view-menu" data-restaurant="pizza-palace">View Menu</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <!-- This restaurant has a discount - should show free delivery badge after ENH -->
+            <div class="card h-100">
+              <img src="https://placehold.co/400x200/27ae60/fff?text=Dragon+Wok" class="card-img-top" alt="Dragon Wok">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">Dragon Wok</h5>
+                <p class="card-text text-muted">Chinese</p>
+                <p class="card-text fw-bold">$9.99 - $18.99</p>
+                <p class="card-text"><small class="text-success">Open | 20-30 min delivery</small></p>
+                <button class="btn btn-danger mt-auto view-menu" data-restaurant="dragon-wok">View Menu</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <img src="https://placehold.co/400x200/9b59b6/fff?text=Spice+Route" class="card-img-top" alt="Spice Route">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">Spice Route</h5>
+                <p class="card-text text-muted">Indian</p>
+                <p class="card-text fw-bold">$11.99 - $19.99</p>
+                <p class="card-text"><small class="text-success">Open | 35-45 min delivery</small></p>
+                <button class="btn btn-danger mt-auto view-menu" data-restaurant="spice-route">View Menu</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <img src="https://placehold.co/400x200/2ecc71/fff?text=Fresh+%26+Green" class="card-img-top" alt="Fresh and Green">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">Fresh & Green</h5>
+                <p class="card-text text-muted">Healthy</p>
+                <p class="card-text fw-bold">$7.99 - $13.99</p>
+                <p class="card-text"><small class="text-success">Open | 15-25 min delivery</small></p>
+                <button class="btn btn-danger mt-auto view-menu" data-restaurant="fresh-green">View Menu</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Closed restaurant -->
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <img src="https://placehold.co/400x200/e67e22/fff?text=Sweet+Tooth" class="card-img-top" alt="Sweet Tooth">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">Sweet Tooth</h5>
+                <p class="card-text text-muted">Desserts</p>
+                <p class="card-text fw-bold">$5.99 - $12.99</p>
+                <p class="card-text"><small class="text-danger">Closed | Opens at 11 AM</small></p>
+                <button class="btn btn-danger mt-auto view-menu" data-restaurant="sweet-tooth" disabled>View Menu</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <img src="https://placehold.co/400x200/3498db/fff?text=Sushi+Harbor" class="card-img-top" alt="Sushi Harbor">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">Sushi Harbor</h5>
+                <p class="card-text text-muted">Japanese</p>
+                <p class="card-text fw-bold">$14.99 - $29.99</p>
+                <p class="card-text"><small class="text-success">Open | 30-40 min delivery</small></p>
+                <button class="btn btn-danger mt-auto view-menu" data-restaurant="sushi-harbor">View Menu</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <img src="https://placehold.co/400x200/1abc9c/fff?text=Taco+Fiesta" class="card-img-top" alt="Taco Fiesta">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">Taco Fiesta</h5>
+                <p class="card-text text-muted">Mexican</p>
+                <p class="card-text fw-bold">$6.99 - $14.99 <span class="text-decoration-line-through text-muted">$17.99</span></p>
+                <p class="card-text"><small class="text-success">Open | 20-30 min delivery</small></p>
+                <button class="btn btn-danger mt-auto view-menu" data-restaurant="taco-fiesta">View Menu</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-4 mb-4">
+            <div class="card h-100">
+              <img src="https://placehold.co/400x200/e74c3c/fff?text=BBQ+Smokehouse" class="card-img-top" alt="BBQ Smokehouse">
+              <div class="card-body d-flex flex-column">
+                <h5 class="card-title">BBQ Smokehouse</h5>
+                <p class="card-text text-muted">American</p>
+                <p class="card-text fw-bold">$10.99 - $22.99</p>
+                <p class="card-text"><small class="text-success">Open | 35-50 min delivery</small></p>
+                <button class="btn btn-danger mt-auto view-menu" data-restaurant="bbq-smokehouse">View Menu</button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </main>
+
+      <!-- Cart Sidebar -->
+      <!-- BUG #2: This sidebar uses position:fixed with fixed width - overlaps on mobile -->
+      <aside class="col-md-3">
+        <div class="cart-sidebar">
+          <div class="card">
+            <div class="card-header text-white" style="background-color: #e84c3d;">
+              <h5 class="mb-0">Your Cart</h5>
+            </div>
+            <div class="card-body" style="max-height: 60vh; overflow-y: auto;">
+              <div id="cart-items">
+                <p class="text-muted">Your cart is empty. Browse restaurants and add items!</p>
+              </div>
+            </div>
+            <div class="card-footer">
+              <!-- BUG #3: Total alignment broken on small screens -->
+              <div class="cart-total d-flex justify-content-between">
+                <strong>Subtotal:</strong>
+                <strong id="cart-subtotal">$0.00</strong>
+              </div>
+              <div class="cart-total d-flex justify-content-between text-muted">
+                <span>Delivery Fee:</span>
+                <span id="delivery-fee">$2.99</span>
+              </div>
+              <hr>
+              <div class="cart-total d-flex justify-content-between">
+                <strong>Total:</strong>
+                <strong id="cart-total" class="text-danger">$2.99</strong>
+              </div>
+              <a href="checkout.html" class="btn btn-success w-100 mt-3">Proceed to Checkout</a>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <!-- BUG #6: Footer not sticky - needs to stay at bottom -->
+  <footer class="footer mt-5">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-md-6">
+          <p>&copy; 2024 FoodExpress. All rights reserved.</p>
+        </div>
+        <div class="col-md-6 text-end">
+          <!-- ENH #6: Add support contact info here -->
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- BUG #7: Back to Top button doesn't exist yet - ENH request -->
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/cart.js"></script>
+</body>
+</html>

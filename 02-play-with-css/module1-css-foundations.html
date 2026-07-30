@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 1: CSS Foundations</title>
+
+    <!-- ============================================
+         TOPIC 2: External CSS (3rd way to add CSS)
+         This <link> tag connects an external .css file
+         ============================================ -->
+    <!-- <link rel="stylesheet" href="style.css"> -->
+
+    <!-- ============================================
+         TOPIC 2: Internal CSS (2nd way to add CSS)
+         Written inside <style> tags in the <head>
+         ============================================ -->
+    <style>
+        /* ============================================
+           TOPIC 3: CSS SYNTAX
+           selector {
+               property: value;
+           }
+           ============================================ */
+
+        /* ============================================
+           TOPIC 4: BASIC SELECTORS
+           ============================================ */
+
+        /* --- Element Selector --- */
+        /* Targets ALL elements of that type */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        h2 {
+            border-bottom: 2px solid #333;
+            padding-bottom: 5px;
+        }
+
+        p {
+            line-height: 1.6;
+        }
+
+        /* --- Universal Selector (*) --- */
+        /* Targets EVERY element on the page */
+        * {
+            box-sizing: border-box;
+        }
+
+        /* --- Class Selector (.) --- */
+        /* Targets elements with class="highlight" */
+        /* Can be reused on multiple elements */
+        .highlight {
+            background-color: yellow;
+            padding: 2px 6px;
+        }
+
+        .section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        /* --- ID Selector (#) --- */
+        /* Targets the ONE element with id="main-title" */
+        /* Should be unique on the page */
+        #main-title {
+            color: #2c3e50;
+            font-size: 2rem;
+        }
+
+        /* ============================================
+           TOPIC 5: COLORS
+           ============================================ */
+
+        /* Named Colors */
+        .color-named {
+            color: tomato;
+            /* Other examples: red, blue, coral, darkslategray, etc. */
+        }
+
+        /* HEX Colors: #RRGGBB (00-FF each) */
+        .color-hex {
+            color: #e74c3c;
+            /* Short form: #e43 (expands to #ee4433) */
+        }
+
+        /* RGB Colors: rgb(red, green, blue) — values 0-255 */
+        .color-rgb {
+            color: rgb(46, 204, 113);
+        }
+
+        /* RGBA Colors: rgba(r, g, b, alpha) — alpha 0-1 for transparency */
+        .color-rgba {
+            background-color: rgba(52, 152, 219, 0.3);
+            padding: 10px;
+        }
+
+        /* HSL Colors: hsl(hue, saturation%, lightness%) */
+        /* Hue: 0-360 (color wheel), Saturation: 0-100%, Lightness: 0-100% */
+        .color-hsl {
+            color: hsl(280, 60%, 50%);
+        }
+
+        /* ============================================
+           TOPIC 6: FONTS & TEXT
+           ============================================ */
+
+        .text-demo {
+            /* Font Family — use fallback stack */
+            font-family: 'Georgia', 'Times New Roman', serif;
+
+            /* Font Size — px, em, rem */
+            font-size: 18px;
+
+            /* Font Weight — normal(400), bold(700), or 100-900 */
+            font-weight: 400;
+
+            /* Line Height — spacing between lines */
+            line-height: 1.8;
+
+            /* Text Align — left, center, right, justify */
+            text-align: justify;
+
+            /* Text Decoration — none, underline, overline, line-through */
+            text-decoration: none;
+
+            /* Letter Spacing */
+            letter-spacing: 0.5px;
+        }
+
+        .text-bold {
+            font-weight: 700;
+        }
+
+        .text-italic {
+            font-style: italic;
+        }
+
+        .text-uppercase {
+            text-transform: uppercase;
+        }
+
+        .text-underline {
+            text-decoration: underline;
+            text-decoration-color: tomato;
+            text-underline-offset: 4px;
+        }
+
+        .text-line-through {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        /* ============================================
+           PRACTICE: PROFILE CARD
+           ============================================ */
+        .profile-card {
+            background: white;
+            max-width: 350px;
+            margin: 20px auto;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-card .avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: #3498db;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .profile-card .name {
+            font-family: 'Georgia', serif;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin: 0 0 5px;
+        }
+
+        .profile-card .role {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin: 0 0 15px;
+        }
+
+        .profile-card .bio {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 id="main-title">Module 1: CSS Foundations</h1>
+
+    <!-- ============================================
+         TOPIC 1: WHAT IS CSS?
+         CSS = Cascading Style Sheets
+         - Separates presentation from structure (HTML)
+         - Controls layout, colors, fonts, spacing
+         - "Cascading" = styles can override each other
+         ============================================ -->
+
+    <!-- ============================================
+         TOPIC 2: 3 WAYS TO ADD CSS
+         ============================================ -->
+    <div class="section">
+        <h2>3 Ways to Add CSS</h2>
+
+        <!-- Way 1: Inline CSS (directly on the element) -->
+        <p style="color: blue; font-size: 18px;">
+            1. <strong>Inline CSS</strong> — Written directly on the element using the style attribute.
+            (Highest priority, but hard to maintain)
+        </p>
+
+        <!-- Way 2: Internal CSS — see <style> tag in <head> above -->
+        <p>
+            2. <strong>Internal CSS</strong> — Written in a &lt;style&gt; tag inside &lt;head&gt;.
+            (Good for single-page demos)
+        </p>
+
+        <!-- Way 3: External CSS — see <link> tag in <head> above -->
+        <p>
+            3. <strong>External CSS</strong> — Written in a separate .css file, linked with &lt;link&gt;.
+            (Best practice for real projects)
+        </p>
+    </div>
+
+    <!-- ============================================
+         TOPIC 4: BASIC SELECTORS DEMO
+         ============================================ -->
+    <div class="section">
+        <h2>Basic Selectors</h2>
+        <p><strong>Element selector:</strong> This paragraph is styled by the <code>p</code> selector.</p>
+        <p class="highlight"><strong>Class selector (.highlight):</strong> This has a yellow background.</p>
+        <p><strong>ID selector (#main-title):</strong> The title above uses an ID selector.</p>
+        <p><strong>Universal selector (*):</strong> The <code>*</code> selector applies box-sizing to everything.</p>
+    </div>
+
+    <!-- ============================================
+         TOPIC 5: COLORS DEMO
+         ============================================ -->
+    <div class="section">
+        <h2>Colors</h2>
+        <p class="color-named">Named Color: <code>color: tomato;</code></p>
+        <p class="color-hex">HEX Color: <code>color: #e74c3c;</code></p>
+        <p class="color-rgb">RGB Color: <code>color: rgb(46, 204, 113);</code></p>
+        <p class="color-rgba">RGBA Color (with transparency): <code>background: rgba(52, 152, 219, 0.3);</code></p>
+        <p class="color-hsl">HSL Color: <code>color: hsl(280, 60%, 50%);</code></p>
+    </div>
+
+    <!-- ============================================
+         TOPIC 6: FONTS & TEXT DEMO
+         ============================================ -->
+    <div class="section">
+        <h2>Fonts & Text</h2>
+        <p class="text-demo">
+            This paragraph demonstrates font-family (Georgia), font-size (18px),
+            line-height (1.8), and text-align (justify). Notice how the text spreads
+            evenly across the full width of the container. This is very useful for
+            long-form content like articles and blog posts.
+        </p>
+        <p class="text-bold">font-weight: 700 (bold)</p>
+        <p class="text-italic">font-style: italic</p>
+        <p class="text-uppercase">text-transform: uppercase</p>
+        <p class="text-underline">text-decoration: underline (with custom color)</p>
+        <p class="text-line-through">text-decoration: line-through (strikethrough)</p>
+    </div>
+
+    <!-- ============================================
+         PRACTICE: PROFILE CARD
+         ============================================ -->
+    <div class="section">
+        <h2>Practice: Profile Card</h2>
+        <div class="profile-card">
+            <div class="avatar">J</div>
+            <h3 class="name">Jane Doe</h3>
+            <p class="role">Frontend Developer</p>
+            <p class="bio">
+                Passionate about creating beautiful and accessible web experiences.
+                Loves CSS, JavaScript, and good coffee.
+            </p>
+        </div>
+    </div>
+
+</body>
+</html>

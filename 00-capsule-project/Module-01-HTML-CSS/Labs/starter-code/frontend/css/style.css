@@ -1,0 +1,125 @@
+/* FoodExpress Stylesheet */
+/* NOTE: This file has several issues reported by mobile users */
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Navigation */
+.navbar {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Hero Banner */
+.hero-banner {
+  background-color: #e84c3d;
+  min-height: 250px;
+  display: flex;
+  align-items: center;
+}
+
+/* Restaurant Cards */
+.card {
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #e0e0e0;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* BUG #4: Images not constrained - oversized images overflow card */
+.card-img-top {
+  height: 200px;
+  object-fit: cover;
+  /* Missing: loading="lazy" on <img> tags in HTML (not a CSS issue but a performance issue) */
+}
+
+/* Cart Sidebar */
+/* BUG #2: Fixed positioning causes overlap on mobile */
+.cart-sidebar {
+  position: fixed;
+  top: 80px;
+  width: 23%;
+  /* This doesn't work on mobile - should be relative on small screens */
+}
+
+/* BUG #3: Cart total alignment issue on small screens */
+.cart-total {
+  font-size: 1.2rem;
+  /* On mobile, the flex container wraps wrong */
+  /* Missing: flex-wrap: nowrap */
+}
+
+/* Footer */
+/* BUG #6: Footer is not sticky - scrolls away */
+.footer {
+  background-color: #2c3e50;
+  color: #ffffff;
+  padding: 20px 0;
+  /* Missing: position, bottom, width properties for sticky behavior */
+}
+
+/* Free Delivery Badge - styles ready but badge HTML doesn't exist yet (ENH #5) */
+.free-delivery-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #27ae60;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  z-index: 10;
+}
+
+/* Back to Top button - hidden, needs implementation (ENH #7) */
+.back-to-top {
+  display: none;
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  z-index: 1000;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  background: #e84c3d;
+  color: white;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.back-to-top:hover {
+  background: #c0392b;
+}
+
+/* ===== MISSING RESPONSIVE STYLES ===== */
+/* BUG #1 & #2: No media queries for mobile/tablet */
+/* The restaurant grid and cart sidebar don't adapt to smaller screens */
+
+/* This section is EMPTY - participants need to add media queries */
+/* Expected fix:
+@media (max-width: 768px) {
+  .cart-sidebar {
+    position: relative;
+    width: 100%;
+    top: 0;
+  }
+}
+*/
+
+/* Checkout Form */
+/* BUG #8: Flexbox alignment issue */
+.checkout-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  /* BUG: On Safari, items don't align vertically without explicit height or align-items */
+  /* Also breaks when wrapped on small screens */
+}

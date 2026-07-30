@@ -1,5 +1,8 @@
 
 
+What Makes Web UI
+---------------------
+
 UI -> data + style + interaction
 Web-UI -> HTML + CSS + JS with browser's APIs ( DOM, fetch, etc.)
 
@@ -22,10 +25,9 @@ non-browser javascript engine
 
 1. node.js -> v8 ( c++ )
 2. jvm -> rhino ( java ) | nashorn ( java )
-3. mongodb -> v8 ( c++ )
+....
 
-
-javascript engines implemented based on ECMAScript standard ( ECMA-262 )
+Note: javascript engines implemented based on ECMAScript standard ( ECMA-262 )
 
 
 why we need javascript programs with HTML-page?
@@ -61,7 +63,7 @@ https://developer.mozilla.org/en-US/docs/Web/API
 --------------------
 
 how things work in browser?
---------------------
+------------------------------
 
 e.g chrome browser
 --------------------
@@ -80,9 +82,6 @@ e.g chrome browser
 
 
 ---
-
-
-
 
 References:
 -----------
@@ -159,8 +158,3 @@ types of HTML elements
     -> <nav> - navigation links
 
     
-
-Learning CSS
------------------
-
-https://www.w3schools.com/cssref/trysel.php

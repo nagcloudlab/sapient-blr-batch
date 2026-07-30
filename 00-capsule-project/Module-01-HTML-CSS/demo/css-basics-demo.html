@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSS Basics Demo - FoodExpress</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; color: #2c3e50; line-height: 1.6; background: #f5f6fa; }
+
+    /* ============ */
+    /* DEMO CONTROL */
+    /* ============ */
+    .demo-bar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      background: #2c3e50; color: #fff; padding: 10px 20px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .demo-bar h3 { font-size: 14px; white-space: nowrap; }
+    .demo-bar button {
+      padding: 6px 14px; border: 2px solid #fff; border-radius: 4px;
+      background: transparent; color: #fff; cursor: pointer; font-size: 12px;
+    }
+    .demo-bar button.active { background: #e84c3d; border-color: #e84c3d; }
+    .demo-bar .note { font-size: 11px; opacity: 0.7; margin-left: auto; }
+
+    .demo-section { display: none; margin-top: 60px; padding: 30px; max-width: 1100px; margin-left: auto; margin-right: auto; }
+    .demo-section.active { display: block; }
+
+    .demo-title { color: #e84c3d; font-size: 24px; border-bottom: 3px solid #e84c3d; padding-bottom: 8px; margin-bottom: 25px; }
+    .demo-subtitle { color: #2c3e50; font-size: 18px; margin: 25px 0 12px; }
+    .demo-note { font-size: 13px; color: #666; margin-bottom: 15px; font-style: italic; }
+
+    /* Code blocks */
+    .code-block {
+      background: #1e1e2e; color: #cdd6f4; padding: 16px; border-radius: 8px;
+      font-family: 'Consolas', 'Courier New', monospace; font-size: 13px;
+      line-height: 1.6; overflow-x: auto; margin: 10px 0 20px;
+    }
+    .code-block .comment { color: #6c7086; }
+    .code-block .property { color: #89b4fa; }
+    .code-block .value { color: #a6e3a1; }
+    .code-block .selector { color: #f9e2af; }
+    .code-block .tag { color: #f38ba8; }
+    .code-block .highlight { background: #45475a; display: inline; padding: 1px 4px; border-radius: 3px; }
+
+    /* Result panels */
+    .result-panel {
+      border: 2px solid #ddd; border-radius: 8px; padding: 20px; margin: 10px 0 25px;
+      background: #fff;
+    }
+    .result-label {
+      font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;
+      padding: 3px 10px; border-radius: 3px; display: inline-block; margin-bottom: 10px;
+    }
+    .label-result { background: #3498db; color: #fff; }
+    .label-bad { background: #e84c3d; color: #fff; }
+    .label-good { background: #27ae60; color: #fff; }
+    .label-interactive { background: #9b59b6; color: #fff; }
+
+    /* Comparison layout */
+    .compare-row { display: flex; gap: 20px; flex-wrap: wrap; margin: 10px 0 25px; }
+    .compare-col { flex: 1; min-width: 300px; }
+
+    /* ======================== */
+    /* SECTION 1: SELECTORS     */
+    /* ======================== */
+
+    /* Selector demo elements */
+    .sel-demo { padding: 20px; background: #fff; border-radius: 8px; border: 1px solid #eee; margin: 10px 0; }
+    .sel-demo p { margin: 4px 0; padding: 6px 10px; border-radius: 4px; font-size: 14px; transition: all 0.3s; }
+
+    /* 1. Element selector */
+    .sel-element p { color: #2c3e50; }
+
+    /* 2. Class selector */
+    .sel-demo .veg { color: #27ae60; font-weight: bold; }
+    .sel-demo .non-veg { color: #e84c3d; font-weight: bold; }
+    .sel-demo .bestseller { background: #ffeaa7; border-left: 4px solid #f39c12; }
+
+    /* 3. ID selector */
+    .sel-demo #todays-special { background: #e84c3d; color: #fff; font-size: 16px; font-weight: bold; border-radius: 6px; }
+
+    /* 4. Attribute selector */
+    .sel-demo input[type="text"] { border: 2px solid #3498db; padding: 8px; border-radius: 4px; }
+    .sel-demo input[type="number"] { border: 2px solid #e84c3d; padding: 8px; border-radius: 4px; }
+    .sel-demo input[placeholder*="search" i] { background: #f0f8ff; }
+
+    /* 5. Descendant & child */
+    .sel-demo .menu-category > li { color: #e84c3d; font-weight: bold; }
+    .sel-demo .menu-category li li { color: #2c3e50; font-weight: normal; font-size: 13px; }
+
+    /* 6. Pseudo-classes */
+    .sel-demo .menu-list li { padding: 6px 10px; margin: 2px 0; border-radius: 4px; transition: all 0.2s; }
+    .sel-demo .menu-list li:hover { background: #fff3e0; transform: translateX(5px); }
+    .sel-demo .menu-list li:first-child { border-top: 3px solid #e84c3d; }
+    .sel-demo .menu-list li:last-child { border-bottom: 3px solid #e84c3d; }
+    .sel-demo .menu-list li:nth-child(even) { background: #f9f9f9; }
+    .sel-demo .menu-list li:nth-child(odd) { background: #fff; }
+
+    /* 7. Pseudo-elements */
+    .sel-demo .price::before { content: "Rs."; color: #888; font-size: 12px; }
+    .sel-demo .price::after { content: " /-"; color: #888; font-size: 12px; }
+    .sel-demo .required-field::after { content: " *"; color: #e84c3d; font-weight: bold; }
+    .sel-demo .menu-item-name::first-letter { font-size: 1.4em; color: #e84c3d; }
+
+    /* 8. Combinators */
+    .sel-demo .order-status + .delivery-time { color: #27ae60; font-style: italic; }
+    .sel-demo .order-section ~ .order-note { background: #fff3cd; padding: 8px; border-radius: 4px; font-size: 13px; }
+
+    /* 9. Specificity demo */
+    .specificity-demo p { color: blue; }
+    .specificity-demo .item { color: green; }
+    .specificity-demo #main-item { color: red; }
+
+    /* ======================== */
+    /* SECTION 2: BOX MODEL     */
+    /* ======================== */
+
+    .box-interactive { text-align: center; margin: 20px 0; }
+
+    /* Box model visual */
+    .box-model-visual {
+      display: inline-block; text-align: center; font-size: 13px;
+    }
+    .box-margin {
+      background: #ffeaa7; padding: 20px; border-radius: 4px;
+      display: inline-block;
+    }
+    .box-border {
+      background: #fab1a0; padding: 20px; border: 4px solid #2c3e50;
+      display: inline-block;
+    }
+    .box-padding {
+      background: #81ecec; padding: 30px;
+      display: inline-block;
+    }
+    .box-content {
+      background: #74b9ff; padding: 30px 50px; color: #fff; font-weight: bold;
+      font-size: 16px;
+    }
+    .box-label {
+      display: block; font-size: 11px; color: #555; margin-bottom: 4px;
+      text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    /* Box model food cards */
+    .food-card-bad {
+      width: 300px; padding: 20px; border: 3px solid #e84c3d;
+      margin: 10px; display: inline-block; vertical-align: top;
+      /* no box-sizing! */
+      box-sizing: content-box;
+    }
+    .food-card-good {
+      width: 300px; padding: 20px; border: 3px solid #27ae60;
+      margin: 10px; display: inline-block; vertical-align: top;
+      box-sizing: border-box;
+    }
+    .card-title { font-size: 16px; font-weight: bold; margin-bottom: 8px; }
+    .card-price { color: #e84c3d; font-size: 18px; font-weight: bold; }
+    .card-desc { font-size: 13px; color: #666; margin: 5px 0; }
+    .card-width-label { font-size: 11px; font-family: monospace; padding: 4px 8px; border-radius: 3px; margin-top: 8px; display: inline-block; }
+
+    /* Margin collapse demo */
+    .margin-demo-container { background: #f0f0f0; padding: 1px 20px; border-radius: 8px; }
+    .margin-box-a {
+      background: #e84c3d; color: #fff; padding: 15px; margin-bottom: 30px;
+      text-align: center; border-radius: 4px; font-size: 14px;
+    }
+    .margin-box-b {
+      background: #3498db; color: #fff; padding: 15px; margin-top: 30px;
+      text-align: center; border-radius: 4px; font-size: 14px;
+    }
+
+    /* ======================== */
+    /* SECTION 3: LAYOUTS       */
+    /* ======================== */
+
+    /* Float layout (old way) */
+    .float-container { overflow: hidden; }
+    .float-container::after { content: ""; display: table; clear: both; }
+    .float-card {
+      float: left; width: 30%; margin: 1.5%;
+      background: #fff; border: 1px solid #ddd; border-radius: 8px;
+      padding: 15px; min-height: 150px;
+    }
+    .float-card img { width: 100%; height: 80px; background: #eee; display: block; border-radius: 4px; margin-bottom: 10px; }
+
+    /* Flexbox layout */
+    .flex-container {
+      display: flex; gap: 15px; flex-wrap: wrap;
+    }
+    .flex-card {
+      flex: 1 1 200px; background: #fff; border: 1px solid #ddd;
+      border-radius: 8px; padding: 15px; min-height: 150px;
+    }
+    .flex-card .card-img { width: 100%; height: 80px; background: #eee; border-radius: 4px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; color: #999; font-size: 12px; }
+
+    /* Flexbox navbar */
+    .flex-navbar {
+      display: flex; background: #2c3e50; padding: 0; list-style: none;
+      border-radius: 8px; overflow: hidden;
+    }
+    .flex-navbar li { flex: 1; }
+    .flex-navbar a {
+      display: block; color: #fff; text-decoration: none;
+      padding: 12px; text-align: center; font-size: 14px; transition: background 0.2s;
+    }
+    .flex-navbar a:hover { background: #e84c3d; }
+
+    /* Flexbox centering */
+    .flex-center-demo {
+      display: flex; justify-content: center; align-items: center;
+      height: 200px; background: linear-gradient(135deg, #e84c3d, #2c3e50);
+      border-radius: 8px; color: #fff;
+    }
+    .flex-center-demo .promo-box {
+      text-align: center; background: rgba(255,255,255,0.15);
+      padding: 20px 40px; border-radius: 8px; backdrop-filter: blur(4px);
+    }
+    .flex-center-demo .promo-box h3 { font-size: 22px; }
+    .flex-center-demo .promo-box p { font-size: 14px; opacity: 0.9; }
+
+    /* Flexbox order status */
+    .flex-order-track {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ddd;
+    }
+    .track-step { text-align: center; flex: 1; position: relative; }
+    .track-step::after {
+      content: ""; position: absolute; top: 18px; right: -50%; width: 100%; height: 3px;
+      background: #ddd; z-index: 0;
+    }
+    .track-step:last-child::after { display: none; }
+    .track-dot {
+      width: 36px; height: 36px; border-radius: 50%; margin: 0 auto 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px; position: relative; z-index: 1;
+      background: #ddd; color: #fff;
+    }
+    .track-step.done .track-dot { background: #27ae60; }
+    .track-step.current .track-dot { background: #e84c3d; animation: pulse 1.5s infinite; }
+    .track-step.done::after { background: #27ae60; }
+    .track-label { font-size: 12px; color: #666; }
+    @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+    /* CSS Grid layout */
+    .grid-page-layout {
+      display: grid;
+      grid-template-columns: 1fr 3fr 1fr;
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas:
+        "header header header"
+        "sidebar main aside"
+        "footer footer footer";
+      gap: 10px; min-height: 350px;
+    }
+    .grid-page-layout > div {
+      padding: 15px; border-radius: 6px; font-size: 13px;
+    }
+    .gp-header { grid-area: header; background: #e84c3d; color: #fff; text-align: center; font-size: 18px; font-weight: bold; }
+    .gp-sidebar { grid-area: sidebar; background: #f8f9fa; border: 1px solid #ddd; }
+    .gp-main { grid-area: main; background: #fff; border: 1px solid #ddd; }
+    .gp-aside { grid-area: aside; background: #f8f9fa; border: 1px solid #ddd; }
+    .gp-footer { grid-area: footer; background: #2c3e50; color: #fff; text-align: center; }
+
+    /* Grid menu */
+    .grid-menu {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 15px;
+    }
+    .grid-menu-item {
+      background: #fff; border: 1px solid #eee; border-radius: 8px;
+      padding: 15px; text-align: center; transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .grid-menu-item:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(0,0,0,0.1); }
+    .grid-menu-item .item-icon { font-size: 36px; margin-bottom: 8px; }
+    .grid-menu-item .item-name { font-weight: bold; font-size: 14px; }
+    .grid-menu-item .item-price { color: #e84c3d; font-weight: bold; margin-top: 4px; }
+
+    /* Grid dashboard */
+    .grid-dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: auto auto;
+      gap: 12px;
+    }
+    .dash-card {
+      background: #fff; border-radius: 8px; padding: 20px;
+      border: 1px solid #eee; text-align: center;
+    }
+    .dash-card.wide { grid-column: span 2; }
+    .dash-card.tall { grid-row: span 2; }
+    .dash-number { font-size: 32px; font-weight: bold; color: #e84c3d; }
+    .dash-label { font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Position demo */
+    .position-container {
+      position: relative; background: #fff; border: 2px solid #ddd;
+      border-radius: 8px; height: 300px; overflow: hidden;
+    }
+    .pos-static { background: #dfe6e9; padding: 10px; margin: 10px; border-radius: 4px; font-size: 13px; }
+    .pos-relative { position: relative; top: -5px; left: 20px; background: #74b9ff; color: #fff; padding: 10px; margin: 10px; border-radius: 4px; font-size: 13px; }
+    .pos-absolute { position: absolute; top: 10px; right: 10px; background: #e84c3d; color: #fff; padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+    .pos-fixed-demo { position: absolute; bottom: 10px; right: 10px; background: #27ae60; color: #fff; padding: 10px 20px; border-radius: 30px; font-size: 13px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    .pos-sticky-demo {
+      position: sticky; top: 0; background: #f39c12; color: #fff;
+      padding: 8px 15px; font-size: 13px; font-weight: bold; z-index: 1;
+    }
+
+    /* Comparison table */
+    table.compare-table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 13px; }
+    .compare-table th, .compare-table td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    .compare-table th { background: #2c3e50; color: #fff; }
+    .compare-table tr:nth-child(even) { background: #f9f9f9; }
+  </style>
+</head>
+<body>
+
+<!-- DEMO CONTROL BAR -->
+<div class="demo-bar">
+  <h3>CSS BASICS</h3>
+  <button id="btn-selectors" onclick="showSection('selectors')">Selectors</button>
+  <button id="btn-boxmodel" onclick="showSection('boxmodel')">Box Model</button>
+  <button id="btn-flexbox" onclick="showSection('flexbox')">Flexbox Layout</button>
+  <button id="btn-grid" onclick="showSection('grid')">Grid Layout</button>
+  <button id="btn-position" onclick="showSection('position')">Position</button>
+  <button id="btn-compare" onclick="showSection('layoutcompare')">Layout Comparison</button>
+  <span class="note">FoodExpress CSS Demo</span>
+</div>
+
+<!-- ======================================== -->
+<!-- SECTION 1: CSS SELECTORS                 -->
+<!-- ======================================== -->
+<div class="demo-section" id="sec-selectors">
+  <h2 class="demo-title">CSS Selectors</h2>
+  <p class="demo-note">Selectors tell CSS WHICH elements to style. Mastering selectors = mastering CSS.</p>
+
+  <!-- 1. Element Selector -->
+  <h3 class="demo-subtitle">1. Element Selector</h3>
+  <div class="code-block">
+    <span class="comment">/* Targets ALL &lt;p&gt; elements */</span><br>
+    <span class="selector">p</span> { <span class="property">color</span>: <span class="value">#2c3e50</span>; <span class="property">font-size</span>: <span class="value">14px</span>; }
+  </div>
+  <div class="result-panel sel-demo sel-element">
+    <span class="result-label label-result">Result</span>
+    <p>Chicken Biryani - Rs.250</p>
+    <p>Masala Dosa - Rs.120</p>
+    <p>Paneer Tikka - Rs.180</p>
+  </div>
+
+  <!-- 2. Class Selector -->
+  <h3 class="demo-subtitle">2. Class Selector (.class)</h3>
+  <div class="code-block">
+    <span class="comment">/* Multiple elements can share a class */</span><br>
+    <span class="selector">.veg</span> { <span class="property">color</span>: <span class="value">#27ae60</span>; <span class="property">font-weight</span>: <span class="value">bold</span>; }<br>
+    <span class="selector">.non-veg</span> { <span class="property">color</span>: <span class="value">#e84c3d</span>; <span class="property">font-weight</span>: <span class="value">bold</span>; }<br>
+    <span class="selector">.bestseller</span> { <span class="property">background</span>: <span class="value">#ffeaa7</span>; <span class="property">border-left</span>: <span class="value">4px solid #f39c12</span>; }
+  </div>
+  <div class="result-panel sel-demo">
+    <span class="result-label label-result">Result</span>
+    <p class="veg">Paneer Tikka (Veg)</p>
+    <p class="non-veg bestseller">Chicken Biryani (Non-Veg) - Bestseller!</p>
+    <p class="veg bestseller">Masala Dosa (Veg) - Bestseller!</p>
+    <p class="non-veg">Mutton Rogan Josh (Non-Veg)</p>
+  </div>
+
+  <!-- 3. ID Selector -->
+  <h3 class="demo-subtitle">3. ID Selector (#id)</h3>
+  <div class="code-block">
+    <span class="comment">/* Unique - only ONE element per page */</span><br>
+    <span class="selector">#todays-special</span> { <span class="property">background</span>: <span class="value">#e84c3d</span>; <span class="property">color</span>: <span class="value">#fff</span>; <span class="property">font-size</span>: <span class="value">16px</span>; }
+  </div>
+  <div class="result-panel sel-demo">
+    <span class="result-label label-result">Result</span>
+    <p>Regular menu item</p>
+    <p id="todays-special">Today's Special: Hyderabadi Dum Biryani - Rs.299</p>
+    <p>Regular menu item</p>
+  </div>
+
+  <!-- 4. Attribute Selector -->
+  <h3 class="demo-subtitle">4. Attribute Selector</h3>
+  <div class="code-block">
+    <span class="selector">input[type="text"]</span> { <span class="property">border</span>: <span class="value">2px solid #3498db</span>; }<br>
+    <span class="selector">input[type="number"]</span> { <span class="property">border</span>: <span class="value">2px solid #e84c3d</span>; }<br>
+    <span class="selector">input[placeholder*="search" i]</span> { <span class="property">background</span>: <span class="value">#f0f8ff</span>; }
+  </div>
+  <div class="result-panel sel-demo">
+    <span class="result-label label-result">Result</span>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:end;">
+      <div><label style="font-size:12px;display:block;">Delivery Address</label><input type="text" placeholder="Enter address" style="width:200px;"></div>
+      <div><label style="font-size:12px;display:block;">Quantity</label><input type="number" placeholder="Qty" style="width:100px;" value="1"></div>
+      <div><label style="font-size:12px;display:block;">Find Food</label><input type="text" placeholder="Search restaurants..." style="width:200px;"></div>
+    </div>
+  </div>
+
+  <!-- 5. Descendant & Child -->
+  <h3 class="demo-subtitle">5. Descendant (space) vs Child (>)</h3>
+  <div class="code-block">
+    <span class="comment">/* Direct children only */</span><br>
+    <span class="selector">.menu-category > li</span> { <span class="property">color</span>: <span class="value">#e84c3d</span>; <span class="property">font-weight</span>: <span class="value">bold</span>; }<br><br>
+    <span class="comment">/* Any nested li inside li (grandchildren) */</span><br>
+    <span class="selector">.menu-category li li</span> { <span class="property">color</span>: <span class="value">#2c3e50</span>; <span class="property">font-weight</span>: <span class="value">normal</span>; }
+  </div>
+  <div class="result-panel sel-demo">
+    <span class="result-label label-result">Result</span>
+    <ul class="menu-category">
+      <li>Starters
+        <ul><li>Paneer Tikka - Rs.180</li><li>Chicken 65 - Rs.220</li></ul>
+      </li>
+      <li>Main Course
+        <ul><li>Biryani - Rs.250</li><li>Butter Naan - Rs.40</li></ul>
+      </li>
+      <li>Desserts
+        <ul><li>Gulab Jamun - Rs.80</li><li>Ice Cream - Rs.100</li></ul>
+      </li>
+    </ul>
+  </div>
+
+  <!-- 6. Pseudo-classes -->
+  <h3 class="demo-subtitle">6. Pseudo-classes (:hover, :first-child, :nth-child)</h3>
+  <div class="code-block">
+    <span class="selector">li:hover</span> { <span class="property">background</span>: <span class="value">#fff3e0</span>; <span class="property">transform</span>: <span class="value">translateX(5px)</span>; }<br>
+    <span class="selector">li:first-child</span> { <span class="property">border-top</span>: <span class="value">3px solid #e84c3d</span>; }<br>
+    <span class="selector">li:last-child</span> { <span class="property">border-bottom</span>: <span class="value">3px solid #e84c3d</span>; }<br>
+    <span class="selector">li:nth-child(even)</span> { <span class="property">background</span>: <span class="value">#f9f9f9</span>; }<br>
+    <span class="selector">li:nth-child(odd)</span> { <span class="property">background</span>: <span class="value">#fff</span>; }
+  </div>
+  <div class="result-panel sel-demo">
+    <span class="result-label label-interactive">Interactive - Hover over items</span>
+    <ul class="menu-list" style="list-style:none; padding:0;">
+      <li>Chicken Biryani - Rs.250</li>
+      <li>Masala Dosa - Rs.120</li>
+      <li>Paneer Tikka - Rs.180</li>
+      <li>Butter Chicken - Rs.280</li>
+      <li>Gulab Jamun - Rs.80</li>
+    </ul>
+  </div>
+
+  <!-- 7. Pseudo-elements -->
+  <h3 class="demo-subtitle">7. Pseudo-elements (::before, ::after, ::first-letter)</h3>
+  <div class="code-block">
+    <span class="selector">.price::before</span> { <span class="property">content</span>: <span class="value">"Rs."</span>; }<br>
+    <span class="selector">.price::after</span> { <span class="property">content</span>: <span class="value">" /-"</span>; }<br>
+    <span class="selector">.required-field::after</span> { <span class="property">content</span>: <span class="value">" *"</span>; <span class="property">color</span>: <span class="value">#e84c3d</span>; }<br>
+    <span class="selector">.menu-item-name::first-letter</span> { <span class="property">font-size</span>: <span class="value">1.4em</span>; <span class="property">color</span>: <span class="value">#e84c3d</span>; }
+  </div>
+  <div class="result-panel sel-demo">
+    <span class="result-label label-result">Result</span>
+    <p><span class="menu-item-name">Chicken Biryani</span> - <span class="price">250</span></p>
+    <p><span class="menu-item-name">Masala Dosa</span> - <span class="price">120</span></p>
+    <p style="margin-top:10px;"><label class="required-field" style="font-weight:bold;">Delivery Address</label></p>
+    <p><label class="required-field" style="font-weight:bold;">Phone Number</label></p>
+  </div>
+
+  <!-- 8. Combinators -->
+  <h3 class="demo-subtitle">8. Combinators (+  adjacent, ~ general sibling)</h3>
+  <div class="code-block">
+    <span class="comment">/* Adjacent sibling: element IMMEDIATELY after */</span><br>
+    <span class="selector">.order-status + .delivery-time</span> { <span class="property">color</span>: <span class="value">#27ae60</span>; <span class="property">font-style</span>: <span class="value">italic</span>; }<br><br>
+    <span class="comment">/* General sibling: ALL siblings after */</span><br>
+    <span class="selector">.order-section ~ .order-note</span> { <span class="property">background</span>: <span class="value">#fff3cd</span>; }
+  </div>
+  <div class="result-panel sel-demo">
+    <span class="result-label label-result">Result</span>
+    <p class="order-status"><strong>Order #4521:</strong> Confirmed</p>
+    <p class="delivery-time">Estimated delivery: 30 minutes</p>
+    <p class="order-section" style="margin-top:10px;"><strong>Order Details</strong></p>
+    <p class="order-note">Contactless delivery requested</p>
+    <p class="order-note">Leave at door - Ring bell</p>
+  </div>
+
+  <!-- 9. Specificity -->
+  <h3 class="demo-subtitle">9. Specificity (Who Wins?)</h3>
+  <div class="code-block">
+    <span class="comment">/* Specificity: element(1) &lt; class(10) &lt; id(100) &lt; inline(1000) */</span><br>
+    <span class="selector">p</span> { <span class="property">color</span>: <span class="value">blue</span>; }              <span class="comment">/* specificity: 0-0-1 */</span><br>
+    <span class="selector">.item</span> { <span class="property">color</span>: <span class="value">green</span>; }        <span class="comment">/* specificity: 0-1-0 */</span><br>
+    <span class="selector">#main-item</span> { <span class="property">color</span>: <span class="value">red</span>; }   <span class="comment">/* specificity: 1-0-0  -- WINS */</span>
+  </div>
+  <div class="result-panel specificity-demo">
+    <span class="result-label label-result">Result</span>
+    <p>This is blue (element selector only)</p>
+    <p class="item">This is green (class beats element)</p>
+    <p class="item" id="main-item">This is red (ID beats class beats element)</p>
+  </div>
+
+  <table class="compare-table" style="margin-top:15px;">
+    <thead><tr><th>Selector Type</th><th>Example</th><th>Specificity</th></tr></thead>
+    <tbody>
+      <tr><td>Element</td><td><code>p, h1, div</code></td><td>0-0-1</td></tr>
+      <tr><td>Class / Attribute / Pseudo-class</td><td><code>.veg, [type="text"], :hover</code></td><td>0-1-0</td></tr>
+      <tr><td>ID</td><td><code>#todays-special</code></td><td>1-0-0</td></tr>
+      <tr><td>Inline style</td><td><code>style="color:red"</code></td><td>1-0-0-0</td></tr>
+      <tr><td>!important</td><td><code>color: red !important</code></td><td>Overrides all (avoid!)</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ======================================== -->
+<!-- SECTION 2: BOX MODEL                     -->
+<!-- ======================================== -->
+<div class="demo-section" id="sec-boxmodel">
+  <h2 class="demo-title">CSS Box Model</h2>
+  <p class="demo-note">Every HTML element is a box. The box model defines: Content + Padding + Border + Margin.</p>
+
+  <!-- Visual Box Model -->
+  <h3 class="demo-subtitle">1. The Box Model - Visual</h3>
+  <div class="box-interactive">
+    <div class="box-model-visual">
+      <span class="box-label">Margin (outside space)</span>
+      <div class="box-margin">
+        <span class="box-label">Border</span>
+        <div class="box-border">
+          <span class="box-label">Padding (inside space)</span>
+          <div class="box-padding">
+            <div class="box-content">CONTENT<br>"Chicken Biryani"</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block" style="margin-top:20px;">
+    <span class="selector">.food-card</span> {<br>
+    &nbsp;&nbsp;<span class="property">width</span>: <span class="value">300px</span>;           <span class="comment">/* Content width */</span><br>
+    &nbsp;&nbsp;<span class="property">padding</span>: <span class="value">20px</span>;         <span class="comment">/* Space INSIDE border */</span><br>
+    &nbsp;&nbsp;<span class="property">border</span>: <span class="value">3px solid #e84c3d</span>; <span class="comment">/* The border itself */</span><br>
+    &nbsp;&nbsp;<span class="property">margin</span>: <span class="value">10px</span>;          <span class="comment">/* Space OUTSIDE border */</span><br>
+    }
+  </div>
+
+  <!-- box-sizing comparison -->
+  <h3 class="demo-subtitle">2. content-box vs border-box</h3>
+  <p class="demo-note">This is the #1 CSS gotcha. With content-box (default), width does NOT include padding/border.</p>
+
+  <div class="compare-row">
+    <div class="compare-col">
+      <span class="result-label label-bad">content-box (default - problematic)</span>
+      <div class="code-block">
+        <span class="selector">.card</span> {<br>
+        &nbsp;&nbsp;<span class="property">width</span>: <span class="value">300px</span>;<br>
+        &nbsp;&nbsp;<span class="property">padding</span>: <span class="value">20px</span>;<br>
+        &nbsp;&nbsp;<span class="property">border</span>: <span class="value">3px solid</span>;<br>
+        &nbsp;&nbsp;<span class="comment">/* Actual width = 300 + 40 + 6 = 346px! */</span><br>
+        }
+      </div>
+      <div class="food-card-bad">
+        <div class="card-title">Biryani Palace</div>
+        <div class="card-desc">North Indian, Biryani, Mughlai</div>
+        <div class="card-price">Rs.250</div>
+        <div class="card-width-label" style="background:#fdd;">width: 300px but renders at 346px!</div>
+      </div>
+    </div>
+    <div class="compare-col">
+      <span class="result-label label-good">border-box (recommended)</span>
+      <div class="code-block">
+        <span class="selector">.card</span> {<br>
+        &nbsp;&nbsp;<span class="property">width</span>: <span class="value">300px</span>;<br>
+        &nbsp;&nbsp;<span class="property">padding</span>: <span class="value">20px</span>;<br>
+        &nbsp;&nbsp;<span class="property">border</span>: <span class="value">3px solid</span>;<br>
+        &nbsp;&nbsp;<span class="highlight"><span class="property">box-sizing</span>: <span class="value">border-box</span>;</span><br>
+        &nbsp;&nbsp;<span class="comment">/* Actual width = exactly 300px */</span><br>
+        }
+      </div>
+      <div class="food-card-good">
+        <div class="card-title">Biryani Palace</div>
+        <div class="card-desc">North Indian, Biryani, Mughlai</div>
+        <div class="card-price">Rs.250</div>
+        <div class="card-width-label" style="background:#dfd;">width: 300px renders at exactly 300px</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="code-block">
+    <span class="comment">/* Best practice: apply border-box to EVERYTHING */</span><br>
+    <span class="selector">*, *::before, *::after</span> { <span class="property">box-sizing</span>: <span class="value">border-box</span>; }
+  </div>
+
+  <!-- Margin collapse -->
+  <h3 class="demo-subtitle">3. Margin Collapse</h3>
+  <p class="demo-note">When two vertical margins touch, they COLLAPSE into one (the larger wins). This is a classic CSS surprise.</p>
+
+  <div class="compare-row">
+    <div class="compare-col">
+      <div class="code-block">
+        <span class="selector">.restaurant-a</span> { <span class="property">margin-bottom</span>: <span class="value">30px</span>; }<br>
+        <span class="selector">.restaurant-b</span> { <span class="property">margin-top</span>: <span class="value">30px</span>; }<br><br>
+        <span class="comment">/* Expected gap: 60px */</span><br>
+        <span class="comment">/* Actual gap: 30px (collapsed!) */</span>
+      </div>
+    </div>
+    <div class="compare-col">
+      <div class="margin-demo-container">
+        <div class="margin-box-a">Restaurant A<br><small>margin-bottom: 30px</small></div>
+        <div class="margin-box-b">Restaurant B<br><small>margin-top: 30px</small></div>
+      </div>
+      <p style="font-size:12px; color:#e84c3d; margin-top:8px; text-align:center;">Gap is 30px, not 60px - margins collapsed!</p>
+    </div>
+  </div>
+
+  <!-- Shorthand -->
+  <h3 class="demo-subtitle">4. Shorthand Properties</h3>
+  <div class="code-block">
+    <span class="comment">/* Margin / Padding shorthand */</span><br>
+    <span class="property">margin</span>: <span class="value">10px</span>;                    <span class="comment">/* all sides: 10px */</span><br>
+    <span class="property">margin</span>: <span class="value">10px 20px</span>;               <span class="comment">/* top/bottom: 10px, left/right: 20px */</span><br>
+    <span class="property">margin</span>: <span class="value">10px 20px 30px</span>;          <span class="comment">/* top: 10, left/right: 20, bottom: 30 */</span><br>
+    <span class="property">margin</span>: <span class="value">10px 20px 30px 40px</span>;     <span class="comment">/* top, right, bottom, left (clockwise) */</span><br><br>
+    <span class="comment">/* Border shorthand */</span><br>
+    <span class="property">border</span>: <span class="value">2px solid #e84c3d</span>;       <span class="comment">/* width style color */</span><br><br>
+    <span class="comment">/* Centering a block element */</span><br>
+    <span class="property">margin</span>: <span class="value">0 auto</span>;                  <span class="comment">/* top/bottom: 0, left/right: auto = centered */</span>
+  </div>
+</div>
+
+
+<!-- ======================================== -->
+<!-- SECTION 3: FLEXBOX LAYOUT                -->
+<!-- ======================================== -->
+<div class="demo-section" id="sec-flexbox">
+  <h2 class="demo-title">Flexbox Layout</h2>
+  <p class="demo-note">Flexbox = one-dimensional layout (row OR column). Perfect for navigation bars, card rows, centering.</p>
+
+  <!-- Flex basics -->
+  <h3 class="demo-subtitle">1. Restaurant Cards (flex-wrap)</h3>
+  <div class="code-block">
+    <span class="selector">.container</span> { <span class="property">display</span>: <span class="value">flex</span>; <span class="property">gap</span>: <span class="value">15px</span>; <span class="property">flex-wrap</span>: <span class="value">wrap</span>; }<br>
+    <span class="selector">.card</span> { <span class="property">flex</span>: <span class="value">1 1 200px</span>; } <span class="comment">/* grow, shrink, min-width */</span>
+  </div>
+  <div class="result-panel">
+    <span class="result-label label-result">Result - resize browser to see wrapping</span>
+    <div class="flex-container">
+      <div class="flex-card">
+        <div class="card-img">Biryani Palace</div>
+        <div class="card-title">Biryani Palace</div>
+        <div class="card-desc">North Indian, Mughlai</div>
+        <div class="card-price">Rs.200 for two</div>
+      </div>
+      <div class="flex-card">
+        <div class="card-img">Dosa Corner</div>
+        <div class="card-title">Dosa Corner</div>
+        <div class="card-desc">South Indian, Breakfast</div>
+        <div class="card-price">Rs.150 for two</div>
+      </div>
+      <div class="flex-card">
+        <div class="card-img">Pizza Hub</div>
+        <div class="card-title">Pizza Hub</div>
+        <div class="card-desc">Italian, Fast Food</div>
+        <div class="card-price">Rs.350 for two</div>
+      </div>
+      <div class="flex-card">
+        <div class="card-img">Wok Express</div>
+        <div class="card-title">Wok Express</div>
+        <div class="card-desc">Chinese, Thai</div>
+        <div class="card-price">Rs.280 for two</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flex navbar -->
+  <h3 class="demo-subtitle">2. Navigation Bar (equal width items)</h3>
+  <div class="code-block">
+    <span class="selector">.navbar</span> { <span class="property">display</span>: <span class="value">flex</span>; }<br>
+    <span class="selector">.navbar li</span> { <span class="property">flex</span>: <span class="value">1</span>; } <span class="comment">/* each item takes equal space */</span>
+  </div>
+  <div class="result-panel">
+    <span class="result-label label-interactive">Interactive - Hover over links</span>
+    <ul class="flex-navbar">
+      <li><a href="#">Home</a></li>
+      <li><a href="#">Restaurants</a></li>
+      <li><a href="#">Menu</a></li>
+      <li><a href="#">My Orders</a></li>
+      <li><a href="#">Cart (3)</a></li>
+    </ul>
+  </div>
+
+  <!-- Flex centering -->
+  <h3 class="demo-subtitle">3. Perfect Centering (justify-content + align-items)</h3>
+  <div class="code-block">
+    <span class="selector">.promo-banner</span> {<br>
+    &nbsp;&nbsp;<span class="property">display</span>: <span class="value">flex</span>;<br>
+    &nbsp;&nbsp;<span class="highlight"><span class="property">justify-content</span>: <span class="value">center</span>;</span>  <span class="comment">/* horizontal */</span><br>
+    &nbsp;&nbsp;<span class="highlight"><span class="property">align-items</span>: <span class="value">center</span>;</span>      <span class="comment">/* vertical */</span><br>
+    &nbsp;&nbsp;<span class="property">height</span>: <span class="value">200px</span>;<br>
+    }
+  </div>
+  <div class="result-panel" style="padding:0; overflow:hidden; border:none;">
+    <div class="flex-center-demo">
+      <div class="promo-box">
+        <h3>50% OFF First Order</h3>
+        <p>Use code: WELCOME50</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flex order tracking -->
+  <h3 class="demo-subtitle">4. Order Tracking (space-between)</h3>
+  <div class="code-block">
+    <span class="selector">.tracker</span> { <span class="property">display</span>: <span class="value">flex</span>; <span class="highlight"><span class="property">justify-content</span>: <span class="value">space-between</span>;</span> <span class="property">align-items</span>: <span class="value">center</span>; }
+  </div>
+  <div class="result-panel">
+    <span class="result-label label-result">Result</span>
+    <div class="flex-order-track">
+      <div class="track-step done">
+        <div class="track-dot">1</div>
+        <div class="track-label">Placed</div>
+      </div>
+      <div class="track-step done">
+        <div class="track-dot">2</div>
+        <div class="track-label">Confirmed</div>
+      </div>
+      <div class="track-step current">
+        <div class="track-dot">3</div>
+        <div class="track-label">Preparing</div>
+      </div>
+      <div class="track-step">
+        <div class="track-dot">4</div>
+        <div class="track-label">Out for Delivery</div>
+      </div>
+      <div class="track-step">
+        <div class="track-dot">5</div>
+        <div class="track-label">Delivered</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flex cheatsheet -->
+  <h3 class="demo-subtitle">5. Flexbox Properties Cheatsheet</h3>
+  <table class="compare-table">
+    <thead><tr><th>Property</th><th>Values</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>display: flex</code></td><td>—</td><td>Activates flexbox on the container</td></tr>
+      <tr><td><code>flex-direction</code></td><td>row | column | row-reverse | column-reverse</td><td>Main axis direction</td></tr>
+      <tr><td><code>justify-content</code></td><td>flex-start | center | flex-end | space-between | space-around | space-evenly</td><td>Alignment along main axis</td></tr>
+      <tr><td><code>align-items</code></td><td>flex-start | center | flex-end | stretch | baseline</td><td>Alignment along cross axis</td></tr>
+      <tr><td><code>flex-wrap</code></td><td>nowrap | wrap | wrap-reverse</td><td>Allow items to wrap to next line</td></tr>
+      <tr><td><code>gap</code></td><td>10px, 10px 20px</td><td>Space between items</td></tr>
+      <tr><td><code>flex: 1</code></td><td>grow shrink basis</td><td>How much an item grows/shrinks</td></tr>
+      <tr><td><code>order</code></td><td>number</td><td>Reorder items visually</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ======================================== -->
+<!-- SECTION 4: CSS GRID                      -->
+<!-- ======================================== -->
+<div class="demo-section" id="sec-grid">
+  <h2 class="demo-title">CSS Grid Layout</h2>
+  <p class="demo-note">Grid = two-dimensional layout (rows AND columns). Perfect for page layouts, dashboards, menu grids.</p>
+
+  <!-- Grid page layout -->
+  <h3 class="demo-subtitle">1. FoodExpress Page Layout (grid-template-areas)</h3>
+  <div class="code-block">
+    <span class="selector">.page</span> {<br>
+    &nbsp;&nbsp;<span class="property">display</span>: <span class="value">grid</span>;<br>
+    &nbsp;&nbsp;<span class="property">grid-template-columns</span>: <span class="value">1fr 3fr 1fr</span>;<br>
+    &nbsp;&nbsp;<span class="property">grid-template-areas</span>:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="value">"header header header"</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="value">"sidebar main   aside"</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="value">"footer footer footer"</span>;<br>
+    }
+  </div>
+  <div class="result-panel">
+    <span class="result-label label-result">Result</span>
+    <div class="grid-page-layout">
+      <div class="gp-header">FoodExpress - Header (grid-area: header)</div>
+      <div class="gp-sidebar">
+        <strong>Categories</strong>
+        <ul style="margin-top:8px; font-size:13px;">
+          <li>North Indian</li><li>South Indian</li><li>Chinese</li><li>Italian</li><li>Desserts</li>
+        </ul>
+      </div>
+      <div class="gp-main">
+        <strong>Main Content</strong> (grid-area: main)
+        <p style="margin-top:8px; font-size:13px;">Restaurant listings, menu items, search results go here. This column gets 3fr (3x the space of sidebars).</p>
+      </div>
+      <div class="gp-aside">
+        <strong>Cart</strong>
+        <div style="font-size:13px; margin-top:8px;">
+          <div>Biryani x1</div>
+          <div>Dosa x2</div>
+          <div style="margin-top:5px; font-weight:bold;">Total: Rs.490</div>
+        </div>
+      </div>
+      <div class="gp-footer">Footer - Contact | Terms | Privacy (grid-area: footer)</div>
+    </div>
+  </div>
+
+  <!-- Grid auto-fill menu -->
+  <h3 class="demo-subtitle">2. Menu Grid (auto-fill + minmax = responsive without media queries)</h3>
+  <div class="code-block">
+    <span class="selector">.menu-grid</span> {<br>
+    &nbsp;&nbsp;<span class="property">display</span>: <span class="value">grid</span>;<br>
+    &nbsp;&nbsp;<span class="highlight"><span class="property">grid-template-columns</span>: <span class="value">repeat(auto-fill, minmax(200px, 1fr))</span>;</span><br>
+    &nbsp;&nbsp;<span class="property">gap</span>: <span class="value">15px</span>;<br>
+    }
+  </div>
+  <div class="result-panel">
+    <span class="result-label label-interactive">Interactive - Resize browser to see auto-reflow</span>
+    <div class="grid-menu">
+      <div class="grid-menu-item"><div class="item-icon">&#127835;</div><div class="item-name">Chicken Biryani</div><div class="item-price">Rs.250</div></div>
+      <div class="grid-menu-item"><div class="item-icon">&#127834;</div><div class="item-name">Masala Dosa</div><div class="item-price">Rs.120</div></div>
+      <div class="grid-menu-item"><div class="item-icon">&#127829;</div><div class="item-name">Margherita Pizza</div><div class="item-price">Rs.299</div></div>
+      <div class="grid-menu-item"><div class="item-icon">&#127836;</div><div class="item-name">Hakka Noodles</div><div class="item-price">Rs.180</div></div>
+      <div class="grid-menu-item"><div class="item-icon">&#127846;</div><div class="item-name">Gulab Jamun</div><div class="item-price">Rs.80</div></div>
+      <div class="grid-menu-item"><div class="item-icon">&#9749;</div><div class="item-name">Masala Chai</div><div class="item-price">Rs.40</div></div>
+    </div>
+  </div>
+
+  <!-- Grid dashboard -->
+  <h3 class="demo-subtitle">3. Admin Dashboard (span columns/rows)</h3>
+  <div class="code-block">
+    <span class="selector">.dashboard</span> { <span class="property">grid-template-columns</span>: <span class="value">repeat(4, 1fr)</span>; }<br>
+    <span class="selector">.wide-card</span> { <span class="highlight"><span class="property">grid-column</span>: <span class="value">span 2</span>;</span> }  <span class="comment">/* takes 2 columns */</span><br>
+    <span class="selector">.tall-card</span> { <span class="highlight"><span class="property">grid-row</span>: <span class="value">span 2</span>;</span> }     <span class="comment">/* takes 2 rows */</span>
+  </div>
+  <div class="result-panel">
+    <span class="result-label label-result">Result</span>
+    <div class="grid-dashboard">
+      <div class="dash-card"><div class="dash-number">156</div><div class="dash-label">Orders Today</div></div>
+      <div class="dash-card"><div class="dash-number">Rs.48K</div><div class="dash-label">Revenue</div></div>
+      <div class="dash-card"><div class="dash-number">23</div><div class="dash-label">Active Riders</div></div>
+      <div class="dash-card"><div class="dash-number" style="color:#27ae60;">98.2%</div><div class="dash-label">Uptime</div></div>
+      <div class="dash-card wide"><div class="dash-number">4.6 / 5</div><div class="dash-label">Average Rating (span 2 columns)</div></div>
+      <div class="dash-card wide"><div class="dash-number">28 min</div><div class="dash-label">Avg Delivery Time (span 2 columns)</div></div>
+    </div>
+  </div>
+
+  <!-- Grid cheatsheet -->
+  <h3 class="demo-subtitle">4. Grid Properties Cheatsheet</h3>
+  <table class="compare-table">
+    <thead><tr><th>Property</th><th>Example</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>display: grid</code></td><td>—</td><td>Activates grid on container</td></tr>
+      <tr><td><code>grid-template-columns</code></td><td>1fr 2fr 1fr / repeat(3, 1fr)</td><td>Define column sizes</td></tr>
+      <tr><td><code>grid-template-rows</code></td><td>auto 1fr auto</td><td>Define row sizes</td></tr>
+      <tr><td><code>grid-template-areas</code></td><td>"header header" "sidebar main"</td><td>Name areas for placement</td></tr>
+      <tr><td><code>gap</code></td><td>10px / 10px 20px</td><td>Space between cells</td></tr>
+      <tr><td><code>grid-column: span 2</code></td><td>—</td><td>Item spans 2 columns</td></tr>
+      <tr><td><code>grid-row: span 2</code></td><td>—</td><td>Item spans 2 rows</td></tr>
+      <tr><td><code>repeat(auto-fill, minmax(...))</code></td><td>minmax(200px, 1fr)</td><td>Responsive without media queries</td></tr>
+      <tr><td><code>fr</code></td><td>1fr 2fr</td><td>Fractional unit - shares available space</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ======================================== -->
+<!-- SECTION 5: POSITION                      -->
+<!-- ======================================== -->
+<div class="demo-section" id="sec-position">
+  <h2 class="demo-title">CSS Position</h2>
+  <p class="demo-note">Position controls how elements are placed relative to normal document flow.</p>
+
+  <h3 class="demo-subtitle">All Position Types in FoodExpress</h3>
+  <div class="code-block">
+    <span class="selector">.menu-item</span> { <span class="property">position</span>: <span class="value">static</span>; }       <span class="comment">/* default - normal flow */</span><br>
+    <span class="selector">.food-image</span> { <span class="property">position</span>: <span class="value">relative</span>; <span class="property">top</span>: <span class="value">-5px</span>; }  <span class="comment">/* shifted from its normal position */</span><br>
+    <span class="selector">.discount-badge</span> { <span class="property">position</span>: <span class="value">absolute</span>; <span class="property">top</span>: <span class="value">10px</span>; <span class="property">right</span>: <span class="value">10px</span>; }  <span class="comment">/* positioned inside nearest relative parent */</span><br>
+    <span class="selector">.cart-button</span> { <span class="property">position</span>: <span class="value">fixed</span>; <span class="property">bottom</span>: <span class="value">20px</span>; <span class="property">right</span>: <span class="value">20px</span>; }  <span class="comment">/* fixed to viewport, stays during scroll */</span><br>
+    <span class="selector">.category-bar</span> { <span class="property">position</span>: <span class="value">sticky</span>; <span class="property">top</span>: <span class="value">0</span>; }  <span class="comment">/* sticks when scrolled to threshold */</span>
+  </div>
+
+  <div class="result-panel">
+    <span class="result-label label-interactive">Interactive - See all 5 position types</span>
+    <div class="position-container">
+      <!-- Sticky -->
+      <div class="pos-sticky-demo">Starters | Main Course | Desserts | Drinks (position: sticky)</div>
+
+      <!-- Static -->
+      <div class="pos-static">
+        <strong>Masala Dosa - Rs.120</strong> (position: static - default, normal flow)
+      </div>
+
+      <!-- Relative -->
+      <div class="pos-relative">
+        <strong>Paneer Tikka - Rs.180</strong> (position: relative, shifted 5px up, 20px right from normal position)
+      </div>
+
+      <!-- Static -->
+      <div class="pos-static">
+        <strong>Butter Chicken - Rs.280</strong> (position: static)
+      </div>
+
+      <!-- Absolute (relative to container) -->
+      <div class="pos-absolute">50% OFF</div>
+
+      <!-- Fixed simulation -->
+      <div class="pos-fixed-demo">View Cart (3)</div>
+    </div>
+
+    <p style="font-size:12px; margin-top:10px; color:#666;">
+      <strong>50% OFF badge</strong> = position: absolute (top-right corner of container)<br>
+      <strong>View Cart button</strong> = position: fixed (bottom-right, stays during scroll)
+    </p>
+  </div>
+
+  <table class="compare-table" style="margin-top:15px;">
+    <thead><tr><th>Position</th><th>In Flow?</th><th>Positioned Relative To</th><th>FoodExpress Use Case</th></tr></thead>
+    <tbody>
+      <tr><td><code>static</code></td><td>Yes</td><td>Normal flow (default)</td><td>Regular menu items</td></tr>
+      <tr><td><code>relative</code></td><td>Yes</td><td>Its own normal position</td><td>Slightly offset food images</td></tr>
+      <tr><td><code>absolute</code></td><td>No</td><td>Nearest positioned ancestor</td><td>Discount badges, "New" tags</td></tr>
+      <tr><td><code>fixed</code></td><td>No</td><td>Viewport (browser window)</td><td>Floating cart button, sticky header</td></tr>
+      <tr><td><code>sticky</code></td><td>Yes (until stuck)</td><td>Scroll threshold</td><td>Category filter bar</td></tr>
+    </tbody>
+  </table>
+</div>
+
+
+<!-- ======================================== -->
+<!-- SECTION 6: LAYOUT COMPARISON             -->
+<!-- ======================================== -->
+<div class="demo-section" id="sec-layoutcompare">
+  <h2 class="demo-title">Layout Methods Comparison</h2>
+  <p class="demo-note">When to use Float vs Flexbox vs Grid? Here's the quick guide.</p>
+
+  <!-- Float vs Flexbox comparison -->
+  <h3 class="demo-subtitle">1. Same Card Layout - Three Approaches</h3>
+
+  <div class="compare-row">
+    <div class="compare-col">
+      <span class="result-label label-bad">Float (old way - avoid)</span>
+      <div class="code-block">
+        <span class="selector">.card</span> { <span class="property">float</span>: <span class="value">left</span>; <span class="property">width</span>: <span class="value">30%</span>; }<br>
+        <span class="comment">/* Must clear floats manually */</span><br>
+        <span class="selector">.container::after</span> {<br>
+        &nbsp;&nbsp;<span class="property">content</span>: <span class="value">""</span>; <span class="property">clear</span>: <span class="value">both</span>;<br>
+        }
+      </div>
+      <div class="result-panel">
+        <div class="float-container">
+          <div class="float-card"><strong>Biryani Palace</strong><br><small>Fixed width, no flexibility</small></div>
+          <div class="float-card"><strong>Dosa Corner</strong><br><small>Breaks on small screens</small></div>
+          <div class="float-card"><strong>Pizza Hub</strong><br><small>Needs clearfix hack</small></div>
+        </div>
+      </div>
+    </div>
+    <div class="compare-col">
+      <span class="result-label label-good">Flexbox (modern - recommended)</span>
+      <div class="code-block">
+        <span class="selector">.container</span> {<br>
+        &nbsp;&nbsp;<span class="property">display</span>: <span class="value">flex</span>;<br>
+        &nbsp;&nbsp;<span class="property">gap</span>: <span class="value">15px</span>;<br>
+        &nbsp;&nbsp;<span class="property">flex-wrap</span>: <span class="value">wrap</span>;<br>
+        }<br>
+        <span class="selector">.card</span> { <span class="property">flex</span>: <span class="value">1 1 200px</span>; }
+      </div>
+      <div class="result-panel">
+        <div class="flex-container">
+          <div class="flex-card"><strong>Biryani Palace</strong><br><small>Flexible, wraps automatically</small></div>
+          <div class="flex-card"><strong>Dosa Corner</strong><br><small>Equal height by default</small></div>
+          <div class="flex-card"><strong>Pizza Hub</strong><br><small>No hacks needed</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decision guide -->
+  <h3 class="demo-subtitle">2. When to Use What?</h3>
+  <table class="compare-table">
+    <thead><tr><th>Layout</th><th>Dimension</th><th>Best For</th><th>FoodExpress Example</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Flexbox</strong></td>
+        <td>1D (row OR column)</td>
+        <td>Navigation bars, card rows, centering, form layouts</td>
+        <td>Navbar, order tracker, restaurant card row</td>
+      </tr>
+      <tr>
+        <td><strong>Grid</strong></td>
+        <td>2D (rows AND columns)</td>
+        <td>Full page layouts, dashboards, menu grids, complex layouts</td>
+        <td>Page layout, menu grid, admin dashboard</td>
+      </tr>
+      <tr>
+        <td><strong>Float</strong></td>
+        <td>—</td>
+        <td>Wrapping text around images (that's it!)</td>
+        <td>Restaurant description wrapping around a logo</td>
+      </tr>
+      <tr>
+        <td><strong>Position</strong></td>
+        <td>—</td>
+        <td>Overlays, badges, fixed elements, sticky headers</td>
+        <td>Discount badge, sticky cart, floating button</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Quick rule -->
+  <div style="background:#fff3e0; border-left:4px solid #f39c12; padding:15px; border-radius:4px; margin-top:20px;">
+    <strong>Quick Rule of Thumb:</strong><br>
+    <span style="font-size:14px;">
+      Laying out items in a <strong>line</strong> (row or column)? Use <strong>Flexbox</strong>.<br>
+      Laying out items in a <strong>grid</strong> (rows and columns together)? Use <strong>Grid</strong>.<br>
+      Need something to <strong>float over</strong> other content? Use <strong>Position</strong>.<br>
+      Wrapping <strong>text around an image</strong>? That's the one place <strong>Float</strong> is still useful.
+    </span>
+  </div>
+</div>
+
+</div>
+
+<script>
+  function showSection(id) {
+    const sections = {
+      selectors: 'sec-selectors',
+      boxmodel: 'sec-boxmodel',
+      flexbox: 'sec-flexbox',
+      grid: 'sec-grid',
+      position: 'sec-position',
+      layoutcompare: 'sec-layoutcompare'
+    };
+
+    // Hide all sections
+    document.querySelectorAll('.demo-section').forEach(s => s.classList.remove('active'));
+
+    // Deactivate all buttons
+    document.querySelectorAll('.demo-bar button').forEach(b => b.classList.remove('active'));
+
+    // Show selected
+    document.getElementById(sections[id]).classList.add('active');
+    document.getElementById('btn-' + (id === 'layoutcompare' ? 'compare' : id)).classList.add('active');
+
+    window.scrollTo(0, 0);
+  }
+
+  // Show selectors by default
+  showSection('selectors');
+</script>
+
+</body>
+</html>

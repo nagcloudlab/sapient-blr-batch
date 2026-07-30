@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 3: Selectors & Specificity</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 { text-align: center; color: #2c3e50; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 5px; }
+
+        .section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        /* ============================================
+           TOPIC 13: COMBINATOR SELECTORS
+           ============================================ */
+
+        /* --- Descendant Selector (space) --- */
+        /* Selects ALL <p> inside .ancestor, at ANY depth */
+        .ancestor p {
+            color: #2c3e50;
+        }
+
+        /* --- Child Selector (>) --- */
+        /* Selects ONLY direct children */
+        .parent > p {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* --- Adjacent Sibling Selector (+) --- */
+        /* Selects the FIRST sibling immediately after */
+        .trigger + p {
+            background-color: #d5f5e3;
+            padding: 5px 10px;
+        }
+
+        /* --- General Sibling Selector (~) --- */
+        /* Selects ALL siblings after */
+        .trigger-all ~ p {
+            border-left: 3px solid #3498db;
+            padding-left: 10px;
+        }
+
+        /* ============================================
+           TOPIC 14: ATTRIBUTE SELECTORS
+           ============================================ */
+
+        /* Exact match */
+        input[type="text"] {
+            border: 2px solid #3498db;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 5px;
+        }
+
+        input[type="email"] {
+            border: 2px solid #e74c3c;
+            padding: 8px 12px;
+            border-radius: 4px;
+            margin: 5px;
+        }
+
+        /* Starts with (^=) */
+        a[href^="https"] {
+            color: green;
+        }
+
+        /* Ends with ($=) */
+        a[href$=".pdf"] {
+            color: red;
+        }
+
+        /* Contains (*=) */
+        a[href*="google"] {
+            font-weight: bold;
+        }
+
+        /* Has attribute (no value) */
+        [title] {
+            cursor: help;
+            border-bottom: 1px dotted #999;
+        }
+
+        /* ============================================
+           TOPIC 15: PSEUDO-CLASSES
+           ============================================ */
+
+        /* :hover — when mouse is over the element */
+        .hover-demo {
+            padding: 15px;
+            background: #ecf0f1;
+            transition: all 0.3s;
+            margin-bottom: 5px;
+        }
+        .hover-demo:hover {
+            background: #3498db;
+            color: white;
+            transform: translateX(10px);
+        }
+
+        /* :focus — when element is focused (click/tab) */
+        .focus-demo {
+            padding: 10px;
+            border: 2px solid #ccc;
+            border-radius: 4px;
+            outline: none;
+            transition: border-color 0.3s;
+            width: 250px;
+        }
+        .focus-demo:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        }
+
+        /* :first-child, :last-child */
+        .child-demo li:first-child {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .child-demo li:last-child {
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        /* :nth-child() — powerful pattern matching */
+        .nth-demo li:nth-child(odd) {
+            background: #f8f9fa;
+        }
+        .nth-demo li:nth-child(even) {
+            background: #e8f4fd;
+        }
+        .nth-demo li:nth-child(3) {
+            border: 2px solid #e74c3c;
+        }
+
+        /* :nth-child(3n) = every 3rd item */
+        .nth-3n li:nth-child(3n) {
+            background: #ffeaa7;
+            font-weight: bold;
+        }
+
+        /* :not() — exclude elements */
+        .not-demo p:not(.excluded) {
+            color: #2c3e50;
+            background: #d5f5e3;
+            padding: 5px 10px;
+            margin: 5px 0;
+        }
+        .not-demo .excluded {
+            color: #999;
+            text-decoration: line-through;
+        }
+
+        /* ============================================
+           TOPIC 16: PSEUDO-ELEMENTS
+           ============================================ */
+
+        /* ::before — insert content before */
+        .before-demo::before {
+            content: ">>> ";
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        /* ::after — insert content after */
+        .after-demo::after {
+            content: " <<<";
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        /* Decorative use of ::before and ::after */
+        .quote {
+            font-size: 1.2rem;
+            font-style: italic;
+            color: #555;
+            padding: 20px 30px;
+            position: relative;
+        }
+        .quote::before {
+            content: "\201C";  /* Left double quote */
+            font-size: 4rem;
+            color: #3498db;
+            position: absolute;
+            top: -10px;
+            left: 0;
+        }
+        .quote::after {
+            content: "\201D";  /* Right double quote */
+            font-size: 4rem;
+            color: #3498db;
+        }
+
+        /* ::placeholder */
+        .placeholder-demo::placeholder {
+            color: #aaa;
+            font-style: italic;
+        }
+
+        /* ============================================
+           TOPIC 17: SPECIFICITY RULES
+
+           Specificity Score: (Inline, IDs, Classes, Elements)
+
+           p                    → (0, 0, 0, 1)
+           .highlight           → (0, 0, 1, 0)
+           #header              → (0, 1, 0, 0)
+           style="..."          → (1, 0, 0, 0)
+
+           Higher specificity WINS!
+
+           p.highlight          → (0, 0, 1, 1)
+           div#header .nav a    → (0, 1, 1, 2)
+           ============================================ */
+
+        /* Low specificity: element selector (0,0,0,1) */
+        .specificity-demo p {
+            color: blue;
+        }
+
+        /* Higher specificity: class selector (0,0,1,1) */
+        .specificity-demo p.special {
+            color: green;
+        }
+
+        /* Even higher: ID selector (0,1,0,1) */
+        .specificity-demo #unique {
+            color: red;
+        }
+
+        .specificity-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .specificity-table th, .specificity-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .specificity-table th {
+            background: #2c3e50;
+            color: white;
+        }
+        .specificity-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        /* ============================================
+           TOPIC 18: !important
+           ============================================ */
+
+        .important-demo {
+            color: blue;
+        }
+        .important-demo {
+            color: red !important; /* This WINS regardless of specificity */
+        }
+
+        /* ============================================
+           PRACTICE: NAVIGATION MENU
+           ============================================ */
+
+        .nav-menu {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            background: #2c3e50;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .nav-menu li {
+            position: relative;
+        }
+
+        .nav-menu li a {
+            display: block;
+            color: white;
+            text-decoration: none;
+            padding: 15px 25px;
+            transition: background 0.3s;
+        }
+
+        .nav-menu li a:hover {
+            background: #34495e;
+        }
+
+        .nav-menu li:first-child a {
+            font-weight: bold;
+        }
+
+        .nav-menu li.active a {
+            background: #3498db;
+        }
+
+        .nav-menu li a[href^="https"]::after {
+            content: " ↗";
+            font-size: 0.8em;
+        }
+
+        .nav-menu li:last-child a {
+            border-radius: 0 8px 8px 0;
+        }
+
+        .nav-menu li:not(.active) a:hover {
+            background: #4a6785;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Module 3: Selectors & Specificity</h1>
+
+    <!-- TOPIC 13: Combinator Selectors -->
+    <div class="section">
+        <h2>13. Combinator Selectors</h2>
+
+        <h3>Descendant Selector (space): <code>.ancestor p</code></h3>
+        <div class="ancestor">
+            <p>Direct child paragraph</p>
+            <div>
+                <p>Nested paragraph (still selected — ANY depth)</p>
+            </div>
+        </div>
+
+        <h3>Child Selector (&gt;): <code>.parent > p</code></h3>
+        <div class="parent">
+            <p>Direct child (SELECTED — red & bold)</p>
+            <div>
+                <p>Nested child (NOT selected by &gt;)</p>
+            </div>
+        </div>
+
+        <h3>Adjacent Sibling (+): <code>.trigger + p</code></h3>
+        <div class="trigger" style="background:#ffeaa7; padding:10px;">I am .trigger</div>
+        <p>I'm the adjacent sibling (selected — green background)</p>
+        <p>I'm the second sibling (NOT selected by +)</p>
+
+        <h3>General Sibling (~): <code>.trigger-all ~ p</code></h3>
+        <div class="trigger-all" style="background:#ffeaa7; padding:10px;">I am .trigger-all</div>
+        <p>First sibling (selected)</p>
+        <p>Second sibling (also selected)</p>
+        <p>Third sibling (also selected — ~ gets ALL siblings)</p>
+    </div>
+
+    <!-- TOPIC 14: Attribute Selectors -->
+    <div class="section">
+        <h2>14. Attribute Selectors</h2>
+        <p>
+            <input type="text" placeholder="type='text' — blue border">
+            <input type="email" placeholder="type='email' — red border">
+        </p>
+        <p>
+            <a href="https://example.com">https link (green)</a> |
+            <a href="http://example.com">http link (default)</a> |
+            <a href="report.pdf">report.pdf (red)</a> |
+            <a href="https://google.com">google link (bold + green)</a>
+        </p>
+        <p>
+            <span title="I have a title attribute">Hover me — I have [title] (dotted underline)</span>
+        </p>
+    </div>
+
+    <!-- TOPIC 15: Pseudo-classes -->
+    <div class="section">
+        <h2>15. Pseudo-classes</h2>
+
+        <h3>:hover</h3>
+        <div class="hover-demo">Hover over me! I'll change color and slide right.</div>
+        <div class="hover-demo">Me too!</div>
+
+        <h3>:focus</h3>
+        <input class="focus-demo" type="text" placeholder="Click or Tab to focus me...">
+
+        <h3>:first-child & :last-child</h3>
+        <ul class="child-demo">
+            <li>First item (red — :first-child)</li>
+            <li>Second item</li>
+            <li>Third item</li>
+            <li>Last item (green — :last-child)</li>
+        </ul>
+
+        <h3>:nth-child()</h3>
+        <ul class="nth-demo" style="list-style:none; padding:0;">
+            <li>1 — odd (light gray)</li>
+            <li>2 — even (light blue)</li>
+            <li>3 — nth-child(3) (red border)</li>
+            <li>4 — even</li>
+            <li>5 — odd</li>
+            <li>6 — even</li>
+        </ul>
+
+        <h3>:nth-child(3n) — every 3rd item</h3>
+        <ul class="nth-3n" style="list-style:none; padding:0;">
+            <li>1</li><li>2</li>
+            <li>3 — highlighted</li>
+            <li>4</li><li>5</li>
+            <li>6 — highlighted</li>
+            <li>7</li><li>8</li>
+            <li>9 — highlighted</li>
+        </ul>
+
+        <h3>:not() — exclude elements</h3>
+        <div class="not-demo">
+            <p>I'm included (green)</p>
+            <p class="excluded">I'm excluded (strikethrough)</p>
+            <p>I'm included too (green)</p>
+        </div>
+    </div>
+
+    <!-- TOPIC 16: Pseudo-elements -->
+    <div class="section">
+        <h2>16. Pseudo-elements</h2>
+
+        <p class="before-demo">This has ::before content</p>
+        <p class="after-demo">This has ::after content</p>
+
+        <h3>Decorative Quotes</h3>
+        <p class="quote">CSS is the language that makes the web beautiful.</p>
+
+        <h3>::placeholder</h3>
+        <input class="placeholder-demo" type="text" placeholder="Custom styled placeholder..." style="padding:10px; border:2px solid #ddd; border-radius:4px; width:300px;">
+    </div>
+
+    <!-- TOPIC 17: Specificity -->
+    <div class="section">
+        <h2>17. Specificity Rules</h2>
+
+        <table class="specificity-table">
+            <thead>
+                <tr>
+                    <th>Selector</th>
+                    <th>Specificity</th>
+                    <th>Score</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><code>p</code></td><td>Element</td><td>(0, 0, 0, 1)</td></tr>
+                <tr><td><code>.highlight</code></td><td>Class</td><td>(0, 0, 1, 0)</td></tr>
+                <tr><td><code>p.highlight</code></td><td>Element + Class</td><td>(0, 0, 1, 1)</td></tr>
+                <tr><td><code>#header</code></td><td>ID</td><td>(0, 1, 0, 0)</td></tr>
+                <tr><td><code>#header .nav a</code></td><td>ID + Class + Element</td><td>(0, 1, 1, 1)</td></tr>
+                <tr><td><code>style="..."</code></td><td>Inline</td><td>(1, 0, 0, 0)</td></tr>
+            </tbody>
+        </table>
+
+        <div class="specificity-demo">
+            <p>I'm blue (element selector)</p>
+            <p class="special">I'm green (class wins over element)</p>
+            <p class="special" id="unique">I'm red (ID wins over class)</p>
+        </div>
+
+        <p><strong>Rule:</strong> Inline &gt; ID &gt; Class/Attribute/Pseudo-class &gt; Element/Pseudo-element</p>
+    </div>
+
+    <!-- TOPIC 18: !important -->
+    <div class="section">
+        <h2>18. !important</h2>
+        <p class="important-demo">This text is RED because of !important, even though blue was declared first.</p>
+        <p><strong>Warning:</strong> Avoid !important. It makes debugging hard. Use proper specificity instead.</p>
+        <p>When to use: Overriding 3rd-party library styles (last resort).</p>
+    </div>
+
+    <!-- PRACTICE: Navigation Menu -->
+    <div class="section">
+        <h2>Practice: Navigation Menu</h2>
+        <ul class="nav-menu">
+            <li><a href="#">Home</a></li>
+            <li class="active"><a href="#">About</a></li>
+            <li><a href="#">Services</a></li>
+            <li><a href="#">Contact</a></li>
+            <li><a href="https://github.com">GitHub</a></li>
+        </ul>
+        <p style="margin-top: 15px; font-size: 0.9rem; color: #666;">
+            Uses: :first-child, :last-child, :hover, :not(.active), [href^="https"]::after, descendant selectors
+        </p>
+    </div>
+
+</body>
+</html>

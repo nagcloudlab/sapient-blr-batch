@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 2: The Box Model</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 { text-align: center; color: #2c3e50; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 5px; }
+
+        .section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        /* ============================================
+           TOPIC 7: BOX MODEL CONCEPT
+           Every HTML element is a BOX with 4 layers:
+
+           +-------- MARGIN (outside spacing) --------+
+           |  +------ BORDER (visible edge) ------+   |
+           |  |  +--- PADDING (inside spacing) --+|   |
+           |  |  |                                ||   |
+           |  |  |     CONTENT (text/image)       ||   |
+           |  |  |                                ||   |
+           |  |  +--------------------------------+|   |
+           |  +------------------------------------+   |
+           +-------------------------------------------+
+           ============================================ -->
+
+        /* Visual Box Model Demo */
+        .box-model-demo {
+            /* CONTENT: The actual content area */
+            width: 300px;
+            height: 100px;
+            background-color: #3498db;
+            color: white;
+
+            /* PADDING: Space between content and border */
+            padding: 20px;
+
+            /* BORDER: The visible edge */
+            border: 5px solid #2c3e50;
+
+            /* MARGIN: Space outside the border */
+            margin: 30px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        /* ============================================
+           TOPIC 8: box-sizing
+
+           content-box (DEFAULT):
+             Total width = width + padding + border
+             300 + 40 + 10 = 350px  (surprising!)
+
+           border-box (RECOMMENDED):
+             Total width = width (padding & border included)
+             300px stays 300px  (predictable!)
+           ============================================ -->
+
+        .box-content-box {
+            box-sizing: content-box; /* DEFAULT */
+            width: 300px;
+            padding: 20px;
+            border: 5px solid #e74c3c;
+            background: #fadbd8;
+            margin-bottom: 10px;
+            /* Actual rendered width = 300 + 20*2 + 5*2 = 350px */
+        }
+
+        .box-border-box {
+            box-sizing: border-box; /* RECOMMENDED */
+            width: 300px;
+            padding: 20px;
+            border: 5px solid #27ae60;
+            background: #d5f5e3;
+            /* Actual rendered width = 300px (content shrinks to fit) */
+        }
+
+        /* Best practice: apply border-box to everything */
+        /* *, *::before, *::after { box-sizing: border-box; } */
+
+        /* ============================================
+           TOPIC 9: MARGIN COLLAPSING
+           When two vertical margins touch, they COLLAPSE
+           into the larger of the two (they don't add up!)
+           ============================================ -->
+
+        .margin-demo-box {
+            background: #dfe6e9;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .margin-box-1 {
+            margin-bottom: 40px; /* Bottom margin: 40px */
+        }
+
+        .margin-box-2 {
+            margin-top: 25px; /* Top margin: 25px */
+            /* Gap between boxes = 40px (NOT 65px!) */
+            /* The larger margin wins */
+        }
+
+        /* ============================================
+           TOPIC 10: WIDTH & HEIGHT
+           ============================================ -->
+
+        .width-px {
+            width: 200px;       /* Fixed pixel width */
+            background: #74b9ff;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .width-percent {
+            width: 50%;         /* 50% of parent width */
+            background: #a29bfe;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .width-auto {
+            width: auto;        /* Default — takes full available width */
+            background: #fd79a8;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .width-min-max {
+            width: 80%;
+            min-width: 200px;   /* Never smaller than 200px */
+            max-width: 500px;   /* Never larger than 500px */
+            background: #ffeaa7;
+            padding: 10px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .height-demo {
+            width: 100%;
+            height: 80px;       /* Fixed height */
+            min-height: 50px;   /* At least 50px */
+            background: #55efc4;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* ============================================
+           TOPIC 11: BORDERS
+           ============================================ -->
+
+        .border-solid {
+            border: 3px solid #2c3e50;
+            padding: 15px; margin-bottom: 10px;
+        }
+        .border-dashed {
+            border: 3px dashed #e74c3c;
+            padding: 15px; margin-bottom: 10px;
+        }
+        .border-dotted {
+            border: 3px dotted #27ae60;
+            padding: 15px; margin-bottom: 10px;
+        }
+        .border-double {
+            border: 5px double #8e44ad;
+            padding: 15px; margin-bottom: 10px;
+        }
+        .border-mixed {
+            border-top: 4px solid #e74c3c;
+            border-right: 4px dashed #3498db;
+            border-bottom: 4px dotted #27ae60;
+            border-left: 4px double #f39c12;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+
+        /* Border Radius */
+        .radius-small {
+            border: 2px solid #333; border-radius: 8px;
+            padding: 15px; margin-bottom: 10px;
+        }
+        .radius-large {
+            border: 2px solid #333; border-radius: 25px;
+            padding: 15px; margin-bottom: 10px;
+        }
+        .radius-circle {
+            width: 100px; height: 100px;
+            border: 3px solid #333; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 10px;
+        }
+        .radius-pill {
+            border: 2px solid #333; border-radius: 999px;
+            padding: 10px 25px; display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        /* Outline (doesn't take space, used for focus) */
+        .outline-demo {
+            border: 2px solid #333;
+            outline: 3px dashed red;
+            outline-offset: 5px;
+            padding: 15px;
+        }
+
+        /* ============================================
+           TOPIC 12: BACKGROUNDS
+           ============================================ -->
+
+        .bg-color {
+            background-color: #dfe6e9;
+            padding: 20px; margin-bottom: 10px;
+        }
+
+        .bg-gradient {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px; margin-bottom: 10px;
+            border-radius: 8px;
+        }
+
+        .bg-image {
+            background-image: url('https://picsum.photos/800/200');
+            background-size: cover;        /* Cover entire area */
+            background-position: center;   /* Center the image */
+            background-repeat: no-repeat;  /* Don't tile */
+            height: 150px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+
+        .bg-multiple {
+            background-color: #2c3e50;
+            background-image:
+                linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
+                linear-gradient(-45deg, rgba(255,255,255,0.1) 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.1) 75%),
+                linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.1) 75%);
+            background-size: 20px 20px;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+        }
+
+        /* ============================================
+           PRACTICE: STYLED CARD
+           ============================================ -->
+
+        .styled-card {
+            max-width: 400px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .styled-card .card-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 3rem;
+        }
+
+        .styled-card .card-body {
+            padding: 25px;
+        }
+
+        .styled-card .card-body h3 {
+            margin: 0 0 10px;
+            color: #2c3e50;
+        }
+
+        .styled-card .card-body p {
+            color: #666;
+            margin: 0 0 15px;
+            line-height: 1.6;
+        }
+
+        .styled-card .card-body .tag {
+            display: inline-block;
+            background: #eef2ff;
+            color: #667eea;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Module 2: The Box Model</h1>
+
+    <!-- TOPIC 7: Box Model Visual -->
+    <div class="section">
+        <h2>7. Box Model Concept</h2>
+        <p>Every HTML element is a rectangular box with 4 layers:</p>
+        <pre>
+  +------------ MARGIN (outside spacing) -----------+
+  |  +---------- BORDER (visible edge) ----------+  |
+  |  |  +------- PADDING (inside spacing) -----+ |  |
+  |  |  |                                       | |  |
+  |  |  |        CONTENT (text/image)           | |  |
+  |  |  |                                       | |  |
+  |  |  +---------------------------------------+ |  |
+  |  +---------------------------------------------+  |
+  +-------------------------------------------------+
+        </pre>
+        <div class="box-model-demo">
+            I have padding, border, and margin!
+        </div>
+        <p><em>Inspect this box in DevTools (F12) to see the box model diagram.</em></p>
+    </div>
+
+    <!-- TOPIC 8: box-sizing -->
+    <div class="section">
+        <h2>8. box-sizing: border-box</h2>
+        <div class="box-content-box">
+            <strong>content-box</strong> (default): width:300px + padding:40px + border:10px = <strong>350px total!</strong>
+        </div>
+        <div class="box-border-box">
+            <strong>border-box</strong>: width:300px = <strong>300px total!</strong> (padding & border fit inside)
+        </div>
+        <p><strong>Best practice:</strong> Always use <code>*, *::before, *::after { box-sizing: border-box; }</code></p>
+    </div>
+
+    <!-- TOPIC 9: Margin Collapsing -->
+    <div class="section">
+        <h2>9. Margin Collapsing</h2>
+        <div class="margin-demo-box margin-box-1">
+            margin-bottom: 40px
+        </div>
+        <div class="margin-demo-box margin-box-2">
+            margin-top: 25px
+        </div>
+        <p>The gap between boxes = <strong>40px</strong> (NOT 65px). The larger margin wins — this is <em>margin collapsing</em>.</p>
+        <p><em>Only happens vertically, not horizontally. Does NOT happen with flexbox or grid.</em></p>
+    </div>
+
+    <!-- TOPIC 10: Width & Height -->
+    <div class="section">
+        <h2>10. Width & Height</h2>
+        <div class="width-px">width: 200px (fixed)</div>
+        <div class="width-percent">width: 50% (of parent)</div>
+        <div class="width-auto">width: auto (default, full available width)</div>
+        <div class="width-min-max">width: 80% | min-width: 200px | max-width: 500px</div>
+        <div class="height-demo">height: 80px | min-height: 50px</div>
+    </div>
+
+    <!-- TOPIC 11: Borders -->
+    <div class="section">
+        <h2>11. Borders</h2>
+        <div class="border-solid">border: 3px solid</div>
+        <div class="border-dashed">border: 3px dashed</div>
+        <div class="border-dotted">border: 3px dotted</div>
+        <div class="border-double">border: 5px double</div>
+        <div class="border-mixed">Each side has a different border style!</div>
+
+        <h3>Border Radius</h3>
+        <div class="radius-small">border-radius: 8px</div>
+        <div class="radius-large">border-radius: 25px</div>
+        <div class="radius-circle">50%</div>
+        <span class="radius-pill">border-radius: 999px (pill)</span>
+
+        <h3 style="margin-top: 20px;">Outline (doesn't affect layout)</h3>
+        <div class="outline-demo">
+            I have a border AND an outline. Notice the outline doesn't take up space.
+        </div>
+    </div>
+
+    <!-- TOPIC 12: Backgrounds -->
+    <div class="section">
+        <h2>12. Backgrounds</h2>
+        <div class="bg-color">background-color: #dfe6e9</div>
+        <div class="bg-gradient">background: linear-gradient(135deg, #667eea, #764ba2)</div>
+        <div class="bg-image"></div>
+        <p style="font-size: 0.85rem; color: #999;">background-image with cover & center</p>
+        <div class="bg-multiple">CSS Pattern using multiple backgrounds!</div>
+    </div>
+
+    <!-- PRACTICE: Styled Card -->
+    <div class="section">
+        <h2>Practice: Styled Card</h2>
+        <div class="styled-card">
+            <div class="card-image">&#127758;</div>
+            <div class="card-body">
+                <h3>Explore the World</h3>
+                <p>This card uses the box model concepts: padding for inner spacing,
+                   border-radius for rounded corners, margin for centering, and
+                   background for the gradient header.</p>
+                <span class="tag">CSS</span>
+                <span class="tag">Box Model</span>
+                <span class="tag">Design</span>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

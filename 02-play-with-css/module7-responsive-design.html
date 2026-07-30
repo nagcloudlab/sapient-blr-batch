@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- ============================================
+         TOPIC 36: VIEWPORT META TAG
+         Without this, mobile browsers render at ~980px width
+         and zoom out, making text tiny.
+
+         width=device-width — match screen width
+         initial-scale=1.0  — no zoom on load
+         ============================================ -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Module 7: Responsive Design</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 15px; }
+        h3 { color: #34495e; margin: 15px 0 10px; }
+
+        .section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        code { background: #f1f1f1; padding: 2px 6px; border-radius: 3px; }
+        .label { font-size: 0.85rem; color: #666; margin: 10px 0 15px; font-style: italic; }
+
+        /* ============================================
+           TOPIC 37: RELATIVE UNITS
+           ============================================ */
+
+        .unit-demo {
+            background: #dfe6e9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        /* px — absolute, doesn't scale */
+        .unit-px { font-size: 16px; }
+
+        /* em — relative to PARENT'S font-size */
+        .unit-em-parent {
+            font-size: 20px; /* Parent font size */
+        }
+        .unit-em-child {
+            font-size: 1.5em; /* 1.5 x 20px = 30px */
+        }
+
+        /* rem — relative to ROOT (<html>) font-size (usually 16px) */
+        .unit-rem { font-size: 1.5rem; } /* 1.5 x 16px = 24px */
+
+        /* % — relative to parent */
+        .unit-percent-parent {
+            width: 100%;
+            background: #74b9ff;
+            padding: 10px;
+        }
+        .unit-percent-child {
+            width: 50%;
+            background: #0984e3;
+            color: white;
+            padding: 10px;
+        }
+
+        /* vw, vh — viewport width/height */
+        .unit-vw {
+            width: 50vw;  /* 50% of viewport width */
+            background: #a29bfe;
+            color: white;
+            padding: 10px;
+        }
+
+        .unit-vh {
+            height: 20vh; /* 20% of viewport height */
+            background: #fd79a8;
+            color: white;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        /* ============================================
+           TOPIC 38: MEDIA QUERIES
+           ============================================ */
+
+        .responsive-box {
+            background: #2ecc71;
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        /* Tablet: 768px and below */
+        @media (max-width: 768px) {
+            .responsive-box {
+                background: #f39c12;
+            }
+            .responsive-box::after {
+                content: " (Tablet: <= 768px)";
+            }
+        }
+
+        /* Mobile: 480px and below */
+        @media (max-width: 480px) {
+            .responsive-box {
+                background: #e74c3c;
+                font-size: 1rem;
+            }
+            .responsive-box::after {
+                content: " (Mobile: <= 480px)";
+            }
+        }
+
+        /* Common Breakpoints */
+        .breakpoint-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .breakpoint-table th, .breakpoint-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .breakpoint-table th {
+            background: #2c3e50;
+            color: white;
+        }
+
+        /* ============================================
+           TOPIC 39: MOBILE-FIRST vs DESKTOP-FIRST
+           ============================================ */
+
+        /* --- MOBILE-FIRST (Recommended) --- */
+        /* Base styles are for mobile, then add complexity */
+        .mobile-first-demo {
+            background: #e74c3c;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        /* Tablet and up */
+        @media (min-width: 768px) {
+            .mobile-first-demo {
+                background: #f39c12;
+                display: flex;
+                justify-content: space-around;
+            }
+        }
+
+        /* Desktop and up */
+        @media (min-width: 1024px) {
+            .mobile-first-demo {
+                background: #2ecc71;
+            }
+        }
+
+        /* --- DESKTOP-FIRST (Less recommended) --- */
+        .desktop-first-demo {
+            background: #2ecc71;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            justify-content: space-around;
+        }
+
+        @media (max-width: 1023px) {
+            .desktop-first-demo {
+                background: #f39c12;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .desktop-first-demo {
+                background: #e74c3c;
+                display: block;
+            }
+        }
+
+        /* ============================================
+           TOPIC 40: RESPONSIVE IMAGES
+           ============================================ */
+
+        .img-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Make images responsive */
+        .responsive-img {
+            width: 100%;        /* Fill container */
+            max-width: 100%;    /* Never exceed container */
+            height: auto;       /* Maintain aspect ratio */
+            display: block;
+            border-radius: 8px;
+        }
+
+        /* object-fit for fixed-size image containers */
+        .img-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        .img-box {
+            width: 100%;
+            height: 150px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;    /* Cover: fills container, crops if needed */
+            /* object-fit: contain;  Contain: fits inside, may leave gaps */
+            /* object-fit: fill;     Fill: stretches to fit (distorts!) */
+        }
+
+        /* ============================================
+           TOPIC 41: CONTAINER QUERIES (Modern CSS)
+           ============================================ */
+
+        .container-query-wrapper {
+            container-type: inline-size;
+            container-name: card-container;
+        }
+
+        .cq-card {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        /* When the CONTAINER (not viewport) is wider than 400px */
+        @container card-container (min-width: 400px) {
+            .cq-card {
+                display: flex;
+                text-align: left;
+                gap: 20px;
+                align-items: center;
+                background: #2ecc71;
+            }
+        }
+
+        @container card-container (min-width: 600px) {
+            .cq-card {
+                background: #8e44ad;
+                font-size: 1.2rem;
+            }
+        }
+
+        .cq-resize {
+            resize: horizontal;
+            overflow: auto;
+            border: 2px dashed #999;
+            padding: 20px;
+            min-width: 200px;
+            max-width: 100%;
+        }
+
+        /* ============================================
+           PRACTICE: Responsive Grid Layout
+           ============================================ */
+
+        .responsive-layout {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .responsive-layout .rl-header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .responsive-layout .rl-sidebar {
+            background: #34495e;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .responsive-layout .rl-main {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 200px;
+        }
+
+        .responsive-layout .rl-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
+        .responsive-layout .rl-card {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            color: #333;
+        }
+
+        .responsive-layout .rl-footer {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        /* Tablet */
+        @media (min-width: 768px) {
+            .responsive-layout {
+                grid-template-columns: 250px 1fr;
+                grid-template-areas:
+                    "header  header"
+                    "sidebar main"
+                    "cards   cards"
+                    "footer  footer";
+            }
+            .responsive-layout .rl-header  { grid-area: header; }
+            .responsive-layout .rl-sidebar { grid-area: sidebar; }
+            .responsive-layout .rl-main    { grid-area: main; }
+            .responsive-layout .rl-cards   { grid-area: cards; grid-template-columns: repeat(2, 1fr); }
+            .responsive-layout .rl-footer  { grid-area: footer; }
+        }
+
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .responsive-layout .rl-cards {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Module 7: Responsive Design</h1>
+
+    <!-- TOPIC 36: Viewport Meta Tag -->
+    <div class="section">
+        <h2>36. Viewport Meta Tag</h2>
+        <pre style="background:#f8f9fa; padding:15px; border-radius:4px;">
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+        </pre>
+        <p style="margin-top:10px;">
+            <strong>Without it:</strong> Mobile browsers render at ~980px and zoom out (tiny text).<br>
+            <strong>With it:</strong> Page width matches device width. Text is readable.
+        </p>
+    </div>
+
+    <!-- TOPIC 37: Relative Units -->
+    <div class="section">
+        <h2>37. Relative Units</h2>
+
+        <div class="unit-demo">
+            <span class="unit-px"><strong>px:</strong> 16px — fixed, doesn't scale</span>
+        </div>
+
+        <div class="unit-demo unit-em-parent">
+            <strong>em</strong> (parent: 20px):
+            <span class="unit-em-child">1.5em = 30px</span>
+        </div>
+
+        <div class="unit-demo">
+            <span class="unit-rem"><strong>rem:</strong> 1.5rem = 24px (root is 16px)</span>
+        </div>
+
+        <div class="unit-demo">
+            <strong>%:</strong> relative to parent
+            <div class="unit-percent-parent">
+                Parent: 100%
+                <div class="unit-percent-child">Child: 50%</div>
+            </div>
+        </div>
+
+        <div class="unit-demo">
+            <strong>vw:</strong> viewport width
+            <div class="unit-vw">50vw = half the viewport</div>
+        </div>
+
+        <div class="unit-demo">
+            <strong>vh:</strong> viewport height
+            <div class="unit-vh">20vh = 20% of viewport height</div>
+        </div>
+
+        <table class="breakpoint-table">
+            <thead>
+                <tr><th>Unit</th><th>Relative To</th><th>Best For</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>px</code></td><td>Nothing (absolute)</td><td>Borders, shadows</td></tr>
+                <tr><td><code>em</code></td><td>Parent font-size</td><td>Component spacing</td></tr>
+                <tr><td><code>rem</code></td><td>Root font-size (16px)</td><td>Font sizes, spacing</td></tr>
+                <tr><td><code>%</code></td><td>Parent element</td><td>Widths, layouts</td></tr>
+                <tr><td><code>vw / vh</code></td><td>Viewport</td><td>Full-screen sections</td></tr>
+                <tr><td><code>vmin / vmax</code></td><td>Smaller/larger of vw,vh</td><td>Responsive scaling</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- TOPIC 38: Media Queries -->
+    <div class="section">
+        <h2>38. Media Queries</h2>
+        <div class="responsive-box">
+            Resize the browser!
+        </div>
+        <p class="label">Green = Desktop | Orange = Tablet (&lt;= 768px) | Red = Mobile (&lt;= 480px)</p>
+
+        <h3>Common Breakpoints</h3>
+        <table class="breakpoint-table">
+            <thead>
+                <tr><th>Device</th><th>Breakpoint</th><th>Media Query</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>Mobile</td><td>0 - 480px</td><td><code>@media (max-width: 480px)</code></td></tr>
+                <tr><td>Tablet</td><td>481 - 768px</td><td><code>@media (max-width: 768px)</code></td></tr>
+                <tr><td>Laptop</td><td>769 - 1024px</td><td><code>@media (max-width: 1024px)</code></td></tr>
+                <tr><td>Desktop</td><td>1025px+</td><td><code>@media (min-width: 1025px)</code></td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- TOPIC 39: Mobile-First vs Desktop-First -->
+    <div class="section">
+        <h2>39. Mobile-First vs Desktop-First</h2>
+
+        <h3>Mobile-First (min-width) — Recommended</h3>
+        <div class="mobile-first-demo">
+            <span>Item 1</span>
+            <span>Item 2</span>
+            <span>Item 3</span>
+        </div>
+        <p class="label">Base = mobile (red) → min-width: 768px = tablet (orange) → min-width: 1024px = desktop (green)</p>
+
+        <h3>Desktop-First (max-width)</h3>
+        <div class="desktop-first-demo">
+            <span>Item 1</span>
+            <span>Item 2</span>
+            <span>Item 3</span>
+        </div>
+        <p class="label">Base = desktop (green) → max-width: 1023px = tablet (orange) → max-width: 767px = mobile (red)</p>
+    </div>
+
+    <!-- TOPIC 40: Responsive Images -->
+    <div class="section">
+        <h2>40. Responsive Images</h2>
+
+        <h3>max-width: 100% (scales down, never up)</h3>
+        <div class="img-container">
+            <img class="responsive-img"
+                 src="https://picsum.photos/800/300"
+                 alt="Responsive image">
+        </div>
+        <p class="label">Image scales to fit container but never exceeds its natural size.</p>
+
+        <h3>object-fit: cover (for fixed-size containers)</h3>
+        <div class="img-grid">
+            <div class="img-box"><img src="https://picsum.photos/300/200?random=1" alt="Photo 1"></div>
+            <div class="img-box"><img src="https://picsum.photos/200/400?random=2" alt="Photo 2"></div>
+            <div class="img-box"><img src="https://picsum.photos/400/200?random=3" alt="Photo 3"></div>
+            <div class="img-box"><img src="https://picsum.photos/300/300?random=4" alt="Photo 4"></div>
+        </div>
+        <p class="label">object-fit: cover fills the container and crops excess. Great for image grids!</p>
+    </div>
+
+    <!-- TOPIC 41: Container Queries -->
+    <div class="section">
+        <h2>41. Container Queries (Modern CSS)</h2>
+        <p>Unlike media queries (viewport), container queries respond to the <strong>parent container's</strong> size.</p>
+
+        <h3>Drag the right edge to resize:</h3>
+        <div class="cq-resize">
+            <div class="container-query-wrapper">
+                <div class="cq-card">
+                    <div style="font-size: 2rem;">&#128230;</div>
+                    <div>
+                        <strong>Container Query Card</strong>
+                        <p style="font-weight:normal; margin-top:5px;">
+                            I change layout based on my container's width, not the viewport!
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <p class="label">
+            Blue = narrow (&lt;400px) | Green = medium (&gt;=400px, flex layout) | Purple = wide (&gt;=600px)
+        </p>
+    </div>
+
+    <!-- PRACTICE: Responsive Layout -->
+    <div class="section">
+        <h2>Practice: Responsive Grid Layout</h2>
+        <p class="label">Resize browser: Mobile = stacked | Tablet = sidebar + 2 cards | Desktop = sidebar + 4 cards</p>
+
+        <div class="responsive-layout">
+            <div class="rl-header">
+                <h2 style="border:none; padding:0; margin:0; color:white;">Responsive Layout</h2>
+            </div>
+            <div class="rl-sidebar">
+                <h3 style="margin-bottom:10px;">Sidebar</h3>
+                <p style="font-weight:normal;">Navigation or filters go here</p>
+            </div>
+            <div class="rl-main">
+                <h3 style="margin-bottom:10px;">Main Content</h3>
+                <p style="font-weight:normal;">This layout uses CSS Grid with media queries.
+                   On mobile, everything stacks. On tablet, the sidebar appears beside the content.
+                   On desktop, the card grid expands to 4 columns.</p>
+            </div>
+            <div class="rl-cards">
+                <div class="rl-card"><strong>Card 1</strong></div>
+                <div class="rl-card"><strong>Card 2</strong></div>
+                <div class="rl-card"><strong>Card 3</strong></div>
+                <div class="rl-card"><strong>Card 4</strong></div>
+            </div>
+            <div class="rl-footer">Footer &copy; 2026</div>
+        </div>
+    </div>
+
+</body>
+</html>

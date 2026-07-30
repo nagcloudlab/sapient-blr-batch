@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 9: Advanced & Modern CSS</title>
+    <style>
+        /* ============================================
+           TOPIC 46: CSS VARIABLES (Custom Properties)
+           Declared with --name, used with var(--name)
+           ============================================ */
+
+        /* Define variables on :root for global access */
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --accent: #e74c3c;
+            --text-color: #2c3e50;
+            --bg-color: #f0f0f0;
+            --card-bg: #ffffff;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            --radius: 8px;
+            --spacing: 20px;
+            --font-size-sm: 0.85rem;
+            --font-size-md: 1rem;
+            --font-size-lg: 1.5rem;
+        }
+
+        /* Dark theme using CSS variables */
+        .dark-theme {
+            --primary: #74b9ff;
+            --secondary: #55efc4;
+            --accent: #ff7675;
+            --text-color: #dfe6e9;
+            --bg-color: #2d3436;
+            --card-bg: #353b48;
+            --shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            padding: var(--spacing);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        h1 { text-align: center; margin-bottom: var(--spacing); }
+        h2 { border-bottom: 2px solid var(--text-color); padding-bottom: 5px; margin-bottom: 15px; }
+        h3 { margin: 15px 0 10px; }
+
+        .section {
+            background: var(--card-bg);
+            padding: var(--spacing);
+            margin-bottom: var(--spacing);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            transition: background 0.3s;
+        }
+
+        code { background: rgba(0,0,0,0.1); padding: 2px 6px; border-radius: 3px; }
+        .label { font-size: var(--font-size-sm); color: #888; margin: 10px 0 15px; font-style: italic; }
+
+        /* Theme toggle button */
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: var(--font-size-md);
+            z-index: 1000;
+            transition: background 0.3s;
+        }
+
+        /* Variable scoping — override within a component */
+        .custom-card {
+            --card-accent: var(--primary);
+            border-top: 4px solid var(--card-accent);
+            padding: 20px;
+            border-radius: var(--radius);
+            background: var(--card-bg);
+            margin-bottom: 10px;
+        }
+
+        .custom-card.danger  { --card-accent: var(--accent); }
+        .custom-card.success { --card-accent: var(--secondary); }
+
+        .custom-card h4 {
+            color: var(--card-accent);
+            margin-bottom: 8px;
+        }
+
+        /* ============================================
+           TOPIC 47: calc()
+           ============================================ */
+
+        .calc-sidebar {
+            width: 250px;
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            border-radius: var(--radius);
+            float: left;
+            margin-right: 15px;
+        }
+
+        .calc-main {
+            /* Width = 100% minus sidebar width minus gap */
+            width: calc(100% - 250px - 15px);
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: var(--radius);
+            border: 2px solid var(--primary);
+            float: left;
+        }
+
+        .calc-clearfix::after {
+            content: "";
+            display: block;
+            clear: both;
+        }
+
+        .calc-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .calc-box {
+            background: #dfe6e9;
+            padding: 15px;
+            border-radius: var(--radius);
+            text-align: center;
+        }
+
+        /* ============================================
+           TOPIC 48: SHADOWS
+           ============================================ */
+
+        .shadow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+
+        .shadow-box {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: var(--radius);
+            text-align: center;
+        }
+
+        .shadow-sm    { box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+        .shadow-md    { box-shadow: 0 4px 6px rgba(0,0,0,0.15); }
+        .shadow-lg    { box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .shadow-xl    { box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
+        .shadow-inset { box-shadow: inset 0 4px 8px rgba(0,0,0,0.2); }
+        .shadow-color { box-shadow: 0 10px 30px rgba(52, 152, 219, 0.4); }
+        .shadow-multi {
+            box-shadow:
+                0 2px 4px rgba(0,0,0,0.1),
+                0 8px 16px rgba(0,0,0,0.1),
+                0 16px 32px rgba(0,0,0,0.1);
+        }
+
+        /* Text shadows */
+        .text-shadow-demo {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .ts-basic  { text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .ts-glow   { text-shadow: 0 0 10px var(--primary), 0 0 20px var(--primary); }
+        .ts-3d     { text-shadow: 1px 1px 0 #ccc, 2px 2px 0 #bbb, 3px 3px 0 #aaa, 4px 4px 5px rgba(0,0,0,0.2); }
+
+        /* ============================================
+           TOPIC 49: GRADIENTS
+           ============================================ */
+
+        .gradient-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .gradient-box {
+            height: 120px;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.85rem;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .grad-linear    { background: linear-gradient(to right, #e74c3c, #f39c12); }
+        .grad-angle     { background: linear-gradient(135deg, #667eea, #764ba2); }
+        .grad-multi     { background: linear-gradient(to right, #e74c3c, #f39c12, #2ecc71, #3498db); }
+        .grad-radial    { background: radial-gradient(circle, #667eea, #764ba2); }
+        .grad-radial-pos{ background: radial-gradient(circle at top left, #ffeaa7, #dfe6e9); color: #333; }
+        .grad-conic     { background: conic-gradient(#e74c3c, #f39c12, #2ecc71, #3498db, #e74c3c); }
+
+        /* Gradient text */
+        .gradient-text {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea, #764ba2, #e74c3c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ============================================
+           TOPIC 50: FILTERS
+           ============================================ */
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .filter-box {
+            border-radius: var(--radius);
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .filter-box img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            transition: filter 0.3s;
+        }
+
+        .filter-box p {
+            padding: 8px;
+            font-size: 0.85rem;
+        }
+
+        .f-blur img       { filter: blur(3px); }
+        .f-grayscale img  { filter: grayscale(100%); }
+        .f-brightness img { filter: brightness(1.5); }
+        .f-contrast img   { filter: contrast(1.5); }
+        .f-sepia img      { filter: sepia(100%); }
+        .f-saturate img   { filter: saturate(2); }
+        .f-invert img     { filter: invert(100%); }
+        .f-combined img   { filter: grayscale(50%) brightness(1.2) contrast(1.1); }
+
+        /* Hover to remove filter */
+        .filter-box:hover img { filter: none; }
+
+        /* Backdrop filter */
+        .backdrop-demo {
+            position: relative;
+            height: 200px;
+            background: url('https://picsum.photos/800/200?random=10') center/cover;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .backdrop-content {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 25px 40px;
+            border-radius: var(--radius);
+            color: white;
+            font-size: 1.3rem;
+            font-weight: bold;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* ============================================
+           TOPIC 51: clamp() — Fluid Typography
+           clamp(min, preferred, max)
+           ============================================ */
+
+        .clamp-heading {
+            /* Min 1.5rem, scales with viewport, max 3.5rem */
+            font-size: clamp(1.5rem, 5vw, 3.5rem);
+            margin-bottom: 10px;
+        }
+
+        .clamp-text {
+            font-size: clamp(0.9rem, 2vw, 1.2rem);
+            line-height: 1.6;
+        }
+
+        .clamp-width {
+            /* Fluid width */
+            width: clamp(300px, 60%, 800px);
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            border-radius: var(--radius);
+            margin: 15px 0;
+        }
+
+        /* ============================================
+           TOPIC 52: CSS NESTING (Modern)
+           ============================================ */
+
+        .nested-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            border: 2px solid #ddd;
+
+            & h4 {
+                color: var(--primary);
+                margin-bottom: 10px;
+            }
+
+            & p {
+                color: #666;
+                line-height: 1.6;
+            }
+
+            & .tag-list {
+                display: flex;
+                gap: 8px;
+                margin-top: 15px;
+
+                & .tag {
+                    background: var(--primary);
+                    color: white;
+                    padding: 4px 12px;
+                    border-radius: 999px;
+                    font-size: 0.8rem;
+
+                    &:hover {
+                        opacity: 0.8;
+                    }
+                }
+            }
+
+            &:hover {
+                border-color: var(--primary);
+                box-shadow: var(--shadow);
+            }
+        }
+
+        /* ============================================
+           PRACTICE: DARK/LIGHT THEME TOGGLE
+           (Uses CSS Variables — toggled via JS)
+           ============================================ */
+
+        .theme-demo-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(128,128,128,0.2);
+            border-radius: var(--radius);
+            padding: 25px;
+            max-width: 400px;
+            margin: 15px auto;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .theme-demo-card .avatar-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary);
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .theme-demo-card h3 {
+            color: var(--text-color);
+            margin-bottom: 5px;
+        }
+
+        .theme-demo-card .role-text {
+            color: var(--primary);
+            font-size: var(--font-size-sm);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .theme-demo-card .bio-text {
+            margin-top: 15px;
+            line-height: 1.6;
+            font-size: var(--font-size-md);
+        }
+
+        .theme-demo-card .action-btn {
+            margin-top: 15px;
+            padding: 10px 25px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-size: var(--font-size-md);
+            transition: opacity 0.3s;
+        }
+
+        .theme-demo-card .action-btn:hover {
+            opacity: 0.85;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Theme Toggle Button -->
+    <button class="theme-toggle" onclick="document.body.classList.toggle('dark-theme'); this.textContent = document.body.classList.contains('dark-theme') ? 'Light Mode' : 'Dark Mode'">
+        Dark Mode
+    </button>
+
+    <h1>Module 9: Advanced & Modern CSS</h1>
+
+    <!-- TOPIC 46: CSS Variables -->
+    <div class="section">
+        <h2>46. CSS Variables (Custom Properties)</h2>
+
+        <h3>Declaring & Using Variables</h3>
+        <pre style="background:rgba(0,0,0,0.05); padding:15px; border-radius:4px; overflow-x:auto;">
+:root {
+    --primary: #3498db;       /* Declare on :root for global */
+    --spacing: 20px;
+}
+
+.card {
+    color: var(--primary);    /* Use with var() */
+    padding: var(--spacing);
+    margin: var(--spacing, 10px);  /* Fallback value */
+}
+        </pre>
+
+        <h3>Variable Scoping (override per component)</h3>
+        <div class="custom-card">
+            <h4>Default Card</h4>
+            <p>Uses --card-accent: var(--primary)</p>
+        </div>
+        <div class="custom-card danger">
+            <h4>Danger Card</h4>
+            <p>Overrides --card-accent: var(--accent)</p>
+        </div>
+        <div class="custom-card success">
+            <h4>Success Card</h4>
+            <p>Overrides --card-accent: var(--secondary)</p>
+        </div>
+        <p class="label">Click "Dark Mode" button (top right) to see variables power theming!</p>
+    </div>
+
+    <!-- TOPIC 47: calc() -->
+    <div class="section">
+        <h2>47. calc() — Dynamic Calculations</h2>
+
+        <div class="calc-clearfix">
+            <div class="calc-sidebar">Sidebar (250px)</div>
+            <div class="calc-main">Main: <code>width: calc(100% - 250px - 15px)</code></div>
+        </div>
+
+        <h3>More calc() Examples</h3>
+        <div class="calc-examples">
+            <div class="calc-box">
+                <code>calc(100% - 40px)</code><br>
+                Full width minus padding
+            </div>
+            <div class="calc-box">
+                <code>calc(50vh - 100px)</code><br>
+                Half viewport minus header
+            </div>
+            <div class="calc-box">
+                <code>calc(var(--spacing) * 2)</code><br>
+                Double the spacing variable
+            </div>
+            <div class="calc-box">
+                <code>calc(1rem + 2vw)</code><br>
+                Mix units for fluid sizing
+            </div>
+        </div>
+    </div>
+
+    <!-- TOPIC 48: Shadows -->
+    <div class="section">
+        <h2>48. Shadows</h2>
+
+        <h3>box-shadow: offsetX offsetY blur spread color</h3>
+        <div class="shadow-grid">
+            <div class="shadow-box shadow-sm"><strong>Small</strong><br>0 1px 3px</div>
+            <div class="shadow-box shadow-md"><strong>Medium</strong><br>0 4px 6px</div>
+            <div class="shadow-box shadow-lg"><strong>Large</strong><br>0 10px 30px</div>
+            <div class="shadow-box shadow-xl"><strong>XL</strong><br>0 20px 50px</div>
+            <div class="shadow-box shadow-inset"><strong>Inset</strong><br>inset 0 4px 8px</div>
+            <div class="shadow-box shadow-color"><strong>Colored</strong><br>blue shadow</div>
+            <div class="shadow-box shadow-multi"><strong>Layered</strong><br>3 shadows stacked</div>
+        </div>
+
+        <h3 style="margin-top: 20px;">text-shadow</h3>
+        <p class="text-shadow-demo ts-basic">Basic Shadow</p>
+        <p class="text-shadow-demo ts-glow" style="color: var(--primary);">Glow Effect</p>
+        <p class="text-shadow-demo ts-3d">3D Text</p>
+    </div>
+
+    <!-- TOPIC 49: Gradients -->
+    <div class="section">
+        <h2>49. Gradients</h2>
+        <div class="gradient-grid">
+            <div class="gradient-box grad-linear">linear-gradient<br>(to right)</div>
+            <div class="gradient-box grad-angle">linear-gradient<br>(135deg)</div>
+            <div class="gradient-box grad-multi">multi-color<br>gradient</div>
+            <div class="gradient-box grad-radial">radial-gradient<br>(circle)</div>
+            <div class="gradient-box grad-radial-pos">radial-gradient<br>(at top left)</div>
+            <div class="gradient-box grad-conic">conic-gradient<br>(color wheel)</div>
+        </div>
+
+        <h3 style="margin-top: 20px;">Gradient Text</h3>
+        <p class="gradient-text">Gradient Text!</p>
+        <p class="label">Uses background-clip: text + text-fill-color: transparent</p>
+    </div>
+
+    <!-- TOPIC 50: Filters -->
+    <div class="section">
+        <h2>50. Filters</h2>
+        <p class="label">Hover any image to remove the filter:</p>
+
+        <div class="filter-grid">
+            <div class="filter-box f-blur"><img src="https://picsum.photos/200/150?random=1" alt="blur"><p>blur(3px)</p></div>
+            <div class="filter-box f-grayscale"><img src="https://picsum.photos/200/150?random=2" alt="grayscale"><p>grayscale(100%)</p></div>
+            <div class="filter-box f-brightness"><img src="https://picsum.photos/200/150?random=3" alt="brightness"><p>brightness(1.5)</p></div>
+            <div class="filter-box f-contrast"><img src="https://picsum.photos/200/150?random=4" alt="contrast"><p>contrast(1.5)</p></div>
+            <div class="filter-box f-sepia"><img src="https://picsum.photos/200/150?random=5" alt="sepia"><p>sepia(100%)</p></div>
+            <div class="filter-box f-saturate"><img src="https://picsum.photos/200/150?random=6" alt="saturate"><p>saturate(2)</p></div>
+            <div class="filter-box f-invert"><img src="https://picsum.photos/200/150?random=7" alt="invert"><p>invert(100%)</p></div>
+            <div class="filter-box f-combined"><img src="https://picsum.photos/200/150?random=8" alt="combined"><p>combined</p></div>
+        </div>
+
+        <h3 style="margin-top: 20px;">backdrop-filter (glassmorphism)</h3>
+        <div class="backdrop-demo">
+            <div class="backdrop-content">Frosted Glass Effect</div>
+        </div>
+    </div>
+
+    <!-- TOPIC 51: clamp() -->
+    <div class="section">
+        <h2>51. clamp() — Fluid Typography</h2>
+        <p><code>clamp(minimum, preferred, maximum)</code></p>
+
+        <h3 class="clamp-heading">Resize browser to see me scale!</h3>
+        <p class="clamp-text">
+            This text uses <code>clamp(0.9rem, 2vw, 1.2rem)</code> — it smoothly scales
+            between a minimum and maximum size based on viewport width. No media queries needed!
+        </p>
+
+        <div class="clamp-width">
+            My width uses <code>clamp(300px, 60%, 800px)</code>
+        </div>
+    </div>
+
+    <!-- TOPIC 52: CSS Nesting -->
+    <div class="section">
+        <h2>52. CSS Nesting (Modern Browsers)</h2>
+
+        <pre style="background:rgba(0,0,0,0.05); padding:15px; border-radius:4px; overflow-x:auto; margin-bottom:15px;">
+/* Before (flat) */
+.card { ... }
+.card h4 { ... }
+.card p { ... }
+.card:hover { ... }
+
+/* After (nested) */
+.card {
+    & h4 { color: blue; }
+    & p { color: gray; }
+    &:hover { border-color: blue; }
+    & .tag {
+        &:hover { opacity: 0.8; }
+    }
+}
+        </pre>
+
+        <div class="nested-card">
+            <h4>Nested CSS Card</h4>
+            <p>This card's CSS is written using native CSS nesting. Hover to see the border change!</p>
+            <div class="tag-list">
+                <span class="tag">CSS</span>
+                <span class="tag">Nesting</span>
+                <span class="tag">Modern</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- PRACTICE: Theme Toggle -->
+    <div class="section">
+        <h2>Practice: Dark/Light Theme Toggle</h2>
+        <p>Click the <strong>"Dark Mode"</strong> button in the top right corner. The entire page
+           switches themes using CSS variables — only the variable values change, not the CSS rules!</p>
+
+        <div class="theme-demo-card">
+            <div class="avatar-circle">A</div>
+            <h3>Alex Johnson</h3>
+            <p class="role-text">CSS Developer</p>
+            <p class="bio-text">
+                This card adapts to both light and dark themes using CSS custom properties.
+                Zero JavaScript for styling — just toggle a class!
+            </p>
+            <button class="action-btn">Follow</button>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 8: Transitions & Animations</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 15px; }
+        h3 { color: #34495e; margin: 15px 0 10px; }
+
+        .section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        code { background: #f1f1f1; padding: 2px 6px; border-radius: 3px; }
+        .label { font-size: 0.85rem; color: #666; margin: 10px 0 15px; font-style: italic; }
+
+        /* ============================================
+           TOPIC 42: TRANSITIONS
+           transition: property duration timing-function delay
+           ============================================ */
+
+        .transition-box {
+            width: 200px;
+            padding: 20px;
+            background: #3498db;
+            color: white;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+        }
+
+        /* Transition a single property */
+        .trans-single {
+            transition: background-color 0.5s;
+        }
+        .trans-single:hover {
+            background-color: #e74c3c;
+        }
+
+        /* Transition multiple properties */
+        .trans-multiple {
+            transition: background-color 0.3s, transform 0.3s, border-radius 0.5s;
+        }
+        .trans-multiple:hover {
+            background-color: #27ae60;
+            transform: scale(1.1);
+            border-radius: 25px;
+        }
+
+        /* Transition ALL properties */
+        .trans-all {
+            transition: all 0.4s;
+        }
+        .trans-all:hover {
+            background: #8e44ad;
+            color: #ffeaa7;
+            padding: 30px;
+            border-radius: 50%;
+        }
+
+        /* Timing Functions */
+        .timing-demo {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .timing-box {
+            width: 120px;
+            height: 80px;
+            background: #3498db;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .t-ease       { transition: transform 1s ease; }
+        .t-linear     { transition: transform 1s linear; }
+        .t-ease-in    { transition: transform 1s ease-in; }
+        .t-ease-out   { transition: transform 1s ease-out; }
+        .t-ease-in-out{ transition: transform 1s ease-in-out; }
+        .t-custom     { transition: transform 1s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
+
+        .timing-demo:hover .timing-box {
+            transform: translateY(-30px);
+        }
+
+        /* Transition with delay */
+        .delay-demo {
+            display: flex;
+            gap: 10px;
+        }
+
+        .delay-box {
+            width: 60px;
+            height: 60px;
+            background: #e74c3c;
+            border-radius: 8px;
+            transition: transform 0.4s ease, background-color 0.4s;
+        }
+
+        .delay-box:nth-child(1) { transition-delay: 0s; }
+        .delay-box:nth-child(2) { transition-delay: 0.1s; }
+        .delay-box:nth-child(3) { transition-delay: 0.2s; }
+        .delay-box:nth-child(4) { transition-delay: 0.3s; }
+        .delay-box:nth-child(5) { transition-delay: 0.4s; }
+
+        .delay-demo:hover .delay-box {
+            transform: translateY(-20px) rotate(45deg);
+            background: #3498db;
+        }
+
+        /* ============================================
+           TOPIC 43: TRANSFORM
+           ============================================ */
+
+        .transform-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            text-align: center;
+        }
+
+        .transform-box {
+            background: #dfe6e9;
+            padding: 30px 15px;
+            border-radius: 8px;
+            transition: transform 0.5s ease;
+            cursor: pointer;
+        }
+
+        .tf-translate:hover { transform: translate(20px, -10px); }
+        .tf-rotate:hover    { transform: rotate(45deg); }
+        .tf-scale:hover     { transform: scale(1.3); }
+        .tf-skew:hover      { transform: skewX(15deg); }
+        .tf-combined:hover  { transform: rotate(10deg) scale(1.1) translateY(-10px); }
+
+        /* Transform Origin */
+        .tf-origin:hover {
+            transform: rotate(45deg);
+            transform-origin: top left; /* Default is center */
+        }
+
+        /* ============================================
+           TOPIC 44: KEYFRAME ANIMATIONS
+           ============================================ */
+
+        /* Basic animation */
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .anim-slide {
+            animation: slideIn 1s ease-out;
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        /* Multi-step animation with percentages */
+        @keyframes bounce {
+            0%   { transform: translateY(0); }
+            25%  { transform: translateY(-30px); }
+            50%  { transform: translateY(0); }
+            75%  { transform: translateY(-15px); }
+            100% { transform: translateY(0); }
+        }
+
+        .anim-bounce {
+            width: 60px;
+            height: 60px;
+            background: #e74c3c;
+            border-radius: 50%;
+            animation: bounce 1s ease infinite;
+            margin: 20px;
+            display: inline-block;
+        }
+
+        /* Pulse animation */
+        @keyframes pulse {
+            0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(52, 152, 219, 0.7); }
+            70%  { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(52, 152, 219, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(52, 152, 219, 0); }
+        }
+
+        .anim-pulse {
+            background: #3498db;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+
+        /* Spin animation */
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        /* Color shift */
+        @keyframes colorShift {
+            0%   { background-color: #e74c3c; }
+            25%  { background-color: #f39c12; }
+            50%  { background-color: #27ae60; }
+            75%  { background-color: #3498db; }
+            100% { background-color: #e74c3c; }
+        }
+
+        .anim-color {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+            animation: colorShift 4s linear infinite;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        /* Animation properties demo */
+        .anim-props {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+
+        .prop-box {
+            width: 80px;
+            height: 80px;
+            background: #8e44ad;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        /* iteration-count */
+        .prop-once     { animation: bounce 1s ease 1; }          /* plays once */
+        .prop-3times   { animation: bounce 1s ease 3; }          /* plays 3 times */
+        .prop-infinite { animation: bounce 1s ease infinite; }   /* plays forever */
+
+        /* direction */
+        .prop-reverse    { animation: slideIn 2s ease infinite reverse; }
+        .prop-alternate  { animation: bounce 1s ease infinite alternate; }
+
+        /* fill-mode */
+        .prop-forwards { animation: slideIn 1s ease forwards; } /* Keeps final state */
+
+        /* play-state (hover to pause) */
+        .anim-pausable {
+            animation: spin 2s linear infinite;
+            width: 80px;
+            height: 80px;
+            background: #e74c3c;
+            border-radius: 8px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+        }
+        .anim-pausable:hover {
+            animation-play-state: paused;
+        }
+
+        /* ============================================
+           TOPIC 45: PERFORMANCE
+           ============================================ */
+
+        .perf-good {
+            background: #d5f5e3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #27ae60;
+        }
+
+        .perf-bad {
+            background: #fadbd8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        /* ============================================
+           PRACTICE: Button Hover Effects
+           ============================================ */
+
+        .btn-grid {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Effect 1: Lift */
+        .btn-lift {
+            background: #3498db;
+            color: white;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .btn-lift:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+
+        /* Effect 2: Fill */
+        .btn-fill {
+            background: transparent;
+            color: #e74c3c;
+            border: 2px solid #e74c3c;
+            transition: background 0.3s, color 0.3s;
+        }
+        .btn-fill:hover {
+            background: #e74c3c;
+            color: white;
+        }
+
+        /* Effect 3: Slide background */
+        .btn-slide {
+            background: #27ae60;
+            color: white;
+            z-index: 1;
+        }
+        .btn-slide::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0;
+            width: 0; height: 100%;
+            background: #2c3e50;
+            transition: width 0.3s;
+            z-index: -1;
+        }
+        .btn-slide:hover::before {
+            width: 100%;
+        }
+
+        /* Effect 4: Glow */
+        .btn-glow {
+            background: #8e44ad;
+            color: white;
+            transition: box-shadow 0.3s;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 20px rgba(142, 68, 173, 0.6), 0 0 40px rgba(142, 68, 173, 0.3);
+        }
+
+        /* PRACTICE: Loading Spinner */
+        @keyframes spinner {
+            to { transform: rotate(360deg); }
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #dfe6e9;
+            border-top-color: #3498db;
+            border-radius: 50%;
+            animation: spinner 0.8s linear infinite;
+            margin: 20px;
+            display: inline-block;
+        }
+
+        /* Dot spinner */
+        @keyframes dotPulse {
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .dot-spinner {
+            display: inline-flex;
+            gap: 8px;
+            margin: 20px;
+        }
+
+        .dot-spinner .dot {
+            width: 15px;
+            height: 15px;
+            background: #e74c3c;
+            border-radius: 50%;
+            animation: dotPulse 1.4s ease-in-out infinite;
+        }
+
+        .dot-spinner .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot-spinner .dot:nth-child(3) { animation-delay: 0.4s; }
+
+        /* Bar spinner */
+        @keyframes barGrow {
+            0%, 100% { transform: scaleY(0.4); }
+            50% { transform: scaleY(1); }
+        }
+
+        .bar-spinner {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+            height: 50px;
+            margin: 20px;
+        }
+
+        .bar-spinner .bar {
+            width: 8px;
+            height: 40px;
+            background: #27ae60;
+            border-radius: 4px;
+            animation: barGrow 1.2s ease-in-out infinite;
+        }
+
+        .bar-spinner .bar:nth-child(2) { animation-delay: 0.1s; }
+        .bar-spinner .bar:nth-child(3) { animation-delay: 0.2s; }
+        .bar-spinner .bar:nth-child(4) { animation-delay: 0.3s; }
+        .bar-spinner .bar:nth-child(5) { animation-delay: 0.4s; }
+    </style>
+</head>
+<body>
+
+    <h1>Module 8: Transitions & Animations</h1>
+
+    <!-- TOPIC 42: Transitions -->
+    <div class="section">
+        <h2>42. Transitions</h2>
+        <p><code>transition: property duration timing-function delay</code></p>
+
+        <h3>Single property</h3>
+        <div class="transition-box trans-single">Hover: color change</div>
+
+        <h3>Multiple properties</h3>
+        <div class="transition-box trans-multiple">Hover: color + scale + radius</div>
+
+        <h3>All properties</h3>
+        <div class="transition-box trans-all">Hover: everything changes!</div>
+
+        <h3>Timing Functions (hover the group)</h3>
+        <div class="timing-demo">
+            <div class="timing-box t-ease">ease (default)</div>
+            <div class="timing-box t-linear">linear</div>
+            <div class="timing-box t-ease-in">ease-in</div>
+            <div class="timing-box t-ease-out">ease-out</div>
+            <div class="timing-box t-ease-in-out">ease-in-out</div>
+            <div class="timing-box t-custom" style="background:#e74c3c;">cubic-bezier (bouncy)</div>
+        </div>
+        <p class="label">Hover the row — all boxes move up, but with different timing curves.</p>
+
+        <h3>Transition Delay (staggered, hover the group)</h3>
+        <div class="delay-demo">
+            <div class="delay-box"></div>
+            <div class="delay-box"></div>
+            <div class="delay-box"></div>
+            <div class="delay-box"></div>
+            <div class="delay-box"></div>
+        </div>
+        <p class="label">Each box has 0.1s more delay than the previous one.</p>
+    </div>
+
+    <!-- TOPIC 43: Transform -->
+    <div class="section">
+        <h2>43. Transform</h2>
+        <p class="label">Hover each box to see the transform in action:</p>
+
+        <div class="transform-grid">
+            <div class="transform-box tf-translate">
+                <strong>translate</strong><br>(20px, -10px)
+            </div>
+            <div class="transform-box tf-rotate">
+                <strong>rotate</strong><br>(45deg)
+            </div>
+            <div class="transform-box tf-scale">
+                <strong>scale</strong><br>(1.3)
+            </div>
+            <div class="transform-box tf-skew">
+                <strong>skewX</strong><br>(15deg)
+            </div>
+            <div class="transform-box tf-combined">
+                <strong>combined</strong><br>rotate + scale + translate
+            </div>
+            <div class="transform-box tf-origin">
+                <strong>origin</strong><br>top left
+            </div>
+        </div>
+    </div>
+
+    <!-- TOPIC 44: Keyframe Animations -->
+    <div class="section">
+        <h2>44. Keyframe Animations</h2>
+
+        <h3>Slide In (plays once on load)</h3>
+        <div class="anim-slide">I slid in from the left!</div>
+
+        <h3>Bounce (infinite)</h3>
+        <div class="anim-bounce"></div>
+        <div class="anim-bounce" style="animation-delay: 0.2s;"></div>
+        <div class="anim-bounce" style="animation-delay: 0.4s; background: #3498db;"></div>
+
+        <h3>Pulse Button</h3>
+        <button class="anim-pulse">Click Me</button>
+
+        <h3>Color Shift (infinite)</h3>
+        <div class="anim-color">Colors!</div>
+
+        <h3>Hover to Pause</h3>
+        <div class="anim-pausable">Pause</div>
+        <p class="label">Uses animation-play-state: paused on hover.</p>
+
+        <h3>Animation Properties Cheat Sheet</h3>
+        <table style="width:100%; border-collapse:collapse; margin:15px 0;">
+            <thead>
+                <tr style="background:#2c3e50; color:white;">
+                    <th style="padding:10px; text-align:left;">Property</th>
+                    <th style="padding:10px; text-align:left;">Values</th>
+                    <th style="padding:10px; text-align:left;">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom:1px solid #ddd;">
+                    <td style="padding:10px;"><code>animation-name</code></td>
+                    <td style="padding:10px;">@keyframes name</td>
+                    <td style="padding:10px;">Which animation to use</td>
+                </tr>
+                <tr style="border-bottom:1px solid #ddd; background:#f8f9fa;">
+                    <td style="padding:10px;"><code>animation-duration</code></td>
+                    <td style="padding:10px;">0.5s, 2s, 300ms</td>
+                    <td style="padding:10px;">How long one cycle takes</td>
+                </tr>
+                <tr style="border-bottom:1px solid #ddd;">
+                    <td style="padding:10px;"><code>animation-timing-function</code></td>
+                    <td style="padding:10px;">ease, linear, ease-in-out</td>
+                    <td style="padding:10px;">Speed curve</td>
+                </tr>
+                <tr style="border-bottom:1px solid #ddd; background:#f8f9fa;">
+                    <td style="padding:10px;"><code>animation-delay</code></td>
+                    <td style="padding:10px;">0s, 0.5s, 1s</td>
+                    <td style="padding:10px;">Wait before starting</td>
+                </tr>
+                <tr style="border-bottom:1px solid #ddd;">
+                    <td style="padding:10px;"><code>animation-iteration-count</code></td>
+                    <td style="padding:10px;">1, 3, infinite</td>
+                    <td style="padding:10px;">How many times to play</td>
+                </tr>
+                <tr style="border-bottom:1px solid #ddd; background:#f8f9fa;">
+                    <td style="padding:10px;"><code>animation-direction</code></td>
+                    <td style="padding:10px;">normal, reverse, alternate</td>
+                    <td style="padding:10px;">Play direction</td>
+                </tr>
+                <tr style="border-bottom:1px solid #ddd;">
+                    <td style="padding:10px;"><code>animation-fill-mode</code></td>
+                    <td style="padding:10px;">none, forwards, backwards, both</td>
+                    <td style="padding:10px;">Style before/after animation</td>
+                </tr>
+                <tr style="background:#f8f9fa;">
+                    <td style="padding:10px;"><code>animation-play-state</code></td>
+                    <td style="padding:10px;">running, paused</td>
+                    <td style="padding:10px;">Pause/resume</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- TOPIC 45: Performance -->
+    <div class="section">
+        <h2>45. Performance</h2>
+
+        <div class="perf-good">
+            <strong>GOOD (GPU-accelerated, no layout recalc):</strong><br>
+            <code>transform</code> (translate, rotate, scale) and <code>opacity</code>
+        </div>
+
+        <div class="perf-bad">
+            <strong>AVOID animating (triggers layout/repaint):</strong><br>
+            <code>width</code>, <code>height</code>, <code>margin</code>, <code>padding</code>, <code>top</code>, <code>left</code>, <code>font-size</code>
+        </div>
+
+        <p style="margin-top:10px;">
+            <strong>Rule of thumb:</strong> Animate <code>transform</code> and <code>opacity</code>.
+            Use <code>transform: translateX()</code> instead of <code>left</code>.
+            Use <code>transform: scale()</code> instead of <code>width/height</code>.
+        </p>
+    </div>
+
+    <!-- PRACTICE: Button Effects & Spinners -->
+    <div class="section">
+        <h2>Practice: Button Hover Effects</h2>
+        <div class="btn-grid">
+            <button class="btn btn-lift">Lift Effect</button>
+            <button class="btn btn-fill">Fill Effect</button>
+            <button class="btn btn-slide">Slide Effect</button>
+            <button class="btn btn-glow">Glow Effect</button>
+        </div>
+
+        <h2>Practice: Loading Spinners</h2>
+        <div style="display:flex; align-items:center; flex-wrap:wrap;">
+            <div style="text-align:center;">
+                <div class="spinner"></div>
+                <p class="label">Circle Spinner</p>
+            </div>
+            <div style="text-align:center;">
+                <div class="dot-spinner">
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                    <div class="dot"></div>
+                </div>
+                <p class="label">Dot Pulse</p>
+            </div>
+            <div style="text-align:center;">
+                <div class="bar-spinner">
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                    <div class="bar"></div>
+                </div>
+                <p class="label">Bar Equalizer</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

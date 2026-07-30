@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 6: CSS Grid</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            padding: 20px;
+        }
+
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 20px; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 5px; margin-bottom: 15px; }
+        h3 { color: #34495e; margin: 15px 0 10px; }
+
+        .section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        code { background: #f1f1f1; padding: 2px 6px; border-radius: 3px; }
+        .label { font-size: 0.85rem; color: #666; margin: 10px 0 15px; font-style: italic; }
+
+        /* Shared grid item styles */
+        .grid-item {
+            background: #3498db;
+            color: white;
+            padding: 20px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .grid-item:nth-child(2n) { background: #e74c3c; }
+        .grid-item:nth-child(3n) { background: #27ae60; }
+        .grid-item:nth-child(4n) { background: #f39c12; }
+        .grid-item:nth-child(5n) { background: #8e44ad; }
+        .grid-item:nth-child(6n) { background: #1abc9c; }
+
+        /* ============================================
+           TOPIC 30: GRID CONTAINER
+           ============================================ */
+
+        /* Basic grid with fixed columns */
+        .grid-fixed {
+            display: grid;
+            grid-template-columns: 200px 200px 200px; /* 3 columns, each 200px */
+            grid-template-rows: 100px 100px;           /* 2 rows, each 100px */
+            gap: 10px;
+        }
+
+        /* Grid with percentage columns */
+        .grid-percent {
+            display: grid;
+            grid-template-columns: 25% 50% 25%;
+            gap: 10px;
+        }
+
+        /* ============================================
+           TOPIC 31: fr UNIT, repeat(), minmax()
+           ============================================ */
+
+        /* fr = fractional unit — shares available space */
+        .grid-fr {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr; /* Middle column gets 2x space */
+            gap: 10px;
+        }
+
+        /* repeat() — shorthand for repeated patterns */
+        .grid-repeat {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr); /* 4 equal columns */
+            gap: 10px;
+        }
+
+        /* minmax() — responsive column sizing */
+        .grid-minmax {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        /* ============================================
+           TOPIC 32: PLACING ITEMS
+           grid-column, grid-row, span
+           ============================================ */
+
+        .grid-placement {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(3, 100px);
+            gap: 10px;
+        }
+
+        /* Span across columns */
+        .span-2-cols {
+            grid-column: span 2; /* Takes 2 columns */
+            background: #e74c3c !important;
+        }
+
+        /* Span across rows */
+        .span-2-rows {
+            grid-row: span 2; /* Takes 2 rows */
+            background: #8e44ad !important;
+        }
+
+        /* Specific placement using line numbers */
+        .placed-item {
+            grid-column: 2 / 4; /* From line 2 to line 4 (2 columns) */
+            grid-row: 2 / 3;    /* From line 2 to line 3 (1 row) */
+            background: #1abc9c !important;
+        }
+
+        /* ============================================
+           TOPIC 33: GRID AREAS (Named Layout)
+           ============================================ */
+
+        .grid-areas {
+            display: grid;
+            grid-template-areas:
+                "header  header  header"
+                "sidebar content content"
+                "footer  footer  footer";
+            grid-template-columns: 200px 1fr 1fr;
+            grid-template-rows: 60px 200px 60px;
+            gap: 10px;
+        }
+
+        .area-header  { grid-area: header;  background: #2c3e50; }
+        .area-sidebar { grid-area: sidebar; background: #34495e; }
+        .area-content { grid-area: content; background: #3498db; }
+        .area-footer  { grid-area: footer;  background: #2c3e50; }
+
+        /* ============================================
+           TOPIC 34: GAP in Grid
+           ============================================ */
+
+        .grid-gap-demo {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;             /* Shorthand for row-gap and column-gap */
+            /* row-gap: 20px; */
+            /* column-gap: 10px; */
+        }
+
+        /* ============================================
+           TOPIC 35: AUTO-FIT & AUTO-FILL
+           Responsive grids WITHOUT media queries!
+           ============================================ */
+
+        /* auto-fill: creates as many columns as can fit */
+        .grid-auto-fill {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        /* auto-fit: same as auto-fill but collapses empty tracks */
+        .grid-auto-fit {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+        /* ============================================
+           PRACTICE: Full Page Layout
+           ============================================ */
+
+        .page-layout {
+            display: grid;
+            grid-template-areas:
+                "nav     nav     nav"
+                "sidebar main    main"
+                "sidebar aside   aside"
+                "footer  footer  footer";
+            grid-template-columns: 220px 1fr 1fr;
+            grid-template-rows: auto 1fr auto auto;
+            gap: 15px;
+            min-height: 500px;
+        }
+
+        .page-layout > * {
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+        }
+
+        .page-nav     { grid-area: nav;     background: #2c3e50; display: flex; align-items: center; justify-content: space-between; }
+        .page-sidebar { grid-area: sidebar; background: #34495e; }
+        .page-main    { grid-area: main;    background: #3498db; min-height: 200px; }
+        .page-aside   { grid-area: aside;   background: #1abc9c; }
+        .page-footer  { grid-area: footer;  background: #2c3e50; text-align: center; }
+
+        .page-nav a {
+            color: #bdc3c7;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+
+        .sidebar-item {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            font-weight: normal;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Module 6: CSS Grid</h1>
+
+    <!-- TOPIC 30: Grid Container -->
+    <div class="section">
+        <h2>30. Grid Container</h2>
+
+        <h3>Fixed columns: <code>grid-template-columns: 200px 200px 200px</code></h3>
+        <div class="grid-fixed">
+            <div class="grid-item">1</div>
+            <div class="grid-item">2</div>
+            <div class="grid-item">3</div>
+            <div class="grid-item">4</div>
+            <div class="grid-item">5</div>
+            <div class="grid-item">6</div>
+        </div>
+
+        <h3>Percentage columns: <code>25% 50% 25%</code></h3>
+        <div class="grid-percent">
+            <div class="grid-item">25%</div>
+            <div class="grid-item">50%</div>
+            <div class="grid-item">25%</div>
+        </div>
+    </div>
+
+    <!-- TOPIC 31: fr, repeat(), minmax() -->
+    <div class="section">
+        <h2>31. fr unit, repeat(), minmax()</h2>
+
+        <h3>fr unit: <code>1fr 2fr 1fr</code> (middle gets double)</h3>
+        <div class="grid-fr">
+            <div class="grid-item">1fr</div>
+            <div class="grid-item">2fr</div>
+            <div class="grid-item">1fr</div>
+        </div>
+
+        <h3>repeat(): <code>repeat(4, 1fr)</code> = 4 equal columns</h3>
+        <div class="grid-repeat">
+            <div class="grid-item">1</div>
+            <div class="grid-item">2</div>
+            <div class="grid-item">3</div>
+            <div class="grid-item">4</div>
+        </div>
+
+        <h3>minmax(): <code>repeat(3, minmax(150px, 1fr))</code></h3>
+        <div class="grid-minmax">
+            <div class="grid-item">Min 150px</div>
+            <div class="grid-item">Min 150px</div>
+            <div class="grid-item">Min 150px</div>
+        </div>
+        <p class="label">Each column is at least 150px, but grows to fill space.</p>
+    </div>
+
+    <!-- TOPIC 32: Placing Items -->
+    <div class="section">
+        <h2>32. Placing Items (grid-column, grid-row, span)</h2>
+
+        <div class="grid-placement">
+            <div class="grid-item span-2-cols">span 2 cols</div>
+            <div class="grid-item">3</div>
+            <div class="grid-item">4</div>
+            <div class="grid-item span-2-rows">span 2 rows</div>
+            <div class="grid-item placed-item">col 2/4, row 2/3</div>
+            <div class="grid-item">7</div>
+            <div class="grid-item">8</div>
+            <div class="grid-item">9</div>
+        </div>
+        <p class="label">
+            <code>grid-column: span 2</code> = take 2 columns |
+            <code>grid-row: span 2</code> = take 2 rows |
+            <code>grid-column: 2 / 4</code> = from line 2 to line 4
+        </p>
+    </div>
+
+    <!-- TOPIC 33: Grid Areas -->
+    <div class="section">
+        <h2>33. Grid Areas (Named Layout)</h2>
+        <pre style="background:#f8f9fa; padding:15px; border-radius:4px; margin-bottom:15px;">
+grid-template-areas:
+    "header  header  header"
+    "sidebar content content"
+    "footer  footer  footer";
+        </pre>
+        <div class="grid-areas">
+            <div class="grid-item area-header">Header</div>
+            <div class="grid-item area-sidebar">Sidebar</div>
+            <div class="grid-item area-content">Content</div>
+            <div class="grid-item area-footer">Footer</div>
+        </div>
+        <p class="label">Named areas make layouts readable. Each item uses <code>grid-area: name</code>.</p>
+    </div>
+
+    <!-- TOPIC 34: Gap -->
+    <div class="section">
+        <h2>34. gap in Grid</h2>
+        <div class="grid-gap-demo">
+            <div class="grid-item">1</div>
+            <div class="grid-item">2</div>
+            <div class="grid-item">3</div>
+            <div class="grid-item">4</div>
+            <div class="grid-item">5</div>
+            <div class="grid-item">6</div>
+        </div>
+        <p class="label">
+            <code>gap: 20px</code> = equal row & column gaps |
+            <code>row-gap: 20px; column-gap: 10px;</code> = different gaps
+        </p>
+    </div>
+
+    <!-- TOPIC 35: Auto-fit & Auto-fill -->
+    <div class="section">
+        <h2>35. auto-fit & auto-fill</h2>
+        <p><strong>Responsive grids WITHOUT media queries!</strong></p>
+
+        <h3>auto-fill: <code>repeat(auto-fill, minmax(150px, 1fr))</code></h3>
+        <div class="grid-auto-fill">
+            <div class="grid-item">1</div>
+            <div class="grid-item">2</div>
+            <div class="grid-item">3</div>
+            <div class="grid-item">4</div>
+            <div class="grid-item">5</div>
+        </div>
+        <p class="label">auto-fill creates tracks even if empty. Resize the browser to see columns reflow!</p>
+
+        <h3>auto-fit: <code>repeat(auto-fit, minmax(150px, 1fr))</code></h3>
+        <div class="grid-auto-fit">
+            <div class="grid-item">1</div>
+            <div class="grid-item">2</div>
+            <div class="grid-item">3</div>
+        </div>
+        <p class="label">auto-fit collapses empty tracks — items stretch to fill. Best for most use cases.</p>
+    </div>
+
+    <!-- PRACTICE: Full Page Layout -->
+    <div class="section">
+        <h2>Practice: Full Page Layout</h2>
+        <div class="page-layout">
+            <div class="page-nav">
+                <span>MyApp</span>
+                <div>
+                    <a href="#">Home</a>
+                    <a href="#">About</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Contact</a>
+                </div>
+            </div>
+            <div class="page-sidebar">
+                <div style="margin-bottom:15px; font-size:1.1rem;">Menu</div>
+                <div class="sidebar-item">Dashboard</div>
+                <div class="sidebar-item">Analytics</div>
+                <div class="sidebar-item">Settings</div>
+                <div class="sidebar-item">Profile</div>
+            </div>
+            <div class="page-main">
+                <h3 style="margin-bottom:10px;">Main Content</h3>
+                <p style="font-weight:normal; line-height:1.6;">
+                    This full page layout uses CSS Grid with named areas. The sidebar spans
+                    two rows, the nav and footer span three columns, and the main content
+                    takes the remaining space.
+                </p>
+            </div>
+            <div class="page-aside">
+                <h3 style="margin-bottom:10px;">Aside</h3>
+                <p style="font-weight:normal;">Additional content area using grid-area: aside</p>
+            </div>
+            <div class="page-footer">Footer &copy; 2026</div>
+        </div>
+    </div>
+
+</body>
+</html>

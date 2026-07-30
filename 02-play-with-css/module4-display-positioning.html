@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Module 4: Display & Positioning</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+            /* Extra padding at top for sticky/fixed demos */
+            padding-top: 80px;
+        }
+
+        h1 { text-align: center; color: #2c3e50; }
+        h2 { border-bottom: 2px solid #333; padding-bottom: 5px; }
+        h3 { color: #34495e; }
+
+        .section {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        code { background: #f1f1f1; padding: 2px 6px; border-radius: 3px; }
+
+        /* ============================================
+           TOPIC 19: DISPLAY TYPES
+           ============================================ */
+
+        /* BLOCK: Takes full width, starts on new line */
+        .demo-block {
+            display: block;
+            background: #74b9ff;
+            padding: 10px;
+            margin: 5px 0;
+        }
+
+        /* INLINE: Only takes needed width, no new line */
+        /* Width and height have NO effect on inline elements */
+        .demo-inline {
+            display: inline;
+            background: #ffeaa7;
+            padding: 5px;
+            /* width: 300px;  <-- This would be IGNORED */
+            /* height: 50px;  <-- This would be IGNORED */
+        }
+
+        /* INLINE-BLOCK: Inline flow + block features (width/height work) */
+        .demo-inline-block {
+            display: inline-block;
+            background: #55efc4;
+            padding: 10px;
+            width: 150px;
+            height: 50px;
+            text-align: center;
+            vertical-align: middle;
+            margin: 5px;
+        }
+
+        /* NONE: Completely hidden, takes no space */
+        .demo-none {
+            display: none;
+        }
+
+        /* Compare: visibility: hidden takes space but is invisible */
+        .demo-hidden {
+            visibility: hidden;
+            background: #dfe6e9;
+            padding: 10px;
+        }
+
+        /* ============================================
+           TOPIC 20: POSITION
+           ============================================ */
+
+        .position-container {
+            position: relative; /* Creates positioning context */
+            background: #dfe6e9;
+            height: 250px;
+            margin-bottom: 20px;
+            border: 2px dashed #999;
+        }
+
+        /* STATIC: Default, normal flow */
+        .pos-static {
+            position: static;
+            background: #74b9ff;
+            padding: 10px;
+        }
+
+        /* RELATIVE: Offset from its normal position */
+        /* Original space is preserved */
+        .pos-relative {
+            position: relative;
+            top: 20px;
+            left: 30px;
+            background: #a29bfe;
+            padding: 10px;
+            color: white;
+        }
+
+        /* ABSOLUTE: Removed from flow, positioned relative to nearest positioned ancestor */
+        .pos-absolute {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #fd79a8;
+            padding: 10px;
+            color: white;
+        }
+
+        /* FIXED: Positioned relative to viewport, stays on scroll */
+        .pos-fixed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #2c3e50;
+            color: white;
+            padding: 15px 20px;
+            z-index: 1000;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        /* STICKY: Hybrid — relative until scroll threshold, then fixed */
+        .pos-sticky {
+            position: sticky;
+            top: 60px; /* Sticks 60px from top (below fixed header) */
+            background: #ffeaa7;
+            padding: 10px;
+            font-weight: bold;
+            z-index: 99;
+            border: 2px solid #f39c12;
+        }
+
+        /* ============================================
+           TOPIC 21: Z-INDEX (Stacking Context)
+           ============================================ */
+
+        .stack-container {
+            position: relative;
+            height: 200px;
+            margin: 20px 0;
+        }
+
+        .stack-box {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            border-radius: 8px;
+        }
+
+        .stack-1 {
+            background: rgba(231, 76, 60, 0.9);
+            top: 0; left: 0;
+            z-index: 1;
+        }
+
+        .stack-2 {
+            background: rgba(46, 204, 113, 0.9);
+            top: 30px; left: 60px;
+            z-index: 2;
+        }
+
+        .stack-3 {
+            background: rgba(52, 152, 219, 0.9);
+            top: 60px; left: 120px;
+            z-index: 3;
+        }
+
+        /* ============================================
+           TOPIC 22: FLOAT & CLEAR (Legacy)
+           ============================================ */
+
+        .float-demo {
+            overflow: auto; /* Clearfix */
+        }
+
+        .float-left {
+            float: left;
+            width: 150px;
+            height: 100px;
+            background: #74b9ff;
+            margin: 0 15px 15px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+        }
+
+        .float-right {
+            float: right;
+            width: 150px;
+            height: 100px;
+            background: #a29bfe;
+            margin: 0 0 15px 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            color: white;
+        }
+
+        /* ============================================
+           TOPIC 23: OVERFLOW
+           ============================================ */
+
+        .overflow-demo {
+            width: 250px;
+            height: 100px;
+            border: 2px solid #333;
+            margin: 10px;
+            display: inline-block;
+            vertical-align: top;
+            padding: 10px;
+        }
+
+        .overflow-visible { overflow: visible; }
+        .overflow-hidden  { overflow: hidden; }
+        .overflow-scroll  { overflow: scroll; }
+        .overflow-auto    { overflow: auto; }
+
+        /* ============================================
+           PRACTICE: Sticky Header + Overlapping Cards
+           ============================================ */
+
+        .card-stack {
+            position: relative;
+            height: 300px;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        .overlap-card {
+            position: absolute;
+            width: 280px;
+            padding: 25px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .overlap-card:nth-child(1) {
+            background: #e74c3c;
+            top: 0; left: 0;
+            z-index: 1;
+        }
+
+        .overlap-card:nth-child(2) {
+            background: #3498db;
+            top: 40px; left: 80px;
+            z-index: 2;
+        }
+
+        .overlap-card:nth-child(3) {
+            background: #2ecc71;
+            top: 80px; left: 160px;
+            z-index: 3;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- FIXED HEADER (Topic 20) -->
+    <div class="pos-fixed">
+        Fixed Header — I stay at the top when you scroll!
+    </div>
+
+    <h1>Module 4: Display & Positioning</h1>
+
+    <!-- TOPIC 19: Display Types -->
+    <div class="section">
+        <h2>19. Display Types</h2>
+
+        <h3>display: block</h3>
+        <p>Takes full width, starts on a new line. Examples: <code>&lt;div&gt;</code>, <code>&lt;p&gt;</code>, <code>&lt;h1&gt;</code></p>
+        <div class="demo-block">Block 1 — full width</div>
+        <div class="demo-block">Block 2 — new line</div>
+
+        <h3>display: inline</h3>
+        <p>Only takes needed width, stays in same line. Width/height are IGNORED. Examples: <code>&lt;span&gt;</code>, <code>&lt;a&gt;</code>, <code>&lt;strong&gt;</code></p>
+        <span class="demo-inline">Inline 1</span>
+        <span class="demo-inline">Inline 2</span>
+        <span class="demo-inline">Inline 3</span>
+
+        <h3>display: inline-block</h3>
+        <p>Best of both: flows inline but respects width/height.</p>
+        <div class="demo-inline-block">Box 1</div>
+        <div class="demo-inline-block">Box 2</div>
+        <div class="demo-inline-block">Box 3</div>
+
+        <h3>display: none vs visibility: hidden</h3>
+        <div style="background:#f8f9fa; padding:10px;">
+            <span style="background:#e74c3c; color:white; padding:5px;">Before</span>
+            <span class="demo-none">I'm display:none (no space)</span>
+            <span style="background:#27ae60; color:white; padding:5px;">After (no gap!)</span>
+        </div>
+        <div style="background:#f8f9fa; padding:10px; margin-top:5px;">
+            <span style="background:#e74c3c; color:white; padding:5px;">Before</span>
+            <span class="demo-hidden">I'm visibility:hidden</span>
+            <span style="background:#27ae60; color:white; padding:5px;">After (there's a gap!)</span>
+        </div>
+    </div>
+
+    <!-- STICKY Demo (Topic 20) -->
+    <div class="pos-sticky">
+        Sticky Element — I stick when you scroll past me! (top: 60px)
+    </div>
+
+    <!-- TOPIC 20: Position -->
+    <div class="section">
+        <h2>20. Position</h2>
+
+        <table style="width:100%; border-collapse:collapse; margin-bottom:20px;">
+            <thead>
+                <tr style="background:#2c3e50; color:white;">
+                    <th style="padding:10px; text-align:left;">Position</th>
+                    <th style="padding:10px; text-align:left;">Behavior</th>
+                    <th style="padding:10px; text-align:left;">Stays in Flow?</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr style="border-bottom:1px solid #ddd;">
+                    <td style="padding:10px;"><code>static</code></td>
+                    <td style="padding:10px;">Default, normal flow</td>
+                    <td style="padding:10px;">Yes</td>
+                </tr>
+                <tr style="border-bottom:1px solid #ddd; background:#f8f9fa;">
+                    <td style="padding:10px;"><code>relative</code></td>
+                    <td style="padding:10px;">Offset from normal position</td>
+                    <td style="padding:10px;">Yes (space preserved)</td>
+                </tr>
+                <tr style="border-bottom:1px solid #ddd;">
+                    <td style="padding:10px;"><code>absolute</code></td>
+                    <td style="padding:10px;">Relative to positioned ancestor</td>
+                    <td style="padding:10px;">No (removed)</td>
+                </tr>
+                <tr style="border-bottom:1px solid #ddd; background:#f8f9fa;">
+                    <td style="padding:10px;"><code>fixed</code></td>
+                    <td style="padding:10px;">Relative to viewport</td>
+                    <td style="padding:10px;">No (removed)</td>
+                </tr>
+                <tr>
+                    <td style="padding:10px;"><code>sticky</code></td>
+                    <td style="padding:10px;">Relative until scroll point, then fixed</td>
+                    <td style="padding:10px;">Yes</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>Visual Demo</h3>
+        <div class="position-container">
+            <div class="pos-static">static (default)</div>
+            <div class="pos-relative">relative (top:20px, left:30px)</div>
+            <div class="pos-absolute">absolute (top:10px, right:10px)</div>
+        </div>
+    </div>
+
+    <!-- TOPIC 21: Z-Index -->
+    <div class="section">
+        <h2>21. z-index (Stacking)</h2>
+        <p>Higher z-index = appears on top. Only works on positioned elements (not static).</p>
+        <div class="stack-container">
+            <div class="stack-box stack-1">z-index: 1</div>
+            <div class="stack-box stack-2">z-index: 2</div>
+            <div class="stack-box stack-3">z-index: 3</div>
+        </div>
+    </div>
+
+    <!-- TOPIC 22: Float -->
+    <div class="section">
+        <h2>22. Float & Clear (Legacy)</h2>
+        <p><em>Note: Use Flexbox/Grid instead. Float is shown for legacy understanding.</em></p>
+        <div class="float-demo">
+            <div class="float-left">float: left</div>
+            <div class="float-right">float: right</div>
+            <p>This text wraps around the floated elements. Float was originally designed
+               for text wrapping around images, like in newspapers. Before Flexbox and Grid,
+               developers used floats for entire page layouts. Today, we use Flexbox and Grid instead.</p>
+        </div>
+    </div>
+
+    <!-- TOPIC 23: Overflow -->
+    <div class="section">
+        <h2>23. Overflow</h2>
+        <div class="overflow-demo overflow-visible">
+            <strong>visible (default)</strong><br>
+            Content spills out of the box when it's too long. This is the default behavior.
+            Extra text keeps going beyond the boundary.
+        </div>
+        <div class="overflow-demo overflow-hidden">
+            <strong>hidden</strong><br>
+            Content is clipped. You can't see what's beyond the box. The extra content is simply cut off.
+        </div>
+        <div class="overflow-demo overflow-scroll">
+            <strong>scroll</strong><br>
+            Always shows scrollbars, even if content fits. This ensures consistent scrollbar appearance.
+        </div>
+        <div class="overflow-demo overflow-auto">
+            <strong>auto</strong><br>
+            Scrollbars only appear when content overflows. This is the most common choice. Smart and clean.
+        </div>
+    </div>
+
+    <!-- PRACTICE: Overlapping Cards -->
+    <div class="section">
+        <h2>Practice: Overlapping Cards</h2>
+        <div class="card-stack">
+            <div class="overlap-card">
+                <h3 style="margin:0 0 10px;">Card 1</h3>
+                <p style="margin:0;">z-index: 1 (back)</p>
+            </div>
+            <div class="overlap-card">
+                <h3 style="margin:0 0 10px;">Card 2</h3>
+                <p style="margin:0;">z-index: 2 (middle)</p>
+            </div>
+            <div class="overlap-card">
+                <h3 style="margin:0 0 10px;">Card 3</h3>
+                <p style="margin:0;">z-index: 3 (front)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Extra space for scroll demos -->
+    <div style="height: 300px;"></div>
+
+</body>
+</html>
