@@ -1,0 +1,337 @@
+/* ================================================================
+   QuickTicket — Event Listing Page Styles
+   ================================================================ */
+
+/* ----------------------------------------------------------------
+   RESET & BASE
+   ---------------------------------------------------------------- */
+body {
+  font-family: 'Segoe UI', sans-serif;
+  margin: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ----------------------------------------------------------------
+   HEADER & NAVIGATION
+   ---------------------------------------------------------------- */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 64px;
+  background: #1a1a2e;
+  color: #fff;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #e84c3d;
+  letter-spacing: 0.5px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hamburger {
+  display: none;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  font-size: 1.2rem;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.nav-menu {
+  display: flex;
+  gap: 4px;
+}
+
+.nav-menu li a {
+  display: block;
+  padding: 8px 14px;
+  color: #ccc;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.nav-menu li a:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+
+  .nav-menu {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 64px;
+    right: 0;
+    left: 0;
+    background: #1a1a2e;
+    padding: 12px 0;
+  }
+
+  .nav-menu.show {
+    display: flex;
+  }
+
+  .nav-menu li a {
+    padding: 12px 24px;
+  }
+}
+
+/* ----------------------------------------------------------------
+   HERO BANNER
+   ---------------------------------------------------------------- */
+.hero {
+  background: linear-gradient(135deg, #1a1a2e 0%, #e84c3d 100%);
+  color: #fff;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.hero-content h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  margin: 0 0 16px;
+}
+
+.hero-content p {
+  font-size: 1.1rem;
+  opacity: 0.85;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* ----------------------------------------------------------------
+   FORM SECTION
+   ---------------------------------------------------------------- */
+.form-section {
+  max-width: 640px;
+  margin: 48px auto;
+  padding: 0 24px;
+}
+
+.form-section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 24px;
+}
+
+.booking-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.form-group input {
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #e84c3d;
+  box-shadow: 0 0 0 3px rgba(232, 76, 61, 0.15);
+}
+
+.btn-submit {
+  align-self: flex-start;
+  padding: 10px 28px;
+  background: #e84c3d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-submit:hover {
+  background: #c0392b;
+}
+
+/* ----------------------------------------------------------------
+   EVENTS SECTION
+   ---------------------------------------------------------------- */
+.events-section {
+  padding: 0 24px 48px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.events-section h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin-bottom: 24px;
+}
+
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  padding: 20px;
+}
+
+.event-card img {
+  width: 100%;
+  height: 200px;
+}
+
+.event-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.event-card-body {
+  padding: 16px;
+}
+
+.event-category {
+  display: inline-block;
+  padding: 3px 10px;
+  background: #fce8e6;
+  color: #e84c3d;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.event-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1a1a2e;
+  margin: 0 0 6px;
+}
+
+.event-meta {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0 0 8px;
+}
+
+.event-price {
+  font-size: 0.9rem;
+  color: #333;
+  margin: 0 0 14px;
+}
+
+.btn-primary {
+  display: inline-block;
+  padding: 8px 20px;
+  background: #e84c3d;
+  color: #fff;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #c0392b;
+  color: #fff;
+}
+
+/* ----------------------------------------------------------------
+   FOOTER
+   ---------------------------------------------------------------- */
+.footer {
+  background: #1a1a2e;
+  color: #ccc;
+  padding: 30px 20px;
+}
+
+.footer-columns {
+  display: flex;
+  justify-content: space-between;
+}
+
+.footer-col {
+  min-width: 160px;
+}
+
+.footer-col h4 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 12px;
+}
+
+.footer-col p,
+.footer-col li {
+  font-size: 0.85rem;
+  line-height: 1.8;
+}
+
+.footer-col a {
+  color: #aaa;
+  transition: color 0.2s;
+}
+
+.footer-col a:hover {
+  color: #e84c3d;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 24px;
+  padding-top: 16px;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #888;
+}
