@@ -26,7 +26,79 @@ javascript topics
 => data-types
 => execution-context aka scope
 => functions in deep
-=> 'this' keyword and its behavior
+=> closures
 => es6 features
+    => classes
+    => template literals e.g `1+2=${1+2}`
+    => let and const
+    => arrow functions
+    => function default parameters
+    => function rest parameters
+    => destructuring
+    => spread operator
+    => promises
+    => async/await
 
 -----------------------
+Frontend development = HTML + CSS (JavaScript + Browser APIs)
+-----------------------
+
+-----------------
+browser APIs
+-----------------
+=> DOM (Document Object Model)
+=> XHR or Fetch API (for making HTTP requests)
+=> Timers (setTimeout, setInterval)
+
+
+complexities while plain-javascript( your code) with browser APIs
+-------------------------------------------------------------
+
+-> browser compatibility issues (different browsers may implement APIs differently)
+-> performance issues (plain JavaScript may not be optimized for performance)
+-> memory management issues (plain JavaScript may not handle memory efficiently)
+-> too much boilerplate code (writing repetitive code for common tasks)
+-> code reusability issues (plain JavaScript may not provide a way to reuse code effectively)
+.....
+
+
+
+legacy solutions to overcome these complexities
+-------------------------------------------------------------
+
+-> server-side rendering (SSR) (rendering HTML on the server and sending it to the client)
+
+    - jsp ( Java Server Pages )
+    - php ( Hypertext Preprocessor )
+    -> asp.net ( Active Server Pages )
+    -> ruby on rails ( web application framework written in Ruby )
+
+modern solutions to overcome these complexities
+-------------------------------------------------------------
+
+-> client-side rendering (CSR) (rendering HTML on the client using JavaScript)
+`
+-> modern browser APIs (newer APIs that provide better performance and functionality)
+-> modern JavaScript frameworks and libraries (tools that provide a structured way to build web applications)
+
+
+1. jquery (a fast, small, and feature-rich JavaScript library)
+    -> simplifies HTML document traversing, event handling, animating, and Ajax interactions for rapid web development.
+
+
+MVC (Model-View-Controller) architecture    
+------------------------------
+
+2. backbone.js (a lightweight JavaScript library that provides structure to web applications by providing models, views, collections, and routers)
+3. knockout.js (a JavaScript library that helps you create rich, responsive user interfaces with a clean underlying data model)
+4. dojo toolkit (a JavaScript framework that provides a set of tools for building web applications, including a rich set of UI components and a powerful data-binding system)
+5. ember.js (a JavaScript framework that provides a set of tools for building ambitious web applications, including a powerful templating engine and a robust routing system)
+6. angular.js (a JavaScript framework that provides a set of tools for building dynamic web applications, including a powerful data-binding system and a robust dependency injection system)
+
+
+Component-based architecture
+------------------------------
+
+7. react.js (a JavaScript library for building user interfaces, developed by Facebook, that allows developers to create reusable UI components and manage the state of their applications efficiently)
+8. vue.js (a progressive JavaScript framework for building user interfaces, developed by Evan You, that allows developers to create reusable UI components and manage the state of their applications efficiently)
+9. angular (a TypeScript-based open-source web application framework developed by Google, that allows developers to create reusable UI components and manage the state of their applications efficiently)
