@@ -1,0 +1,32 @@
+
+
+
+javascript language features
+------------------------------
+
+-> single-threaded processing model ( lightweight )
+-> non-blocking I/O operations ( asynchronous )
+-> event-driven programming model
+
+-> first-class functions ( functions are treated as objects )
+-> object-oriented programming ( supports classes and prototypes )
+-> dynamic typing ( variables can hold any type of data )
+
+javascript follows ECMAScript standard,
+which defines the syntax and features of the language. 
+
+current version => ECMAScript is ES2021 (ECMAScript 12) 
+
+
+-------------------
+
+javascript topics
+-----------------
+
+=> data-types
+=> execution-context aka scope
+=> functions in deep
+=> 'this' keyword and its behavior
+=> es6 features
+
+-----------------------
