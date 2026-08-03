@@ -9,6 +9,9 @@ function App() {
   return (
     <div className="container">
       <Navbar title={title} />
+      <hr />
+      {0} item(s) in the cart
+      <hr />
       <ProductList />
     </div>
   )

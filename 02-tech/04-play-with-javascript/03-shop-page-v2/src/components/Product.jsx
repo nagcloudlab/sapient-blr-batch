@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import Review from './Review';
 
 function Product({ product }) {
 
@@ -22,7 +23,13 @@ function Product({ product }) {
             case 2:
                 return <div>Specification content goes here.</div>;
             case 3:
-                return <div>Reviews content goes here.</div>;
+                return (
+                    <div>
+                        {reviews.map((review) => (
+                            <Review key={review.id} review={review} />
+                        ))}
+                    </div>
+                );
             default:
                 return null;
         }
