@@ -102,3 +102,22 @@ Component-based architecture
 7. react.js (a JavaScript library for building user interfaces, developed by Facebook, that allows developers to create reusable UI components and manage the state of their applications efficiently)
 8. vue.js (a progressive JavaScript framework for building user interfaces, developed by Evan You, that allows developers to create reusable UI components and manage the state of their applications efficiently)
 9. angular (a TypeScript-based open-source web application framework developed by Google, that allows developers to create reusable UI components and manage the state of their applications efficiently)
+
+
+
+-----------------------------------
+
+
+https://react.dev/learn/thinking-in-react
+
+- Start with the mockup ( data + screen layout )
+
+- Step 1: Break the UI into a component hierarchy 
+- Step 2: Build a static version in React 
+- Step 3: Find the minimal but complete representation of UI state 
+- Step 4: Identify where your state should live 
+- Step 5: Add inverse data flow (pass data and callbacks down to child components via props, and pass events up to parent components via callbacks)
+
+
+----------------------------------------------
+

@@ -2,15 +2,26 @@
 import { useState } from 'react';
 import Review from './Review';
 
-function Product({ product, onBuy }) {
+import { useContext } from 'react';
+import CartContext from '../context/CartContext';
+
+function Product({ product }) {
 
     const [currentTab, setCurrentTab] = useState(1);
+    const { cart, onBuy } = useContext(CartContext);
 
     const reviews = [
         { id: 1, author: 'John Doe', stars: 5, content: 'Great product!' },
         { id: 2, author: 'Jane Smith', stars: 4, content: 'Good value for money.' },
         { id: 3, author: 'Alice Johnson', stars: 5, content: 'Highly recommend this.' }
     ];
+
+    const isInCart = cart.some(item => item.id === product.id);
+    let qty = 0;
+    if (isInCart) {
+        const cartItem = cart.find(item => item.id === product.id);
+        qty = cartItem.quantity;
+    }
 
     const handleTabChange = (tabIndex) => {
         setCurrentTab(tabIndex);
@@ -50,7 +61,8 @@ function Product({ product, onBuy }) {
             <div className="col-md-8">
                 <div>{product.name}</div>
                 <div>&#8377;{product.price}</div>
-                <button onClick={handleAddToCart} className="btn btn-primary">Add to Cart</button>
+                <button disabled={isInCart} onClick={handleAddToCart} className="btn btn-primary">Add to Cart</button>
+                <span className="ms-2">Qty: {qty}</span>
                 <ul className="nav nav-tabs mt-3">
                     <li className="nav-item">
                         <a onClick={() => handleTabChange(1)} className={`nav-link ${currentTab === 1 ? 'active' : ''}`} href="#">Description</a>
