@@ -1,0 +1,112 @@
+.cart-badge {
+  --badge-start: #fff7df;
+  --badge-end: #ffe5cf;
+  --badge-border: #f0c896;
+  --badge-glow: rgba(238, 158, 55, 0.35);
+
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  width: min(420px, 100%);
+  margin: 14px auto;
+  padding: 12px 14px;
+  border: 1px solid var(--badge-border);
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--badge-start), var(--badge-end));
+  box-shadow: 0 10px 24px -14px var(--badge-glow);
+}
+
+.cart-badge::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(circle at 0 0, rgba(255, 255, 255, 0.8), transparent 38%);
+}
+
+.cart-badge__icon-wrap {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  color: #8f4d03;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 0 0 1px rgba(143, 77, 3, 0.15);
+  font-size: 18px;
+}
+
+.cart-badge__content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.cart-badge__title {
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  color: #3b2a12;
+}
+
+.cart-badge__subtitle {
+  font-size: 13px;
+  color: #7a5a33;
+}
+
+.cart-badge__count {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(180deg, #ff7c54, #f34f4f);
+  box-shadow: 0 8px 16px -9px rgba(243, 79, 79, 0.85);
+}
+
+.cart-badge.is-empty .cart-badge__count {
+  background: linear-gradient(180deg, #a7adb4, #858c95);
+  box-shadow: none;
+}
+
+.cart-badge.is-active {
+  animation: cart-badge-in 420ms ease-out;
+}
+
+@keyframes cart-badge-in {
+  from {
+    transform: translateY(6px) scale(0.985);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 576px) {
+  .cart-badge {
+    width: 100%;
+    margin: 10px auto;
+    padding: 10px 12px;
+  }
+
+  .cart-badge__icon-wrap {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .cart-badge__count {
+    min-width: 34px;
+    height: 34px;
+    font-size: 14px;
+  }
+}

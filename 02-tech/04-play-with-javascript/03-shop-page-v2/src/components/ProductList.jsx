@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Product from './Product';
 
-function ProductList() {
+function ProductList({ onBuy }) {
 
     const products = [
         {
@@ -24,7 +24,7 @@ function ProductList() {
         return products.map((product) => {
             return (
                 <div key={product.id} className='list-group-item'>
-                    <Product product={product} />
+                    <Product product={product} onBuy={onBuy} />
                 </div>
             );
         });
