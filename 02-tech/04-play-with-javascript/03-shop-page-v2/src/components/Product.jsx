@@ -6,9 +6,9 @@ function Product({ product }) {
     const [currentTab, setCurrentTab] = useState(1);
 
     const reviews = [
-        { id: 1, author: 'John Doe', content: 'Great product!' },
-        { id: 2, author: 'Jane Smith', content: 'Good value for money.' },
-        { id: 3, author: 'Alice Johnson', content: 'Highly recommend this.' }
+        { id: 1, author: 'John Doe', stars: 5, content: 'Great product!' },
+        { id: 2, author: 'Jane Smith', stars: 4, content: 'Good value for money.' },
+        { id: 3, author: 'Alice Johnson', stars: 5, content: 'Highly recommend this.' }
     ];
 
     const handleTabChange = (tabIndex) => {
