@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript (Part 1)</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 03</div>
+    <div class="t-main">JavaScript (Part 1)</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day | Workshop + guided lab + FE Ops</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct">AGENDA</span></div>
+    <div class="tt">By the end of this session</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">You can write, debug and maintain JavaScript that manipulates the DOM, validates forms, handles errors, and follows object-oriented patterns.</p>
+<table class="tbl"><thead><tr><th>Pillar</th><th>What you will do</th></tr></thead><tbody><tr><td><strong>Syntax & Structure</strong></td><td>Variables, types, operators, control flow</td></tr><tr><td><strong>Functions</strong></td><td>Declaration, expressions, arrow functions, scope, closures</td></tr><tr><td><strong>Objects & Arrays</strong></td><td>Literals, methods, destructuring, array methods</td></tr><tr><td><strong>DOM Manipulation</strong></td><td>Selecting, creating, modifying, removing elements</td></tr><tr><td><strong>OOP</strong></td><td>Constructor functions, prototypes, classes, inheritance</td></tr><tr><td><strong>Forms & Validation</strong></td><td>Client-side validation, preventDefault, input handling</td></tr><tr><td><strong>Error Handling</strong></td><td>try/catch/finally, custom errors, defensive coding</td></tr><tr><td><strong>Debugging</strong></td><td>Console, breakpoints, call stack, watch expressions</td></tr><tr><td><strong>FE Ops</strong></td><td>Performance, lazy load, security, logging</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Session agenda</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>JavaScript fundamentals: variables, types, operators</td></tr><tr><td>02</td><td>Control flow: conditionals, loops, iteration</td></tr><tr><td>03</td><td>Functions: declaration, scope, closures</td></tr><tr><td>04</td><td>Objects and arrays</td></tr><tr><td>05</td><td>DOM manipulation</td></tr><tr><td>06</td><td>OOP: constructors, prototypes, classes</td></tr><tr><td>07</td><td>Form validation and event handling</td></tr><tr><td>08</td><td>Error handling and debugging</td></tr><tr><td>09</td><td>Frontend Ops & Troubleshooting</td></tr><tr><td>10</td><td>Guided lab</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Where JavaScript fits</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li><strong>HTML</strong> defines structure (Module 01)</li><li><strong>CSS</strong> defines presentation (Module 02)</li><li><strong>JavaScript</strong> defines <strong>behavior and interactivity</strong></li></ul>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">JavaScript runs in the browser and can:</p>
+<ul class="bl"><li>Respond to user actions (clicks, typing, scrolling)</li><li>Modify the page without reloading (DOM manipulation)</li><li>Validate form input before submission</li><li>Fetch data from servers (covered in later modules)</li><li>Animate and transition elements</li></ul>
+
+<div style="display:flex;align-items:center;gap:6px;margin:20px 0">
+  <div style="flex:1;background:var(--panel);border-radius:10px;padding:16px;text-align:center">
+    <div style="width:36px;height:36px;background:var(--blue);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;margin-bottom:8px">1</div>
+    <div style="font-size:17px;font-weight:700;color:var(--ink)">Request</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">HTML, CSS,<br>assets fetched</div>
+  </div>
+  <div style="font-size:24px;color:var(--cyan)">&#9654;</div>
+  <div style="flex:1;background:var(--panel);border-radius:10px;padding:16px;text-align:center">
+    <div style="width:36px;height:36px;background:var(--blue);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;margin-bottom:8px">2</div>
+    <div style="font-size:17px;font-weight:700;color:var(--ink)">Parse</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">DOM tree<br>+ CSSOM tree</div>
+  </div>
+  <div style="font-size:24px;color:var(--cyan)">&#9654;</div>
+  <div style="flex:1;background:var(--panel);border-radius:10px;padding:16px;text-align:center">
+    <div style="width:36px;height:36px;background:var(--blue);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;margin-bottom:8px">3</div>
+    <div style="font-size:17px;font-weight:700;color:var(--ink)">Layout</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">Sizes and<br>positions</div>
+  </div>
+  <div style="font-size:24px;color:var(--cyan)">&#9654;</div>
+  <div style="flex:1;background:var(--panel);border-radius:10px;padding:16px;text-align:center">
+    <div style="width:36px;height:36px;background:var(--blue);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;margin-bottom:8px">4</div>
+    <div style="font-size:17px;font-weight:700;color:var(--ink)">Paint</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">Pixels<br>and layers</div>
+  </div>
+  <div style="font-size:24px;color:var(--cyan)">&#9654;</div>
+  <div style="flex:1;background:var(--green-tint);border-radius:10px;padding:16px;text-align:center">
+    <div style="width:36px;height:36px;background:var(--green);color:#fff;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;margin-bottom:8px">5</div>
+    <div style="font-size:17px;font-weight:700;color:var(--ink)">Interact</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">Events<br>and state</div>
+  </div>
+</div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">JavaScript operates at stage 5 (Interact) -- after the page is built and painted.</div></div></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Adding JavaScript to a page</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">&lt;!-- Method 1: External file (recommended) --&gt;
+&lt;script src="js/app.js"&gt;&lt;/script&gt;
+
+&lt;!-- Method 2: Inline script --&gt;
+&lt;script&gt;
+  console.log('Hello from inline script');
+&lt;/script&gt;
+
+&lt;!-- Method 3: Event attribute (avoid) --&gt;
+&lt;button onclick="alert('clicked')"&gt;Click&lt;/button&gt;</div></div></div>
+<table class="tbl"><thead><tr><th>Method</th><th>Pros</th><th>Cons</th></tr></thead><tbody><tr><td>External file</td><td>Cached, reusable, maintainable</td><td>Extra HTTP request</td></tr><tr><td>Inline script</td><td>No extra request</td><td>Not reusable, hard to maintain</td></tr><tr><td>Event attribute</td><td>Quick prototype</td><td>Mixes HTML and JS, no separation</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Always place <code>&lt;script&gt;</code> before <code>&lt;/body&gt;</code> or use <code>defer</code> attribute. This ensures the DOM is built before JS runs.</div></div></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Variables: let, const, var</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">// const: cannot be reassigned (use by default)
+const restaurantName = 'Burger Barn';
+const deliveryFee = 2.99;
+
+// let: can be reassigned (use when value changes)
+let cartTotal = 0;
+let itemCount = 0;
+cartTotal = 15.98;  // OK
+
+// var: old style (avoid in modern code)
+var oldWay = 'legacy';  // function-scoped, not block-scoped</div></div></div>
+<table class="tbl"><thead><tr><th>Keyword</th><th>Reassign?</th><th>Scope</th><th>Use when</th></tr></thead><tbody><tr><td><code>const</code></td><td>No</td><td>Block</td><td>Default choice -- value won't change</td></tr><tr><td><code>let</code></td><td>Yes</td><td>Block</td><td>Value will be updated (counters, totals)</td></tr><tr><td><code>var</code></td><td>Yes</td><td>Function</td><td>Legacy code only -- avoid in new code</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Start with <code>const</code>. Switch to <code>let</code> only when you need to reassign. Never use <code>var</code>.</div></div></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Data types</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><div class="cb-cd">// Primitives
+const name = 'Burger Barn';        // string
+const price = 8.99;                // number
+const isOpen = true;               // boolean
+const rating = null;               // null (intentionally empty)
+let deliveryTime;                  // undefined
+const orderId = Symbol('id');      // symbol (unique)
+const bigNum = 9007199254740991n;  // bigint
+
+// Reference types
+const menu = ['burger', 'fries'];  // array (object)
+const restaurant = { name, price };// object</div></div></div>
+<table class="tbl"><thead><tr><th>Type</th><th>typeof</th><th>Example</th></tr></thead><tbody><tr><td>String</td><td><code>"string"</code></td><td><code>'hello'</code>, <code>"world"</code>, `<code> </code>template<code> </code>`</td></tr><tr><td>Number</td><td><code>"number"</code></td><td><code>42</code>, <code>3.14</code>, <code>NaN</code>, <code>Infinity</code></td></tr><tr><td>Boolean</td><td><code>"boolean"</code></td><td><code>true</code>, <code>false</code></td></tr><tr><td>Null</td><td><code>"object"</code> (bug!)</td><td><code>null</code></td></tr><tr><td>Undefined</td><td><code>"undefined"</code></td><td>uninitialized variable</td></tr><tr><td>Object</td><td><code>"object"</code></td><td><code>{}</code>, <code>[]</code>, <code>new Date()</code></td></tr><tr><td>Function</td><td><code>"function"</code></td><td><code>function() {}</code>, <code>() =&gt; {}</code></td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Operators</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd">// Arithmetic
+const total = price * quantity;     // + - * / %
+const remainder = 10 % 3;          // 1
+
+// Comparison (always use strict)
+price === 8.99    // true (strict equal - type + value)
+price == '8.99'   // true (loose equal - AVOID!)
+price !== 9.99    // true (strict not equal)
+price &gt; 5         // true
+
+// Logical
+isOpen &amp;&amp; hasItems    // AND: both must be true
+isOpen || isTakeaway  // OR: at least one true
+!isOpen               // NOT: invert
+
+// Template literals
+const msg = `Order total: $${total.toFixed(2)}`;
+
+// Ternary
+const status = isOpen ? 'Open' : 'Closed';
+
+// Nullish coalescing
+const fee = deliveryFee ?? 2.99;  // use right if left is null/undefined</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Always use <code>===</code> and <code>!==</code>. Never use <code>==</code> or <code>!=</code>. Loose equality causes subtle bugs.</div></div></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Control flow: conditionals</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">// if / else if / else
+if (cartTotal &gt;= 25) {
+  deliveryFee = 0;
+  console.log('Free delivery!');
+} else if (cartTotal &gt;= 15) {
+  deliveryFee = 1.99;
+} else {
+  deliveryFee = 2.99;
+}
+
+// switch
+switch (orderStatus) {
+  case 'placed':
+    showConfirmation();
+    break;
+  case 'preparing':
+    showProgress();
+    break;
+  case 'delivered':
+    showComplete();
+    break;
+  default:
+    showUnknown();
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Every <code>case</code> needs a <code>break</code>. Without it, execution falls through to the next case.</div></div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Control flow: loops</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25</div><div class="cb-cd">// for loop (when you know the count)
+for (let i = 0; i &lt; menuItems.length; i++) {
+  console.log(menuItems[i]);
+}
+
+// for...of (iterate values -- preferred for arrays)
+for (const item of menuItems) {
+  console.log(item.name, item.price);
+}
+
+// for...in (iterate keys -- use for objects)
+for (const key in restaurant) {
+  console.log(key, restaurant[key]);
+}
+
+// while (when condition-based)
+let attempts = 0;
+while (attempts &lt; 3) {
+  attempts++;
+}
+
+// do...while (run at least once)
+do {
+  retryConnection();
+} while (!isConnected);</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Prefer <code>for...of</code> for arrays. Use <code>for...in</code> only for objects. Avoid <code>for...in</code> on arrays (it iterates indices as strings).</div></div></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Functions: three ways to define</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd">// 1. Function declaration (hoisted)
+function calculateTotal(items) {
+  let total = 0;
+  for (const item of items) {
+    total += item.price * item.quantity;
+  }
+  return total;
+}
+
+// 2. Function expression (not hoisted)
+const getDeliveryFee = function(distance) {
+  return distance &gt; 5 ? 4.99 : 2.99;
+};
+
+// 3. Arrow function (concise, no own 'this')
+const formatPrice = (price) =&gt; `$${price.toFixed(2)}`;
+
+// Arrow with multiple statements
+const applyDiscount = (total, code) =&gt; {
+  const discounts = { SAVE10: 0.10, SAVE20: 0.20 };
+  const rate = discounts[code] || 0;
+  return total * (1 - rate);
+};</div></div></div>
+<table class="tbl"><thead><tr><th>Style</th><th>Hoisted?</th><th>Has <code>this</code>?</th><th>Use for</th></tr></thead><tbody><tr><td>Declaration</td><td>Yes</td><td>Yes</td><td>Named functions, methods</td></tr><tr><td>Expression</td><td>No</td><td>Yes</td><td>Callbacks, conditionals</td></tr><tr><td>Arrow</td><td>No</td><td>No (inherits)</td><td>Short callbacks, array methods</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Scope and closures</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</div><div class="cb-cd">// Block scope (let and const)
+if (true) {
+  const local = 'only here';
+  let alsoLocal = 'same';
+}
+// console.log(local); // Error! Not accessible
+
+// Closure: inner function remembers outer variables
+function createCounter() {
+  let count = 0;           // private variable
+  return {
+    increment: () =&gt; ++count,
+    getCount: () =&gt; count,
+  };
+}
+
+const counter = createCounter();
+counter.increment();       // 1
+counter.increment();       // 2
+counter.getCount();        // 2
+// count is not accessible directly -- it's enclosed</div></div></div>
+<ul class="bl"><li><strong>Scope</strong> determines where a variable is accessible</li><li><strong>Closure</strong> is a function that remembers its outer scope even after the outer function returns</li><li>Closures are used for private state, event handlers, and callbacks</li></ul></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Objects: key-value containers</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28</div><div class="cb-cd">// Object literal
+const restaurant = {
+  name: 'Burger Barn',
+  cuisine: 'American',
+  rating: 4.5,
+  isOpen: true,
+  address: {
+    street: '123 Main St',
+    city: 'Springfield',
+  },
+  getInfo() {
+    return `${this.name} (${this.cuisine})`;
+  },
+};
+
+// Access properties
+restaurant.name;              // dot notation
+restaurant['cuisine'];        // bracket notation
+restaurant.address.city;      // nested access
+
+// Destructuring
+const { name, rating, isOpen } = restaurant;
+
+// Spread operator
+const updated = { ...restaurant, rating: 4.7 };
+
+// Optional chaining
+const zip = restaurant.address?.zip;  // undefined (no error)</div></div></div></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Arrays: ordered collections</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32</div><div class="cb-cd">const cart = [
+  { id: 1, name: 'Burger', price: 8.99, qty: 2 },
+  { id: 2, name: 'Fries', price: 4.99, qty: 1 },
+  { id: 3, name: 'Shake', price: 5.99, qty: 1 },
+];
+
+// Essential array methods
+cart.push({ id: 4, name: 'Soda', price: 1.99, qty: 1 });
+cart.pop();                           // remove last
+cart.length;                          // 3
+
+// find: first match
+const burger = cart.find(item =&gt; item.name === 'Burger');
+
+// filter: all matches
+const expensive = cart.filter(item =&gt; item.price &gt; 5);
+
+// map: transform each item
+const names = cart.map(item =&gt; item.name);
+// ['Burger', 'Fries', 'Shake']
+
+// reduce: accumulate to single value
+const total = cart.reduce(
+  (sum, item) =&gt; sum + item.price * item.qty, 0
+);
+
+// some / every: boolean checks
+const hasExpensive = cart.some(item =&gt; item.price &gt; 10);
+const allInStock = cart.every(item =&gt; item.qty &gt; 0);
+
+// forEach: iterate (no return value)
+cart.forEach(item =&gt; console.log(item.name));</div></div></div></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Array methods at a glance</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Method</th><th>Returns</th><th>Mutates?</th><th>Use for</th></tr></thead><tbody><tr><td><code>push(item)</code></td><td>new length</td><td>Yes</td><td>Add to end</td></tr><tr><td><code>pop()</code></td><td>removed item</td><td>Yes</td><td>Remove from end</td></tr><tr><td><code>unshift(item)</code></td><td>new length</td><td>Yes</td><td>Add to start</td></tr><tr><td><code>shift()</code></td><td>removed item</td><td>Yes</td><td>Remove from start</td></tr><tr><td><code>splice(i, n)</code></td><td>removed items</td><td>Yes</td><td>Remove/insert at index</td></tr><tr><td><code>find(fn)</code></td><td>first match</td><td>No</td><td>Lookup by condition</td></tr><tr><td><code>filter(fn)</code></td><td>new array</td><td>No</td><td>Subset by condition</td></tr><tr><td><code>map(fn)</code></td><td>new array</td><td>No</td><td>Transform each item</td></tr><tr><td><code>reduce(fn, init)</code></td><td>accumulated</td><td>No</td><td>Sum, count, group</td></tr><tr><td><code>some(fn)</code></td><td>boolean</td><td>No</td><td>Any match?</td></tr><tr><td><code>every(fn)</code></td><td>boolean</td><td>No</td><td>All match?</td></tr><tr><td><code>sort(fn)</code></td><td>sorted array</td><td>Yes</td><td>Order items</td></tr><tr><td><code>includes(val)</code></td><td>boolean</td><td>No</td><td>Contains value?</td></tr><tr><td><code>indexOf(val)</code></td><td>index / -1</td><td>No</td><td>Find position</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Prefer non-mutating methods (<code>map</code>, <code>filter</code>, <code>reduce</code>) over mutating ones. Create new arrays instead of changing originals.</div></div></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">The DOM: your bridge between JS and the page</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">The <strong>Document Object Model</strong> is a tree of nodes representing the HTML page. JavaScript can read and modify this tree.</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</div><div class="cb-cd">// Select elements
+const header = document.getElementById('header');
+const cards = document.querySelectorAll('.card');
+const firstCard = document.querySelector('.card');
+
+// Read content
+header.textContent;           // text only
+header.innerHTML;             // HTML string (security risk!)
+
+// Modify content
+header.textContent = 'New Title';
+
+// Modify attributes
+img.setAttribute('src', 'new-image.jpg');
+img.alt = 'Description';
+
+// Modify styles
+card.style.display = 'none';
+card.classList.add('active');
+card.classList.remove('hidden');
+card.classList.toggle('selected');</div></div></div></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">DOM: creating and removing elements</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20</div><div class="cb-cd">// Create a new element
+const card = document.createElement('div');
+card.className = 'card';
+card.innerHTML = `
+  &lt;h3&gt;${restaurant.name}&lt;/h3&gt;
+  &lt;p&gt;${restaurant.cuisine}&lt;/p&gt;
+`;
+
+// Add to page
+document.getElementById('grid').appendChild(card);
+
+// Insert before another element
+grid.insertBefore(card, grid.firstChild);
+
+// Remove element
+card.remove();
+// or: card.parentNode.removeChild(card);
+
+// Clone element
+const clone = card.cloneNode(true);  // true = deep clone</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Prefer <code>textContent</code> over <code>innerHTML</code> when inserting user data. <code>innerHTML</code> is an XSS vector if the content is not sanitized.</div></div></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">DOM: event handling</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25</div><div class="cb-cd">// addEventListener (recommended)
+button.addEventListener('click', function(event) {
+  console.log('Clicked!', event.target);
+});
+
+// Arrow function
+button.addEventListener('click', (e) =&gt; {
+  e.preventDefault();   // stop default behavior
+  e.stopPropagation();  // stop event bubbling
+});
+
+// Event delegation (efficient for dynamic content)
+document.getElementById('grid').addEventListener('click', (e) =&gt; {
+  const card = e.target.closest('.card');
+  if (card) {
+    const id = card.dataset.id;
+    openMenu(id);
+  }
+});
+
+// Common events
+// click, dblclick, mouseenter, mouseleave
+// keydown, keyup, keypress
+// submit, change, input, focus, blur
+// load, DOMContentLoaded, scroll, resize</div></div></div>
+<table class="tbl"><thead><tr><th>Pattern</th><th>When to use</th></tr></thead><tbody><tr><td>Direct listener</td><td>Static elements that exist on page load</td></tr><tr><td>Event delegation</td><td>Dynamic elements added/removed by JS</td></tr><tr><td><code>e.preventDefault()</code></td><td>Stop form submit, link navigation</td></tr><tr><td><code>e.stopPropagation()</code></td><td>Prevent event from reaching parent</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct">CHECKPOINT</span></div>
+    <div class="tt">Checkpoint: DOM practice</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Open the FoodExpress page and try in the Console (F12):</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">// 1. Select all restaurant cards
+document.querySelectorAll('.card');
+
+// 2. Change a card title
+document.querySelector('.card-title').textContent = 'My Restaurant';
+
+// 3. Add a class
+document.querySelector('.card').classList.add('highlight');
+
+// 4. Create a new element
+const badge = document.createElement('span');
+badge.textContent = 'NEW';
+badge.className = 'badge bg-info';
+document.querySelector('.card-body').prepend(badge);
+
+// 5. Listen for clicks
+document.querySelector('.btn').addEventListener('click', () =&gt; {
+  alert('Button clicked!');
+});</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">5 minutes | Try each command in the DevTools Console.</div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">OOP: constructor functions</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22</div><div class="cb-cd">// Constructor function (pre-ES6)
+function MenuItem(name, price, category) {
+  this.name = name;
+  this.price = price;
+  this.category = category;
+  this.isAvailable = true;
+}
+
+// Add method to prototype (shared across instances)
+MenuItem.prototype.getInfo = function() {
+  return `${this.name} - $${this.price.toFixed(2)}`;
+};
+
+MenuItem.prototype.toggleAvailability = function() {
+  this.isAvailable = !this.isAvailable;
+};
+
+// Create instances
+const burger = new MenuItem('Smash Burger', 8.99, 'mains');
+const fries = new MenuItem('Loaded Fries', 4.99, 'sides');
+
+burger.getInfo();  // "Smash Burger - $8.99"</div></div></div>
+<ul class="bl"><li><code>new</code> creates a new object, sets <code>this</code>, returns it</li><li>Methods on <code>prototype</code> are shared (memory efficient)</li><li>Without <code>new</code>, <code>this</code> points to <code>window</code> (bug!)</li></ul></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">OOP: ES6 classes</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32</div><div class="cb-cd">class MenuItem {
+  constructor(name, price, category) {
+    this.name = name;
+    this.price = price;
+    this.category = category;
+    this.isAvailable = true;
+  }
+
+  getInfo() {
+    return `${this.name} - $${this.price.toFixed(2)}`;
+  }
+
+  toggleAvailability() {
+    this.isAvailable = !this.isAvailable;
+  }
+}
+
+// Inheritance
+class SpecialItem extends MenuItem {
+  constructor(name, price, category, discount) {
+    super(name, price, category);
+    this.discount = discount;
+  }
+
+  getDiscountedPrice() {
+    return this.price * (1 - this.discount);
+  }
+}
+
+const special = new SpecialItem('Holiday Burger', 12.99, 'mains', 0.15);
+special.getInfo();            // "Holiday Burger - $12.99"
+special.getDiscountedPrice(); // 11.04</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Classes are syntactic sugar over prototypes. Same behavior, cleaner syntax.</div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct">FORMS</span></div>
+    <div class="tt">Form validation</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32</div><div class="cb-cd">const form = document.getElementById('order-form');
+
+form.addEventListener('submit', (e) =&gt; {
+  e.preventDefault();  // stop page reload
+
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+
+  // Manual validation
+  const errors = [];
+
+  if (!name) {
+    errors.push('Name is required');
+  }
+
+  if (!email || !email.includes('@')) {
+    errors.push('Valid email is required');
+  }
+
+  if (phone &amp;&amp; !/^\d{10}$/.test(phone)) {
+    errors.push('Phone must be 10 digits');
+  }
+
+  if (errors.length &gt; 0) {
+    showErrors(errors);
+    return;
+  }
+
+  // All valid -- submit
+  submitOrder({ name, email, phone });
+});</div></div></div>
+<ul class="bl"><li><code>e.preventDefault()</code> stops the form from reloading the page</li><li>Validate on <code>submit</code> event, not on individual field changes</li><li>Show all errors at once, not one at a time</li><li>Client validation is UX -- server validation is security</li></ul></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Error handling: try / catch / finally</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37</div><div class="cb-cd">// Basic try/catch
+try {
+  const data = JSON.parse(responseText);
+  processOrder(data);
+} catch (error) {
+  console.error('Failed to parse:', error.message);
+  showUserError('Something went wrong. Please try again.');
+} finally {
+  hideLoadingSpinner();
+}
+
+// Custom error
+class ValidationError extends Error {
+  constructor(field, message) {
+    super(message);
+    this.name = 'ValidationError';
+    this.field = field;
+  }
+}
+
+// Throw custom error
+function validatePrice(price) {
+  if (typeof price !== 'number' || price &lt; 0) {
+    throw new ValidationError('price', 'Price must be a positive number');
+  }
+  return price;
+}
+
+// Catch specific error type
+try {
+  validatePrice(-5);
+} catch (e) {
+  if (e instanceof ValidationError) {
+    highlightField(e.field);
+  }
+  console.error(e.name, e.message);
+}</div></div></div></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct">DEVTOOLS</span></div>
+    <div class="tt">Debugging with DevTools</div>
+    <div class="dv"></div>
+    <div class="bd">
+<div style="display:flex;gap:12px;margin:12px 0">
+  <div style="flex:1;background:var(--panel);border-radius:8px;padding:14px;text-align:center">
+    <div style="font-size:24px;margin-bottom:6px">&#x1F50D;</div>
+    <div style="font-size:15px;font-weight:700;color:var(--ink)">Elements</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">DOM tree<br>+ CSS rules</div>
+  </div>
+  <div style="flex:1;background:var(--panel);border-radius:8px;padding:14px;text-align:center">
+    <div style="font-size:24px;margin-bottom:6px">&#x1F4CA;</div>
+    <div style="font-size:15px;font-weight:700;color:var(--ink)">Computed</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">Final values<br>+ box model</div>
+  </div>
+  <div style="flex:1;background:var(--panel);border-radius:8px;padding:14px;text-align:center">
+    <div style="font-size:24px;margin-bottom:6px">&#x1F4E1;</div>
+    <div style="font-size:15px;font-weight:700;color:var(--ink)">Network</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">Resources<br>+ load timing</div>
+  </div>
+  <div style="flex:1;background:var(--panel);border-radius:8px;padding:14px;text-align:center">
+    <div style="font-size:24px;margin-bottom:6px">&#x26A0;&#xFE0F;</div>
+    <div style="font-size:15px;font-weight:700;color:var(--ink)">Console</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">Errors<br>+ warnings</div>
+  </div>
+  <div style="flex:1;background:var(--green-tint);border-radius:8px;padding:14px;text-align:center">
+    <div style="font-size:24px;margin-bottom:6px">&#x2705;</div>
+    <div style="font-size:15px;font-weight:700;color:var(--ink)">Lighthouse</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">Performance<br>+ accessibility</div>
+  </div>
+</div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Debugging workflow</div>
+<ul class="bl"><li>1. <strong>Console</strong> -- <code>console.log()</code>, <code>console.error()</code>, <code>console.table()</code></li><li>2. <strong>Breakpoints</strong> -- Click line number in Sources panel to pause execution</li><li>3. <strong>Step through</strong> -- Step over (F10), step into (F11), step out (Shift+F11)</li><li>4. <strong>Watch</strong> -- Add expressions to watch panel to monitor values</li><li>5. <strong>Call stack</strong> -- See which function called which</li><li>6. <strong>Scope</strong> -- Inspect local, closure, and global variables</li></ul>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">// Useful console methods
+console.log('Value:', variable);
+console.table(arrayOfObjects);
+console.group('Cart');
+  console.log('Items:', cart.length);
+  console.log('Total:', total);
+console.groupEnd();
+console.time('render');
+  renderCards();
+console.timeEnd('render');  // "render: 12ms"</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Never ship <code>console.log</code> statements to production. Use a logging framework or remove them.</div></div></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Common JavaScript bugs and fixes</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Bug</th><th>Cause</th><th>Fix</th></tr></thead><tbody><tr><td><code>NaN</code> in calculations</td><td>String + number</td><td>Use <code>parseFloat()</code> or <code>Number()</code></td></tr><tr><td>Duplicate items in array</td><td>No existence check before <code>push</code></td><td>Use <code>find()</code> first</td></tr><tr><td>Form submits with empty fields</td><td>No <code>preventDefault()</code></td><td>Add <code>e.preventDefault()</code> + validation</td></tr><tr><td><code>Cannot read property of undefined</code></td><td>Accessing nested property on null</td><td>Use optional chaining <code>?.</code></td></tr><tr><td>Event listener not working</td><td>Element not in DOM when script runs</td><td>Use <code>DOMContentLoaded</code> or <code>defer</code></td></tr><tr><td><code>this</code> is undefined</td><td>Arrow function in method</td><td>Use regular function for methods</td></tr><tr><td>Array modified during iteration</td><td><code>splice</code> in <code>forEach</code></td><td>Use <code>filter</code> to create new array</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">These are the bugs sustain engineers fix most often in frontend code.</div></div></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct">FORMS</span></div>
+    <div class="tt">Frontend Ops: performance optimization</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li><strong>Minimize DOM access</strong> -- cache selectors, batch updates</li><li><strong>Debounce events</strong> -- scroll and resize fire 100+ times/second</li><li><strong>Lazy load images</strong> -- <code>loading="lazy"</code> (Module 01)</li><li><strong>Defer scripts</strong> -- <code>&lt;script defer&gt;</code> loads without blocking render</li><li><strong>Reduce reflows</strong> -- change classes, not individual styles</li><li><strong>Bundle and minify</strong> -- fewer HTTP requests, smaller files</li></ul>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">// Debounce: wait until user stops typing
+function debounce(fn, delay) {
+  let timer;
+  return (...args) =&gt; {
+    clearTimeout(timer);
+    timer = setTimeout(() =&gt; fn(...args), delay);
+  };
+}
+
+const searchInput = document.getElementById('search');
+searchInput.addEventListener('input',
+  debounce((e) =&gt; filterRestaurants(e.target.value), 300)
+);</div></div></div></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Frontend Ops: security</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li><strong>Never trust user input</strong> -- validate and sanitize</li><li><strong>Use <code>textContent</code>, not <code>innerHTML</code></strong> for user data (XSS prevention)</li><li><strong>Avoid <code>eval()</code></strong> -- executes arbitrary code</li><li><strong>Use <code>rel="noopener noreferrer"</code></strong> on external links</li><li><strong>Sanitize before rendering</strong> -- use DOMPurify for HTML content</li><li><strong>Never store secrets in JS</strong> -- API keys, passwords visible in source</li></ul>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">// DANGEROUS: XSS vulnerability
+element.innerHTML = userInput;
+
+// SAFE: textContent escapes HTML
+element.textContent = userInput;
+
+// SAFE: DOMPurify for HTML content
+import DOMPurify from 'dompurify';
+element.innerHTML = DOMPurify.sanitize(htmlContent);</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Security audits flag <code>innerHTML</code> with user input. Know the safe alternatives.</div></div></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Frontend Ops: logging and monitoring</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31</div><div class="cb-cd">// Structured logging
+function log(level, message, data = {}) {
+  const entry = {
+    timestamp: new Date().toISOString(),
+    level,
+    message,
+    ...data,
+  };
+  console[level](JSON.stringify(entry));
+}
+
+log('info', 'Order placed', { orderId: 'FE-1042', total: 24.97 });
+log('error', 'Payment failed', { orderId: 'FE-1042', reason: 'timeout' });
+
+// Error boundary: catch unhandled errors
+window.addEventListener('error', (event) =&gt; {
+  log('error', 'Unhandled error', {
+    message: event.message,
+    file: event.filename,
+    line: event.lineno,
+  });
+});
+
+// Performance monitoring
+window.addEventListener('load', () =&gt; {
+  const perf = performance.getEntriesByType('navigation')[0];
+  log('info', 'Page load', {
+    domReady: Math.round(perf.domContentLoadedEventEnd),
+    fullLoad: Math.round(perf.loadEventEnd),
+  });
+});</div></div></div></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="29">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct">LAB</span></div>
+    <div class="tt">Guided lab: add interactivity to FoodExpress</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Step</th><th>Task</th></tr></thead><tbody><tr><td>01</td><td>Fix: "Add to Cart" creates duplicate items instead of incrementing quantity</td></tr><tr><td>02</td><td>Fix: Cart total shows <code>NaN</code> when discount code is applied</td></tr><tr><td>03</td><td>Fix: Checkout form submits with empty required fields</td></tr><tr><td>04</td><td>Fix: Cuisine filter re-renders entire page (use DOM manipulation)</td></tr><tr><td>05</td><td>Add: Disable "View Menu" button for closed restaurants</td></tr><tr><td>06</td><td>Add: Cart item count updates in the navbar badge</td></tr><tr><td>07</td><td>Add: Form validation with error messages next to fields</td></tr><tr><td>08</td><td>Debug: Use DevTools breakpoints to trace the discount bug</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">29</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="30">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 03 - JAVASCRIPT (PART 1)</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab acceptance criteria</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li>[ ] Adding same item twice increments quantity (no duplicates)</li><li>[ ] Cart total calculates correctly (price * quantity, no NaN)</li><li>[ ] Form validates name, email, phone before submission</li><li>[ ] Cuisine filter updates only the grid (no page reload/flash)</li><li>[ ] Closed restaurants have disabled buttons</li><li>[ ] Cart badge in navbar shows correct item count</li><li>[ ] Error messages appear next to invalid fields</li><li>[ ] At least one bug traced with DevTools breakpoints</li><li>[ ] <code>console.log</code> used for debugging, not left in final code</li><li>[ ] No <code>innerHTML</code> with unsanitized user input</li></ul></div>
+    <div class="ft"><span class="fr">30</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="31">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 03 - COMPLETE</div>
+    <div class="e-ttl">Key takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Concept</th><th>Remember</th></tr></thead><tbody><tr><td>Variables</td><td><code>const</code> by default, <code>let</code> when reassigning, never <code>var</code></td></tr><tr><td>Comparison</td><td>Always <code>===</code>, never <code>==</code></td></tr><tr><td>Functions</td><td>Declaration, expression, arrow -- know when to use each</td></tr><tr><td>Arrays</td><td><code>find</code>, <code>filter</code>, <code>map</code>, <code>reduce</code> -- prefer non-mutating</td></tr><tr><td>DOM</td><td><code>querySelector</code> to select, <code>textContent</code> to write safely</td></tr><tr><td>Events</td><td><code>addEventListener</code> + delegation for dynamic content</td></tr><tr><td>Forms</td><td><code>preventDefault()</code> + validate before submit</td></tr><tr><td>Errors</td><td><code>try/catch</code> for parsing, network, and risky operations</td></tr><tr><td>Debugging</td><td>Breakpoints > console.log. Inspect scope and call stack</td></tr><tr><td>Security</td><td><code>textContent</code> over <code>innerHTML</code>. Never trust user input</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 04 -- JavaScript (Part 2) + UI Frameworks (React, Angular, Vue)</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 04 -- JavaScript (Part 2) + UI Frameworks (React, Angular, Vue)</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 31</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

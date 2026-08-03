@@ -1,0 +1,1294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JavaScript (Part 2) + UI Frameworks</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 04</div>
+    <div class="t-main">JavaScript (Part 2) + UI Frameworks</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day | Workshop + guided lab</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">AGENDA</span></div>
+    <div class="tt">By the end of this session</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">You can use modern JavaScript (ES6+), understand async patterns, work with modules, and evaluate UI frameworks (React, Angular, Vue) for sustain engineering tasks.</p>
+<table class="tbl"><thead><tr><th>Pillar</th><th>What you will do</th></tr></thead><tbody><tr><td><strong>ES6+ Features</strong></td><td>Destructuring, spread/rest, template literals, optional chaining</td></tr><tr><td><strong>Async JavaScript</strong></td><td>Callbacks, Promises, async/await, fetch API</td></tr><tr><td><strong>Modules</strong></td><td>import/export, CommonJS vs ES Modules, bundlers</td></tr><tr><td><strong>FE Ops & Troubleshooting</strong></td><td>Network debugging, performance profiling, error tracking</td></tr><tr><td><strong>UI Frameworks</strong></td><td>React, Angular, Vue -- purpose, architecture, differences</td></tr><tr><td><strong>Component Libraries</strong></td><td>Bootstrap, Semantic UI -- rapid prototyping</td></tr><tr><td><strong>App Scaffolding</strong></td><td>Create React App, Angular CLI, Vue CLI</td></tr><tr><td><strong>Code Generation</strong></td><td>AI-assisted UI, low-code tools, design-to-code</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Session agenda</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>ES6+ features: advanced syntax</td></tr><tr><td>02</td><td>Destructuring and spread/rest operators</td></tr><tr><td>03</td><td>Promises and async/await</td></tr><tr><td>04</td><td>Fetch API and error handling</td></tr><tr><td>05</td><td>JavaScript modules</td></tr><tr><td>06</td><td>FE Ops and troubleshooting</td></tr><tr><td>07</td><td>UI frameworks overview: React, Angular, Vue</td></tr><tr><td>08</td><td>React fundamentals</td></tr><tr><td>09</td><td>Angular and Vue overview</td></tr><tr><td>10</td><td>Component libraries: Bootstrap, Semantic UI</td></tr><tr><td>11</td><td>Creating apps and code generation</td></tr><tr><td>12</td><td>Capsule project + MCQs</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">ES6+: arrow functions revisited</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">// Standard function
+function calculateTax(amount) {
+  return amount * 0.08;
+}
+
+// Arrow function (concise)
+const calculateTax = (amount) =&gt; amount * 0.08;
+
+// Arrow with no params
+const getTimestamp = () =&gt; Date.now();
+
+// Arrow with body block
+const processOrder = (items) =&gt; {
+  const subtotal = items.reduce((sum, i) =&gt; sum + i.price, 0);
+  const tax = calculateTax(subtotal);
+  return { subtotal, tax, total: subtotal + tax };
+};</div></div></div>
+<table class="tbl"><thead><tr><th>Feature</th><th>Arrow function</th><th>Regular function</th></tr></thead><tbody><tr><td><code>this</code> binding</td><td>Inherits from parent scope</td><td>Own <code>this</code> (caller-dependent)</td></tr><tr><td><code>arguments</code> object</td><td>Not available</td><td>Available</td></tr><tr><td>Use as constructor</td><td>No (<code>new</code> throws error)</td><td>Yes</td></tr><tr><td>Best for</td><td>Callbacks, array methods</td><td>Methods, event handlers</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Arrow functions do NOT have their own <code>this</code>. This is the #1 source of bugs when migrating legacy code.</div></div></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">ES6+: destructuring</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">// Object destructuring
+const order = { id: 'FE-1042', customer: 'Alice', total: 24.97 };
+const { id, customer, total } = order;
+
+// Rename variables
+const { id: orderId, customer: customerName } = order;
+
+// Default values
+const { discount = 0, deliveryFee = 2.99 } = order;
+
+// Nested destructuring
+const restaurant = {
+  name: 'Burger Barn',
+  address: { city: 'Springfield', zip: '62704' },
+};
+const { address: { city, zip } } = restaurant;
+
+// Array destructuring
+const [first, second, ...rest] = ['pizza', 'burger', 'sushi', 'tacos'];
+// first = 'pizza', second = 'burger', rest = ['sushi', 'tacos']
+
+// Swap variables
+let a = 1, b = 2;
+[a, b] = [b, a];  // a = 2, b = 1</div></div></div></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">ES6+: spread and rest operators</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">// Spread: expand an array or object
+const menu = ['burger', 'fries', 'shake'];
+const extendedMenu = [...menu, 'salad', 'wrap'];
+// ['burger', 'fries', 'shake', 'salad', 'wrap']
+
+// Spread: merge objects (shallow copy)
+const defaults = { deliveryFee: 2.99, taxRate: 0.08 };
+const config = { ...defaults, deliveryFee: 0 };
+// { deliveryFee: 0, taxRate: 0.08 }
+
+// Rest: collect remaining arguments
+function createOrder(customer, ...items) {
+  return {
+    customer,
+    items,
+    itemCount: items.length,
+  };
+}
+createOrder('Alice', 'burger', 'fries', 'shake');
+// { customer: 'Alice', items: ['burger', 'fries', 'shake'], itemCount: 3 }
+
+// Rest in destructuring
+const { name, ...details } = restaurant;
+// name = 'Burger Barn', details = { address: {...} }</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Spread creates shallow copies. Nested objects are still references. Use <code>structuredClone()</code> for deep copies.</div></div></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">HTML</span></div>
+    <div class="tt">ES6+: template literals and tagged templates</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25</div><div class="cb-cd">// Template literals (backticks)
+const name = 'Alice';
+const total = 24.97;
+const message = `Hi ${name}, your order total is $${total.toFixed(2)}`;
+
+// Multi-line strings
+const html = `
+  &lt;div class="card"&gt;
+    &lt;h3&gt;${restaurant.name}&lt;/h3&gt;
+    &lt;p&gt;Rating: ${restaurant.rating}/5&lt;/p&gt;
+  &lt;/div&gt;
+`;
+
+// Expressions inside ${}
+const status = `Order is ${total &gt; 20 ? 'eligible for free delivery' : 'standard delivery'}`;
+
+// Tagged templates (advanced)
+function sql(strings, ...values) {
+  // Sanitize values to prevent SQL injection
+  return {
+    text: strings.join('?'),
+    values: values,
+  };
+}
+const query = sql`SELECT * FROM orders WHERE id = ${orderId}`;</div></div></div></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">ES6+: optional chaining and nullish coalescing</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">// Optional chaining (?.)
+const order = {
+  customer: { name: 'Alice' },
+  delivery: null,
+};
+
+// Without optional chaining (crashes)
+// const city = order.delivery.address.city; // TypeError!
+
+// With optional chaining (safe)
+const city = order.delivery?.address?.city;  // undefined
+
+// Works with methods
+const formatted = order.delivery?.getETA?.();  // undefined
+
+// Works with arrays
+const firstItem = order.items?.[0]?.name;  // undefined
+
+// Nullish coalescing (??)
+const fee = order.deliveryFee ?? 2.99;
+// Uses 2.99 only if deliveryFee is null or undefined
+// NOT for 0 or '' (those are valid values)
+
+// Compare with ||
+const fee2 = order.deliveryFee || 2.99;
+// Uses 2.99 for null, undefined, 0, '', false
+// BUG if deliveryFee is legitimately 0!</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Always prefer <code>??</code> over <code>||</code> when 0 or empty string are valid values.</div></div></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">ES6+: Map, Set, and Symbol</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">// Map: key-value pairs (any type as key)
+const orderCache = new Map();
+orderCache.set('FE-1042', { customer: 'Alice', total: 24.97 });
+orderCache.set('FE-1043', { customer: 'Bob', total: 18.50 });
+orderCache.get('FE-1042');     // { customer: 'Alice', total: 24.97 }
+orderCache.has('FE-1042');     // true
+orderCache.size;               // 2
+orderCache.delete('FE-1043');
+
+// Set: unique values only
+const categories = new Set(['pizza', 'burger', 'pizza', 'sushi']);
+// Set {'pizza', 'burger', 'sushi'}
+categories.add('tacos');
+categories.has('pizza');       // true
+categories.size;               // 4
+
+// Deduplicate an array
+const unique = [...new Set(items)];
+
+// Symbol: unique identifiers
+const ID = Symbol('id');
+const order = { [ID]: 42, name: 'Burger' };
+order[ID];  // 42
+// Symbols are NOT enumerable in for...in or Object.keys()</div></div></div>
+<table class="tbl"><thead><tr><th>Collection</th><th>Use when</th></tr></thead><tbody><tr><td><code>Object</code></td><td>String keys, JSON serialization needed</td></tr><tr><td><code>Map</code></td><td>Any type as key, frequent additions/deletions</td></tr><tr><td><code>Array</code></td><td>Ordered, duplicates OK</td></tr><tr><td><code>Set</code></td><td>Unique values, fast lookup</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">Callbacks: the foundation of async</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25</div><div class="cb-cd">// Synchronous: blocks until complete
+const data = readFileSync('orders.json');  // waits here
+processData(data);                         // runs after
+
+// Asynchronous with callback
+readFile('orders.json', (error, data) =&gt; {
+  if (error) {
+    console.error('Failed to read:', error);
+    return;
+  }
+  processData(data);
+});
+console.log('This runs BEFORE file is read');
+
+// Callback hell (pyramid of doom)
+getUser(userId, (user) =&gt; {
+  getOrders(user.id, (orders) =&gt; {
+    getDetails(orders[0].id, (details) =&gt; {
+      getPayment(details.paymentId, (payment) =&gt; {
+        // deeply nested -- hard to read and maintain
+        updateUI(payment);
+      });
+    });
+  });
+});</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Callbacks work but create deeply nested, hard-to-read code. Promises solve this.</div></div></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">Promises: cleaner async</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28</div><div class="cb-cd">// Creating a Promise
+function fetchOrder(orderId) {
+  return new Promise((resolve, reject) =&gt; {
+    setTimeout(() =&gt; {
+      if (orderId) {
+        resolve({ id: orderId, status: 'delivered' });
+      } else {
+        reject(new Error('Order ID required'));
+      }
+    }, 1000);
+  });
+}
+
+// Consuming a Promise
+fetchOrder('FE-1042')
+  .then(order =&gt; {
+    console.log('Order:', order.status);
+    return fetchOrderDetails(order.id);
+  })
+  .then(details =&gt; {
+    console.log('Details:', details);
+  })
+  .catch(error =&gt; {
+    console.error('Failed:', error.message);
+  })
+  .finally(() =&gt; {
+    hideLoadingSpinner();
+  });</div></div></div>
+<table class="tbl"><thead><tr><th>State</th><th>Meaning</th></tr></thead><tbody><tr><td><strong>Pending</strong></td><td>Operation in progress</td></tr><tr><td><strong>Fulfilled</strong></td><td>Completed successfully (<code>.then()</code> runs)</td></tr><tr><td><strong>Rejected</strong></td><td>Failed (<code>.catch()</code> runs)</td></tr><tr><td><strong>Settled</strong></td><td>Either fulfilled or rejected (<code>.finally()</code> runs)</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">Promise combinators</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30</div><div class="cb-cd">// Promise.all: wait for ALL to complete (fail-fast)
+const [menu, reviews, hours] = await Promise.all([
+  fetch('/api/menu').then(r =&gt; r.json()),
+  fetch('/api/reviews').then(r =&gt; r.json()),
+  fetch('/api/hours').then(r =&gt; r.json()),
+]);
+// If ANY fails, the whole thing rejects
+
+// Promise.allSettled: wait for ALL (never fails)
+const results = await Promise.allSettled([
+  fetch('/api/menu'),
+  fetch('/api/reviews'),
+  fetch('/api/hours'),
+]);
+results.forEach(r =&gt; {
+  if (r.status === 'fulfilled') console.log(r.value);
+  if (r.status === 'rejected') console.error(r.reason);
+});
+
+// Promise.race: first to settle wins
+const result = await Promise.race([
+  fetch('/api/data'),
+  timeout(5000),  // reject after 5 seconds
+]);
+
+// Promise.any: first to fulfill wins
+const fastest = await Promise.any([
+  fetch('https://cdn1.example.com/data'),
+  fetch('https://cdn2.example.com/data'),
+]);</div></div></div></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">async / await: modern async syntax</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28</div><div class="cb-cd">// async function always returns a Promise
+async function loadRestaurantPage(id) {
+  try {
+    // await pauses until Promise resolves
+    const restaurant = await fetch(`/api/restaurants/${id}`);
+    const data = await restaurant.json();
+
+    const menu = await fetch(`/api/restaurants/${id}/menu`);
+    const menuData = await menu.json();
+
+    renderPage(data, menuData);
+  } catch (error) {
+    console.error('Failed to load:', error);
+    showErrorPage();
+  } finally {
+    hideLoadingSpinner();
+  }
+}
+
+// Parallel with async/await
+async function loadDashboard() {
+  const [orders, stats, alerts] = await Promise.all([
+    fetch('/api/orders').then(r =&gt; r.json()),
+    fetch('/api/stats').then(r =&gt; r.json()),
+    fetch('/api/alerts').then(r =&gt; r.json()),
+  ]);
+  renderDashboard(orders, stats, alerts);
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><code>await</code> can only be used inside an <code>async</code> function (or at top-level in ES Modules).</div></div></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">Fetch API: making HTTP requests</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">// GET request
+async function getRestaurants() {
+  const response = await fetch('/api/restaurants');
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+// POST request
+async function placeOrder(order) {
+  const response = await fetch('/api/orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(order),
+  });
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message);
+  }
+  return response.json();
+}
+
+// DELETE request
+async function cancelOrder(id) {
+  await fetch(`/api/orders/${id}`, { method: 'DELETE' });
+}</div></div></div>
+<table class="tbl"><thead><tr><th><code>response</code> property</th><th>Returns</th></tr></thead><tbody><tr><td><code>response.ok</code></td><td><code>true</code> if status 200-299</td></tr><tr><td><code>response.status</code></td><td>HTTP status code (200, 404, 500)</td></tr><tr><td><code>response.json()</code></td><td>Promise that resolves to parsed JSON</td></tr><tr><td><code>response.text()</code></td><td>Promise that resolves to raw text</td></tr><tr><td><code>response.headers</code></td><td>Response headers</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">Fetch: common pitfalls</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32</div><div class="cb-cd">// PITFALL 1: fetch does NOT reject on HTTP errors
+const response = await fetch('/api/orders');
+// 404 or 500 does NOT throw -- you must check manually
+if (!response.ok) {
+  throw new Error(`HTTP ${response.status}`);
+}
+
+// PITFALL 2: JSON.parse errors
+try {
+  const data = await response.json();  // throws if not valid JSON
+} catch (e) {
+  console.error('Response is not JSON');
+}
+
+// PITFALL 3: no timeout by default
+const controller = new AbortController();
+const timeoutId = setTimeout(() =&gt; controller.abort(), 5000);
+
+try {
+  const response = await fetch('/api/orders', {
+    signal: controller.signal,
+  });
+  clearTimeout(timeoutId);
+} catch (e) {
+  if (e.name === 'AbortError') {
+    console.error('Request timed out');
+  }
+}
+
+// PITFALL 4: CORS errors
+// Cannot fetch from a different domain unless server sends
+// Access-Control-Allow-Origin header</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">In sustain engineering, most API bugs are: missing error checks on fetch, no timeout handling, and CORS misconfigurations.</div></div></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">JavaScript modules: import / export</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37</div><div class="cb-cd">// --- menuService.js ---
+// Named exports
+export const TAX_RATE = 0.08;
+
+export function calculateSubtotal(items) {
+  return items.reduce((sum, item) =&gt; sum + item.price * item.qty, 0);
+}
+
+export function calculateTotal(items) {
+  const subtotal = calculateSubtotal(items);
+  return subtotal + (subtotal * TAX_RATE);
+}
+
+// Default export (one per file)
+export default class MenuService {
+  constructor(apiUrl) {
+    this.apiUrl = apiUrl;
+  }
+  async getMenu() {
+    const res = await fetch(`${this.apiUrl}/menu`);
+    return res.json();
+  }
+}
+
+// --- app.js ---
+// Named imports
+import { calculateTotal, TAX_RATE } from './menuService.js';
+
+// Default import
+import MenuService from './menuService.js';
+
+// Rename import
+import { calculateTotal as calcTotal } from './menuService.js';
+
+// Import all
+import * as menu from './menuService.js';
+menu.calculateTotal(items);</div></div></div></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">Module systems: ESM vs CommonJS</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Feature</th><th>ES Modules (ESM)</th><th>CommonJS (CJS)</th></tr></thead><tbody><tr><td>Syntax</td><td><code>import</code> / <code>export</code></td><td><code>require()</code> / <code>module.exports</code></td></tr><tr><td>Loading</td><td>Static (compile-time)</td><td>Dynamic (runtime)</td></tr><tr><td>Browser support</td><td>Yes (with <code>type="module"</code>)</td><td>No (Node.js only)</td></tr><tr><td>Tree-shaking</td><td>Yes (bundlers can remove unused)</td><td>No</td></tr><tr><td>File extension</td><td><code>.mjs</code> or <code>"type": "module"</code></td><td><code>.cjs</code> or default in Node</td></tr><tr><td>Top-level await</td><td>Yes</td><td>No</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2</div><div class="cb-cd">&lt;!-- Using ES Modules in the browser --&gt;
+&lt;script type="module" src="app.js"&gt;&lt;/script&gt;</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">// CommonJS (Node.js)
+const express = require('express');
+module.exports = { startServer };
+
+// ES Modules (modern)
+import express from 'express';
+export { startServer };</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">New projects should use ES Modules. You will encounter CommonJS in legacy Node.js code.</div></div></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">PERFORMANCE</span></div>
+    <div class="tt">Bundlers and build tools</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Tool</th><th>Role</th><th>Use case</th></tr></thead><tbody><tr><td><strong>Webpack</strong></td><td>Bundler</td><td>Combines modules into single file, code splitting</td></tr><tr><td><strong>Vite</strong></td><td>Dev server + bundler</td><td>Fast development, HMR, modern default</td></tr><tr><td><strong>esbuild</strong></td><td>Bundler/transpiler</td><td>Extremely fast, used by Vite internally</td></tr><tr><td><strong>Babel</strong></td><td>Transpiler</td><td>Converts modern JS to older syntax for compatibility</td></tr><tr><td><strong>Rollup</strong></td><td>Bundler</td><td>Library bundling, tree-shaking</td></tr><tr><td><strong>Parcel</strong></td><td>Bundler</td><td>Zero-config, beginner-friendly</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd"># Create a Vite project (modern approach)
+npm create vite@latest my-app -- --template react
+cd my-app
+npm install
+npm run dev    # starts dev server with HMR
+npm run build  # creates production bundle</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Sustain engineers need to understand bundler configs when debugging build failures and performance issues.</div></div></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">FE Ops: network debugging</div>
+    <div class="dv"></div>
+    <div class="bd">
+<div style="display:flex;gap:12px;margin:12px 0">
+  <div style="flex:1;background:var(--panel);border-radius:8px;padding:14px;text-align:center">
+    <div style="font-size:24px;margin-bottom:6px">&#x1F50D;</div>
+    <div style="font-size:15px;font-weight:700;color:var(--ink)">Elements</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">DOM tree<br>+ CSS rules</div>
+  </div>
+  <div style="flex:1;background:var(--panel);border-radius:8px;padding:14px;text-align:center">
+    <div style="font-size:24px;margin-bottom:6px">&#x1F4CA;</div>
+    <div style="font-size:15px;font-weight:700;color:var(--ink)">Computed</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">Final values<br>+ box model</div>
+  </div>
+  <div style="flex:1;background:var(--panel);border-radius:8px;padding:14px;text-align:center">
+    <div style="font-size:24px;margin-bottom:6px">&#x1F4E1;</div>
+    <div style="font-size:15px;font-weight:700;color:var(--ink)">Network</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">Resources<br>+ load timing</div>
+  </div>
+  <div style="flex:1;background:var(--panel);border-radius:8px;padding:14px;text-align:center">
+    <div style="font-size:24px;margin-bottom:6px">&#x26A0;&#xFE0F;</div>
+    <div style="font-size:15px;font-weight:700;color:var(--ink)">Console</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">Errors<br>+ warnings</div>
+  </div>
+  <div style="flex:1;background:var(--green-tint);border-radius:8px;padding:14px;text-align:center">
+    <div style="font-size:24px;margin-bottom:6px">&#x2705;</div>
+    <div style="font-size:15px;font-weight:700;color:var(--ink)">Lighthouse</div>
+    <div style="font-size:13px;color:var(--body);margin-top:4px">Performance<br>+ accessibility</div>
+  </div>
+</div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Network tab workflow</div>
+<ul class="bl"><li>1. Open DevTools (F12) > Network tab</li><li>2. Reload the page to capture all requests</li><li>3. Look for red entries (failed requests)</li><li>4. Click a request to inspect:</li><li class="s"><strong>Headers</strong>: request/response headers, status code</li><li class="s"><strong>Payload</strong>: request body (POST/PUT)</li><li class="s"><strong>Response</strong>: what the server returned</li><li class="s"><strong>Timing</strong>: DNS, connect, TTFB, download</li></ul>
+<table class="tbl"><thead><tr><th>Status</th><th>Meaning</th><th>Common cause</th></tr></thead><tbody><tr><td>200</td><td>OK</td><td>Success</td></tr><tr><td>301/302</td><td>Redirect</td><td>URL changed</td></tr><tr><td>400</td><td>Bad Request</td><td>Invalid payload</td></tr><tr><td>401</td><td>Unauthorized</td><td>Missing/expired token</td></tr><tr><td>403</td><td>Forbidden</td><td>Insufficient permissions</td></tr><tr><td>404</td><td>Not Found</td><td>Wrong endpoint URL</td></tr><tr><td>500</td><td>Internal Server Error</td><td>Server-side bug</td></tr><tr><td>CORS</td><td>Blocked</td><td>Missing CORS headers</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">FORMS</span></div>
+    <div class="tt">FE Ops: performance profiling</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">// Measure execution time
+console.time('renderCards');
+renderRestaurantCards(data);
+console.timeEnd('renderCards');  // "renderCards: 45ms"
+
+// Performance API
+const start = performance.now();
+heavyComputation();
+const duration = performance.now() - start;
+console.log(`Took ${duration.toFixed(2)}ms`);
+
+// Lighthouse metrics to watch
+// FCP  - First Contentful Paint (&lt; 1.8s)
+// LCP  - Largest Contentful Paint (&lt; 2.5s)
+// TTI  - Time to Interactive (&lt; 3.8s)
+// CLS  - Cumulative Layout Shift (&lt; 0.1)
+// TBT  - Total Blocking Time (&lt; 200ms)</div></div></div>
+<table class="tbl"><thead><tr><th>Optimization</th><th>How</th></tr></thead><tbody><tr><td>Reduce bundle size</td><td>Tree-shaking, code splitting, dynamic imports</td></tr><tr><td>Optimize images</td><td>WebP format, <code>loading="lazy"</code>, correct dimensions</td></tr><tr><td>Minimize render-blocking</td><td><code>defer</code> scripts, inline critical CSS</td></tr><tr><td>Cache API responses</td><td>Service worker, <code>Cache-Control</code> headers</td></tr><tr><td>Reduce DOM nodes</td><td>Virtual scrolling, pagination</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">FE Ops: error tracking in production</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34</div><div class="cb-cd">// Global error handler
+window.addEventListener('error', (event) =&gt; {
+  reportError({
+    type: 'uncaught',
+    message: event.message,
+    source: event.filename,
+    line: event.lineno,
+    column: event.colno,
+    stack: event.error?.stack,
+  });
+});
+
+// Unhandled promise rejection
+window.addEventListener('unhandledrejection', (event) =&gt; {
+  reportError({
+    type: 'promise',
+    message: event.reason?.message || String(event.reason),
+    stack: event.reason?.stack,
+  });
+});
+
+// Report to monitoring service
+function reportError(error) {
+  fetch('/api/errors', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...error,
+      url: window.location.href,
+      userAgent: navigator.userAgent,
+      timestamp: new Date().toISOString(),
+    }),
+  }).catch(() =&gt; {}); // don't let error reporting cause errors
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Production apps use services like Sentry, LogRocket, or Datadog RUM for error tracking.</div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">FRAMEWORKS</span></div>
+    <div class="tt">Why UI frameworks exist</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Problems with vanilla JavaScript at scale:</strong></p>
+<ul class="bl"><li>DOM manipulation code becomes verbose and fragile</li><li>State management is manual and error-prone</li><li>No built-in component reuse</li><li>Full page re-renders on data changes</li><li>Hard to coordinate team development</li></ul>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>What frameworks provide:</strong></p>
+<ul class="bl"><li><strong>Component model</strong> -- reusable, self-contained UI pieces</li><li><strong>Reactive data binding</strong> -- UI auto-updates when data changes</li><li><strong>Virtual DOM / change detection</strong> -- efficient DOM updates</li><li><strong>Routing</strong> -- single-page navigation without reloads</li><li><strong>Ecosystem</strong> -- testing, state management, tooling</li></ul>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">Vanilla JS:  document.getElementById('price').textContent = newPrice;
+React:       setPrice(newPrice);  // UI updates automatically
+Angular:     this.price = newPrice;  // two-way binding updates UI
+Vue:         this.price = newPrice;  // reactivity system updates UI</div></div></div></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">FRAMEWORKS</span></div>
+    <div class="tt">Framework comparison at a glance</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Feature</th><th>React</th><th>Angular</th><th>Vue</th></tr></thead><tbody><tr><td>Created by</td><td>Meta (Facebook)</td><td>Google</td><td>Evan You (community)</td></tr><tr><td>Released</td><td>2013</td><td>2016 (v2+)</td><td>2014</td></tr><tr><td>Type</td><td>Library (view layer)</td><td>Full framework</td><td>Progressive framework</td></tr><tr><td>Language</td><td>JSX (JavaScript + HTML)</td><td>TypeScript</td><td>Template + JS/TS</td></tr><tr><td>Data binding</td><td>One-way</td><td>Two-way</td><td>Two-way</td></tr><tr><td>DOM strategy</td><td>Virtual DOM</td><td>Incremental DOM</td><td>Virtual DOM</td></tr><tr><td>Learning curve</td><td>Moderate</td><td>Steep</td><td>Gentle</td></tr><tr><td>Bundle size</td><td>~42 KB</td><td>~143 KB</td><td>~33 KB</td></tr><tr><td>State management</td><td>Redux, Zustand, Context</td><td>NgRx, Services</td><td>Pinia, Vuex</td></tr><tr><td>CLI tool</td><td>Create React App, Vite</td><td>Angular CLI</td><td>Vue CLI, Vite</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">All three are production-ready. Choice depends on team skills, project needs, and organizational standards.</div></div></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">React: core concepts</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jsx</span><span class="cb-lg">JSX</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32</div><div class="cb-cd">// A React component is a function that returns JSX
+function RestaurantCard({ name, cuisine, rating, isOpen }) {
+  return (
+    &lt;div className="card"&gt;
+      &lt;h3&gt;{name}&lt;/h3&gt;
+      &lt;p&gt;{cuisine} | Rating: {rating}/5&lt;/p&gt;
+      &lt;span className={isOpen ? 'badge-open' : 'badge-closed'}&gt;
+        {isOpen ? 'Open' : 'Closed'}
+      &lt;/span&gt;
+    &lt;/div&gt;
+  );
+}
+
+// Using the component
+function App() {
+  return (
+    &lt;div className="grid"&gt;
+      &lt;RestaurantCard
+        name="Burger Barn"
+        cuisine="American"
+        rating={4.5}
+        isOpen={true}
+      /&gt;
+      &lt;RestaurantCard
+        name="Sushi Palace"
+        cuisine="Japanese"
+        rating={4.8}
+        isOpen={false}
+      /&gt;
+    &lt;/div&gt;
+  );
+}</div></div></div>
+<ul class="bl"><li>JSX looks like HTML but is JavaScript</li><li>Components receive data via <strong>props</strong> (read-only)</li><li><code>className</code> instead of <code>class</code> (reserved word in JS)</li></ul></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">React: state and hooks</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jsx</span><span class="cb-lg">JSX</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33</div><div class="cb-cd">import { useState, useEffect } from 'react';
+
+function Cart() {
+  // useState: manage component state
+  const [items, setItems] = useState([]);
+  const [total, setTotal] = useState(0);
+
+  // useEffect: run side effects (fetch, subscribe, etc.)
+  useEffect(() =&gt; {
+    fetch('/api/cart')
+      .then(res =&gt; res.json())
+      .then(data =&gt; setItems(data));
+  }, []); // empty array = run once on mount
+
+  // Recalculate total when items change
+  useEffect(() =&gt; {
+    const newTotal = items.reduce(
+      (sum, item) =&gt; sum + item.price * item.qty, 0
+    );
+    setTotal(newTotal);
+  }, [items]); // runs when items changes
+
+  const addItem = (item) =&gt; {
+    setItems(prev =&gt; [...prev, item]);
+  };
+
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Cart ({items.length} items)&lt;/h2&gt;
+      &lt;p&gt;Total: ${total.toFixed(2)}&lt;/p&gt;
+    &lt;/div&gt;
+  );
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Hook</th><th>Purpose</th></tr></thead><tbody><tr><td><code>useState</code></td><td>Local state management</td></tr><tr><td><code>useEffect</code></td><td>Side effects (fetch, timers, subscriptions)</td></tr><tr><td><code>useRef</code></td><td>Persistent mutable reference (DOM access)</td></tr><tr><td><code>useContext</code></td><td>Access shared state without prop drilling</td></tr><tr><td><code>useMemo</code></td><td>Memoize expensive calculations</td></tr><tr><td><code>useCallback</code></td><td>Memoize functions to prevent re-renders</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">React: component lifecycle</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">Mount (first render)
+  |
+  +--&gt; useState initializes state
+  +--&gt; Component renders JSX
+  +--&gt; useEffect(() =&gt; {...}, []) runs
+  |
+Update (state or props change)
+  |
+  +--&gt; Component re-renders with new data
+  +--&gt; useEffect(() =&gt; {...}, [deps]) runs if deps changed
+  |
+Unmount (component removed)
+  |
+  +--&gt; useEffect cleanup function runs</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jsx</span><span class="cb-lg">JSX</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">useEffect(() =&gt; {
+  // Setup: runs on mount
+  const interval = setInterval(checkOrderStatus, 30000);
+
+  // Cleanup: runs on unmount
+  return () =&gt; {
+    clearInterval(interval);
+  };
+}, []);</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Always clean up intervals, event listeners, and subscriptions in the useEffect return function to prevent memory leaks.</div></div></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">Angular: core concepts</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.typ</span><span class="cb-lg">TYPESCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">// Component: a class with a decorator
+@Component({
+  selector: 'app-restaurant-card',
+  template: `
+    &lt;div class="card"&gt;
+      &lt;h3&gt;{{ name }}&lt;/h3&gt;
+      &lt;p&gt;{{ cuisine }} | Rating: {{ rating }}/5&lt;/p&gt;
+      &lt;span [class]="isOpen ? 'badge-open' : 'badge-closed'"&gt;
+        {{ isOpen ? 'Open' : 'Closed' }}
+      &lt;/span&gt;
+      &lt;button (click)="onOrder()"&gt;Order Now&lt;/button&gt;
+    &lt;/div&gt;
+  `,
+})
+export class RestaurantCardComponent {
+  @Input() name: string;
+  @Input() cuisine: string;
+  @Input() rating: number;
+  @Input() isOpen: boolean;
+
+  onOrder() {
+    console.log(`Ordering from ${this.name}`);
+  }
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Angular concept</th><th>Purpose</th></tr></thead><tbody><tr><td><strong>Modules</strong></td><td>Organize app into cohesive blocks</td></tr><tr><td><strong>Components</strong></td><td>UI building blocks with template + logic</td></tr><tr><td><strong>Services</strong></td><td>Business logic and data access (injectable)</td></tr><tr><td><strong>Directives</strong></td><td><code><em>ngIf</code>, <code></em>ngFor</code> -- control DOM rendering</td></tr><tr><td><strong>Dependency Injection</strong></td><td>Framework manages object creation</td></tr><tr><td><strong>TypeScript</strong></td><td>Required (static typing, interfaces)</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">Angular: key differences from React</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Aspect</th><th>React</th><th>Angular</th></tr></thead><tbody><tr><td>Template</td><td>JSX (JS + HTML mixed)</td><td>HTML template with directives</td></tr><tr><td>Binding</td><td><code>{value}</code> one-way</td><td><code>{{ value }}</code> interpolation, <code>[(ngModel)]</code> two-way</td></tr><tr><td>Events</td><td><code>onClick={handler}</code></td><td><code>(click)="handler()"</code></td></tr><tr><td>Conditionals</td><td>JS ternary in JSX</td><td><code>*ngIf="condition"</code></td></tr><tr><td>Loops</td><td><code>.map()</code> in JSX</td><td><code>*ngFor="let item of items"</code></td></tr><tr><td>Styling</td><td>CSS Modules, styled-components</td><td>Component-scoped CSS (built-in)</td></tr><tr><td>HTTP</td><td>fetch or axios</td><td>HttpClient (built-in, Observable-based)</td></tr><tr><td>Forms</td><td>Controlled components</td><td>Template-driven or Reactive forms</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">&lt;!-- Angular template directives --&gt;
+&lt;div *ngIf="isLoading"&gt;Loading...&lt;/div&gt;
+
+&lt;div *ngFor="let item of menuItems"&gt;
+  &lt;p&gt;{{ item.name }} - {{ item.price | currency }}&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;input [(ngModel)]="searchQuery" /&gt;</div></div></div></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="29">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">Vue: core concepts</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32</div><div class="cb-cd">&lt;!-- Vue Single-File Component (SFC) --&gt;
+&lt;template&gt;
+  &lt;div class="card"&gt;
+    &lt;h3&gt;{{ name }}&lt;/h3&gt;
+    &lt;p&gt;{{ cuisine }} | Rating: {{ rating }}/5&lt;/p&gt;
+    &lt;span :class="isOpen ? 'badge-open' : 'badge-closed'"&gt;
+      {{ isOpen ? 'Open' : 'Closed' }}
+    &lt;/span&gt;
+    &lt;button @click="onOrder"&gt;Order Now&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/template&gt;
+
+&lt;script setup&gt;
+import { defineProps } from 'vue';
+
+const props = defineProps({
+  name: String,
+  cuisine: String,
+  rating: Number,
+  isOpen: Boolean,
+});
+
+function onOrder() {
+  console.log(`Ordering from ${props.name}`);
+}
+&lt;/script&gt;
+
+&lt;style scoped&gt;
+.card { border: 1px solid #ddd; padding: 1rem; }
+.badge-open { color: green; }
+.badge-closed { color: red; }
+&lt;/style&gt;</div></div></div>
+<ul class="bl"><li>Vue SFCs combine template, script, and style in one file</li><li><code>v-if</code>, <code>v-for</code>, <code>v-model</code> directives</li><li>Composition API (<code>setup</code>) is the modern approach (Options API still supported)</li></ul></div>
+    <div class="ft"><span class="fr">29</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="30">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">Vue: reactivity system</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30</div><div class="cb-cd">// Vue 3 Composition API
+import { ref, computed, watch, onMounted } from 'vue';
+
+export default {
+  setup() {
+    // Reactive state
+    const items = ref([]);
+    const searchQuery = ref('');
+
+    // Computed property (auto-updates)
+    const filteredItems = computed(() =&gt;
+      items.value.filter(item =&gt;
+        item.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+      )
+    );
+
+    // Watcher (react to changes)
+    watch(searchQuery, (newVal, oldVal) =&gt; {
+      console.log(`Search changed: ${oldVal} -&gt; ${newVal}`);
+    });
+
+    // Lifecycle hook
+    onMounted(async () =&gt; {
+      const res = await fetch('/api/menu');
+      items.value = await res.json();
+    });
+
+    return { items, searchQuery, filteredItems };
+  },
+};</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Vue's reactivity system is similar to React hooks but uses proxies under the hood. Changes to <code>.value</code> automatically trigger UI updates.</div></div></div>
+    <div class="ft"><span class="fr">30</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="31">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">FRAMEWORKS</span></div>
+    <div class="tt">When to choose which framework</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Scenario</th><th>Recommended</th><th>Why</th></tr></thead><tbody><tr><td>Large enterprise app</td><td>Angular</td><td>Opinionated structure, DI, TypeScript enforced</td></tr><tr><td>Startup / rapid prototyping</td><td>React or Vue</td><td>Flexible, fast to start, large ecosystem</td></tr><tr><td>Existing jQuery codebase</td><td>Vue</td><td>Can be added incrementally to existing pages</td></tr><tr><td>Mobile + Web</td><td>React (React Native)</td><td>Code sharing between platforms</td></tr><tr><td>Small team, simple app</td><td>Vue</td><td>Gentle learning curve, good docs</td></tr><tr><td>Microservices UI (micro-frontends)</td><td>Any</td><td>All support module federation / web components</td></tr><tr><td>Sustain engineering</td><td><strong>Match existing stack</strong></td><td>Don't rewrite -- maintain what's there</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">As a sustain engineer, you will work with whatever framework the project uses. Focus on understanding patterns, not picking favorites.</div></div></div>
+    <div class="ft"><span class="fr">31</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="32">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">BOOTSTRAP</span></div>
+    <div class="tt">Component libraries: Bootstrap</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">&lt;!-- Bootstrap via CDN --&gt;
+&lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"&gt;
+
+&lt;!-- Bootstrap card --&gt;
+&lt;div class="card" style="width: 18rem;"&gt;
+  &lt;img src="burger.jpg" class="card-img-top" alt="Burger"&gt;
+  &lt;div class="card-body"&gt;
+    &lt;h5 class="card-title"&gt;Smash Burger&lt;/h5&gt;
+    &lt;p class="card-text"&gt;Double patty with cheese&lt;/p&gt;
+    &lt;span class="badge bg-success"&gt;$8.99&lt;/span&gt;
+    &lt;button class="btn btn-primary"&gt;Add to Cart&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div></div></div>
+<table class="tbl"><thead><tr><th>Bootstrap feature</th><th>Classes</th></tr></thead><tbody><tr><td>Grid</td><td><code>container</code>, <code>row</code>, <code>col-md-4</code></td></tr><tr><td>Buttons</td><td><code>btn btn-primary</code>, <code>btn-outline-danger</code></td></tr><tr><td>Cards</td><td><code>card</code>, <code>card-body</code>, <code>card-title</code></td></tr><tr><td>Alerts</td><td><code>alert alert-success</code>, <code>alert-danger</code></td></tr><tr><td>Navbar</td><td><code>navbar</code>, <code>navbar-expand-lg</code></td></tr><tr><td>Forms</td><td><code>form-control</code>, <code>form-label</code>, <code>form-select</code></td></tr><tr><td>Utilities</td><td><code>mt-3</code>, <code>p-2</code>, <code>d-flex</code>, <code>text-center</code></td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">32</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="33">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">HTML</span></div>
+    <div class="tt">Component libraries: Semantic UI</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</div><div class="cb-cd">&lt;!-- Semantic UI card --&gt;
+&lt;div class="ui card"&gt;
+  &lt;div class="image"&gt;
+    &lt;img src="burger.jpg" alt="Burger"&gt;
+  &lt;/div&gt;
+  &lt;div class="content"&gt;
+    &lt;a class="header"&gt;Smash Burger&lt;/a&gt;
+    &lt;div class="meta"&gt;American&lt;/div&gt;
+    &lt;div class="description"&gt;Double patty with cheese&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="extra content"&gt;
+    &lt;span class="right floated"&gt;$8.99&lt;/span&gt;
+    &lt;span&gt;&lt;i class="star icon"&gt;&lt;/i&gt; 4.5&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div></div></div>
+<table class="tbl"><thead><tr><th>Library</th><th>Philosophy</th><th>Best for</th></tr></thead><tbody><tr><td><strong>Bootstrap</strong></td><td>Utility-first classes</td><td>Rapid prototyping, admin panels</td></tr><tr><td><strong>Semantic UI</strong></td><td>Natural language classes</td><td>Readable HTML, human-friendly markup</td></tr><tr><td><strong>Tailwind CSS</strong></td><td>Atomic utility classes</td><td>Custom designs, no pre-built components</td></tr><tr><td><strong>Material UI</strong></td><td>Google Material Design</td><td>React apps following Material guidelines</td></tr><tr><td><strong>Ant Design</strong></td><td>Enterprise UI</td><td>Data-heavy dashboards, forms</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">33</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="34">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">Creating apps with CLI tools</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><div class="cb-cd"># React (with Vite -- recommended)
+npm create vite@latest foodexpress-react -- --template react
+cd foodexpress-react &amp;&amp; npm install &amp;&amp; npm run dev
+
+# Angular
+npm install -g @angular/cli
+ng new foodexpress-angular
+cd foodexpress-angular &amp;&amp; ng serve
+
+# Vue (with Vite)
+npm create vite@latest foodexpress-vue -- --template vue
+cd foodexpress-vue &amp;&amp; npm install &amp;&amp; npm run dev</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Project structure comparison</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">React (Vite)          Angular               Vue (Vite)
+src/                  src/app/              src/
+  App.jsx               app.component.ts      App.vue
+  main.jsx              app.module.ts         main.js
+  components/           components/           components/
+  assets/               services/             assets/
+index.html            angular.json          index.html
+vite.config.js        tsconfig.json         vite.config.js
+package.json          package.json          package.json</div></div></div></div>
+    <div class="ft"><span class="fr">34</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="35">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">Designing and auto-generating code</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">AI-assisted development tools</div>
+<table class="tbl"><thead><tr><th>Tool</th><th>What it does</th></tr></thead><tbody><tr><td><strong>GitHub Copilot</strong></td><td>AI code completion in IDE (VS Code, JetBrains)</td></tr><tr><td><strong>Cursor</strong></td><td>AI-first code editor with chat and auto-edit</td></tr><tr><td><strong>v0 by Vercel</strong></td><td>Generate React + Tailwind UI from text prompts</td></tr><tr><td><strong>Claude</strong></td><td>Generate components, debug code, explain patterns</td></tr><tr><td><strong>Figma to Code</strong></td><td>Export Figma designs to HTML/CSS/React</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Design-to-code workflow</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">1. Design in Figma/Sketch
+   |
+2. Export as component specifications
+   |
+3. Generate boilerplate with AI tool
+   |
+4. Review, test, and refine
+   |
+5. Integrate into existing codebase</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">AI-generated code must be reviewed. It often produces working code with subtle issues: wrong accessibility, missing error handling, or non-standard patterns.</div></div></div>
+    <div class="ft"><span class="fr">35</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="36">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct"></span></div>
+    <div class="tt">SPA vs MPA vs SSR</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Architecture</th><th>Description</th><th>Example</th></tr></thead><tbody><tr><td><strong>SPA</strong> (Single Page App)</td><td>One HTML page, JS handles all routing</td><td>Gmail, Trello</td></tr><tr><td><strong>MPA</strong> (Multi Page App)</td><td>Server returns full HTML for each page</td><td>Wikipedia, StackOverflow</td></tr><tr><td><strong>SSR</strong> (Server-Side Rendering)</td><td>Server renders first page, then SPA takes over</td><td>Next.js, Nuxt.js</td></tr><tr><td><strong>SSG</strong> (Static Site Generation)</td><td>Pre-render all pages at build time</td><td>Docs sites, blogs</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">User clicks link in SPA:
+  1. JavaScript intercepts click
+  2. Updates URL (History API)
+  3. Fetches data from API
+  4. Renders new view (no page reload)
+
+User clicks link in MPA:
+  1. Browser sends request to server
+  2. Server returns full HTML page
+  3. Browser loads and renders entire page</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Most modern web apps are SPAs built with React/Angular/Vue. Legacy apps tend to be MPAs with jQuery.</div></div></div>
+    <div class="ft"><span class="fr">36</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="37">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">CHECKPOINT</span></div>
+    <div class="tt">Checkpoint: framework recognition</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Look at these code snippets and identify the framework:</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">// Snippet A
+&lt;template&gt;
+  &lt;div v-for="item in items" :key="item.id"&gt;
+    {{ item.name }}
+  &lt;/div&gt;
+&lt;/template&gt;</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">// Snippet B
+{items.map(item =&gt; (
+  &lt;div key={item.id}&gt;{item.name}&lt;/div&gt;
+))}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">// Snippet C
+&lt;div *ngFor="let item of items"&gt;
+  {{ item.name }}
+&lt;/div&gt;</div></div></div>
+<table class="tbl"><thead><tr><th>Snippet</th><th>Framework</th><th>Key indicator</th></tr></thead><tbody><tr><td>A</td><td>Vue</td><td><code>&lt;template&gt;</code>, <code>v-for</code>, <code>:key</code></td></tr><tr><td>B</td><td>React</td><td>JSX, <code>.map()</code>, <code>key={}</code></td></tr><tr><td>C</td><td>Angular</td><td><code>*ngFor</code>, <code>let item of items</code></td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">In sustain work you will read unfamiliar code. Recognizing the framework from syntax patterns is an essential skill.</div></div></div>
+    <div class="ft"><span class="fr">37</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="38">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ practice</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Q1.</strong> What does <code>async/await</code> provide over raw Promises?</p>
+<table class="tbl"><thead><tr><th>Option</th><th>Answer</th></tr></thead><tbody><tr><td>A) Better performance</td><td></td></tr><tr><td>B) Synchronous execution</td><td></td></tr><tr><td>C) Cleaner syntax for Promise chains</td><td>Correct</td></tr><tr><td>D) Automatic error handling</td><td></td></tr></tbody></table>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Q2.</strong> Which method waits for ALL promises and never rejects?</p>
+<table class="tbl"><thead><tr><th>Option</th><th>Answer</th></tr></thead><tbody><tr><td>A) <code>Promise.all()</code></td><td></td></tr><tr><td>B) <code>Promise.race()</code></td><td></td></tr><tr><td>C) <code>Promise.any()</code></td><td></td></tr><tr><td>D) <code>Promise.allSettled()</code></td><td>Correct</td></tr></tbody></table>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Q3.</strong> In React, what triggers a re-render?</p>
+<table class="tbl"><thead><tr><th>Option</th><th>Answer</th></tr></thead><tbody><tr><td>A) Calling a regular function</td><td></td></tr><tr><td>B) Calling <code>setState</code> / <code>useState</code> setter</td><td>Correct</td></tr><tr><td>C) Modifying a variable directly</td><td></td></tr><tr><td>D) Using <code>console.log</code></td><td></td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">38</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="39">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ practice (continued)</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Q4.</strong> What is the main difference between <code>??</code> and <code>||</code>?</p>
+<table class="tbl"><thead><tr><th>Option</th><th>Answer</th></tr></thead><tbody><tr><td>A) <code>??</code> is faster</td><td></td></tr><tr><td>B) <code>??</code> only checks null/undefined; `</td><td></td><td>` checks all falsy</td><td>Correct</td></tr><tr><td>C) They are identical</td><td></td></tr><tr><td>D) `</td><td></td><td><code> works with objects, </code>??` does not</td><td></td></tr></tbody></table>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Q5.</strong> Which directive is Angular-specific?</p>
+<table class="tbl"><thead><tr><th>Option</th><th>Answer</th></tr></thead><tbody><tr><td>A) <code>v-for</code></td><td></td></tr><tr><td>B) <code>*ngFor</code></td><td>Correct</td></tr><tr><td>C) <code>.map()</code></td><td></td></tr><tr><td>D) <code>v-if</code></td><td></td></tr></tbody></table>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Q6.</strong> What does <code>export default</code> allow?</p>
+<table class="tbl"><thead><tr><th>Option</th><th>Answer</th></tr></thead><tbody><tr><td>A) Exporting multiple named values</td><td></td></tr><tr><td>B) Exporting one value that can be imported with any name</td><td>Correct</td></tr><tr><td>C) Exporting to CommonJS only</td><td></td></tr><tr><td>D) Making the export immutable</td><td></td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">39</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="40">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">LAB</span></div>
+    <div class="tt">Capsule project: FoodExpress restaurant listing</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Task</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Build a <strong>single-page restaurant listing</strong> using any ONE framework (React, Vue, or vanilla JS with Bootstrap):</p>
+<table class="tbl"><thead><tr><th>Step</th><th>Requirement</th></tr></thead><tbody><tr><td>1</td><td>Scaffold the project with CLI tool or use CDN</td></tr><tr><td>2</td><td>Create a RestaurantCard component (name, cuisine, rating, status)</td></tr><tr><td>3</td><td>Render at least 4 restaurant cards from an array of data</td></tr><tr><td>4</td><td>Add a search/filter input that filters by name</td></tr><tr><td>5</td><td>Add a "View Menu" button that fetches mock data (use <code>setTimeout</code> to simulate)</td></tr><tr><td>6</td><td>Show loading state while "fetching"</td></tr><tr><td>7</td><td>Handle errors gracefully (show user-friendly message)</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Acceptance criteria</div>
+<ul class="bl"><li>[ ] At least 4 restaurant cards rendered</li><li>[ ] Search input filters cards in real-time</li><li>[ ] Loading spinner shown during mock fetch</li><li>[ ] Error message shown on failure</li><li>[ ] No <code>console.log</code> in final code</li><li>[ ] Responsive layout (works on mobile width)</li></ul></div>
+    <div class="ft"><span class="fr">40</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="41">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">LAB</span></div>
+    <div class="tt">Guided lab: fix the FoodExpress SPA</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Step</th><th>Bug description</th></tr></thead><tbody><tr><td>01</td><td>Fix: <code>fetch('/api/restaurants')</code> silently fails on 404 (no error shown to user)</td></tr><tr><td>02</td><td>Fix: Search filter does not reset when input is cleared</td></tr><tr><td>03</td><td>Fix: <code>async</code> function missing <code>try/catch</code> -- unhandled promise rejection</td></tr><tr><td>04</td><td>Fix: <code>import</code> statement uses wrong path (module not found)</td></tr><tr><td>05</td><td>Fix: Component re-renders infinitely (missing dependency array in <code>useEffect</code>)</td></tr><tr><td>06</td><td>Fix: Cart total shows <code>NaN</code> because quantity is a string from input</td></tr><tr><td>07</td><td>Add: Loading spinner during API calls</td></tr><tr><td>08</td><td>Add: AbortController timeout for slow API responses</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">41</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="42">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 04 - JAVASCRIPT (PART 2) + UI FRAMEWORKS</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab acceptance criteria</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li>[ ] Fetch errors are caught and displayed to the user</li><li>[ ] Search filter works correctly (including empty input)</li><li>[ ] All async functions have proper error handling</li><li>[ ] Module imports resolve without errors</li><li>[ ] No infinite re-render loops</li><li>[ ] Cart total is always a valid number</li><li>[ ] Loading state is visible during data fetching</li><li>[ ] API requests time out after 5 seconds</li></ul></div>
+    <div class="ft"><span class="fr">42</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="43">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 04 - COMPLETE</div>
+    <div class="e-ttl">Key takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Concept</th><th>Remember</th></tr></thead><tbody><tr><td>ES6+</td><td>Destructuring, spread/rest, <code>??</code>, <code>?.</code> are daily tools</td></tr><tr><td>Async</td><td><code>async/await</code> over raw Promise chains for readability</td></tr><tr><td>Fetch</td><td>Always check <code>response.ok</code> -- fetch does NOT throw on HTTP errors</td></tr><tr><td>Modules</td><td>Use ES Modules (<code>import</code>/<code>export</code>). CommonJS is legacy</td></tr><tr><td>React</td><td>Components + hooks (<code>useState</code>, <code>useEffect</code>). One-way data flow</td></tr><tr><td>Angular</td><td>Full framework. TypeScript required. DI and services</td></tr><tr><td>Vue</td><td>Progressive. SFCs with <code>&lt;template&gt;</code>, <code>&lt;script&gt;</code>, <code>&lt;style&gt;</code></td></tr><tr><td>Component libs</td><td>Bootstrap (utility), Semantic UI (natural language)</td></tr><tr><td>FE Ops</td><td>Network tab, performance profiling, error tracking</td></tr><tr><td>Sustain rule</td><td>Match the existing stack. Don't rewrite -- maintain</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 05 -- Java Programming (Part 1): Core Java, OOP basics, encapsulation</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 05 -- Java Programming (Part 1): Core Java, OOP basics, encapsulation</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 43</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

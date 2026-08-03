@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CSS & Frameworks</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 02</div>
+    <div class="t-main">CSS &amp; Frameworks</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day | Workshop + guided lab + capsule project</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">AGENDA</span></div>
+    <div class="tt">By the end of this session</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">You can build responsive, styled interfaces using CSS layout systems and evaluate CSS frameworks for production use.</p>
+<table class="tbl"><thead><tr><th>Pillar</th><th>What you will do</th></tr></thead><tbody><tr><td><strong>Responsive Design</strong></td><td>Media queries, breakpoints, mobile-first approach</td></tr><tr><td><strong>Typography</strong></td><td>Font stacks, sizing, line-height, web fonts</td></tr><tr><td><strong>Visual Design</strong></td><td>Colors, backgrounds, gradients, shadows</td></tr><tr><td><strong>Motion</strong></td><td>Transitions, animations, reduced-motion</td></tr><tr><td><strong>Frameworks</strong></td><td>Bootstrap 5, Semantic UI -- compare and integrate</td></tr><tr><td><strong>Capsule Project</strong></td><td>Apply all concepts to FoodExpress</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Session agenda</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>Responsive design & media queries</td></tr><tr><td>02</td><td>Typography & web fonts</td></tr><tr><td>03</td><td>Colors, backgrounds & gradients</td></tr><tr><td>04</td><td>Animations & transitions</td></tr><tr><td>05</td><td>CSS Frameworks: Bootstrap 5</td></tr><tr><td>06</td><td>CSS Frameworks: Semantic UI</td></tr><tr><td>07</td><td>Framework comparison & selection</td></tr><tr><td>08</td><td>Capsule project + MCQs</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">RESPONSIVE</span></div>
+    <div class="tt">Responsive design: one codebase, every screen</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li>The same HTML and CSS must work on phones, tablets, and desktops</li><li>Responsive design adapts <strong>layout</strong> to available space</li><li>Content and meaning stay the same -- only composition changes</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Three pillars of responsive design</div>
+<ul class="bl"><li>1. <strong>Fluid grids</strong> -- use percentages and fr units, not fixed px widths</li><li>2. <strong>Flexible images</strong> -- <code>max-width: 100%</code> prevents overflow</li><li>3. <strong>Media queries</strong> -- change rules at specific breakpoints</li></ul>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">The viewport meta tag enables responsive behavior on mobile. Without it, phones render the desktop version scaled down.</div></div></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">HTML</span></div>
+    <div class="tt">The viewport meta tag</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2</div><div class="cb-cd">&lt;meta name="viewport"
+      content="width=device-width, initial-scale=1.0"&gt;</div></div></div>
+<table class="tbl"><thead><tr><th>Attribute</th><th>Purpose</th></tr></thead><tbody><tr><td><code>width=device-width</code></td><td>Match layout width to the device screen</td></tr><tr><td><code>initial-scale=1.0</code></td><td>No zoom on page load</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Without this tag</div>
+<ul class="bl"><li>Mobile browsers assume a 980px-wide page</li><li>Everything appears tiny and zoomed out</li><li>Media queries do not trigger correctly</li></ul>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">This was covered in Module 01. Verify it exists before writing any responsive CSS.</div></div></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">RESPONSIVE</span></div>
+    <div class="tt">Media queries: change layout at breakpoints</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20</div><div class="cb-cd">/* Base: mobile-first (no media query needed) */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+/* Tablet: 2 columns at 768px */
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Desktop: 3 columns at 1200px */
+@media (min-width: 1200px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Mobile-first: write base styles for small screens. Add complexity as the screen grows.</div></div></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">RESPONSIVE</span></div>
+    <div class="tt">Common breakpoints</div>
+    <div class="dv"></div>
+    <div class="bd">
+<div style="display:flex;gap:12px;margin:12px 0;align-items:flex-end">
+  <div style="flex:0 0 60px;text-align:center">
+    <div style="background:var(--ink);border-radius:4px 4px 0 0;width:30px;height:60px;margin:0 auto"></div>
+    <div style="background:var(--ink);border-radius:0 0 4px 4px;width:40px;height:4px;margin:0 auto"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--body);margin-top:6px">xs<br>&lt;576</div>
+  </div>
+  <div style="flex:0 0 70px;text-align:center">
+    <div style="background:var(--ink);border-radius:4px 4px 0 0;width:40px;height:55px;margin:0 auto"></div>
+    <div style="background:var(--ink);border-radius:0 0 4px 4px;width:50px;height:4px;margin:0 auto"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--blue);margin-top:6px">sm<br>576+</div>
+  </div>
+  <div style="flex:0 0 80px;text-align:center">
+    <div style="background:var(--blue);border-radius:6px;width:60px;height:45px;margin:0 auto;display:flex;align-items:center;justify-content:center"><div style="background:#fff;width:50px;height:35px;border-radius:3px"></div></div>
+    <div style="background:var(--ink);width:20px;height:3px;margin:2px auto"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--blue);margin-top:6px">md<br>768+</div>
+  </div>
+  <div style="flex:0 0 100px;text-align:center">
+    <div style="background:var(--blue);border-radius:4px;width:80px;height:50px;margin:0 auto;display:flex;align-items:center;justify-content:center"><div style="background:#fff;width:70px;height:40px;border-radius:2px"></div></div>
+    <div style="background:var(--ink);width:40px;height:5px;margin:2px auto;border-radius:2px"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--blue);margin-top:6px">lg<br>992+</div>
+  </div>
+  <div style="flex:0 0 120px;text-align:center">
+    <div style="background:var(--green);border-radius:4px;width:100px;height:55px;margin:0 auto;display:flex;align-items:center;justify-content:center"><div style="background:#fff;width:90px;height:45px;border-radius:2px"></div></div>
+    <div style="background:var(--ink);width:50px;height:5px;margin:2px auto;border-radius:2px"></div>
+    <div style="font-size:11px;font-weight:700;color:var(--green);margin-top:6px">xl<br>1200+</div>
+  </div>
+</div>
+<table class="tbl"><thead><tr><th>Breakpoint</th><th>Target</th><th>Typical use</th></tr></thead><tbody><tr><td>576px</td><td>Landscape phones</td><td>Stack to 2 columns</td></tr><tr><td>768px</td><td>Tablets</td><td>Sidebar visible, 2-col grid</td></tr><tr><td>992px</td><td>Desktops</td><td>Full layout, sticky sidebars</td></tr><tr><td>1200px</td><td>Large desktops</td><td>3-4 column grids</td></tr><tr><td>1400px</td><td>Extra large</td><td>Max content width</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">How to choose breakpoints</div>
+<ul class="bl"><li>Do NOT target specific devices (iPhone, Galaxy, iPad)</li><li>Resize slowly and add a breakpoint <strong>where the content breaks</strong></li><li>Test with Chrome DevTools Device Toolbar (Ctrl+Shift+M)</li></ul>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Breakpoints are about content, not devices. Add one when the layout becomes cramped.</div></div></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">LAYOUT</span></div>
+    <div class="tt">Flexbox: one-axis layout</div>
+    <div class="dv"></div>
+    <div class="bd">
+<div style="margin:12px 0;display:flex;gap:30px">
+  <div style="flex:1;border:2px solid var(--blue);border-radius:10px;padding:20px;position:relative">
+    <div style="font-size:12px;font-weight:700;color:var(--blue);position:absolute;top:-10px;left:16px;background:#fff;padding:0 6px">flex-direction: row</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div style="background:var(--blue-tint);border:1px solid var(--blue);border-radius:4px;padding:12px 20px;font-size:13px;font-weight:700;color:var(--blue)">Item 1</div>
+      <div style="background:var(--blue-tint);border:1px solid var(--blue);border-radius:4px;padding:12px 20px;font-size:13px;font-weight:700;color:var(--blue)">Item 2</div>
+      <div style="background:var(--blue-tint);border:1px solid var(--blue);border-radius:4px;padding:12px 20px;font-size:13px;font-weight:700;color:var(--blue)">Item 3</div>
+    </div>
+    <div style="font-size:11px;color:var(--blue);margin-top:8px;text-align:center">&#x2194; main axis (horizontal) &nbsp; &#x2195; cross axis</div>
+  </div>
+  <div style="flex:1;border:2px solid var(--green);border-radius:10px;padding:20px;position:relative">
+    <div style="font-size:12px;font-weight:700;color:var(--green);position:absolute;top:-10px;left:16px;background:#fff;padding:0 6px">flex-direction: column</div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <div style="background:var(--green-tint);border:1px solid var(--green);border-radius:4px;padding:10px 20px;font-size:13px;font-weight:700;color:var(--green)">Item 1</div>
+      <div style="background:var(--green-tint);border:1px solid var(--green);border-radius:4px;padding:10px 20px;font-size:13px;font-weight:700;color:var(--green)">Item 2</div>
+      <div style="background:var(--green-tint);border:1px solid var(--green);border-radius:4px;padding:10px 20px;font-size:13px;font-weight:700;color:var(--green)">Item 3</div>
+    </div>
+    <div style="font-size:11px;color:var(--green);margin-top:8px;text-align:center">&#x2195; main axis (vertical) &nbsp; &#x2194; cross axis</div>
+  </div>
+</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><div class="cb-cd">.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Property</th><th>What it controls</th></tr></thead><tbody><tr><td><code>display: flex</code></td><td>Enable flexbox on container</td></tr><tr><td><code>flex-direction</code></td><td>row (default) or column</td></tr><tr><td><code>justify-content</code></td><td>Alignment along main axis</td></tr><tr><td><code>align-items</code></td><td>Alignment along cross axis</td></tr><tr><td><code>flex-wrap</code></td><td>Allow items to wrap to next line</td></tr><tr><td><code>gap</code></td><td>Space between flex items</td></tr><tr><td><code>flex: 1</code></td><td>Item grows to fill available space</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">LAYOUT</span></div>
+    <div class="tt">Flexbox patterns you will use</div>
+    <div class="dv"></div>
+    <div class="bd">
+<div style="display:flex;gap:24px;margin:12px 0;align-items:stretch">
+  <div style="flex:1;border:2px solid #D85B5B;border-radius:10px;overflow:hidden">
+    <div style="font-size:12px;font-weight:700;color:#D85B5B;padding:8px 12px;background:#FFEDED;text-align:center">WITHOUT flex</div>
+    <div style="padding:12px">
+      <div style="background:#DDEEFF;border-radius:4px;padding:6px 10px;font-size:11px;color:#3D8DFF;font-weight:700;margin-bottom:6px">header</div>
+      <div style="background:var(--panel);border-radius:4px;padding:16px 10px;font-size:11px;color:var(--ink);font-weight:700;margin-bottom:6px">main (short content)</div>
+      <div style="background:#E9EDF0;border-radius:4px;padding:6px 10px;font-size:11px;color:#5D6874;font-weight:700">footer &#x2191; floats here</div>
+      <div style="height:40px"></div>
+      <div style="font-size:10px;color:#D85B5B;text-align:center;border-top:1px dashed #D85B5B;padding-top:4px">empty space below</div>
+    </div>
+  </div>
+  <div style="flex:1;border:2px solid var(--green);border-radius:10px;overflow:hidden">
+    <div style="font-size:12px;font-weight:700;color:var(--green);padding:8px 12px;background:var(--green-tint);text-align:center">WITH flex column + mt-auto</div>
+    <div style="padding:12px;display:flex;flex-direction:column;min-height:200px">
+      <div style="background:#DDEEFF;border-radius:4px;padding:6px 10px;font-size:11px;color:#3D8DFF;font-weight:700;margin-bottom:6px">header</div>
+      <div style="background:var(--panel);border-radius:4px;padding:16px 10px;font-size:11px;color:var(--ink);font-weight:700;margin-bottom:6px">main (short content)</div>
+      <div style="background:#E9EDF0;border-radius:4px;padding:6px 10px;font-size:11px;color:#5D6874;font-weight:700;margin-top:auto">footer &#x2193; pushed to bottom</div>
+    </div>
+  </div>
+</div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Sticky footer</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3</div><div class="cb-cd">body { display: flex; flex-direction: column; min-height: 100vh; }
+main { flex: 1; }
+footer { margin-top: auto; }</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Centered content</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1</div><div class="cb-cd">.hero { display: flex; justify-content: center; align-items: center; min-height: 50vh; }</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Space between items</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1</div><div class="cb-cd">.card-footer { display: flex; justify-content: space-between; align-items: center; }</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Responsive switch</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1<br>2</div><div class="cb-cd">.layout { display: flex; flex-wrap: wrap; gap: 1rem; }
+.layout &gt; * { flex: 1 1 300px; }  /* Items wrap when &lt; 300px */</div></div></div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">LAYOUT</span></div>
+    <div class="tt">CSS Grid: two-axis layout</div>
+    <div class="dv"></div>
+    <div class="bd">
+<div style="margin:12px 0;display:flex;gap:30px">
+  <div style="flex:1">
+    <div style="font-size:13px;font-weight:700;color:var(--body);margin-bottom:6px">repeat(3, 1fr) &mdash; fixed 3 columns</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+      <div style="background:var(--blue-tint);border:1px solid var(--blue);border-radius:6px;padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--blue)">1fr</div>
+      <div style="background:var(--blue-tint);border:1px solid var(--blue);border-radius:6px;padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--blue)">1fr</div>
+      <div style="background:var(--blue-tint);border:1px solid var(--blue);border-radius:6px;padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--blue)">1fr</div>
+      <div style="background:var(--blue-tint);border:1px solid var(--blue);border-radius:6px;padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--blue)">1fr</div>
+      <div style="background:var(--blue-tint);border:1px solid var(--blue);border-radius:6px;padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--blue)">1fr</div>
+      <div style="background:var(--blue-tint);border:1px solid var(--blue);border-radius:6px;padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--blue)">1fr</div>
+    </div>
+  </div>
+  <div style="flex:1">
+    <div style="font-size:13px;font-weight:700;color:var(--body);margin-bottom:6px">auto-fit, minmax(120px, 1fr) &mdash; responsive</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px">
+      <div style="background:var(--green-tint);border:1px solid var(--green);border-radius:6px;padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--green)">auto</div>
+      <div style="background:var(--green-tint);border:1px solid var(--green);border-radius:6px;padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--green)">auto</div>
+      <div style="background:var(--green-tint);border:1px solid var(--green);border-radius:6px;padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--green)">auto</div>
+      <div style="background:var(--green-tint);border:1px solid var(--green);border-radius:6px;padding:20px;text-align:center;font-size:13px;font-weight:700;color:var(--green)">auto</div>
+    </div>
+  </div>
+</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">/* Fixed columns */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+/* Responsive auto-fit */
+.grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Property</th><th>Purpose</th></tr></thead><tbody><tr><td><code>grid-template-columns</code></td><td>Define column tracks</td></tr><tr><td><code>grid-template-rows</code></td><td>Define row tracks</td></tr><tr><td><code>gap</code></td><td>Space between cells</td></tr><tr><td><code>auto-fit</code></td><td>Browser chooses column count</td></tr><tr><td><code>minmax(280px, 1fr)</code></td><td>Min 280px, max equal share</td></tr><tr><td><code>grid-column: span 2</code></td><td>Item spans 2 columns</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Grid <code>auto-fit</code> + <code>minmax</code> is responsive without media queries.</div></div></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">LAYOUT</span></div>
+    <div class="tt">Grid vs Flexbox: when to use each</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Criterion</th><th>Flexbox</th><th>Grid</th></tr></thead><tbody><tr><td>Axis</td><td>One (row OR column)</td><td>Two (rows AND columns)</td></tr><tr><td>Best for</td><td>Navbars, card rows, form actions</td><td>Page layouts, dashboards, galleries</td></tr><tr><td>Item sizing</td><td>Content-driven</td><td>Track-driven</td></tr><tr><td>Alignment</td><td>Main + cross axis</td><td>Row + column axis</td></tr><tr><td>Wrapping</td><td><code>flex-wrap</code></td><td><code>auto-fit</code> / <code>auto-fill</code></td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Rule of thumb</div>
+<ul class="bl"><li><strong>Flexbox</strong> when items should flow and wrap naturally</li><li><strong>Grid</strong> when you need rows AND columns to align</li><li>They can nest: Grid for page layout, Flexbox inside each card</li></ul></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">RESPONSIVE</span></div>
+    <div class="tt">Positioning for responsive layouts</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Value</th><th>Behavior</th><th>Mobile-safe?</th></tr></thead><tbody><tr><td><code>static</code></td><td>Default document flow</td><td>Yes</td></tr><tr><td><code>relative</code></td><td>Offset from normal position</td><td>Yes</td></tr><tr><td><code>absolute</code></td><td>Inside positioned parent</td><td>Yes (if parent is bounded)</td></tr><tr><td><code>fixed</code></td><td>Relative to viewport</td><td><strong>Dangerous on mobile</strong></td></tr><tr><td><code>sticky</code></td><td>Hybrid relative + fixed</td><td>Yes (use for sidebars)</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">/* Mobile: normal flow */
+.sidebar { position: relative; width: 100%; }
+
+/* Desktop: sticky sidebar */
+@media (min-width: 768px) {
+  .sidebar { position: sticky; top: 80px; }
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Never use <code>position: fixed</code> with percentage width on mobile. It creates overlapping elements.</div></div></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">TYPOGRAPHY</span></div>
+    <div class="tt">Typography fundamentals</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><div class="cb-cd">body {
+  font-family: -apple-system, BlinkMacSystemFont,
+               "Segoe UI", Roboto, "Helvetica Neue",
+               Arial, sans-serif;
+  font-size: 16px;         /* Base size */
+  line-height: 1.5;        /* 1.5x the font size */
+  color: #333;
+}
+
+h1 { font-size: 2.5rem; }  /* 40px */
+h2 { font-size: 2rem; }    /* 32px */
+h3 { font-size: 1.5rem; }  /* 24px */</div></div></div>
+<table class="tbl"><thead><tr><th>Property</th><th>Purpose</th><th>Tip</th></tr></thead><tbody><tr><td><code>font-family</code></td><td>Font stack (fallback chain)</td><td>Always end with generic family</td></tr><tr><td><code>font-size</code></td><td>Text size</td><td>Use <code>rem</code> for scalability</td></tr><tr><td><code>line-height</code></td><td>Vertical spacing</td><td>1.5 for body, 1.2 for headings</td></tr><tr><td><code>font-weight</code></td><td>Bold/light</td><td>400 normal, 700 bold</td></tr><tr><td><code>letter-spacing</code></td><td>Space between characters</td><td>Subtle: 0.5px for headings</td></tr><tr><td><code>text-transform</code></td><td>Uppercase/lowercase</td><td><code>uppercase</code> for labels</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">TYPOGRAPHY</span></div>
+    <div class="tt">Web fonts and @font-face</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><div class="cb-cd">/* Google Fonts (external) */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&amp;display=swap');
+
+body { font-family: 'Inter', sans-serif; }
+
+/* Self-hosted (better performance) */
+@font-face {
+  font-family: 'CustomFont';
+  src: url('fonts/custom.woff2') format('woff2');
+  font-weight: 400;
+  font-display: swap;
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Approach</th><th>Pros</th><th>Cons</th></tr></thead><tbody><tr><td>System fonts</td><td>Fastest, no download</td><td>Limited choices</td></tr><tr><td>Google Fonts</td><td>Easy, huge library</td><td>External dependency</td></tr><tr><td>Self-hosted</td><td>Full control, faster</td><td>More setup</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><code>font-display: swap</code> shows fallback font immediately, swaps when custom font loads.</div></div></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">VISUAL</span></div>
+    <div class="tt">Colors in CSS</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">/* Named */
+color: red;
+
+/* Hex */
+color: #e84c3d;
+color: #e84c3d80;      /* 50% transparent */
+
+/* RGB / RGBA */
+color: rgb(232, 76, 61);
+color: rgba(232, 76, 61, 0.5);
+
+/* HSL / HSLA (most readable) */
+color: hsl(6, 78%, 57%);
+color: hsla(6, 78%, 57%, 0.5);
+
+/* Modern (oklch) */
+color: oklch(0.63 0.26 29);</div></div></div>
+<table class="tbl"><thead><tr><th>Format</th><th>Best for</th></tr></thead><tbody><tr><td>Hex</td><td>Compact, widely used</td></tr><tr><td>RGB</td><td>When you have numeric values</td></tr><tr><td>HSL</td><td>Intuitive: hue, saturation, lightness</td></tr><tr><td>OKLCH</td><td>Perceptually uniform (modern)</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Use CSS custom properties for brand colors: <code>--brand-red: #e84c3d;</code></div></div></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">VISUAL</span></div>
+    <div class="tt">Backgrounds and gradients</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">/* Solid color */
+.hero { background-color: #2c3e50; }
+
+/* Image */
+.hero {
+  background-image: url('hero-bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Linear gradient */
+.banner {
+  background: linear-gradient(135deg, #e84c3d, #2c3e50);
+}
+
+/* Radial gradient */
+.spotlight {
+  background: radial-gradient(circle, #fff, #f0f0f0);
+}
+
+/* Overlay pattern */
+.hero-overlay {
+  background:
+    linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+    url('hero.jpg') center/cover;
+}</div></div></div></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">ANIMATION</span></div>
+    <div class="tt">CSS transitions</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">/* Smooth hover effect */
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Button color transition */
+.btn {
+  background: #e84c3d;
+  transition: background 0.3s ease;
+}
+.btn:hover {
+  background: #c0392b;
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Property</th><th>Purpose</th></tr></thead><tbody><tr><td><code>transition-property</code></td><td>Which property to animate</td></tr><tr><td><code>transition-duration</code></td><td>How long (0.2s, 300ms)</td></tr><tr><td><code>transition-timing-function</code></td><td>Easing curve (ease, linear, ease-in-out)</td></tr><tr><td><code>transition-delay</code></td><td>Wait before starting</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Shorthand: <code>transition: property duration timing delay;</code></div></div></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">ANIMATION</span></div>
+    <div class="tt">CSS animations with @keyframes</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card {
+  animation: fadeIn 0.5s ease-out;
+}
+
+@keyframes pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.notification-badge {
+  animation: pulse 2s infinite;
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Property</th><th>Purpose</th></tr></thead><tbody><tr><td><code>animation-name</code></td><td>Which @keyframes to use</td></tr><tr><td><code>animation-duration</code></td><td>Length of one cycle</td></tr><tr><td><code>animation-iteration-count</code></td><td>How many times (or <code>infinite</code>)</td></tr><tr><td><code>animation-direction</code></td><td>Normal, reverse, alternate</td></tr><tr><td><code>animation-fill-mode</code></td><td>State before/after animation</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">ACCESSIBILITY</span></div>
+    <div class="tt">Respect prefers-reduced-motion</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.css</span><span class="cb-lg">CSS</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">/* Remove ALL animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}</div></div></div>
+<ul class="bl"><li>Some users experience motion sickness or vestibular disorders</li><li>This media query respects the OS-level accessibility setting</li><li>Always provide this rule in production CSS</li><li>Test: toggle the setting in your OS accessibility preferences</li></ul>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Animations are enhancement, not requirement. The page must work without them.</div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">CHECKPOINT</span></div>
+    <div class="tt">Checkpoint: responsive and animated</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Open your Module 01 page and try these:</p>
+<ul class="bl"><li>1. Add a media query that changes the layout at 768px</li><li>2. Add a <code>transition</code> on card hover (transform + shadow)</li><li>3. Add a <code>@keyframes</code> fade-in animation on page load</li><li>4. Add the <code>prefers-reduced-motion</code> media query</li><li>5. Test with Chrome DevTools Device Toolbar at 375px, 768px, 1200px</li></ul>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">10 minutes | Individual practice</div></div></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">FRAMEWORKS</span></div>
+    <div class="tt">CSS frameworks: what problem do they solve?</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li>Writing responsive CSS from scratch is repetitive</li><li>Cross-browser consistency is tedious to maintain</li><li>Common components (navbars, modals, cards) are rebuilt constantly</li><li>Accessibility defaults (focus, ARIA) require expertise</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What a framework gives you</div>
+<ul class="bl"><li>Pre-built <strong>grid system</strong> with breakpoints</li><li>Ready-to-use <strong>components</strong> (navbar, modal, carousel, accordion)</li><li><strong>Utility classes</strong> for spacing, display, text alignment</li><li><strong>Consistent</strong> cross-browser rendering</li><li>Built-in <strong>accessibility</strong> (keyboard navigation, ARIA attributes)</li></ul>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">A framework is a constraint system, not a shortcut. You trade flexibility for speed and consistency.</div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">BOOTSTRAP</span></div>
+    <div class="tt">Bootstrap 5: the industry standard</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">&lt;!-- Include via CDN --&gt;
+&lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"&gt;
+&lt;/script&gt;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Key features</div>
+<ul class="bl"><li>12-column responsive grid system</li><li>6 breakpoints (xs, sm, md, lg, xl, xxl)</li><li>30+ components (navbar, modal, carousel, accordion, toast...)</li><li>Utility-first classes for spacing, display, flex, text</li><li>No jQuery dependency (since v5)</li><li><code>bootstrap.bundle.min.js</code> includes Popper.js</li></ul></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">LAYOUT</span></div>
+    <div class="tt">Bootstrap grid system</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">&lt;div class="container"&gt;
+  &lt;div class="row"&gt;
+    &lt;div class="col-sm-6 col-md-4 mb-4"&gt;Card 1&lt;/div&gt;
+    &lt;div class="col-sm-6 col-md-4 mb-4"&gt;Card 2&lt;/div&gt;
+    &lt;div class="col-sm-6 col-md-4 mb-4"&gt;Card 3&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div></div></div>
+<table class="tbl"><thead><tr><th>Class</th><th>Breakpoint</th><th>Columns shown</th></tr></thead><tbody><tr><td><code>col-12</code></td><td>Always</td><td>1 (full width)</td></tr><tr><td><code>col-sm-6</code></td><td>>= 576px</td><td>2 per row</td></tr><tr><td><code>col-md-4</code></td><td>>= 768px</td><td>3 per row</td></tr><tr><td><code>col-lg-3</code></td><td>>= 992px</td><td>4 per row</td></tr></tbody></table>
+<ul class="bl"><li>12 columns total: <code>col-6</code> = half width, <code>col-4</code> = third, <code>col-3</code> = quarter</li><li>Combine breakpoints: <code>col-sm-6 col-md-4</code> = 2 on tablet, 3 on desktop</li></ul></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">BOOTSTRAP</span></div>
+    <div class="tt">Bootstrap components: navbar</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">&lt;nav class="navbar navbar-expand-lg navbar-dark bg-dark"&gt;
+  &lt;div class="container-fluid"&gt;
+    &lt;a class="navbar-brand" href="#"&gt;FoodExpress&lt;/a&gt;
+    &lt;button class="navbar-toggler" type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navMenu"&gt;
+      &lt;span class="navbar-toggler-icon"&gt;&lt;/span&gt;
+    &lt;/button&gt;
+    &lt;div class="collapse navbar-collapse" id="navMenu"&gt;
+      &lt;ul class="navbar-nav me-auto"&gt;
+        &lt;li class="nav-item"&gt;
+          &lt;a class="nav-link active" href="#"&gt;Home&lt;/a&gt;
+        &lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Critical attributes</div>
+<ul class="bl"><li><code>data-bs-toggle="collapse"</code> -- activates the toggler</li><li><code>data-bs-target="#navMenu"</code> -- points to the collapsible element</li><li>Without these, the mobile hamburger menu does nothing</li></ul></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">BOOTSTRAP</span></div>
+    <div class="tt">Bootstrap components: modal</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22</div><div class="cb-cd">&lt;!-- Trigger --&gt;
+&lt;button data-bs-toggle="modal" data-bs-target="#myModal"&gt;
+  Open
+&lt;/button&gt;
+
+&lt;!-- Modal --&gt;
+&lt;div class="modal fade" id="myModal" tabindex="-1"&gt;
+  &lt;div class="modal-dialog"&gt;
+    &lt;div class="modal-content"&gt;
+      &lt;div class="modal-header"&gt;
+        &lt;h5 class="modal-title"&gt;Title&lt;/h5&gt;
+        &lt;button type="button" class="btn-close"
+                data-bs-dismiss="modal"&gt;&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div class="modal-body"&gt;Content here&lt;/div&gt;
+      &lt;div class="modal-footer"&gt;
+        &lt;button class="btn btn-secondary"
+                data-bs-dismiss="modal"&gt;Close&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><code>data-bs-dismiss="modal"</code> closes the modal. Bootstrap 4 used <code>data-dismiss</code> (no <code>bs-</code> prefix) -- this is the #1 migration bug.</div></div></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">BOOTSTRAP</span></div>
+    <div class="tt">Bootstrap components: carousel and accordion</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Carousel</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">&lt;div id="hero" class="carousel slide"
+     data-bs-ride="carousel" data-bs-interval="4000"&gt;
+  &lt;div class="carousel-inner"&gt;
+    &lt;div class="carousel-item active"&gt;Slide 1&lt;/div&gt;
+    &lt;div class="carousel-item"&gt;Slide 2&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div></div></div>
+<ul class="bl"><li><code>data-bs-ride="carousel"</code> enables auto-play</li><li>Without it, carousel stays on slide 1</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Accordion</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">&lt;div class="accordion" id="faq"&gt;
+  &lt;div class="accordion-item"&gt;
+    &lt;button data-bs-toggle="collapse"
+            data-bs-target="#faq1"&gt;Question&lt;/button&gt;
+    &lt;div id="faq1" class="collapse"
+         data-bs-parent="#faq"&gt;Answer&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div></div></div>
+<ul class="bl"><li><code>data-bs-parent="#faq"</code> auto-closes other items</li><li>Wrong parent ID = all items stay open</li></ul></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">BOOTSTRAP</span></div>
+    <div class="tt">Bootstrap utility classes</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Category</th><th>Examples</th><th>Purpose</th></tr></thead><tbody><tr><td>Spacing</td><td><code>m-3</code>, <code>p-4</code>, <code>mt-2</code>, <code>mb-4</code>, <code>mx-auto</code></td><td>Margin and padding</td></tr><tr><td>Display</td><td><code>d-none</code>, <code>d-md-block</code>, <code>d-flex</code></td><td>Show/hide at breakpoints</td></tr><tr><td>Flex</td><td><code>justify-content-between</code>, <code>align-items-center</code></td><td>Flexbox alignment</td></tr><tr><td>Text</td><td><code>text-center</code>, <code>text-muted</code>, <code>fw-bold</code></td><td>Typography utilities</td></tr><tr><td>Color</td><td><code>text-danger</code>, <code>bg-dark</code>, <code>text-white</code></td><td>Bootstrap color palette</td></tr><tr><td>Border</td><td><code>rounded</code>, <code>border</code>, <code>shadow-sm</code></td><td>Borders and shadows</td></tr><tr><td>Sizing</td><td><code>w-100</code>, <code>h-100</code>, <code>min-vh-100</code></td><td>Width and height</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Sticky footer with utilities only</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">&lt;body class="d-flex flex-column min-vh-100"&gt;
+  &lt;main class="flex-grow-1"&gt;...&lt;/main&gt;
+  &lt;footer class="mt-auto bg-dark text-white py-4"&gt;...&lt;/footer&gt;
+&lt;/body&gt;</div></div></div></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">BOOTSTRAP</span></div>
+    <div class="tt">Bootstrap 4 vs 5: migration pitfalls</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Feature</th><th>Bootstrap 4</th><th>Bootstrap 5</th></tr></thead><tbody><tr><td>Data attributes</td><td><code>data-toggle</code>, <code>data-target</code></td><td><code>data-bs-toggle</code>, <code>data-bs-target</code></td></tr><tr><td>Close button</td><td><code>data-dismiss</code></td><td><code>data-bs-dismiss</code></td></tr><tr><td>JavaScript</td><td>jQuery required</td><td>Vanilla JS (no jQuery)</td></tr><tr><td>Jumbotron</td><td><code>&lt;div class="jumbotron"&gt;</code></td><td>Removed (use utilities)</td></tr><tr><td>Margin left/right</td><td><code>.ml-3</code>, <code>.mr-3</code></td><td><code>.ms-3</code>, <code>.me-3</code> (start/end)</td></tr><tr><td>Float</td><td><code>.float-left</code></td><td><code>.float-start</code></td></tr><tr><td>Form groups</td><td><code>.form-group</code></td><td>Simplified (no wrapper needed)</td></tr><tr><td>RTL support</td><td>None</td><td>Built-in</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">The <code>data-bs-*</code> prefix change silently breaks every interactive component. Modal close, navbar toggle, carousel, accordion -- all fail without the prefix.</div></div></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="29">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">FORMS</span></div>
+    <div class="tt">Bootstrap performance</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Bundle options (pick ONE)</div>
+<table class="tbl"><thead><tr><th>File</th><th>Includes</th><th>Size</th></tr></thead><tbody><tr><td><code>bootstrap.bundle.min.js</code></td><td>Bootstrap + Popper.js</td><td>~80KB</td></tr><tr><td><code>bootstrap.min.js</code></td><td>Bootstrap only</td><td>~60KB</td></tr><tr><td><code>popper.min.js</code></td><td>Popper.js only</td><td>~20KB</td></tr></tbody></table>
+<ul class="bl"><li>Use <code>bootstrap.bundle.min.js</code> (recommended)</li><li><strong>Never</strong> load both bundle AND separate Popper.js</li><li>Loading both = Popper runs twice = bugs + wasted bandwidth</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">CSS optimization</div>
+<ul class="bl"><li>Load only the CSS you need (tree shaking via Sass)</li><li>Use CDN for prototyping, npm for production</li><li>Defer non-critical CSS with <code>media="print"</code> trick</li></ul></div>
+    <div class="ft"><span class="fr">29</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="30">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">HTML</span></div>
+    <div class="tt">Semantic UI: human-readable class vocabulary</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">&lt;!-- Include via CDN --&gt;
+&lt;link rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.css"&gt;
+&lt;script
+  src="https://cdn.jsdelivr.net/npm/semantic-ui@2.5.0/dist/semantic.min.js"&gt;
+&lt;/script&gt;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Philosophy</div>
+<ul class="bl"><li>Classes read like natural language: <code>ui red button</code>, <code>ui stackable grid</code></li><li>Components are self-describing: <code>ui card</code>, <code>ui modal</code>, <code>ui dropdown</code></li><li>Theming is built-in with variables</li></ul>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">&lt;div class="ui stackable three column grid"&gt;
+  &lt;div class="column"&gt;
+    &lt;div class="ui card"&gt;
+      &lt;div class="content"&gt;
+        &lt;div class="header"&gt;Burger Barn&lt;/div&gt;
+        &lt;div class="description"&gt;Classic burgers&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div></div></div></div>
+    <div class="ft"><span class="fr">30</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="31">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">HTML</span></div>
+    <div class="tt">Semantic UI components</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Button variations</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">&lt;button class="ui red button"&gt;Order Now&lt;/button&gt;
+&lt;button class="ui basic button"&gt;Cancel&lt;/button&gt;
+&lt;button class="ui icon button"&gt;&lt;i class="cart icon"&gt;&lt;/i&gt;&lt;/button&gt;
+&lt;div class="ui buttons"&gt;
+  &lt;button class="ui button"&gt;Standard&lt;/button&gt;
+  &lt;button class="ui green button"&gt;Express&lt;/button&gt;
+&lt;/div&gt;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Cards</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">&lt;div class="ui cards"&gt;
+  &lt;div class="card"&gt;
+    &lt;div class="image"&gt;&lt;img src="burger.jpg"&gt;&lt;/div&gt;
+    &lt;div class="content"&gt;
+      &lt;div class="header"&gt;Burger Barn&lt;/div&gt;
+      &lt;div class="meta"&gt;American&lt;/div&gt;
+      &lt;div class="description"&gt;Classic burgers and shakes&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="extra content"&gt;
+      &lt;span&gt;&lt;i class="star icon"&gt;&lt;/i&gt; 4.5 rating&lt;/span&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</div></div></div></div>
+    <div class="ft"><span class="fr">31</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="32">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">HTML</span></div>
+    <div class="tt">Bootstrap vs Semantic UI: comparison</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Criterion</th><th>Bootstrap 5</th><th>Semantic UI</th></tr></thead><tbody><tr><td>Class style</td><td>Utility-first (<code>d-flex</code>, <code>mt-3</code>)</td><td>Human-readable (<code>ui red button</code>)</td></tr><tr><td>Grid system</td><td>12 columns, 6 breakpoints</td><td>16 columns, stackable</td></tr><tr><td>Components</td><td>30+ built-in</td><td>50+ built-in</td></tr><tr><td>JavaScript</td><td>Vanilla JS (no jQuery)</td><td><strong>Requires jQuery</strong></td></tr><tr><td>Theming</td><td>Sass variables</td><td>Built-in theme system</td></tr><tr><td>Bundle size</td><td>~200KB CSS + ~80KB JS</td><td>~600KB CSS + ~300KB JS</td></tr><tr><td>Active development</td><td>Yes (v5.3+)</td><td>Limited (community forks: Fomantic UI)</td></tr><tr><td>Enterprise adoption</td><td>Very high</td><td>Moderate</td></tr><tr><td>Learning curve</td><td>Medium</td><td>Low (readable classes)</td></tr><tr><td>RTL support</td><td>Built-in</td><td>Plugin needed</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">32</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="33">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">FRAMEWORKS</span></div>
+    <div class="tt">Choosing a framework: decision criteria</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Factor</th><th>Question to ask</th></tr></thead><tbody><tr><td><strong>Project fit</strong></td><td>Does it support the components we need?</td></tr><tr><td><strong>Team skill</strong></td><td>Does the team already know one framework?</td></tr><tr><td><strong>Bundle size</strong></td><td>Can we afford the download cost?</td></tr><tr><td><strong>Active maintenance</strong></td><td>Is it still receiving updates and security patches?</td></tr><tr><td><strong>Dependency chain</strong></td><td>Does it require jQuery or other libraries?</td></tr><tr><td><strong>Accessibility</strong></td><td>Does it provide ARIA attributes and keyboard navigation?</td></tr><tr><td><strong>Customization</strong></td><td>Can we theme it to match our brand?</td></tr><tr><td><strong>Documentation</strong></td><td>Is the documentation clear and complete?</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">In sustain engineering, you inherit the framework. Your job is to master it and fix issues within its constraints.</div></div></div>
+    <div class="ft"><span class="fr">33</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="34">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">FRAMEWORKS</span></div>
+    <div class="tt">Framework integration: best practices</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li>Load CSS in the <code>&lt;head&gt;</code>, JS before <code>&lt;/body&gt;</code></li><li>Use the framework's grid system, not custom floats</li><li>Prefer utility classes over custom CSS for spacing</li><li>Override framework styles with classes, never <code>!important</code></li><li>Use <code>data-bs-*</code> attributes correctly (Bootstrap 5)</li><li>Test at every breakpoint, not just desktop</li><li>Check bundle size in DevTools Network tab</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Common integration bugs</div>
+<ul class="bl"><li>1. Missing JS bundle (components don't work)</li><li>2. Wrong data attribute prefix (BS4 vs BS5)</li><li>3. Duplicate Popper.js loading</li><li>4. jQuery missing for Semantic UI</li><li>5. CSS specificity conflicts with custom styles</li></ul></div>
+    <div class="ft"><span class="fr">34</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="35">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">TROUBLESHOOTING</span></div>
+    <div class="tt">Troubleshooting framework issues</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Component not working?</div>
+<ul class="bl"><li>1. Is the JS bundle loaded? (check DevTools Console for errors)</li><li>2. Are <code>data-bs-<em></code> attributes correct? (not old <code>data-</em></code> prefix)</li><li>3. Does <code>data-bs-target</code> match the element's <code>id</code>?</li><li>4. Is the <code>id</code> unique on the page?</li><li>5. Is Popper loaded separately AND in the bundle? (conflict)</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Layout broken?</div>
+<ul class="bl"><li>1. Is the viewport meta tag present?</li><li>2. Are you using the correct <code>col-*</code> breakpoint classes?</li><li>3. Is <code>box-sizing: border-box</code> applied globally?</li><li>4. Check DevTools Device Toolbar at multiple widths</li></ul>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">90% of Bootstrap bugs are data attribute typos or missing JS.</div></div></div>
+    <div class="ft"><span class="fr">35</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="36">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">LAB</span></div>
+    <div class="tt">Capsule project: build a responsive FoodExpress page</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Apply everything from today:</p>
+<table class="tbl"><thead><tr><th>Task</th><th>What to demonstrate</th></tr></thead><tbody><tr><td>Responsive grid</td><td>1 col mobile, 2 col tablet, 3 col desktop</td></tr><tr><td>Media queries</td><td>Layout changes at 768px and 1200px</td></tr><tr><td>Typography</td><td>Font stack, heading hierarchy, line-height</td></tr><tr><td>Colors</td><td>Brand colors via CSS custom properties</td></tr><tr><td>Transitions</td><td>Card hover effect (transform + shadow)</td></tr><tr><td>Animation</td><td>Fade-in on page load + reduced-motion query</td></tr><tr><td>Framework</td><td>Bootstrap OR Semantic UI for navbar + cards</td></tr><tr><td>Components</td><td>Navbar with mobile toggler, card layout, footer</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">36</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="37">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">LAB</span></div>
+    <div class="tt">Capsule project acceptance criteria</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li>[ ] Page uses a CSS framework (Bootstrap 5 or Semantic UI)</li><li>[ ] Responsive grid: 1/2/3 columns at correct breakpoints</li><li>[ ] Navbar collapses to hamburger on mobile</li><li>[ ] At least one transition (hover effect on cards)</li><li>[ ] At least one animation (@keyframes fade-in or similar)</li><li>[ ] <code>prefers-reduced-motion</code> media query included</li><li>[ ] Typography: clear heading hierarchy with readable line-height</li><li>[ ] Colors: brand palette using CSS custom properties</li><li>[ ] Footer stays at bottom (sticky footer pattern)</li><li>[ ] Tested at 375px, 768px, and 1200px</li><li>[ ] No framework JS errors in DevTools Console</li></ul></div>
+    <div class="ft"><span class="fr">37</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="38">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 02 - CSS &amp; FRAMEWORKS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ: test your understanding</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li>1. Which CSS unit scales with the user's browser font size setting?</li><li>2. What does <code>@media (min-width: 768px)</code> mean?</li><li>3. What is the difference between <code>transition</code> and <code>animation</code>?</li><li>4. Why does Bootstrap 5 use <code>data-bs-toggle</code> instead of <code>data-toggle</code>?</li><li>5. What does <code>bootstrap.bundle.min.js</code> include that <code>bootstrap.min.js</code> does not?</li><li>6. What CSS property should you use for card hover effects to avoid triggering layout reflow?</li><li>7. What does <code>font-display: swap</code> do for web fonts?</li><li>8. When would you choose Grid over Flexbox?</li><li>9. What happens if you omit the viewport meta tag?</li><li>10. Why is <code>prefers-reduced-motion</code> important?</li></ul></div>
+    <div class="ft"><span class="fr">38</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="39">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 02 - COMPLETE</div>
+    <div class="e-ttl">Key takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Concept</th><th>Remember</th></tr></thead><tbody><tr><td>Responsive</td><td>Mobile-first + media queries at content breakpoints</td></tr><tr><td>Flexbox</td><td>One axis, use for navbars, card rows, forms</td></tr><tr><td>Grid</td><td>Two axes, use for page layouts, dashboards</td></tr><tr><td>Typography</td><td>System font stack + rem units + line-height 1.5</td></tr><tr><td>Transitions</td><td>Smooth state changes (hover, focus)</td></tr><tr><td>Animations</td><td>@keyframes for entrance effects, respect reduced-motion</td></tr><tr><td>Bootstrap 5</td><td><code>data-bs-*</code> prefix, bundle includes Popper, no jQuery</td></tr><tr><td>Semantic UI</td><td>Human-readable classes, requires jQuery, large bundle</td></tr><tr><td>Selection</td><td>Choose based on project needs, not personal preference</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 03 -- JavaScript (Part 1): Syntax, Functions, Objects, Arrays, DOM</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 03 -- JavaScript (Part 1): Syntax, Functions, Objects, Arrays, DOM</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 39</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>
