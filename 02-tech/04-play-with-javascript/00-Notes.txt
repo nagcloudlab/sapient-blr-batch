@@ -121,3 +121,38 @@ https://react.dev/learn/thinking-in-react
 
 ----------------------------------------------
 
+React Hooks
+------------------------------
+
+state management 
+------------------
+
+1 - useState() - for managing local state in a functional component
+2 - useReducer() - for managing complex state logic in a functional component
+
+
+context management
+------------------
+3 - useContext() - for accessing context values in a functional component
+
+
+side effects management
+------------------
+4 - useEffect() - for performing side effects in a functional component (e.g., data
+
+performance optimization, subscriptions, timers, etc.)
+----------------------
+
+5. useMemo() - for memoizing expensive calculations in a functional component
+6. useCallback() - for memoizing callback functions in a functional component
+
+reference management
+----------------------
+7. useRef() - for accessing and manipulating DOM elements or storing mutable values in a functional
+
+----------------
+
+
+
+
+
