@@ -1,0 +1,95 @@
+
+
+
+Why do we need javascript with HTML-page?
+
+
+W3c recommendations
+
+with DOM-api
+--------------
+
+-> can manipulate the HTML elements dynamically
+-> can listen to user events (click, mouseover, keypress, etc.)
+-> can change styles of HTML elements dynamically
+-> can create rich UI components (like sliders, modals, tabs, etc.)
+
+with XHR ( AJAX ) + Fetch
+-----------------------------
+-> can make asynchronous HTTP requests
+-> can update parts of a web page without reloading the whole page  
+
+with Timer API
+-----------------------------
+-> can execute code after a certain delay (setTimeout)
+-> can execute code repeatedly at a certain interval (setInterval)
+
+
+other HTML5 APIs
+-----------------------------
+
+1. Geolocation API
+   -> can get the user's current location (with permission)
+   -> can track the user's location in real-time
+
+2. Web Storage API
+    -> can store data in the browser (localStorage, sessionStorage)
+    -> can persist data across page reloads
+
+3. Canvas API
+    -> can draw graphics on a web page
+    -> can create animations and games
+
+4. Web Audio API
+    -> can play and manipulate audio on a web page
+    -> can create complex audio effects and visualizations
+
+5. WebRTC API
+    -> can enable real-time communication (audio, video, data) between browsers
+    -> can be used for video conferencing, file sharing, and peer-to-peer applications
+
+6. WebSockets API
+    -> can enable real-time communication between the client and server
+    -> can be used for chat applications, live notifications, and online gaming
+
+7. Service Workers API
+    -> can enable offline capabilities for web applications
+    -> can cache resources and handle network requests in the background
+
+8. WebGL API
+    -> can render 3D graphics on a web page
+    -> can create interactive 3D applications and games
+
+9. Notifications API
+    -> can send notifications to the user even when the web page is not open
+
+10. Drag and Drop API
+    -> can enable drag-and-drop functionality for HTML elements
+    -> can be used for file uploads, reordering lists, and interactive UI components
+
+11. Pointer Events API
+    -> can handle input from various pointing devices (mouse, touch, stylus)
+
+12. Fullscreen API
+    -> can enable web pages to be displayed in fullscreen mode
+
+13. Vibration API
+    -> can trigger device vibrations for notifications or feedback
+
+14. Battery Status API
+    -> can access information about the device's battery status
+
+15. Device Orientation API
+    -> can access information about the device's orientation and motion 
+
+
+16. Web Bluetooth API
+    -> can connect to and communicate with Bluetooth devices from a web page
+
+17. WebUSB API
+    -> can connect to and communicate with USB devices from a web page
+
+18. Web NFC API
+    -> can read and write NFC tags from a web page
+
+

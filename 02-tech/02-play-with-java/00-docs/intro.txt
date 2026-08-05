@@ -1,0 +1,52 @@
+
+
+JVM programming languages
+-----------------------------
+
+
+- java
+- scala
+- kotlin
+- groovy
+- clojure
+- JRuby
+- Jython
+
+
+Java language features:
+------------------------
+
+-> object-oriented 
+-> multi-threaded 
+-> platform-independent
+-> robust and secure
+-> high performance 
+-> distributed
+-> statically typed
+
+------------------------------------------------------------
+  
+
+Java Development Kit (JDK)
+-----------------------------
+
+- compiler (javac)
+- jps
+- javadoc
+- jar
+- jdb
+- javap
+
+- JRE (Java Runtime Environment)
+
+    - java -> JVM (Java Virtual Machine)
+
+
+
+What Maven?
+---------------
+
+ -> build tool for Java projects
+ -> dependency management tool
+ 
+ https://www.slideshare.net/slideshow/an-introduction-to-maven/12787488?from_search=1

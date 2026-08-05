@@ -1,0 +1,24 @@
+
+
+
+how to develop any backend application?
+----------------------------------------
+
+
+step-1: know the data model & relationships
+-------------------------------------------
+
+    - Account
+    - Transaction_History
+
+
+
+step-2: define the Layer(s) of the application
+-------------------------------------------
+
+a. data/repository layer
+    - responsible for interacting with the database
+    - contains methods for CRUD operations on Account and Transaction_History
+
+    i. AccountRepository
+    ii. TransactionHistoryRepository

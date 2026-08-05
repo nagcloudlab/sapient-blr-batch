@@ -1,0 +1,253 @@
+
+
+
+
+-----------------------------------------
+1. java project
+-----------------------------------------
+
+proj1
+|
+|
+|--- package1 ( .java / .class )
+|
+|--- package2
+| |
+| | -- package2.1
+|
+|
+
+
+
+-----------------------------------------
+2. Java File
+-----------------------------------------
+
+PublicType.java
+------------------------------------------
+|
+|// package declaration ( 1 ) -> optional
+|// import statements ( 0 or more ) -> optional
+|// public Type ( interface / class / enum / annotation / record ) declaration ( 1 ) -> must be public
+|// default Types ( interface / class / enum / annotation / record ) declarations ( 0 or more ) -> optional
+|
+|
+|-----------------------------------------
+
+
+
+
+-----------------------------------------
+3. Package Declaration
+-----------------------------------------
+
+why do we need package declaration?
+
+- To avoid type name conflicts 
+- To control access to types
+- To make searching/locating and usage of types easier
+
+syntax: 
+
+package package_name;
+
+recommended package naming:
+-------------------------------------
+
+package domain.company_name.project_name.module_name;
+package org.npci.upi.account;
+
+
+-----------------------------------------
+4. Import Statements
+-----------------------------------------
+
+proj1
+|
+|--- package1 -> A, B, C
+|   
+|--- package2 -> D, E, F
+|  | 
+   | --- package2.1 -> G, H, C
+
+
+e.g A.java
+
+package package1;
+
+import package2.D;
+import package2.E;
+// or
+import package2.*; // import all types from package2
+import package2.package2.1.*; // import all types from package2.1
+
+public class A {
+    B b;
+    C c;
+    D d;
+    E e;
+    G g;
+}
+
+
+
+---------------------------------------------------------------
+Quick introduction Object Oriented Programming (OOP) concepts
+---------------------------------------------------------------
+
+what is object?
+
+ -> data|info|properties|attributes => State
+ -> behavior|actions|functions|methods => Behavior
+ -> address|location|reference => Identity
+
+ object => sbi
+
+ what is class?
+
+ -> blueprint|template for creating objects
+ -> defines the state and behavior that the objects of the class will have
+
+
+OO concepts
+---------------
+
+1. front-end | interface | abstraction
+2. back-end | implementation | encapsulation
+3. inheritance | reusability
+4. polymorphism | flexibility | extensibility
+
+---------------------------------------------------------------
+
+
+
+-----------------------------------------
+5. User Defined Types
+-----------------------------------------
+
+----------------------------
+a. Interface
+----------------------------
+
+interface Name{
+    output method(input);
+}
+
+
+----------------------------
+b. Class
+----------------------------
+
+
+_________ ____________ class Name [extends SuperClass] [implements Interface1, Interface2, ...]{
+[public ][abstract]    // variables -> defines state of the object
+[       ][final   ]    // constructors -> used to create object of the class
+         [strictfp]    // methods -> defines behavior of the object
+                       // inner-types -> defines types inside the class
+}
+
+
+----------------------------
+c. Enum
+----------------------------
+
+enum Gender{
+    MALE,
+    FEMALE,
+    OTHER
+}
+
+----------------------------
+d. Annotation
+----------------------------
+
+@interface Name{
+    // variables -> defines state of the annotation
+    // methods -> defines behavior of the annotation
+}
+
+
+
+-----------------------------------------
+6. Variables => datatypes
+-----------------------------------------
+2 types of variables
+
+1. value type variables (primitive types) 
+    -> boolean, byte, char, short, int, long, float, double
+2. reference type variables (user defined types)
+    -> interface, class, enum, annotation
+
+class Employee{
+    static String tnrName; // class variable
+    String name; // instance variable
+    void m(){
+         int v; // local variable
+    }
+}
+
+
+syntax:
+
+ _______       ___________ type varName=[value/object's reference];
+ [public]       [static  ]
+ [      ]       [final   ]
+ [protected]    [transient]
+ [private ]     [volatile]
+
+ ---------local variables----------------
+ Nil             [final ]
+
+
+
+ ---------------------------
+ 7. constructors
+-----------------------------
+
+in java, object creation is a two-step process
+
+step-1: dynamically allocate memory JVM's heap memory. => new keyword
+step-2: initialize the memory with object's data => constructor
+
+object creation syntax:
+
+Type refVar = new Type(constructor-args);
+
+syntax of constructor:
+
+class ClassName{
+    [public] [protected] [private] ClassName(constructor-args){
+        // initialization code
+    }
+}
+
+
+-------------------------------------------
+8. methods
+-------------------------------------------
+
+ReturnType
+    - void
+    - primitive types
+    - reference types
+
+
+_________ __________ ReturnType methodName([input-args]) [throws Exception1, Exception2, ...]{ {
+[public]    [static  ]    // A|R|L|Assignments
+[protected] [final   ]    // conditional statements
+[private]   [synchronized]// loops
+            [abstract]    // method calls
+            [native]    [return] result
+}
+
+-----------------------------------------------------
+Java Naming Conventions
+-----------------------------------------------------
+
+keywords: lowercase
+package names: lowercase e.g org.npci.upi.account
+Type Names : PascalCase e.g JavaProject, Employee, Gender
+variable|method names: camelCase e.g empName, getEmpName(), setEmpName()
+constants: UPPERCASE e.g MAX_VALUE, MIN_VALUE
+
+-----------------------------------------------------
