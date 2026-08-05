@@ -22,3 +22,64 @@ a. data/repository layer
 
     i. AccountRepository
     ii. TransactionHistoryRepository
+
+
+ b. service layer
+    - contains business logic and rules for the application
+    - interacts with the repository layer to perform operations
+
+    i. AccountService
+    ii. TransactionHistoryService
+
+-------------------------------------------------------
+design issues
+--------------------------------------------------------
+
+
+1. tight coupling between dependent & dependency classes
+    -> e.g UpiTransferService tightly coupled with SqlAccountRepository
+
+2. unit testing of dependent classes is difficult
+    -> e.g UpiTransferService cannot be unit tested without SqlAccountRepository
+
+
+    Solution: 
+    -> Don't create the dependency object inside the dependent class. get from factory ( factory pattern ) 
+
+
+--------------------------------------------------------
+Performance issues
+--------------------------------------------------------
+
+3. too many dependency objects created for each request
+    -> e.g SqlAccountRepository object is created for each transfer request
+
+    Solution:
+    -> Don't create the dependency object for each request from the factory. 
+       create & inject the dependency object by third party 
+       ( Inversion of control / Dependency Injection )
+
+       how to implement DI in java?
+       1. constructor injection
+       2. setter injection
+
+
+---------------------------------------
+OO Principles aka SOLID principles
+---------------------------------------
+
+S - Single Responsibility Principle
+    -> A class should have only one reason to change. 
+       e.g AccountService should only be responsible for account related operations.
+O - Open/Closed Principle
+    -> A class should be open for extension but closed for modification. 
+       e.g AccountService should be extendable without modifying its existing code.
+L - Liskov Substitution Principle
+    -> Subtypes must be substitutable for their base types.
+    -> e.g if class B is a subclass of class A, then we should be able to use B in place of A without affecting the correctness of the program.
+I - Interface Segregation Principle
+    -> Clients should not be forced to depend on interfaces they do not use.
+    -> e.g if class A has methods m1, m2, m3 and class B only needs m1 and m2, then class B should not be forced to implement m3
+D - Dependency Inversion Principle
+    -> High-level modules should not depend on low-level modules. Both should depend on abstractions
+    -> e.g UpiTransferService should depend on AccountRepository interface and not on SqlAccount              
