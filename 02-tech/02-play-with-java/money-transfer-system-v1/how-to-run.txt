@@ -1,0 +1,4 @@
+
+
+cd money-transfer-system-v1
+mvn exec:java -Dexec.mainClass="com.example.MoneyTransferSystemApplication"
