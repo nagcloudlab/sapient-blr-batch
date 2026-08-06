@@ -1,0 +1,59 @@
+
+
+
+collection framework
+--------------------
+
+=> ready to use data structures and algorithms in Java,
+
+
+3 types of collections 
+------------------------
+
+1. List
+    -> indexed
+    -> ordered
+    -> allows duplicates
+
+2. Set
+    -> not indexed
+    -> unordered
+    -> no duplicates 
+
+3. Map
+    -> key-value pairs
+    -> not indexed
+    -> keys are unique
+    -> values can be duplicated
+    -> iterable over keys, values, or entries
+
+4. Queue
+    -> FIFO (First In First Out)
+    -> used for scheduling tasks, buffering data, etc.
+
+
+
+--------------------
+Collection's F.W Class Hierarchy
+--------------------
+
+
+1. List
+ - Vector (synchronized, legacy class, similar to ArrayList)
+ - Stack (LIFO, extends Vector)
+ - ArrayList ( dynamic array, fast random access, slow insert/delete in middle)
+ - LinkedList (doubly linked list, fast insert/delete, slow random access)
+ 
+
+ 2. Set
+
+  - TreeSet (sorted set, implements NavigableSet, uses Red-Black tree)
+  - HashSet (uses hashtable , un-ordered, no duplicates)
+  - LinkedHashSet (maintains insertion order, uses hashtable and linked list)
+
+3. Map
+
+  - TreeMap (sorted map, implements NavigableMap, uses Red-Black tree)  
+  - HashMap (uses hashtable, un-ordered, allows null key and null values)
+  - LinkedHashMap (maintains insertion order, uses hashtable and linked list)
+    
