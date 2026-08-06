@@ -26,14 +26,7 @@ public class ListExample {
 
         System.out.println("Sorting products by price (natural order)...");
         
-        class PriceComparator implements Comparator<Product>{
-            @Override
-            public int compare(Product p1, Product p2) {
-                return Double.compare(p1.getPrice(), p2.getPrice());
-            }
-        }
-        
-        Collections.sort(products,new PriceComparator());
+        Collections.sort(products,(p1, p2) -> Double.compare(p1.getPrice(), p2.getPrice()));
 
         displayProducts(products);
 
