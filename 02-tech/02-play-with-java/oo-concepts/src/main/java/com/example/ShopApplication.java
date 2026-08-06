@@ -28,6 +28,9 @@ public class ShopApplication {
         double totalPrice = storeBilling.getTotalPrice(cart);
         System.out.println("Total Price: "+totalPrice);
 
+
+
+
     }
     
 }
