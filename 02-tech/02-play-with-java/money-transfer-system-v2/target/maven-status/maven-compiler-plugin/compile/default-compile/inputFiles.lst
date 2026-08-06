@@ -1,6 +1,0 @@
-/Users/nag/sapient-blr-batch/02-tech/02-play-with-java/money-transfer-system-v1/src/main/java/com/example/MoneyTransferSystemApplication.java
-/Users/nag/sapient-blr-batch/02-tech/02-play-with-java/money-transfer-system-v1/src/main/java/com/example/exception/AccountBalanceException.java
-/Users/nag/sapient-blr-batch/02-tech/02-play-with-java/money-transfer-system-v1/src/main/java/com/example/exception/AccountNotFoundException.java
-/Users/nag/sapient-blr-batch/02-tech/02-play-with-java/money-transfer-system-v1/src/main/java/com/example/model/Account.java
-/Users/nag/sapient-blr-batch/02-tech/02-play-with-java/money-transfer-system-v1/src/main/java/com/example/repository/SqlAccountRepository.java
-/Users/nag/sapient-blr-batch/02-tech/02-play-with-java/money-transfer-system-v1/src/main/java/com/example/service/UpiTransferService.java
