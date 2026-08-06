@@ -24,3 +24,12 @@ step-5: handle exceptions
 step-6: close the resources
 
 -------------------------------------  
+
+CREATE database todosdb;
+use todosdb;
+CREATE TABLE todos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    completed BOOLEAN DEFAULT FALSE
+);
+-------------------------------------  
