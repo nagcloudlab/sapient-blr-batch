@@ -1,0 +1,26 @@
+
+
+
+s/w
+
+    - application -> object model
+    - database.   -> relational model
+
+    ORM ( Object Relational Mapping ) 
+
+     -> jdbc
+     -> jpa
+
+-------------------------------------     
+
+steps to use jdbc api
+------------------------
+
+step-1: register the driver class with DriverManager
+step-2: create a connection to the database
+step-3: create a SQL statement
+step-4: execute the SQL statement & process the result
+step-5: handle exceptions
+step-6: close the resources
+
+-------------------------------------  
