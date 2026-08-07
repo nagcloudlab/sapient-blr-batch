@@ -1,0 +1,9 @@
+/Users/nag/sapient-blr-batch/02-tech/03-play-with-spring/todos-service/src/main/java/com/example/Application.java
+/Users/nag/sapient-blr-batch/02-tech/03-play-with-spring/todos-service/src/main/java/com/example/entity/Todo.java
+/Users/nag/sapient-blr-batch/02-tech/03-play-with-spring/todos-service/src/main/java/com/example/entity/TodoStatus.java
+/Users/nag/sapient-blr-batch/02-tech/03-play-with-spring/todos-service/src/main/java/com/example/entity/User.java
+/Users/nag/sapient-blr-batch/02-tech/03-play-with-spring/todos-service/src/main/java/com/example/repository/JdbcTodoRepository.java
+/Users/nag/sapient-blr-batch/02-tech/03-play-with-spring/todos-service/src/main/java/com/example/repository/TodoRepository.java
+/Users/nag/sapient-blr-batch/02-tech/03-play-with-spring/todos-service/src/main/java/com/example/service/TodoService.java
+/Users/nag/sapient-blr-batch/02-tech/03-play-with-spring/todos-service/src/main/java/com/example/service/TodoServiceImpl.java
+/Users/nag/sapient-blr-batch/02-tech/03-play-with-spring/todos-service/src/main/java/com/example/web/TodoController.java

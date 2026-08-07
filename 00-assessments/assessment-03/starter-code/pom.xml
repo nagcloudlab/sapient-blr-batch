@@ -24,6 +24,7 @@
     </properties>
 
     <dependencies>
+
         <!-- Spring Web (REST controllers, JSON serialization) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -31,17 +32,17 @@
         </dependency>
 
         <!-- Spring JDBC (JdbcTemplate, DataSource) -->
-        <!-- <dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
-        </dependency> -->
+        </dependency> 
 
-        <!-- MySQL driver (runtime only — not needed for compile) -->
-        <!-- <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <scope>runtime</scope>
-        </dependency> -->
+        <!-- H2 Database (in-memory database for development and testing) -->
+       <dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
 
         <!-- Test support -->
         <dependency>
@@ -49,6 +50,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        
     </dependencies>
 
     <build>

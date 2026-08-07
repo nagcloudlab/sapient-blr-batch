@@ -1,6 +1,7 @@
 package com.quickticket.controller;
 
 import com.quickticket.model.Event;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,15 +25,15 @@ public class EventController {
     private final List<Event> events = new ArrayList<>();
 
     @PostMapping
-    public Event createEvent(Event event) {
+    public ResponseEntity<Event> createEvent(@RequestBody Event event) {
         events.add(event);
-        return event;
+        return ResponseEntity.status(HttpStatus.CREATED).body(event);
     }
 
     @GetMapping("/{eventId}")
-    public ResponseEntity<Event> getEvent(@PathVariable("id") Long eventId) {
+    public ResponseEntity<Event> getEvent(@PathVariable("eventId") Long eventId) {
         Optional<Event> found = events.stream()
-            .filter(e -> e.id != null && e.id.equals(eventId))
+            .filter(e -> e.getId() != null && e.getId().equals(eventId))
             .findFirst();
 
         return found
