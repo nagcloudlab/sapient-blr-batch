@@ -1,0 +1,141 @@
+# FoodExpress Docker Compose Configuration (FIXED)
+#
+# ALL BUGS FIXED:
+# FIX 1: All services on single shared network (foodexpress-net)
+# FIX 2: Health checks added to all services
+
+version: '3.8'
+
+services:
+  # API Gateway
+  api-gateway:
+    image: foodexpress/api-gateway:latest
+    ports:
+      - "8000:8000"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    # FIX 1: All services on same network
+    networks:
+      - foodexpress-net
+    depends_on:
+      restaurant-service:
+        # FIX 2: Wait for service to be healthy, not just started
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+    # FIX 2: Health check for gateway
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Restaurant Service
+  restaurant-service:
+    image: foodexpress/restaurant-service:latest
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_HOST=restaurant-db
+      - DB_PORT=3306
+    # FIX 1: Same shared network
+    networks:
+      - foodexpress-net
+    depends_on:
+      restaurant-db:
+        condition: service_healthy
+    # FIX 2: Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Order Service
+  order-service:
+    image: foodexpress/order-service:latest
+    ports:
+      - "8082:8082"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - DB_HOST=order-db
+      - DB_PORT=3306
+      - RESTAURANT_SERVICE_URL=http://restaurant-service:8081
+    networks:
+      - foodexpress-net
+    depends_on:
+      order-db:
+        condition: service_healthy
+    # FIX 2: Health check
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Restaurant Database
+  restaurant-db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpass
+      - MYSQL_DATABASE=restaurants
+      - MYSQL_USER=foodexpress
+      - MYSQL_PASSWORD=secret123
+    volumes:
+      - restaurant-data:/var/lib/mysql
+    networks:
+      - foodexpress-net
+    # FIX 2: MySQL health check
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Order Database
+  order-db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpass
+      - MYSQL_DATABASE=orders
+      - MYSQL_USER=foodexpress
+      - MYSQL_PASSWORD=secret123
+    volumes:
+      - order-data:/var/lib/mysql
+    networks:
+      - foodexpress-net
+    # FIX 2: MySQL health check
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-prootpass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - foodexpress-net
+    # FIX 2: Redis health check
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+# FIX 1: Single shared network for all services
+networks:
+  foodexpress-net:
+    driver: bridge
+
+volumes:
+  restaurant-data:
+  order-data:

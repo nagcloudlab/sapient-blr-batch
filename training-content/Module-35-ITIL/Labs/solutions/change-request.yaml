@@ -1,0 +1,49 @@
+# FoodExpress Change Request Template -- FIXED VERSION
+
+change_request:
+  number: CHG-2026-0092
+  title: "Database Schema Migration: Add index on orders.created_at"
+  description: "Add missing index to resolve recurring query performance issues"
+
+  # Fix 1: Database schema migration is a Normal change
+  type: "Normal"
+
+  # Fix 2: Realistic risk assessment for production DB change
+  risk_assessment:
+    risk_level: "Medium"
+    risk_description: "Table lock during index creation may cause brief order delays. Large table (~10M rows) may take 5-10 minutes."
+    mitigation: "Use pt-online-schema-change to avoid table locks. Run during maintenance window. Monitor order API latency during migration."
+
+  # Fix 3: Complete implementation plan with validation steps
+  implementation_plan:
+    steps:
+      - "1. Take database backup"
+      - "2. Verify current table size and estimate migration time"
+      - "3. Run pt-online-schema-change to add index without table lock"
+      - "4. Verify index was created: SHOW INDEX FROM orders WHERE Key_name = 'idx_created_at'"
+      - "5. Run test query and compare execution plan (EXPLAIN)"
+      - "6. Monitor order API P95 latency for 30 minutes"
+      - "7. Confirm no errors in application logs"
+
+  # Fix 4: Proper rollback plan
+  rollback_plan: "DROP INDEX idx_created_at ON orders; -- Removes the index. Verify order API still functions (queries will be slower but functional). Restore from backup if table is corrupted."
+
+  # Fix 5: Maintenance window, not peak hours
+  schedule:
+    implementation_window: "2026-09-10 02:00-04:00 IST"
+    reason_for_window: "Lowest traffic period (< 5% of peak). Maintenance window pre-approved."
+
+  # Fix 6: CAB approval is required for Normal changes
+  cab_approval:
+    required: true
+    status: "Approved"
+    date: "2026-09-08"
+    attendees:
+      - "Ravi Kumar (Sustain Eng)"
+      - "Priya Sharma (DB Admin)"
+      - "Amit Shah (Platform Lead)"
+      - "Meera Patel (Change Manager)"
+
+  requested_by: "Ravi Kumar"
+  assigned_to: "Database Team"
+  environment: "Production"

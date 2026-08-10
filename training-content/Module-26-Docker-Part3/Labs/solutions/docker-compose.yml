@@ -1,0 +1,91 @@
+# FoodExpress Full Stack -- Docker Compose (Fixed)
+
+version: '3.8'
+
+services:
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - order-service
+      - restaurant-service
+    networks:
+      - foodexpress-net
+
+  order-service:
+    image: foodexpress/order-service:1.0
+    # FIX: Changed host port from 8082 to 8081 to avoid conflict with payment-service
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      DB_HOST: mysql-db
+      DB_PORT: 3306
+      REDIS_HOST: redis
+    # FIX: Added depends_on for mysql-db and redis
+    depends_on:
+      - mysql-db
+      - redis
+    # FIX: Changed network from 'app-network' to 'foodexpress-net'
+    networks:
+      - foodexpress-net
+
+  payment-service:
+    image: foodexpress/payment-service:1.0
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_PROFILES_ACTIVE: production
+      # FIX: Changed DB_HOST from 'localhost' to 'mysql-db' (container DNS name)
+      DB_HOST: mysql-db
+      DB_PORT: 3306
+    depends_on:
+      - mysql-db
+    networks:
+      - foodexpress-net
+
+  restaurant-service:
+    image: foodexpress/restaurant-service:1.0
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: mysql-db
+      NODE_ENV: production
+    depends_on:
+      - mysql-db
+    # FIX: Added networks section -- was missing, so container was isolated
+    networks:
+      - foodexpress-net
+
+  mysql-db:
+    image: mysql:8.0
+    # FIX: Corrected volume mount path from /data to /var/lib/mysql
+    volumes:
+      - mysql-data:/var/lib/mysql
+    # FIX: Added MYSQL_ROOT_PASSWORD (required for MySQL to start)
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: foodexpress
+    networks:
+      - foodexpress-net
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis-data:/data
+    # FIX: Added restart policy for reliability
+    restart: unless-stopped
+    networks:
+      - foodexpress-net
+
+volumes:
+  mysql-data:
+  # FIX: Added redis-data volume declaration
+  redis-data:
+
+networks:
+  foodexpress-net:
+    driver: bridge

@@ -1,0 +1,64 @@
+# FoodExpress Order Service Configuration
+# FIX: Port changed from 8082 to 8081 (8082 is Payment Service)
+server:
+  port: 8081
+
+spring:
+  application:
+    name: order-service
+  datasource:
+    # FIX: Changed host from 'db-server' to 'localhost'
+    url: jdbc:mysql://localhost:3306/foodexpress_orders?useSSL=false&serverTimezone=UTC
+    username: foodexpress_app
+    password: FE_db_2026!
+    hikari:
+      # FIX: Increased pool size from 2 to 15 for production traffic
+      maximum-pool-size: 15
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+
+# FIX: Changed log level from DEBUG to INFO for production
+logging:
+  level:
+    root: INFO
+    com.foodexpress: INFO
+    org.hibernate.SQL: WARN
+  file:
+    name: /var/log/foodexpress/order-service.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# Rest client settings for inter-service calls
+foodexpress:
+  services:
+    restaurant-service:
+      url: http://localhost:3000
+      # FIX: Added timeout of 5 seconds
+      timeout: 5000
+    payment-service:
+      url: http://localhost:8082
+
+# FIX: Added circuit breaker configuration
+resilience4j:
+  circuitbreaker:
+    instances:
+      restaurantService:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000
+        permittedNumberOfCallsInHalfOpenState: 3
+      paymentService:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 15000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

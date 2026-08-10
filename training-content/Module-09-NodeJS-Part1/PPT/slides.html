@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Node.js (Part 1)</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 09</div>
+    <div class="t-main">Node.js (Part 1)</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day | Workshop + guided lab</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Session</th><th>Topics</th></tr></thead><tbody><tr><td>Morning (1st half)</td><td>Intro to Node.js, Installing Node & NPM, Node Modules, Path Module, FS Module</td></tr><tr><td>Afternoon (2nd half)</td><td>Asynchronous JavaScript, Callbacks, Promises, Async/Await</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Transitioning from Java to JavaScript -- server-side development with Node.js.</div></div></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">What Is Node.js?</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li><strong>JavaScript runtime</strong> built on Chrome's V8 engine</li><li>Runs JavaScript <strong>outside the browser</strong> -- on servers, CLI tools, scripts</li><li>Created by Ryan Dahl in 2009</li><li><strong>Event-driven</strong>, <strong>non-blocking I/O</strong> model</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Why Node.js for Sustain Engineering?</div>
+<table class="tbl"><thead><tr><th>Reason</th><th>Detail</th></tr></thead><tbody><tr><td>Ubiquity</td><td>Many production systems use Node.js</td></tr><tr><td>NPM ecosystem</td><td>Largest package registry (2M+ packages)</td></tr><tr><td>Full-stack JS</td><td>Same language for frontend and backend</td></tr><tr><td>Fast prototyping</td><td>Quick to build APIs and microservices</td></tr><tr><td>Sustain relevance</td><td>You will maintain Node.js services in production</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Node.js vs Browser JavaScript</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Feature</th><th>Browser</th><th>Node.js</th></tr></thead><tbody><tr><td>DOM manipulation</td><td>Yes (<code>document</code>, <code>window</code>)</td><td>No</td></tr><tr><td>File system access</td><td>No (security)</td><td>Yes (<code>fs</code> module)</td></tr><tr><td>Network servers</td><td>No</td><td>Yes (<code>http</code>, <code>net</code>)</td></tr><tr><td>Global object</td><td><code>window</code></td><td><code>global</code></td></tr><tr><td>Module system</td><td>ES Modules (<code>import</code>)</td><td>CommonJS (<code>require</code>) + ES Modules</td></tr><tr><td>Package manager</td><td>N/A</td><td>NPM, Yarn, pnpm</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">// This works in Node.js but NOT in the browser
+const fs = require('fs');
+const data = fs.readFileSync('menu.json', 'utf8');
+
+// This works in the browser but NOT in Node.js
+document.getElementById('menu');  // ReferenceError: document is not defined</div></div></div></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Node.js Architecture</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Single-Threaded Event Loop</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">        Incoming Requests
+              |
+        +-----v------+
+        | Event Queue |
+        +-----+------+
+              |
+        +-----v------+
+        | Event Loop  |  &lt;-- Single thread
+        +-----+------+
+              |
+     +--------+--------+
+     |                  |
+  Blocking?          Non-blocking
+     |                  |
+  Thread Pool       Execute immediately
+  (libuv, 4 threads)   |
+     |               Return result
+  Callback when done</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Key Insight</div>
+<ul class="bl"><li>Node.js is <strong>single-threaded</strong> for JavaScript execution</li><li>I/O operations (file, network, DB) are delegated to the <strong>thread pool</strong></li><li>Results come back via <strong>callbacks</strong> or <strong>promises</strong></li></ul></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Installing Node.js and NPM</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Installation</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd"># Check if already installed
+node --version    # v20.x.x
+npm --version     # 10.x.x
+
+# Install via official website: https://nodejs.org
+# LTS (Long Term Support) version recommended for production</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Node.js Version Manager (nvm)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd"># Install nvm (recommended for managing multiple versions)
+# Linux/Mac:
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+
+# Windows: use nvm-windows
+# https://github.com/coreybutler/nvm-windows
+
+# Usage
+nvm install 20        # Install Node.js 20
+nvm use 20            # Switch to Node.js 20
+nvm list              # List installed versions</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Sustain tip:</strong> Different projects may require different Node versions. Always use <code>nvm</code>.</div></div></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Your First Node.js Program</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">hello.js</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">console.log('Hello from Node.js!');
+console.log('Process ID:', process.pid);
+console.log('Node version:', process.version);
+console.log('Platform:', process.platform);
+console.log('Current directory:', process.cwd());</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Run It</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1</div><div class="cb-cd">node hello.js</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Output</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">Hello from Node.js!
+Process ID: 12345
+Node version: v20.11.0
+Platform: win32
+Current directory: C:\projects\foodexpress</div></div></div></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">NPM -- Node Package Manager</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What NPM Does</div>
+<ul class="bl"><li><strong>Installs</strong> third-party packages (libraries)</li><li><strong>Manages</strong> project dependencies via <code>package.json</code></li><li><strong>Runs</strong> scripts defined in <code>package.json</code></li><li><strong>Publishes</strong> packages to the npm registry</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Initialize a Project</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd"># Create a new project with package.json
+npm init -y
+
+# This creates package.json:
+{
+  "name": "foodexpress-restaurant-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" &amp;&amp; exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}</div></div></div></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Installing Packages</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Types of Dependencies</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd"># Production dependency (needed at runtime)
+npm install express
+npm install mongoose
+
+# Dev dependency (needed only during development)
+npm install --save-dev nodemon
+npm install --save-dev jest
+
+# Global installation (CLI tools)
+npm install -g nodemon</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">package.json After Install</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jso</span><span class="cb-lg">JSON</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">{
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.6.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1",
+    "jest": "^29.7.0"
+  }
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Version Syntax</div>
+<table class="tbl"><thead><tr><th>Prefix</th><th>Meaning</th><th>Example</th></tr></thead><tbody><tr><td><code>^4.18.2</code></td><td>Compatible (minor + patch)</td><td>4.18.2 to < 5.0.0</td></tr><tr><td><code>~4.18.2</code></td><td>Approximate (patch only)</td><td>4.18.2 to < 4.19.0</td></tr><tr><td><code>4.18.2</code></td><td>Exact version</td><td>Only 4.18.2</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">node_modules and package-lock.json</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">node_modules/</div>
+<ul class="bl"><li>Directory where all installed packages live</li><li>Can be <strong>very large</strong> (hundreds of MB)</li><li><strong>Never commit to Git</strong> -- add to <code>.gitignore</code></li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">package-lock.json</div>
+<ul class="bl"><li>Auto-generated file that locks exact dependency versions</li><li><strong>Always commit</strong> to Git -- ensures reproducible builds</li><li>Prevents "works on my machine" issues</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">.gitignore for Node.js Projects</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">node_modules/
+.env
+*.log
+dist/
+coverage/</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Reinstalling Dependencies</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3</div><div class="cb-cd"># On a fresh clone, install from package-lock.json
+npm ci          # Clean install (faster, stricter than npm install)
+npm install     # Also works, but may update lock file</div></div></div></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Node.js Module System -- CommonJS</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Creating a Module</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd">// menuItem.js
+class MenuItem {
+    constructor(id, name, price, category) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+        this.category = category;
+    }
+
+    getDisplayPrice() {
+        return `$${this.price.toFixed(2)}`;
+    }
+}
+
+// Export for use by other files
+module.exports = MenuItem;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Using a Module</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">// app.js
+const MenuItem = require('./menuItem');
+
+const pizza = new MenuItem('ITEM001', 'Margherita Pizza', 12.99, 'Italian');
+console.log(pizza.getDisplayPrice());  // $12.99</div></div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Module Export Patterns</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Single Export</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">// logger.js
+class Logger { /* ... */ }
+module.exports = Logger;
+
+// Usage
+const Logger = require('./logger');</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Multiple Named Exports</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</div><div class="cb-cd">// utils.js
+function formatCurrency(amount) {
+    return `$${amount.toFixed(2)}`;
+}
+
+function generateId() {
+    return `ORD-${Date.now()}`;
+}
+
+module.exports = { formatCurrency, generateId };
+
+// Usage
+const { formatCurrency, generateId } = require('./utils');
+console.log(formatCurrency(12.5));   // $12.50
+console.log(generateId());           // ORD-1690000000000</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">exports Shorthand</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3</div><div class="cb-cd">// Same as module.exports = { ... }
+exports.formatCurrency = function(amount) { return `$${amount.toFixed(2)}`; };
+exports.generateId = function() { return `ORD-${Date.now()}`; };</div></div></div></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">ES Modules in Node.js</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Enabling ES Modules</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jso</span><span class="cb-lg">JSON</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">// package.json -- add "type": "module"
+{
+  "type": "module"
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">ES Module Syntax</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">// menuItem.mjs (or .js with "type": "module")
+export class MenuItem {
+    constructor(id, name, price) {
+        this.id = id;
+        this.name = name;
+        this.price = price;
+    }
+}
+
+export function formatPrice(price) {
+    return `$${price.toFixed(2)}`;
+}
+
+// Default export
+export default class Restaurant {
+    constructor(name) { this.name = name; }
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">// app.mjs
+import Restaurant, { MenuItem, formatPrice } from './menuItem.mjs';
+
+const r = new Restaurant('FoodExpress');
+const item = new MenuItem('001', 'Pizza', 12.99);</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">CommonJS vs ES Modules</div>
+<table class="tbl"><thead><tr><th>Feature</th><th>CommonJS</th><th>ES Modules</th></tr></thead><tbody><tr><td>Syntax</td><td><code>require()</code> / <code>module.exports</code></td><td><code>import</code> / <code>export</code></td></tr><tr><td>Loading</td><td>Synchronous</td><td>Asynchronous</td></tr><tr><td>File extension</td><td><code>.js</code> (default)</td><td><code>.mjs</code> or <code>"type": "module"</code></td></tr><tr><td>Legacy support</td><td>Full</td><td>Node 12+</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Built-in Modules Overview</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Node.js ships with many built-in modules -- no <code>npm install</code> needed.</p>
+<table class="tbl"><thead><tr><th>Module</th><th>Purpose</th><th>Common Use</th></tr></thead><tbody><tr><td><code>path</code></td><td>File path utilities</td><td>Join, resolve, parse paths</td></tr><tr><td><code>fs</code></td><td>File system operations</td><td>Read, write, delete files</td></tr><tr><td><code>http</code></td><td>HTTP server/client</td><td>Create web servers</td></tr><tr><td><code>url</code></td><td>URL parsing</td><td>Parse and format URLs</td></tr><tr><td><code>os</code></td><td>Operating system info</td><td>CPU, memory, hostname</td></tr><tr><td><code>events</code></td><td>Event emitter</td><td>Custom event handling</td></tr><tr><td><code>crypto</code></td><td>Cryptography</td><td>Hashing, encryption</td></tr><tr><td><code>util</code></td><td>Utility functions</td><td>Promisify, inspect</td></tr><tr><td><code>child_process</code></td><td>Run system commands</td><td>Execute shell commands</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">// No install needed -- just require
+const path = require('path');
+const fs = require('fs');
+const os = require('os');</div></div></div></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Path Module</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Why Use path?</div>
+<ul class="bl"><li>File paths differ across operating systems</li><li>Windows: <code>C:\Users\data\file.txt</code></li><li>Linux/Mac: <code>/home/user/data/file.txt</code></li><li><code>path</code> module handles this <strong>cross-platform</strong></li></ul>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">const path = require('path');
+
+// Join path segments (handles OS separators)
+const filePath = path.join(__dirname, 'data', 'menu.json');
+// Windows: C:\projects\foodexpress\data\menu.json
+// Linux:   /projects/foodexpress/data/menu.json
+
+// Resolve to absolute path
+const abs = path.resolve('data', 'menu.json');
+
+// Parse a path
+const parsed = path.parse('/data/menu.json');
+console.log(parsed);
+// { root: '/', dir: '/data', base: 'menu.json', ext: '.json', name: 'menu' }
+
+// Get parts
+console.log(path.basename('/data/menu.json'));     // menu.json
+console.log(path.dirname('/data/menu.json'));       // /data
+console.log(path.extname('/data/menu.json'));       // .json</div></div></div></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Path Module -- Key Methods</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Method</th><th>Input</th><th>Output</th></tr></thead><tbody><tr><td><code>path.join('a', 'b', 'c.txt')</code></td><td>segments</td><td><code>a/b/c.txt</code> or <code>a\b\c.txt</code></td></tr><tr><td><code>path.resolve('data', 'file.txt')</code></td><td>segments</td><td>Absolute path</td></tr><tr><td><code>path.basename('/a/b/c.txt')</code></td><td>path</td><td><code>c.txt</code></td></tr><tr><td><code>path.dirname('/a/b/c.txt')</code></td><td>path</td><td><code>/a/b</code></td></tr><tr><td><code>path.extname('file.json')</code></td><td>path</td><td><code>.json</code></td></tr><tr><td><code>path.parse('/a/b/c.txt')</code></td><td>path</td><td><code>{ root, dir, base, ext, name }</code></td></tr><tr><td><code>path.isAbsolute('/data')</code></td><td>path</td><td><code>true</code></td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Special Variables</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">console.log(__dirname);   // Directory of current file
+console.log(__filename);  // Full path of current file
+
+// Example: read a config file relative to this script
+const configPath = path.join(__dirname, 'config', 'database.json');</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Sustain tip:</strong> Always use <code>path.join()</code> instead of string concatenation for file paths.</div></div></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">FS Module -- File System</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Reading Files</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">const fs = require('fs');
+const path = require('path');
+
+// Synchronous read (blocks the event loop!)
+const data = fs.readFileSync(path.join(__dirname, 'menu.json'), 'utf8');
+const menu = JSON.parse(data);
+console.log(menu);
+
+// Asynchronous read (callback-based -- non-blocking)
+fs.readFile(path.join(__dirname, 'menu.json'), 'utf8', (err, data) =&gt; {
+    if (err) {
+        console.error('Error reading file:', err.message);
+        return;
+    }
+    const menu = JSON.parse(data);
+    console.log(menu);
+});</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Sync vs Async</div>
+<table class="tbl"><thead><tr><th>Sync (<code>readFileSync</code>)</th><th>Async (<code>readFile</code>)</th></tr></thead><tbody><tr><td>Blocks event loop</td><td>Non-blocking</td></tr><tr><td>Simpler code</td><td>Requires callback/promise</td></tr><tr><td>OK for startup config</td><td><strong>Required</strong> for production I/O</td></tr><tr><td>Returns data directly</td><td>Data via callback</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">FS Module -- Writing Files</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">const fs = require('fs');
+const path = require('path');
+
+const menuData = [
+    { id: 'ITEM001', name: 'Margherita Pizza', price: 12.99, category: 'Italian' },
+    { id: 'ITEM002', name: 'Chicken Tikka', price: 14.99, category: 'Indian' },
+    { id: 'ITEM003', name: 'Sushi Roll', price: 16.99, category: 'Japanese' }
+];
+
+// Write file (creates or overwrites)
+fs.writeFileSync(
+    path.join(__dirname, 'data', 'menu.json'),
+    JSON.stringify(menuData, null, 2),  // Pretty print with 2-space indent
+    'utf8'
+);
+
+// Append to file
+fs.appendFileSync(
+    path.join(__dirname, 'logs', 'app.log'),
+    `[${new Date().toISOString()}] Server started\n`
+);
+
+// Async write
+fs.writeFile('output.txt', 'Hello', 'utf8', (err) =&gt; {
+    if (err) console.error('Write failed:', err.message);
+    else console.log('File written successfully');
+});</div></div></div></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">FS Module -- Directory & File Operations</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">const fs = require('fs');
+
+// Check if file/directory exists
+if (fs.existsSync('data/menu.json')) {
+    console.log('File exists');
+}
+
+// Create directory
+fs.mkdirSync('data/backups', { recursive: true });
+
+// List directory contents
+const files = fs.readdirSync('data');
+console.log(files);  // ['menu.json', 'orders.json', 'backups']
+
+// Get file info
+const stats = fs.statSync('data/menu.json');
+console.log('Size:', stats.size, 'bytes');
+console.log('Is file:', stats.isFile());
+console.log('Is directory:', stats.isDirectory());
+console.log('Modified:', stats.mtime);
+
+// Delete file
+fs.unlinkSync('data/temp.json');
+
+// Delete directory
+fs.rmdirSync('data/backups');          // Empty dir only
+fs.rmSync('data/backups', { recursive: true });  // Non-empty dir</div></div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress: Restaurant Data Manager</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44</div><div class="cb-cd">const fs = require('fs');
+const path = require('path');
+
+class RestaurantDataManager {
+    constructor(dataDir) {
+        this.dataDir = dataDir;
+        // Ensure data directory exists
+        if (!fs.existsSync(dataDir)) {
+            fs.mkdirSync(dataDir, { recursive: true });
+        }
+    }
+
+    getFilePath(filename) {
+        return path.join(this.dataDir, filename);
+    }
+
+    loadRestaurants() {
+        const filePath = this.getFilePath('restaurants.json');
+        if (!fs.existsSync(filePath)) return [];
+        const data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    }
+
+    saveRestaurants(restaurants) {
+        const filePath = this.getFilePath('restaurants.json');
+        fs.writeFileSync(filePath, JSON.stringify(restaurants, null, 2), 'utf8');
+    }
+
+    addRestaurant(restaurant) {
+        const restaurants = this.loadRestaurants();
+        restaurant.id = `REST-${Date.now()}`;
+        restaurant.createdAt = new Date().toISOString();
+        restaurants.push(restaurant);
+        this.saveRestaurants(restaurants);
+        return restaurant;
+    }
+
+    findByCategory(category) {
+        const restaurants = this.loadRestaurants();
+        return restaurants.filter(r =&gt; r.category === category);
+    }
+}
+
+module.exports = RestaurantDataManager;</div></div></div></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Asynchronous JavaScript -- The Problem</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Why Async?</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">// Imagine this runs synchronously...
+const data = db.query('SELECT * FROM restaurants');  // Takes 500ms
+console.log(data);  // Waits 500ms before this line runs
+
+// In that 500ms, Node.js can't handle ANY other requests
+// With 1000 concurrent users, each waiting 500ms = terrible performance</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Solution: Non-Blocking I/O</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">// Node.js way -- non-blocking
+db.query('SELECT * FROM restaurants', (err, data) =&gt; {
+    console.log(data);  // Runs when data is ready
+});
+// This line runs IMMEDIATELY -- doesn't wait for DB
+console.log('Query sent, continuing...');</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Blocking vs Non-Blocking</div>
+<table class="tbl"><thead><tr><th>Blocking</th><th>Non-Blocking</th></tr></thead><tbody><tr><td>Waits for operation to complete</td><td>Continues immediately</td></tr><tr><td>Simple, sequential code</td><td>Requires callbacks/promises</td></tr><tr><td>Wastes CPU time waiting</td><td>CPU handles other work</td></tr><tr><td>Bad for servers</td><td>Great for servers</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Callbacks</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Is a Callback?</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A function passed as an argument, to be called when an operation completes.</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">// setTimeout -- simplest callback example
+console.log('1. Before timeout');
+
+setTimeout(() =&gt; {
+    console.log('2. Inside timeout (after 2 seconds)');
+}, 2000);
+
+console.log('3. After timeout call');
+
+// Output:
+// 1. Before timeout
+// 3. After timeout call
+// 2. Inside timeout (after 2 seconds)</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Node.js Error-First Callback Convention</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">const fs = require('fs');
+
+fs.readFile('menu.json', 'utf8', (err, data) =&gt; {
+    if (err) {
+        console.error('Failed to read:', err.message);
+        return;
+    }
+    // err is null -- success!
+    console.log('Menu data:', data);
+});</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Convention:</strong> First argument is always <code>err</code>. If null, operation succeeded.</div></div></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Callback Hell</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Problem</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">// Read config, then connect DB, then query, then process...
+fs.readFile('config.json', 'utf8', (err, config) =&gt; {
+    if (err) return console.error(err);
+    db.connect(JSON.parse(config).dbUrl, (err, conn) =&gt; {
+        if (err) return console.error(err);
+        conn.query('SELECT * FROM restaurants', (err, restaurants) =&gt; {
+            if (err) return console.error(err);
+            restaurants.forEach(r =&gt; {
+                conn.query(`SELECT * FROM menu WHERE restaurant_id = ${r.id}`, (err, menu) =&gt; {
+                    if (err) return console.error(err);
+                    console.log(r.name, menu);
+                    // More nesting... "Pyramid of doom"
+                });
+            });
+        });
+    });
+});</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Problems with Callback Hell</div>
+<ul class="bl"><li>Hard to read (deep nesting)</li><li>Hard to handle errors consistently</li><li>Hard to add sequential or parallel logic</li><li>Hard to debug (stack traces are confusing)</li></ul></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Promises -- The Solution</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Is a Promise?</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">An object representing the <strong>eventual completion or failure</strong> of an async operation.</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">Promise States:
+  PENDING  ----&gt; FULFILLED (resolved with value)
+     |
+     +--------&gt; REJECTED (rejected with error)</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Creating a Promise</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">function readMenuFile(filePath) {
+    return new Promise((resolve, reject) =&gt; {
+        fs.readFile(filePath, 'utf8', (err, data) =&gt; {
+            if (err) {
+                reject(err);       // Operation failed
+            } else {
+                resolve(data);     // Operation succeeded
+            }
+        });
+    });
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Using a Promise</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">readMenuFile('menu.json')
+    .then(data =&gt; {
+        console.log('Menu:', JSON.parse(data));
+    })
+    .catch(err =&gt; {
+        console.error('Error:', err.message);
+    });</div></div></div></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Promise Chaining</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Solving Callback Hell with Promises</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">readConfig('config.json')
+    .then(config =&gt; connectDB(config.dbUrl))
+    .then(conn =&gt; conn.query('SELECT * FROM restaurants'))
+    .then(restaurants =&gt; {
+        console.log('Restaurants:', restaurants);
+        return restaurants;
+    })
+    .catch(err =&gt; {
+        console.error('Error at any step:', err.message);
+    })
+    .finally(() =&gt; {
+        console.log('Cleanup: close connections');
+    });</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Key Rules</div>
+<table class="tbl"><thead><tr><th>Rule</th><th>Example</th></tr></thead><tbody><tr><td><code>.then()</code> returns a new Promise</td><td>Enables chaining</td></tr><tr><td>Return a value from <code>.then()</code></td><td>Next <code>.then()</code> receives it</td></tr><tr><td>Return a Promise from <code>.then()</code></td><td>Next <code>.then()</code> waits for it</td></tr><tr><td><code>.catch()</code> handles any error in the chain</td><td>Single error handler</td></tr><tr><td><code>.finally()</code> runs regardless</td><td>Cleanup code</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Promise Utility Methods</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Promise.all -- Run in Parallel</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd">// Fetch multiple restaurants simultaneously
+const promises = [
+    fetchRestaurant('REST001'),
+    fetchRestaurant('REST002'),
+    fetchRestaurant('REST003')
+];
+
+Promise.all(promises)
+    .then(results =&gt; {
+        console.log('All restaurants:', results);
+        // results is an array: [rest1, rest2, rest3]
+    })
+    .catch(err =&gt; {
+        // Fails if ANY promise fails
+        console.error('One failed:', err.message);
+    });</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Promise.allSettled -- All Results (No Short-Circuit)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">Promise.allSettled(promises)
+    .then(results =&gt; {
+        results.forEach(result =&gt; {
+            if (result.status === 'fulfilled') {
+                console.log('Success:', result.value);
+            } else {
+                console.log('Failed:', result.reason.message);
+            }
+        });
+    });</div></div></div></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">More Promise Utilities</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Promise.race -- First to Complete</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">// Timeout pattern
+const fetchData = fetch('https://api.foodexpress.com/restaurants');
+const timeout = new Promise((_, reject) =&gt;
+    setTimeout(() =&gt; reject(new Error('Request timed out')), 5000)
+);
+
+Promise.race([fetchData, timeout])
+    .then(data =&gt; console.log('Got data:', data))
+    .catch(err =&gt; console.error(err.message));  // 'Request timed out'</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Promise.any -- First to Succeed</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">// Try multiple API endpoints, use whichever responds first
+Promise.any([
+    fetch('https://api-primary.foodexpress.com/menu'),
+    fetch('https://api-backup.foodexpress.com/menu'),
+    fetch('https://api-cdn.foodexpress.com/menu')
+])
+.then(response =&gt; console.log('Got response from fastest server'))
+.catch(err =&gt; console.error('All servers failed'));</div></div></div>
+<table class="tbl"><thead><tr><th>Method</th><th>Resolves When</th><th>Rejects When</th></tr></thead><tbody><tr><td><code>Promise.all</code></td><td>All succeed</td><td>Any fails</td></tr><tr><td><code>Promise.allSettled</code></td><td>All complete</td><td>Never rejects</td></tr><tr><td><code>Promise.race</code></td><td>First completes</td><td>First completes (if rejected)</td></tr><tr><td><code>Promise.any</code></td><td>First succeeds</td><td>All fail</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Async/Await</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Modern Way</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><code>async/await</code> is <strong>syntactic sugar</strong> over Promises. Makes async code look synchronous.</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">// Promise chain version
+function getRestaurantMenu(restaurantId) {
+    return fetchRestaurant(restaurantId)
+        .then(restaurant =&gt; fetchMenu(restaurant.menuId))
+        .then(menu =&gt; menu.items)
+        .catch(err =&gt; console.error(err));
+}
+
+// Async/await version (same behavior, cleaner syntax)
+async function getRestaurantMenu(restaurantId) {
+    try {
+        const restaurant = await fetchRestaurant(restaurantId);
+        const menu = await fetchMenu(restaurant.menuId);
+        return menu.items;
+    } catch (err) {
+        console.error(err);
+    }
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Rules</div>
+<ul class="bl"><li><code>async</code> keyword before function declaration</li><li><code>await</code> can only be used inside <code>async</code> functions</li><li><code>await</code> pauses execution until the Promise resolves</li><li><code>async</code> functions always return a Promise</li></ul></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="29">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Async/Await Error Handling</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">try/catch Pattern</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</div><div class="cb-cd">async function loadRestaurantData(id) {
+    try {
+        const restaurant = await fetchRestaurant(id);
+        const menu = await fetchMenu(restaurant.menuId);
+        const reviews = await fetchReviews(id);
+
+        return {
+            restaurant,
+            menu: menu.items,
+            rating: reviews.average
+        };
+    } catch (err) {
+        if (err.code === 'NOT_FOUND') {
+            console.error(`Restaurant ${id} not found`);
+            return null;
+        }
+        throw err;  // Re-throw unexpected errors
+    } finally {
+        console.log(`Finished loading data for ${id}`);
+    }
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Common Mistake: Forgetting await</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">async function badExample() {
+    const data = fetchRestaurant('REST001');  // Missing await!
+    console.log(data);  // Prints: Promise { &lt;pending&gt; }  -- NOT the data!
+}
+
+async function goodExample() {
+    const data = await fetchRestaurant('REST001');
+    console.log(data);  // Prints actual restaurant data
+}</div></div></div></div>
+    <div class="ft"><span class="fr">29</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="30">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Parallel Execution with Async/Await</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Sequential (Slow)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">async function loadDashboard() {
+    const restaurants = await fetchRestaurants();    // Wait...
+    const orders = await fetchOrders();              // Wait...
+    const reviews = await fetchReviews();            // Wait...
+    // Total time: sum of all three
+    return { restaurants, orders, reviews };
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Parallel (Fast)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">async function loadDashboard() {
+    const [restaurants, orders, reviews] = await Promise.all([
+        fetchRestaurants(),
+        fetchOrders(),
+        fetchReviews()
+    ]);
+    // Total time: maximum of the three
+    return { restaurants, orders, reviews };
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Sustain tip:</strong> If operations are independent, always run them in parallel with <code>Promise.all</code>.</div></div></div>
+    <div class="ft"><span class="fr">30</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="31">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">FS Promises API</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Modern Approach (Node 10+)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25</div><div class="cb-cd">const fs = require('fs').promises;
+// or: const { readFile, writeFile } = require('fs').promises;
+const path = require('path');
+
+async function loadMenu() {
+    try {
+        const data = await fs.readFile(
+            path.join(__dirname, 'data', 'menu.json'),
+            'utf8'
+        );
+        return JSON.parse(data);
+    } catch (err) {
+        if (err.code === 'ENOENT') {
+            console.log('Menu file not found, returning empty array');
+            return [];
+        }
+        throw err;
+    }
+}
+
+async function saveMenu(menu) {
+    const filePath = path.join(__dirname, 'data', 'menu.json');
+    await fs.writeFile(filePath, JSON.stringify(menu, null, 2), 'utf8');
+    console.log('Menu saved successfully');
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Best practice:</strong> Use <code>fs.promises</code> (async) instead of <code>fs.readFileSync</code> (sync) in production code.</div></div></div>
+    <div class="ft"><span class="fr">31</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="32">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress: Async Restaurant Service</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49</div><div class="cb-cd">const fs = require('fs').promises;
+const path = require('path');
+
+class RestaurantService {
+    constructor(dataDir) {
+        this.dataDir = dataDir;
+        this.filePath = path.join(dataDir, 'restaurants.json');
+    }
+
+    async loadAll() {
+        try {
+            const data = await fs.readFile(this.filePath, 'utf8');
+            return JSON.parse(data);
+        } catch (err) {
+            if (err.code === 'ENOENT') return [];
+            throw err;
+        }
+    }
+
+    async save(restaurants) {
+        await fs.writeFile(this.filePath, JSON.stringify(restaurants, null, 2));
+    }
+
+    async addRestaurant(restaurant) {
+        const restaurants = await this.loadAll();
+        restaurant.id = `REST-${Date.now()}`;
+        restaurants.push(restaurant);
+        await this.save(restaurants);
+        return restaurant;
+    }
+
+    async findById(id) {
+        const restaurants = await this.loadAll();
+        const restaurant = restaurants.find(r =&gt; r.id === id);
+        if (!restaurant) throw new Error(`Restaurant ${id} not found`);
+        return restaurant;
+    }
+
+    async updateRating(id, newRating) {
+        const restaurants = await this.loadAll();
+        const index = restaurants.findIndex(r =&gt; r.id === id);
+        if (index === -1) throw new Error(`Restaurant ${id} not found`);
+        restaurants[index].rating = newRating;
+        await this.save(restaurants);
+        return restaurants[index];
+    }
+}
+
+module.exports = RestaurantService;</div></div></div></div>
+    <div class="ft"><span class="fr">32</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="33">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Error Handling Best Practices</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Custom Error Classes</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28</div><div class="cb-cd">class AppError extends Error {
+    constructor(message, statusCode) {
+        super(message);
+        this.name = this.constructor.name;
+        this.statusCode = statusCode;
+    }
+}
+
+class NotFoundError extends AppError {
+    constructor(resource, id) {
+        super(`${resource} with id ${id} not found`, 404);
+    }
+}
+
+class ValidationError extends AppError {
+    constructor(message) {
+        super(message, 400);
+    }
+}
+
+// Usage
+async function getRestaurant(id) {
+    const restaurant = await db.findById(id);
+    if (!restaurant) {
+        throw new NotFoundError('Restaurant', id);
+    }
+    return restaurant;
+}</div></div></div></div>
+    <div class="ft"><span class="fr">33</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="34">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Process and Environment Variables</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26</div><div class="cb-cd">// Access environment variables
+const port = process.env.PORT || 3000;
+const dbUrl = process.env.DATABASE_URL || 'mongodb://localhost:27017/foodexpress';
+const nodeEnv = process.env.NODE_ENV || 'development';
+
+console.log(`Running in ${nodeEnv} mode on port ${port}`);
+
+// Exit handling
+process.on('uncaughtException', (err) =&gt; {
+    console.error('Uncaught Exception:', err);
+    process.exit(1);
+});
+
+process.on('unhandledRejection', (reason) =&gt; {
+    console.error('Unhandled Rejection:', reason);
+    process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () =&gt; {
+    console.log('SIGTERM received. Shutting down gracefully...');
+    server.close(() =&gt; {
+        console.log('Server closed');
+        process.exit(0);
+    });
+});</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Sustain tip:</strong> Always handle <code>uncaughtException</code> and <code>unhandledRejection</code> in production Node.js apps.</div></div></div>
+    <div class="ft"><span class="fr">34</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="35">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Event Emitter</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28</div><div class="cb-cd">const EventEmitter = require('events');
+
+class OrderEvents extends EventEmitter {}
+
+const orderEvents = new OrderEvents();
+
+// Register listeners
+orderEvents.on('orderPlaced', (order) =&gt; {
+    console.log(`New order: ${order.id} from ${order.customerName}`);
+});
+
+orderEvents.on('orderPlaced', (order) =&gt; {
+    // Send notification (another listener for same event)
+    console.log(`Notification sent to restaurant for order ${order.id}`);
+});
+
+orderEvents.on('orderDelivered', (order) =&gt; {
+    console.log(`Order ${order.id} delivered successfully`);
+});
+
+// Emit events
+orderEvents.emit('orderPlaced', {
+    id: 'ORD-001',
+    customerName: 'John',
+    items: ['Pizza', 'Coke']
+});
+
+orderEvents.emit('orderDelivered', { id: 'ORD-001' });</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Many Node.js core modules (http, fs streams) extend EventEmitter.</div></div></div>
+    <div class="ft"><span class="fr">35</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="36">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab: FoodExpress Restaurant File Manager</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Objective</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Build a Node.js application that manages restaurant and menu data using the file system.</p>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Tasks</div>
+<ul class="bl"><li>1. <strong>Project Setup:</strong></li><li class="s">Initialize with <code>npm init</code></li><li class="s">Create directory structure: <code>data/</code>, <code>src/</code>, <code>src/models/</code>, <code>src/services/</code></li></ul>
+<ul class="bl"><li>2. <strong>Restaurant Model (<code>src/models/restaurant.js</code>):</strong></li><li class="s">Export a class with: id, name, category, rating, menu (array)</li><li class="s">Validation: name required, rating 0-5, category from allowed list</li></ul>
+<ul class="bl"><li>3. <strong>Data Service (<code>src/services/dataService.js</code>):</strong></li><li class="s"><code>loadRestaurants()</code> -- async, reads from <code>data/restaurants.json</code></li><li class="s"><code>saveRestaurants()</code> -- async, writes to <code>data/restaurants.json</code></li><li class="s"><code>addRestaurant()</code>, <code>findById()</code>, <code>findByCategory()</code>, <code>updateRating()</code></li><li class="s">Use <code>fs.promises</code> and <code>path.join()</code> throughout</li></ul>
+<ul class="bl"><li>4. <strong>Menu Manager (<code>src/services/menuService.js</code>):</strong></li><li class="s">Add/remove menu items for a restaurant</li><li class="s">Search menu items by price range</li><li class="s">Use async/await for all operations</li></ul></div>
+    <div class="ft"><span class="fr">36</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="37">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 09 - NODE.JS (PART 1)</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab: Async Operations Challenge</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Tasks (continued)</div>
+<ul class="bl"><li>5. <strong>App Entry Point (<code>src/app.js</code>):</strong></li><li class="s">Load restaurant data on startup</li><li class="s">Display menu with options: list, add, search, update, quit</li><li class="s">Handle errors gracefully with try/catch</li></ul>
+<ul class="bl"><li>6. <strong>Bonus: Parallel Operations</strong></li><li class="s">Load data from multiple JSON files simultaneously using <code>Promise.all</code></li><li class="s">Implement a backup function that copies data files to <code>data/backups/</code></li><li class="s">Add logging with timestamps to <code>logs/app.log</code></li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Acceptance Criteria</div>
+<ul class="bl"><li>[ ] All file operations use <code>fs.promises</code> (not sync)</li><li>[ ] All paths use <code>path.join()</code> (no string concatenation)</li><li>[ ] Error handling on every async operation</li><li>[ ] <code>ENOENT</code> errors handled gracefully (file not found = empty array)</li><li>[ ] No callback hell -- use async/await throughout</li><li>[ ] No unhandled promise rejections</li></ul></div>
+    <div class="ft"><span class="fr">37</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="38">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 09 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Topic</th><th>Key Point</th></tr></thead><tbody><tr><td>Node.js</td><td>JavaScript runtime on V8; event-driven, non-blocking I/O</td></tr><tr><td>NPM</td><td>Package manager; <code>package.json</code> for deps, <code>package-lock.json</code> for reproducibility</td></tr><tr><td>Modules</td><td>CommonJS (<code>require/module.exports</code>) and ES Modules (<code>import/export</code>)</td></tr><tr><td>Path module</td><td>Cross-platform path handling; always use <code>path.join()</code></td></tr><tr><td>FS module</td><td>File operations; prefer <code>fs.promises</code> over sync methods</td></tr><tr><td>Callbacks</td><td>Error-first convention; avoid deep nesting (callback hell)</td></tr><tr><td>Promises</td><td>Objects representing async results; <code>.then()/.catch()/.finally()</code></td></tr><tr><td>Promise.all</td><td>Run independent operations in parallel</td></tr><tr><td>Async/Await</td><td>Syntactic sugar over Promises; cleaner, readable async code</td></tr><tr><td>Error handling</td><td>try/catch with async/await; custom error classes</td></tr><tr><td>Event Emitter</td><td>Pub/sub pattern; core of Node.js architecture</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 10 -- Node.js Part 2 (Express.js, REST APIs, MongoDB)</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 10 -- Node.js Part 2 (Express.js, REST APIs, MongoDB)</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 38</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

@@ -1,0 +1,41 @@
+[
+  {
+    "id": "rest-001",
+    "name": "FoodExpress Downtown",
+    "cuisine": "Indian",
+    "rating": 4.5,
+    "menu": [
+      { "item": "Butter Chicken", "price": 350, "category": "Main Course" },
+      { "item": "Paneer Tikka", "price": 250, "category": "Starter" },
+      { "item": "Naan", "price": 50, "category": "Bread" }
+    ],
+    "isOpen": true,
+    "deliveryTime": 30
+  },
+  {
+    "id": "rest-002",
+    "name": "FoodExpress Uptown",
+    "cuisine": "Chinese",
+    "rating": 4.2,
+    "menu": [
+      { "item": "Fried Rice", "price": 200, "category": "Main Course" },
+      { "item": "Spring Rolls", "price": 150, "category": "Starter" },
+      { "item": "Manchurian", "price": 220, "category": "Main Course" }
+    ],
+    "isOpen": false,
+    "deliveryTime": 45
+  },
+  {
+    "id": "rest-003",
+    "name": "FoodExpress Suburbs",
+    "cuisine": "Italian",
+    "rating": 4.7,
+    "menu": [
+      { "item": "Margherita Pizza", "price": 400, "category": "Main Course" },
+      { "item": "Garlic Bread", "price": 150, "category": "Starter" },
+      { "item": "Pasta Alfredo", "price": 300, "category": "Main Course" }
+    ],
+    "isOpen": true,
+    "deliveryTime": 35
+  }
+]

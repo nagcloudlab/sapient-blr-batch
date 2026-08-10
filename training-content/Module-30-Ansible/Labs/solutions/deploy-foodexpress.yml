@@ -1,0 +1,59 @@
+---
+# deploy-foodexpress.yml
+# FIX 2: Added 'become: yes' for sudo privileges
+- name: Deploy FoodExpress Application
+  hosts: appservers
+  become: yes
+
+  vars:
+    app_version: "1.2.0"
+    app_port: 8080
+    java_package: "openjdk-17-jdk"
+    deploy_dir: /opt/foodexpress
+
+  tasks:
+    - name: Install Java 17
+      # FIX 1: Corrected module name from 'atp' to 'apt'
+      apt:
+        name: "{{ java_package }}"
+        state: present
+        update_cache: yes
+
+    - name: Create application directory
+      file:
+        path: "{{ deploy_dir }}"
+        state: directory
+        owner: foodexpress
+        group: foodexpress
+        mode: '0755'
+
+    - name: Copy application JAR
+      copy:
+        src: "foodexpress-order-service-{{ app_version }}.jar"
+        dest: "{{ deploy_dir }}/order-service.jar"
+        owner: foodexpress
+        group: foodexpress
+        mode: '0644'
+
+    - name: Deploy systemd service file
+      template:
+        src: templates/foodexpress.service.j2
+        dest: /etc/systemd/system/foodexpress-order.service
+      vars:
+        # FIX 3: Using Jinja2 syntax {{ app_port }} instead of shell $app_port
+        service_port: "{{ app_port }}"
+      # FIX 4: Handler name matches exactly (case-sensitive)
+      notify: restart foodexpress
+
+    - name: Ensure FoodExpress service is running
+      service:
+        name: foodexpress-order
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: restart foodexpress
+      service:
+        name: foodexpress-order
+        state: restarted
+        daemon_reload: yes

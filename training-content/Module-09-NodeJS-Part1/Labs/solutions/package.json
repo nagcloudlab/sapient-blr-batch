@@ -1,0 +1,14 @@
+{
+  "name": "foodexpress-nodejs-part1",
+  "version": "1.0.0",
+  "description": "FoodExpress Restaurant Service - Node.js Modules, FS, Async",
+  "main": "src/restaurant-loader.js",
+  "scripts": {
+    "start": "node src/restaurant-loader.js",
+    "menu": "node src/menu-reader.js",
+    "process": "node src/async-processor.js"
+  },
+  "keywords": ["foodexpress", "nodejs"],
+  "author": "FoodExpress Team",
+  "license": "ISC"
+}

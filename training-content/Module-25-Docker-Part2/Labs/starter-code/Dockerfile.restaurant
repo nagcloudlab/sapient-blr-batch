@@ -1,0 +1,24 @@
+# FoodExpress Restaurant Service Dockerfile
+
+# BUG: Using 'latest' tag -- non-reproducible builds
+FROM node:latest
+
+# BUG: No .dockerignore, and COPY . . comes BEFORE npm install
+# This means node_modules from host gets copied AND
+# every code change busts the npm install cache
+COPY . .
+
+# BUG: Using 'npm install' instead of 'npm ci' for deterministic builds
+RUN npm install
+
+# BUG: Wrong EXPOSE port -- Restaurant Service runs on 3000, not 8080
+EXPOSE 8080
+
+# BUG: No non-root user -- running as root is a security risk
+# Should create and switch to a non-root user
+
+# BUG: Shell form CMD -- signals not forwarded to Node process
+CMD npm start
+
+# BUG: No HEALTHCHECK defined
+# Container health is unknown to orchestrators

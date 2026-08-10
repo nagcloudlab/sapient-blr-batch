@@ -1,0 +1,57 @@
+# FoodExpress AI Prompt Templates
+# THIS FILE CONTAINS 6 BUGS -- Find and fix them all!
+
+prompts:
+
+  # Bug 1: No role defined in system prompt
+  # Bug 2: Temperature is 2.0 (too high, causes incoherent output)
+  # Bug 3: max_tokens is 5000 for a 50-word description (wasteful)
+  menu_description_generator:
+    model: "gpt-4"
+    temperature: 2.0
+    max_tokens: 5000
+    messages:
+      - role: "system"
+        content: "Write a description."
+      - role: "user"
+        content: "Item: {item_name}, Ingredients: {ingredients}, Cuisine: {cuisine}"
+
+  # Bug 4: No output format specified
+  incident_analysis:
+    model: "gpt-4"
+    temperature: 0.3
+    max_tokens: 500
+    messages:
+      - role: "system"
+        content: "Analyze the following production incident data."
+      - role: "user"
+        content: |
+          Error logs:
+          {error_logs}
+
+          Metrics:
+          {metrics}
+
+          What happened?
+
+  # Bug 5: No constraint against destructive SQL operations
+  sql_generator:
+    model: "gpt-4"
+    temperature: 0.1
+    max_tokens: 300
+    messages:
+      - role: "system"
+        content: "Convert natural language to SQL queries for the FoodExpress database."
+      - role: "user"
+        content: "{natural_language_query}"
+
+  # Bug 6: No input sanitization rule
+  customer_support_bot:
+    model: "gpt-4"
+    temperature: 0.5
+    max_tokens: 200
+    messages:
+      - role: "system"
+        content: "You are a FoodExpress customer support assistant. Help customers with their orders."
+      - role: "user"
+        content: "{customer_message}"

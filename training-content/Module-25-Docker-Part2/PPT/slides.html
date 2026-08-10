@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docker Part 2 -- Images, Layers, Dockerfile Deep Dive, Volumes</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 25</div>
+    <div class="t-main">Docker Part 2 -- Images, Layers, Dockerfile Deep Dive, Volumes</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda -- Day 28</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>Docker Image Layers Deep Dive</td></tr><tr><td>02</td><td>Dockerfile Directives -- FROM, RUN, COPY, ADD</td></tr><tr><td>03</td><td>Dockerfile Directives -- ENV, EXPOSE, CMD, ENTRYPOINT</td></tr><tr><td>04</td><td>Multi-Stage Builds</td></tr><tr><td>05</td><td>Building & Tagging Images</td></tr><tr><td>06</td><td>Publishing to Registry (Docker Hub, ECR)</td></tr><tr><td>07</td><td>Docker Volumes -- Persistent Data</td></tr><tr><td>08</td><td>Volume Types & Best Practices</td></tr><tr><td>09</td><td>Lab: Fix Restaurant Service Dockerfile + Volumes</td></tr><tr><td>10</td><td>Day Wrap-up & Key Takeaways</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">HTML</span></div>
+    <div class="tt">Docker Image Layers -- How They Work</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><div class="cb-cd">$ docker history foodexpress/order-service:1.0
+
+IMAGE          CREATED        CREATED BY                          SIZE
+a1b2c3d4       2 min ago      CMD ["java", "-jar", "app.jar"]    0B
+e5f6a7b8       2 min ago      EXPOSE 8081                         0B
+c9d0e1f2       2 min ago      COPY app.jar /app/app.jar           45MB
+3a4b5c6d       2 min ago      RUN apt-get install -y curl         15MB
+7e8f9a0b       5 min ago      RUN apt-get update                  25MB
+1c2d3e4f       3 days ago     (base: eclipse-temurin:17-jre)      190MB
+
+Total: 275MB
+Each instruction = one layer. Layers are cached and shared.</div></div></div></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">Layer Caching -- Why Order Matters</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Bad Dockerfile (cache busted on every build)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.doc</span><span class="cb-lg">DOCKERFILE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">FROM node:18-alpine
+WORKDIR /app
+COPY . .                       # Any file change busts cache here
+RUN npm install                # Reinstalls ALL deps every time
+EXPOSE 3000
+CMD ["node", "server.js"]</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Good Dockerfile (leverages cache)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.doc</span><span class="cb-lg">DOCKERFILE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">FROM node:18-alpine
+WORKDIR /app
+COPY package.json package-lock.json ./   # Only deps files
+RUN npm ci                               # Cached unless deps change
+COPY . .                                 # Code changes don't bust npm cache
+EXPOSE 3000
+CMD ["node", "server.js"]</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>FoodExpress:</strong> Rebuilding the Restaurant Service went from 4 minutes to 15 seconds by reordering COPY statements.</div></div></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">Layer Caching Visualized</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd">Build 1 (fresh):                Build 2 (only code changed):
+┌──────────────────┐           ┌──────────────────┐
+│ CMD ["node"...]  │ ← build   │ CMD ["node"...]  │ ← build
+├──────────────────┤           ├──────────────────┤
+│ COPY . .         │ ← build   │ COPY . .         │ ← build (new code)
+├──────────────────┤           ├──────────────────┤
+│ RUN npm ci       │ ← build   │ RUN npm ci       │ ← CACHED!
+├──────────────────┤           ├──────────────────┤
+│ COPY package*    │ ← build   │ COPY package*    │ ← CACHED!
+├──────────────────┤           ├──────────────────┤
+│ WORKDIR /app     │ ← build   │ WORKDIR /app     │ ← CACHED!
+├──────────────────┤           ├──────────────────┤
+│ FROM node:18     │ ← pull    │ FROM node:18     │ ← CACHED!
+└──────────────────┘           └──────────────────┘
+
+Build 1: 4 minutes             Build 2: 15 seconds</div></div></div></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">HTML</span></div>
+    <div class="tt">FROM -- Choosing the Right Base Image</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Image Size Comparison</div>
+<table class="tbl"><thead><tr><th>Base Image</th><th>Size</th><th>Use Case</th></tr></thead><tbody><tr><td><code>ubuntu:22.04</code></td><td>~78MB</td><td>When you need full OS tools</td></tr><tr><td><code>debian:bookworm-slim</code></td><td>~80MB</td><td>Debian without extras</td></tr><tr><td><code>alpine:3.18</code></td><td>~7MB</td><td>Minimal; uses musl libc</td></tr><tr><td><code>eclipse-temurin:17-jre</code></td><td>~270MB</td><td>Java apps (full Debian)</td></tr><tr><td><code>eclipse-temurin:17-jre-alpine</code></td><td>~190MB</td><td>Java apps (minimal)</td></tr><tr><td><code>node:18</code></td><td>~340MB</td><td>Node.js (full Debian)</td></tr><tr><td><code>node:18-alpine</code></td><td>~175MB</td><td>Node.js (minimal)</td></tr><tr><td><code>scratch</code></td><td>0MB</td><td>Go binaries, static apps</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>FoodExpress:</strong> We saved 400MB per image by switching from <code>node:18</code> to <code>node:18-alpine</code> for our Node.js services.</div></div></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">RUN -- Executing Build Commands</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Best Practices</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.doc</span><span class="cb-lg">DOCKERFILE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><div class="cb-cd"># BAD: Multiple RUN creates multiple layers
+RUN apt-get update
+RUN apt-get install -y curl
+RUN apt-get install -y wget
+RUN rm -rf /var/lib/apt/lists/*
+
+# GOOD: Single RUN with &amp;&amp; chains
+RUN apt-get update &amp;&amp; \
+    apt-get install -y --no-install-recommends \
+        curl \
+        wget &amp;&amp; \
+    rm -rf /var/lib/apt/lists/*</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Why?</strong> Each RUN creates a layer. The <code>rm</code> in a later layer doesn't reduce the size of earlier layers. Combine operations that add and clean up in one layer.</p></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">COPY vs ADD</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">When to Use Each</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.doc</span><span class="cb-lg">DOCKERFILE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd"># COPY -- Simple, predictable
+COPY app.jar /app/app.jar          # Copy a file
+COPY config/ /app/config/          # Copy a directory
+COPY --chown=appuser:appgroup app.jar /app/   # Set ownership
+
+# ADD -- Extra features (use sparingly)
+ADD config.tar.gz /app/config/     # Auto-extracts tar archives
+ADD https://example.com/file.txt /app/   # Downloads from URL (avoid!)</div></div></div>
+<table class="tbl"><thead><tr><th>Feature</th><th>COPY</th><th>ADD</th></tr></thead><tbody><tr><td>Copy files</td><td>Yes</td><td>Yes</td></tr><tr><td>Copy directories</td><td>Yes</td><td>Yes</td></tr><tr><td>Auto-extract tar</td><td>No</td><td>Yes</td></tr><tr><td>Download URLs</td><td>No</td><td>Yes (but use curl instead)</td></tr><tr><td>Predictable</td><td>Yes</td><td>Can surprise you</td></tr><tr><td>Recommended</td><td>Default choice</td><td>Only for tar extraction</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">ENV -- Environment Variables</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.doc</span><span class="cb-lg">DOCKERFILE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd"># Set environment variables
+ENV SPRING_PROFILES_ACTIVE=production
+ENV SERVER_PORT=8081
+ENV DB_HOST=mysql
+ENV DB_PORT=3306
+
+# Use variables in subsequent instructions
+ENV APP_HOME=/opt/foodexpress
+WORKDIR ${APP_HOME}
+COPY app.jar ${APP_HOME}/app.jar
+
+# Override at runtime
+docker run -e DB_HOST=production-db foodexpress/order-service:1.0</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>FoodExpress:</strong> We use ENV for defaults in the Dockerfile and override with <code>-e</code> flags for different environments (dev, staging, prod).</div></div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">EXPOSE -- Documenting Ports</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.doc</span><span class="cb-lg">DOCKERFILE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd"># EXPOSE documents which ports the container uses
+EXPOSE 8081         # HTTP API
+EXPOSE 8443         # HTTPS API
+EXPOSE 5005         # Java debug port
+
+# EXPOSE does NOT publish ports!
+# You still need -p when running:
+docker run -p 8081:8081 foodexpress/order-service:1.0</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Port Mapping Options</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd"># Specific mapping
+docker run -p 8081:8081 myapp        # host:container
+
+# Random host port
+docker run -p 8081 myapp             # Random host port -&gt; 8081
+
+# All exposed ports to random host ports
+docker run -P myapp                  # Publishes all EXPOSE ports
+
+# Bind to specific interface
+docker run -p 127.0.0.1:8081:8081 myapp   # Only localhost</div></div></div></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">CMD vs ENTRYPOINT -- The Key Difference</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.doc</span><span class="cb-lg">DOCKERFILE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd"># CMD -- Default command, can be overridden
+FROM eclipse-temurin:17-jre-alpine
+CMD ["java", "-jar", "app.jar"]
+
+# Override CMD at runtime:
+docker run myapp                     # Runs: java -jar app.jar
+docker run myapp echo hello          # Runs: echo hello (CMD replaced!)
+
+# ENTRYPOINT -- Fixed command, CMD becomes arguments
+FROM eclipse-temurin:17-jre-alpine
+ENTRYPOINT ["java"]
+CMD ["-jar", "app.jar"]
+
+# Override only arguments:
+docker run myapp                     # Runs: java -jar app.jar
+docker run myapp -version            # Runs: java -version</div></div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">HTML</span></div>
+    <div class="tt">CMD vs ENTRYPOINT -- Decision Table</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Scenario</th><th>Use</th><th>Example</th></tr></thead><tbody><tr><td>Simple app with one command</td><td>CMD</td><td><code>CMD ["node", "server.js"]</code></td></tr><tr><td>App that should always run one binary</td><td>ENTRYPOINT + CMD</td><td><code>ENTRYPOINT ["java"]</code> + <code>CMD ["-jar", "app.jar"]</code></td></tr><tr><td>Need to pass flags at runtime</td><td>ENTRYPOINT</td><td><code>docker run myapp --debug</code></td></tr><tr><td>Script wrapper with app as default</td><td>ENTRYPOINT script + CMD app</td><td><code>ENTRYPOINT ["entrypoint.sh"]</code></td></tr><tr><td>Need full flexibility</td><td>CMD only</td><td><code>CMD ["python", "manage.py", "runserver"]</code></td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Shell Form vs Exec Form</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.doc</span><span class="cb-lg">DOCKERFILE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd"># Shell form (NOT recommended)
+CMD java -jar app.jar                # Runs as: /bin/sh -c "java -jar app.jar"
+                                     # PID 1 = sh, java is child
+                                     # SIGTERM goes to sh, not java
+
+# Exec form (recommended)
+CMD ["java", "-jar", "app.jar"]      # java is PID 1
+                                     # Receives SIGTERM directly
+                                     # Graceful shutdown works</div></div></div></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">HTML</span></div>
+    <div class="tt">Multi-Stage Builds</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Problem: Build tools bloat the production image</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.doc</span><span class="cb-lg">DOCKERFILE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd"># WITHOUT multi-stage: 800MB image!
+FROM maven:3.9-eclipse-temurin-17
+WORKDIR /app
+COPY . .
+RUN mvn package -DskipTests
+CMD ["java", "-jar", "target/app.jar"]
+# Image includes: Maven, JDK, source code, test deps, build cache</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Solution: Multi-stage build</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.doc</span><span class="cb-lg">DOCKERFILE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd"># Stage 1: Build (discarded after use)
+FROM maven:3.9-eclipse-temurin-17 AS builder
+WORKDIR /build
+COPY pom.xml .
+RUN mvn dependency:go-offline
+COPY src ./src
+RUN mvn package -DskipTests
+
+# Stage 2: Runtime (final image, only ~200MB)
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=builder /build/target/*.jar app.jar
+EXPOSE 8081
+CMD ["java", "-jar", "app.jar"]</div></div></div></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">HTML</span></div>
+    <div class="tt">Multi-Stage Build -- Size Comparison</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">Single-stage:          Multi-stage:
+┌──────────────────┐  ┌──────────────────┐
+│ Maven 3.9         │  │                  │
+│ JDK 17            │  │                  │
+│ Source code        │  │ JRE 17 (alpine)  │
+│ Test dependencies  │  │ app.jar          │
+│ Build cache        │  │                  │
+│ JRE 17             │  │                  │
+│ app.jar            │  │                  │
+├──────────────────┤  ├──────────────────┤
+│    ~800 MB        │  │    ~200 MB       │
+└──────────────────┘  └──────────────────┘
+
+75% smaller image!</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>FoodExpress:</strong> Multi-stage builds reduced our CI/CD pipeline time by 60% because smaller images push and pull faster.</div></div></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">HTML</span></div>
+    <div class="tt">Building & Tagging Images</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd"># Build with tag
+docker build -t foodexpress/order-service:1.0.0 .
+
+# Tag an existing image
+docker tag foodexpress/order-service:1.0.0 \
+           foodexpress/order-service:latest
+
+# Multiple tags
+docker build -t foodexpress/order-service:1.0.0 \
+             -t foodexpress/order-service:latest .
+
+# Tag for private registry
+docker tag foodexpress/order-service:1.0.0 \
+           123456789.dkr.ecr.ap-south-1.amazonaws.com/foodexpress/order-service:1.0.0</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Tagging Convention</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">foodexpress/order-service:1.0.0      # Semantic version
+foodexpress/order-service:1.0.0-rc1  # Release candidate
+foodexpress/order-service:a1b2c3d    # Git commit SHA
+foodexpress/order-service:2026.08.04 # Date-based</div></div></div></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">Publishing to Docker Hub</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd"># 1. Login to Docker Hub
+docker login
+Username: foodexpress
+Password: ****
+
+# 2. Tag the image
+docker tag order-service:1.0.0 foodexpress/order-service:1.0.0
+
+# 3. Push to Docker Hub
+docker push foodexpress/order-service:1.0.0
+
+# 4. Verify on Docker Hub
+# https://hub.docker.com/r/foodexpress/order-service
+
+# Pull on another machine
+docker pull foodexpress/order-service:1.0.0</div></div></div></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">Publishing to Private Registry (AWS ECR)</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</div><div class="cb-cd"># 1. Authenticate with AWS ECR
+aws ecr get-login-password --region ap-south-1 | \
+  docker login --username AWS --password-stdin \
+  123456789.dkr.ecr.ap-south-1.amazonaws.com
+
+# 2. Create repository (one-time)
+aws ecr create-repository --repository-name foodexpress/order-service
+
+# 3. Tag for ECR
+docker tag order-service:1.0.0 \
+  123456789.dkr.ecr.ap-south-1.amazonaws.com/foodexpress/order-service:1.0.0
+
+# 4. Push
+docker push \
+  123456789.dkr.ecr.ap-south-1.amazonaws.com/foodexpress/order-service:1.0.0</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>FoodExpress:</strong> We use AWS ECR in the ap-south-1 (Mumbai) region for faster pulls from our production servers.</div></div></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">Docker Volumes -- The Problem</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Containers are ephemeral</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd"># Start MySQL container
+docker run -d --name mysql-db -e MYSQL_ROOT_PASSWORD=secret mysql:8.0
+
+# Add data
+docker exec -it mysql-db mysql -uroot -psecret -e \
+  "CREATE DATABASE foodexpress; USE foodexpress; CREATE TABLE orders(id INT);"
+
+# Remove container
+docker rm -f mysql-db
+
+# Start new container
+docker run -d --name mysql-db -e MYSQL_ROOT_PASSWORD=secret mysql:8.0
+
+# DATA IS GONE! The orders table doesn't exist.</div></div></div></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">Docker Volumes -- The Solution</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">Without Volume:                  With Volume:
+┌───────────────────┐           ┌───────────────────┐
+│ Container         │           │ Container         │
+│ ┌───────────────┐ │           │ ┌───────────────┐ │
+│ │ Writable Layer│ │           │ │ Writable Layer│ │
+│ │ (DATA HERE)   │ │           │ │               │ │
+│ └───────────────┘ │           │ └───────┬───────┘ │
+│ ┌───────────────┐ │           │         │ mount   │
+│ │ Image Layers  │ │           │ ┌───────▼───────┐ │
+│ └───────────────┘ │           │ │ /var/lib/mysql│ │
+└───────────────────┘           │ └───────┬───────┘ │
+                                └─────────│─────────┘
+Container removed =                       │
+DATA LOST                       ┌─────────▼─────────┐
+                                │ Docker Volume      │
+                                │ (Host filesystem)  │
+                                │ DATA PERSISTS      │
+                                └───────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">Volume Types</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">1. Named Volumes (Recommended)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><div class="cb-cd"># Create a named volume
+docker volume create mysql-data
+
+# Use it when running a container
+docker run -d --name mysql-db \
+  -v mysql-data:/var/lib/mysql \
+  -e MYSQL_ROOT_PASSWORD=secret \
+  mysql:8.0
+
+# Volume persists after container is removed
+docker rm -f mysql-db
+docker volume ls    # mysql-data still exists!</div></div></div></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">Volume Types (continued)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">2. Bind Mounts (Host directory)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd"># Mount a host directory into the container
+docker run -d --name order-svc \
+  -v /opt/foodexpress/config:/app/config \
+  -v /var/log/foodexpress:/app/logs \
+  foodexpress/order-service:1.0
+
+# Changes in /opt/foodexpress/config on host
+# are immediately visible inside the container at /app/config</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">3. tmpfs Mounts (RAM only)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd"># Data stored in memory, never written to disk
+docker run -d --name secure-svc \
+  --tmpfs /app/secrets:rw,size=64m \
+  foodexpress/payment-service:1.0
+
+# Use for sensitive data that shouldn't persist on disk</div></div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">FRAMEWORKS</span></div>
+    <div class="tt">Volume Comparison</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Feature</th><th>Named Volume</th><th>Bind Mount</th><th>tmpfs</th></tr></thead><tbody><tr><td>Managed by Docker</td><td>Yes</td><td>No</td><td>No</td></tr><tr><td>Location</td><td>Docker manages</td><td>You choose path</td><td>Memory</td></tr><tr><td>Persists after container removal</td><td>Yes</td><td>Yes (host dir)</td><td>No</td></tr><tr><td>Pre-populated with image data</td><td>Yes</td><td>No</td><td>No</td></tr><tr><td>Performance</td><td>Good</td><td>Good</td><td>Best (RAM)</td></tr><tr><td>Backup with <code>docker volume</code></td><td>Yes</td><td>Manual</td><td>N/A</td></tr><tr><td>Best for</td><td>Databases, app data</td><td>Config, source code (dev)</td><td>Secrets, temp data</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">Volume Commands</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd"># List volumes
+docker volume ls
+
+# Create a volume
+docker volume create foodexpress-mysql-data
+
+# Inspect a volume
+docker volume inspect foodexpress-mysql-data
+
+# Remove a volume
+docker volume rm foodexpress-mysql-data
+
+# Remove all unused volumes (CAREFUL!)
+docker volume prune
+
+# Backup a volume
+docker run --rm -v mysql-data:/data -v $(pwd):/backup \
+  alpine tar czf /backup/mysql-backup.tar.gz /data</div></div></div></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress Volume Strategy</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd">┌─────────────────────────────────────────────────────┐
+│  FoodExpress Docker Volumes                          │
+│                                                      │
+│  Named Volumes (managed by Docker):                  │
+│  ├── fe-mysql-data    → /var/lib/mysql               │
+│  ├── fe-redis-data    → /data                        │
+│  └── fe-uploads       → /app/uploads                 │
+│                                                      │
+│  Bind Mounts (host directories):                     │
+│  ├── /opt/fe/config/  → /app/config   (configs)      │
+│  ├── /var/log/fe/     → /app/logs     (log files)    │
+│  └── /opt/fe/ssl/     → /app/certs    (TLS certs)    │
+│                                                      │
+│  tmpfs (memory only):                                │
+│  └── /app/secrets     → payment service secrets      │
+└─────────────────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct"></span></div>
+    <div class="tt">.dockerignore File</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Keep build context small</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd"># .dockerignore
+.git
+.gitignore
+node_modules
+npm-debug.log
+target
+*.class
+*.jar
+!target/order-service-*.jar
+Dockerfile
+docker-compose*.yml
+*.md
+.env
+.env.*
+tests
+__pycache__
+.idea
+.vscode</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Without <code>.dockerignore</code>, <code>COPY . .</code> sends the entire directory (including <code>.git</code> and <code>node_modules</code>) to the Docker daemon. For FoodExpress, this reduced build context from 500MB to 2MB.</div></div></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">HTML</span></div>
+    <div class="tt">Image Best Practices Summary</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Practice</th><th>Why</th></tr></thead><tbody><tr><td>Use specific base image tags</td><td>Reproducible builds</td></tr><tr><td>Minimize layers (combine RUN)</td><td>Smaller image</td></tr><tr><td>Order: least-changing first</td><td>Better cache usage</td></tr><tr><td>Use multi-stage builds</td><td>Smaller production image</td></tr><tr><td>Don't install unnecessary packages</td><td>Smaller attack surface</td></tr><tr><td>Use .dockerignore</td><td>Faster builds</td></tr><tr><td>Run as non-root USER</td><td>Security</td></tr><tr><td>Use COPY, not ADD (usually)</td><td>Predictable behavior</td></tr><tr><td>Set HEALTHCHECK</td><td>Orchestrator monitoring</td></tr><tr><td>Label your images</td><td>Metadata for tracking</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 1</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> You change one line of JavaScript code and rebuild. Which Dockerfile rebuilds faster?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) <code>COPY . . &amp;&amp; RUN npm install</code></p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) <code>COPY package*.json ./ &amp;&amp; RUN npm ci &amp;&amp; COPY . .</code></p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- The <code>package*.json</code> hasn't changed, so <code>npm ci</code> is cached. Only the final <code>COPY . .</code> runs. In A, every code change re-runs <code>npm install</code>.</div></div></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 2</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> What is the purpose of a multi-stage Docker build?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) To run multiple containers at once</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) To reduce the final image size by separating build and runtime dependencies</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) To add more layers to the image</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) To run tests in parallel</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- Multi-stage builds use one stage for building (with JDK, Maven, etc.) and copy only the artifact to a minimal runtime stage.</div></div></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="29">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 3</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> You run <code>docker run -v mydata:/app/data myapp</code> and then <code>docker rm myapp</code>. What happens to the data?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) Data is deleted with the container</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) Data persists in the named volume "mydata"</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) Data is moved to /tmp</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) Data is corrupted</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- Named volumes persist independently of containers. You must explicitly <code>docker volume rm mydata</code> to delete it.</div></div></div>
+    <div class="ft"><span class="fr">29</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="30">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 4</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> Which Dockerfile instruction should you prefer for copying local files?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) ADD</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) COPY</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) RUN cp</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) VOLUME</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- COPY is simpler and more predictable. ADD has extra features (URL download, tar extraction) that can cause unexpected behavior. Use COPY by default.</div></div></div>
+    <div class="ft"><span class="fr">30</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="31">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 25 - DOCKER PART 2 -- IMAGES, LAYERS, DOCKERFILE DEEP DIVE, VOLUMES</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 5</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> Why should containers use exec form <code>CMD ["java", "-jar", "app.jar"]</code> instead of shell form <code>CMD java -jar app.jar</code>?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) Exec form is faster</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) Shell form doesn't work on alpine</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) Exec form makes the process PID 1, enabling correct signal handling for graceful shutdown</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) Shell form uses more memory</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> C -- With exec form, <code>java</code> is PID 1 and receives SIGTERM directly. With shell form, <code>/bin/sh</code> is PID 1 and may not forward signals, preventing graceful shutdown.</div></div></div>
+    <div class="ft"><span class="fr">31</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="32">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 25 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>#</th><th>Takeaway</th></tr></thead><tbody><tr><td>1</td><td>Docker images are built from layers; each instruction = one layer</td></tr><tr><td>2</td><td>Order Dockerfile instructions for maximum cache efficiency (least-changing first)</td></tr><tr><td>3</td><td>Multi-stage builds separate build tools from runtime, reducing image size 50-75%</td></tr><tr><td>4</td><td>Use COPY (not ADD) for predictable file copying</td></tr><tr><td>5</td><td>Use exec form for CMD/ENTRYPOINT so processes receive signals correctly</td></tr><tr><td>6</td><td>Named volumes persist data beyond container lifecycle</td></tr><tr><td>7</td><td>Bind mounts are best for config files and development; named volumes for databases</td></tr><tr><td>8</td><td>Always use .dockerignore to keep build context small</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 26 -- Docker Part 3: Networking, Docker Compose, Multi-Container Deployments</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 26 -- Docker Part 3: Networking, Docker Compose, Multi-Container Deployments</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 32</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

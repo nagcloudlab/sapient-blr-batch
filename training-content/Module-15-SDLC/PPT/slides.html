@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SDLC Fundamentals</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 15</div>
+    <div class="t-main">SDLC Fundamentals</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day | Lecture + exercises + group discussion</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Session</th><th>Topics</th></tr></thead><tbody><tr><td>First half</td><td>SDLC Overview, Stages, Waterfall, Agile (Scrum, Kanban), DevOps</td></tr><tr><td>Second half</td><td>Requirement Documents (SRS, BRD, FRD), STLC, Application Types, Dev/Test/Prod Environments</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Understanding how software is built, tested, and delivered -- the lifecycle that sustain engineers support.</div></div></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">What Is SDLC?</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Definition</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Software Development Life Cycle (SDLC)</strong> is a structured process for planning, creating, testing, deploying, and maintaining software applications.</p>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Why Sustain Engineers Must Understand SDLC</div>
+<ul class="bl"><li>You inherit code at <strong>any stage</strong> of its lifecycle</li><li>Understanding the original development process helps you:</li><li class="s">Find documentation and design decisions</li><li class="s">Understand why code was written a certain way</li><li class="s">Follow the correct process for making changes</li><li class="s">Coordinate with QA, ops, and product teams</li></ul></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct">HTML</span></div>
+    <div class="tt">SDLC Stages</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">+------------+     +---------+     +----------+     +----------+
+| 1. Planning| --&gt; | 2.Analysis| --&gt; | 3. Design| --&gt; | 4. Build |
++------------+     +---------+     +----------+     +----------+
+                                                         |
++------------+     +---------+     +----------+          |
+| 7. Retire  | &lt;-- | 6.Maintain| &lt;-- | 5. Test &amp;| &lt;--------+
++------------+     +---------+     |   Deploy |
+                                   +----------+</div></div></div>
+<table class="tbl"><thead><tr><th>Stage</th><th>Description</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>1. Planning</strong></td><td>Define goals, scope, timeline, budget</td><td>"Build a food delivery app for Bangalore"</td></tr><tr><td><strong>2. Analysis</strong></td><td>Gather requirements, feasibility study</td><td>Interview restaurants, customers, delivery partners</td></tr><tr><td><strong>3. Design</strong></td><td>Architecture, UI/UX, database design</td><td>Microservices architecture, React frontend</td></tr><tr><td><strong>4. Build</strong></td><td>Write code, develop features</td><td>Sprint-based development of order service</td></tr><tr><td><strong>5. Test & Deploy</strong></td><td>QA testing, staging, production release</td><td>Regression testing, blue-green deployment</td></tr><tr><td><strong>6. Maintain</strong></td><td>Bug fixes, updates, monitoring</td><td><strong>Sustain engineering!</strong></td></tr><tr><td><strong>7. Retire</strong></td><td>End-of-life, migration, decommission</td><td>Replace legacy order system</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct">HTML</span></div>
+    <div class="tt">Stage 1: Planning</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Activities</div>
+<ul class="bl"><li>Define project vision and business objectives</li><li>Identify stakeholders</li><li>Estimate timeline and budget</li><li>Risk assessment</li><li>Resource allocation</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Key Outputs</div>
+<table class="tbl"><thead><tr><th>Document</th><th>Purpose</th></tr></thead><tbody><tr><td><strong>Project Charter</strong></td><td>High-level scope, objectives, stakeholders</td></tr><tr><td><strong>Project Plan</strong></td><td>Timeline, milestones, resource plan</td></tr><tr><td><strong>Risk Register</strong></td><td>Identified risks with mitigation plans</td></tr><tr><td><strong>Budget Estimate</strong></td><td>Cost breakdown by phase</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Planning Example</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">Project: FoodExpress v2.0
+Goal: Support 10,000 concurrent users in 3 cities
+Timeline: 6 months (Jan - Jun 2026)
+Budget: $500,000
+Key Risk: Payment gateway integration delays</div></div></div></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct">HTML</span></div>
+    <div class="tt">Stage 2: Requirements Analysis</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Types of Requirements</div>
+<table class="tbl"><thead><tr><th>Type</th><th>Description</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>Functional</strong></td><td>What the system should DO</td><td>"User can search restaurants by cuisine"</td></tr><tr><td><strong>Non-Functional</strong></td><td>How the system should PERFORM</td><td>"Search results load in < 2 seconds"</td></tr><tr><td><strong>Business</strong></td><td>Why the system is needed</td><td>"Increase order volume by 30% in Q2"</td></tr><tr><td><strong>Technical</strong></td><td>Technical constraints</td><td>"Must run on AWS, Node.js backend"</td></tr><tr><td><strong>User</strong></td><td>End-user needs</td><td>"Customer can track delivery in real-time"</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Requirements Gathering Techniques</div>
+<table class="tbl"><thead><tr><th>Technique</th><th>Description</th><th>When to Use</th></tr></thead><tbody><tr><td><strong>Interviews</strong></td><td>1-on-1 with stakeholders</td><td>Complex requirements, subject matter expertise</td></tr><tr><td><strong>Surveys</strong></td><td>Questionnaires to large groups</td><td>User preferences, feature prioritization</td></tr><tr><td><strong>Workshops</strong></td><td>Group brainstorming sessions</td><td>Cross-functional requirements</td></tr><tr><td><strong>Prototyping</strong></td><td>Build quick mockups</td><td>UI/UX requirements, unclear requirements</td></tr><tr><td><strong>Document Analysis</strong></td><td>Review existing systems</td><td>Sustain: understanding legacy systems</td></tr><tr><td><strong>Observation</strong></td><td>Watch users work</td><td>Usability requirements</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Requirement Documents</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">BRD -- Business Requirements Document</div>
+<table class="tbl"><thead><tr><th>Section</th><th>Content</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>Business Objectives</strong></td><td>Why this project exists</td><td>Expand to 3 new cities by Q3</td></tr><tr><td><strong>Scope</strong></td><td>What is included/excluded</td><td>Order management, NOT delivery fleet management</td></tr><tr><td><strong>Stakeholders</strong></td><td>Who is involved</td><td>Product, Engineering, Ops, Restaurant Partners</td></tr><tr><td><strong>Success Criteria</strong></td><td>How to measure success</td><td>10,000 daily orders, < 2% error rate</td></tr><tr><td><strong>Constraints</strong></td><td>Limitations</td><td>Budget: $500K, Timeline: 6 months</td></tr><tr><td><strong>Assumptions</strong></td><td>What we assume to be true</td><td>Restaurants have internet connectivity</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">BRD vs SRS vs FRD</div>
+<table class="tbl"><thead><tr><th>Document</th><th>Audience</th><th>Detail Level</th><th>Focus</th></tr></thead><tbody><tr><td><strong>BRD</strong></td><td>Business stakeholders</td><td>High-level</td><td>WHY and WHAT (business)</td></tr><tr><td><strong>SRS</strong></td><td>Technical team</td><td>Detailed</td><td>WHAT (system behavior)</td></tr><tr><td><strong>FRD</strong></td><td>Developers</td><td>Very detailed</td><td>HOW (functional specs)</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">SRS -- Software Requirements Specification</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Structure</div>
+<table class="tbl"><thead><tr><th>Section</th><th>Content</th></tr></thead><tbody><tr><td><strong>1. Introduction</strong></td><td>Purpose, scope, definitions</td></tr><tr><td><strong>2. Overall Description</strong></td><td>Product perspective, user characteristics, constraints</td></tr><tr><td><strong>3. Functional Requirements</strong></td><td>Detailed feature descriptions with inputs/outputs</td></tr><tr><td><strong>4. Non-Functional Requirements</strong></td><td>Performance, security, availability targets</td></tr><tr><td><strong>5. Interface Requirements</strong></td><td>UI, API, hardware, software interfaces</td></tr><tr><td><strong>6. Data Requirements</strong></td><td>Database schema, data flow, data retention</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress SRS Example (Excerpt)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</div><div class="cb-cd">FR-001: Place Order
+  Description: Customer can place a food order from a restaurant
+  Input: customer_id, restaurant_id, items[], payment_method
+  Process:
+    1. Validate customer and restaurant exist and are active
+    2. Validate all items are available
+    3. Calculate total (items + tax + delivery fee)
+    4. Process payment
+    5. Create order record
+    6. Send confirmation notification
+  Output: order_id, estimated_delivery_time
+  Error Cases:
+    - E1: Restaurant is closed -&gt; Error 400
+    - E2: Item out of stock -&gt; Error 400
+    - E3: Payment fails -&gt; Error 402</div></div></div></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">FRD -- Functional Requirements Document</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress FRD Example</div>
+<table class="tbl"><thead><tr><th>Req ID</th><th>Feature</th><th>Description</th><th>Acceptance Criteria</th><th>Priority</th></tr></thead><tbody><tr><td>FRD-001</td><td>Restaurant Search</td><td>Search by name, cuisine, rating</td><td>Returns results in < 2s, supports pagination</td><td>P1</td></tr><tr><td>FRD-002</td><td>Menu Display</td><td>Show restaurant menu with prices</td><td>Grouped by category, shows availability</td><td>P1</td></tr><tr><td>FRD-003</td><td>Cart Management</td><td>Add/remove items, update quantities</td><td>Persists across sessions, max 20 items</td><td>P1</td></tr><tr><td>FRD-004</td><td>Order Placement</td><td>Submit order with payment</td><td>Atomic transaction, confirmation sent</td><td>P1</td></tr><tr><td>FRD-005</td><td>Order Tracking</td><td>Real-time delivery status</td><td>GPS tracking, ETA updates every 30s</td><td>P2</td></tr><tr><td>FRD-006</td><td>Order History</td><td>View past orders, re-order</td><td>Paginated, filterable by date/status</td><td>P2</td></tr><tr><td>FRD-007</td><td>Rating/Review</td><td>Rate restaurant and delivery</td><td>1-5 stars, optional text, one per order</td><td>P3</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">SDLC Methodologies</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Overview</div>
+<table class="tbl"><thead><tr><th>Methodology</th><th>Approach</th><th>Feedback Loop</th><th>Best For</th></tr></thead><tbody><tr><td><strong>Waterfall</strong></td><td>Sequential phases</td><td>End of project</td><td>Fixed requirements, regulated industries</td></tr><tr><td><strong>Agile (Scrum)</strong></td><td>Iterative sprints</td><td>Every 2-4 weeks</td><td>Evolving requirements, fast delivery</td></tr><tr><td><strong>Agile (Kanban)</strong></td><td>Continuous flow</td><td>Continuous</td><td>Operations, sustain work, support</td></tr><tr><td><strong>DevOps</strong></td><td>Dev + Ops integration</td><td>Continuous</td><td>Rapid deployment, high reliability</td></tr><tr><td><strong>Spiral</strong></td><td>Risk-driven iterations</td><td>Each iteration</td><td>High-risk, complex projects</td></tr><tr><td><strong>V-Model</strong></td><td>Verification & validation</td><td>Each phase paired</td><td>Safety-critical systems</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Waterfall Model</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd">+------------------+
+| 1. Requirements  |
++--------+---------+
+         |
++--------v---------+
+| 2. System Design |
++--------+---------+
+         |
++--------v---------+
+| 3. Implementation|
++--------+---------+
+         |
++--------v---------+
+| 4. Testing       |
++--------+---------+
+         |
++--------v---------+
+| 5. Deployment    |
++--------+---------+
+         |
++--------v---------+
+| 6. Maintenance   |
++------------------+</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Characteristics</div>
+<table class="tbl"><thead><tr><th>Aspect</th><th>Description</th></tr></thead><tbody><tr><td><strong>Flow</strong></td><td>Linear, sequential -- each phase completes before next starts</td></tr><tr><td><strong>Requirements</strong></td><td>Must be fully defined upfront</td></tr><tr><td><strong>Changes</strong></td><td>Expensive and difficult after phase completion</td></tr><tr><td><strong>Documentation</strong></td><td>Heavy -- each phase produces documents</td></tr><tr><td><strong>Testing</strong></td><td>Happens after development is complete</td></tr><tr><td><strong>Delivery</strong></td><td>Single release at the end</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">When to Use Waterfall</div>
+<ul class="bl"><li>Requirements are well-understood and unlikely to change</li><li>Regulatory/compliance environments (medical, aviation)</li><li>Short projects with fixed scope</li><li>Contracts with fixed deliverables</li></ul></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Agile -- Scrum</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Scrum Framework</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">Product        Sprint        Sprint       Sprint      Potentially
+Backlog   --&gt;  Planning  --&gt; Backlog  --&gt; Execution --&gt;  Shippable
+(all work)     (select)     (sprint)    (2-4 weeks)    Increment
+                                             |
+                                      Daily Standup
+                                      (15 min/day)
+                                             |
+                                      Sprint Review
+                                      Sprint Retro</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Scrum Roles</div>
+<table class="tbl"><thead><tr><th>Role</th><th>Responsibility</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>Product Owner</strong></td><td>Prioritizes backlog, defines acceptance criteria</td><td>Decides next features for FoodExpress</td></tr><tr><td><strong>Scrum Master</strong></td><td>Facilitates process, removes blockers</td><td>Ensures team follows sprint commitments</td></tr><tr><td><strong>Development Team</strong></td><td>Builds the product increment</td><td>Developers, testers, designers (3-9 people)</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Scrum Events</div>
+<table class="tbl"><thead><tr><th>Event</th><th>Duration</th><th>Purpose</th></tr></thead><tbody><tr><td><strong>Sprint Planning</strong></td><td>2-4 hours</td><td>Select stories for the sprint</td></tr><tr><td><strong>Daily Standup</strong></td><td>15 minutes</td><td>What did I do? What will I do? Any blockers?</td></tr><tr><td><strong>Sprint Review</strong></td><td>1-2 hours</td><td>Demo completed work to stakeholders</td></tr><tr><td><strong>Sprint Retrospective</strong></td><td>1-1.5 hours</td><td>What went well? What to improve?</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Agile -- Scrum Artifacts</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Product Backlog</div>
+<table class="tbl"><thead><tr><th>Priority</th><th>Story</th><th>Points</th><th>Status</th></tr></thead><tbody><tr><td>P1</td><td>As a customer, I can search restaurants by cuisine</td><td>5</td><td>Done</td></tr><tr><td>P1</td><td>As a customer, I can place an order</td><td>8</td><td>In Sprint</td></tr><tr><td>P2</td><td>As a customer, I can track my delivery</td><td>13</td><td>Backlog</td></tr><tr><td>P2</td><td>As a restaurant, I can update my menu</td><td>5</td><td>Backlog</td></tr><tr><td>P3</td><td>As a customer, I can rate my order</td><td>3</td><td>Backlog</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">User Story Format</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">As a [role],
+I want to [action],
+So that [benefit].
+
+Acceptance Criteria:
+- Given [context], when [action], then [result]
+- Given [context], when [action], then [result]</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress User Story Example</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">As a hungry customer,
+I want to search restaurants by cuisine type,
+So that I can quickly find what I want to eat.
+
+Acceptance Criteria:
+- Given I am on the search page, when I select "Indian",
+  then I see only Indian restaurants
+- Given I search for "Italian", when no Italian restaurants
+  exist in my area, then I see "No restaurants found"
+- Given search results load, they must appear within 2 seconds</div></div></div></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Agile -- Kanban</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Kanban Board</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">+----------+-----------+-----------+----------+---------+
+| Backlog  | To Do     | In Prog   | Review   | Done    |
++----------+-----------+-----------+----------+---------+
+| Story 8  | Story 5   | Story 3   | Story 2  | Story 1 |
+| Story 9  | Story 6   | Story 4   |          |         |
+| Story 10 |           |           |          |         |
+| Story 11 |           |           |          |         |
++----------+-----------+-----------+----------+---------+
+                        WIP Limit=2  WIP Limit=1</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Kanban Principles</div>
+<table class="tbl"><thead><tr><th>Principle</th><th>Description</th></tr></thead><tbody><tr><td><strong>Visualize work</strong></td><td>Board shows all work items and their status</td></tr><tr><td><strong>Limit WIP</strong></td><td>Cap work-in-progress to prevent overload</td></tr><tr><td><strong>Manage flow</strong></td><td>Optimize for smooth, continuous delivery</td></tr><tr><td><strong>Make policies explicit</strong></td><td>Define "done", WIP limits, priority rules</td></tr><tr><td><strong>Continuous improvement</strong></td><td>Regularly review and optimize the process</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Kanban vs Scrum</div>
+<table class="tbl"><thead><tr><th>Aspect</th><th>Scrum</th><th>Kanban</th></tr></thead><tbody><tr><td><strong>Cadence</strong></td><td>Fixed sprints (2-4 weeks)</td><td>Continuous flow</td></tr><tr><td><strong>Roles</strong></td><td>PO, SM, Dev Team</td><td>No prescribed roles</td></tr><tr><td><strong>Planning</strong></td><td>Sprint planning every sprint</td><td>Continuous replenishment</td></tr><tr><td><strong>Changes</strong></td><td>Avoid mid-sprint changes</td><td>Changes welcome anytime</td></tr><tr><td><strong>Best for</strong></td><td>Feature development</td><td>Sustain, support, ops</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">DevOps</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Is DevOps?</div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">DevOps is a <strong>culture and set of practices</strong> that brings Development and Operations together to deliver software faster, more reliably, and with higher quality.</div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">DevOps Infinity Loop</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">        PLAN --&gt; CODE --&gt; BUILD --&gt; TEST
+       /                                \
+MONITOR                                 RELEASE
+       \                                /
+        OPERATE &lt;-- DEPLOY &lt;-- (gate)</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">DevOps Principles</div>
+<table class="tbl"><thead><tr><th>Principle</th><th>Description</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>Culture</strong></td><td>Dev + Ops collaborate, shared responsibility</td><td>Developers on-call for their services</td></tr><tr><td><strong>Automation</strong></td><td>Automate everything repeatable</td><td>CI/CD pipeline, infrastructure as code</td></tr><tr><td><strong>Measurement</strong></td><td>Data-driven decisions</td><td>Deployment frequency, lead time, MTTR</td></tr><tr><td><strong>Sharing</strong></td><td>Share knowledge, tools, responsibilities</td><td>Shared runbooks, post-incident reviews</td></tr><tr><td><strong>Continuous Improvement</strong></td><td>Always getting better</td><td>Blameless postmortems, action items</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">DevOps Practices</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Practice</th><th>Description</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>CI</strong></td><td>Merge code frequently, auto-build and test</td><td>Every PR triggers build + unit tests</td></tr><tr><td><strong>CD</strong></td><td>Auto-deploy to staging/production</td><td>Merged code deploys to staging in 10 min</td></tr><tr><td><strong>IaC</strong></td><td>Infrastructure defined in code</td><td>Terraform for AWS resources</td></tr><tr><td><strong>Monitoring</strong></td><td>Observe system health continuously</td><td>Datadog dashboards, PagerDuty alerts</td></tr><tr><td><strong>Containerization</strong></td><td>Package apps in containers</td><td>Docker for all microservices</td></tr><tr><td><strong>Orchestration</strong></td><td>Manage containers at scale</td><td>Kubernetes cluster</td></tr><tr><td><strong>ChatOps</strong></td><td>Operations via chat tools</td><td>Slack bot for deployments, alerts</td></tr><tr><td><strong>Feature Flags</strong></td><td>Toggle features without deployment</td><td>Enable loyalty program for 10% of users</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">DORA Metrics</div>
+<table class="tbl"><thead><tr><th>Metric</th><th>Definition</th><th>Elite Level</th></tr></thead><tbody><tr><td><strong>Deployment Frequency</strong></td><td>How often you deploy</td><td>Multiple per day</td></tr><tr><td><strong>Lead Time</strong></td><td>Code commit to production</td><td>< 1 hour</td></tr><tr><td><strong>Change Failure Rate</strong></td><td>% of deployments causing failure</td><td>< 5%</td></tr><tr><td><strong>MTTR</strong></td><td>Time to recover from failure</td><td>< 1 hour</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">STLC -- Software Testing Life Cycle</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">+-------------------+
+| 1. Requirement    |
+|    Analysis       |
++---------+---------+
+          |
++---------v---------+
+| 2. Test Planning  |
++---------+---------+
+          |
++---------v---------+
+| 3. Test Case      |
+|    Design         |
++---------+---------+
+          |
++---------v---------+
+| 4. Environment    |
+|    Setup          |
++---------+---------+
+          |
++---------v---------+
+| 5. Test           |
+|    Execution      |
++---------+---------+
+          |
++---------v---------+
+| 6. Test Closure   |
++-------------------+</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">STLC Stages</div>
+<table class="tbl"><thead><tr><th>Stage</th><th>Activities</th><th>Outputs</th></tr></thead><tbody><tr><td><strong>Requirement Analysis</strong></td><td>Review SRS/FRD, identify testable requirements</td><td>Requirements Traceability Matrix (RTM)</td></tr><tr><td><strong>Test Planning</strong></td><td>Define scope, strategy, resources, schedule</td><td>Test Plan document</td></tr><tr><td><strong>Test Case Design</strong></td><td>Write test cases, prepare test data</td><td>Test cases, test scripts</td></tr><tr><td><strong>Environment Setup</strong></td><td>Configure test environments, tools</td><td>Ready test environment</td></tr><tr><td><strong>Test Execution</strong></td><td>Run tests, log results, report defects</td><td>Test results, defect reports</td></tr><tr><td><strong>Test Closure</strong></td><td>Evaluate exit criteria, lessons learned</td><td>Test summary report, metrics</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Application Types</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Types and Characteristics</div>
+<table class="tbl"><thead><tr><th>Type</th><th>Description</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>Web Application</strong></td><td>Browser-based, client-server</td><td>Customer-facing ordering website</td></tr><tr><td><strong>Mobile App</strong></td><td>Native or hybrid mobile</td><td>iOS/Android ordering app</td></tr><tr><td><strong>API/Microservice</strong></td><td>Backend service with API</td><td>Order Service, Restaurant Service</td></tr><tr><td><strong>Single Page App (SPA)</strong></td><td>Client-side rendered web app</td><td>React-based restaurant dashboard</td></tr><tr><td><strong>Desktop Application</strong></td><td>Installed on user's computer</td><td>Restaurant POS system</td></tr><tr><td><strong>Batch Application</strong></td><td>Scheduled processing</td><td>Nightly revenue report generation</td></tr><tr><td><strong>Real-time Application</strong></td><td>Live data processing</td><td>Delivery tracking, live chat</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Architecture Patterns</div>
+<table class="tbl"><thead><tr><th>Pattern</th><th>Description</th><th>Pros</th><th>Cons</th></tr></thead><tbody><tr><td><strong>Monolith</strong></td><td>Single deployable unit</td><td>Simple, easy to develop</td><td>Hard to scale, tight coupling</td></tr><tr><td><strong>Microservices</strong></td><td>Independent services</td><td>Scalable, independent deployment</td><td>Complex, distributed systems</td></tr><tr><td><strong>Serverless</strong></td><td>Function-based</td><td>No server management, auto-scale</td><td>Cold starts, vendor lock-in</td></tr><tr><td><strong>Event-Driven</strong></td><td>Async message processing</td><td>Loose coupling, scalable</td><td>Eventually consistent, debugging hard</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Development Environments</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Environment Pipeline</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">+--------+     +--------+     +---------+     +-----------+     +------+
+|  Local | --&gt; |  Dev   | --&gt; | Staging | --&gt; | Pre-Prod  | --&gt; | Prod |
++--------+     +--------+     +---------+     +-----------+     +------+
+Developer's    Shared dev     Mirrors          Final              Live
+machine        environment    production       validation         users</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Environment Comparison</div>
+<table class="tbl"><thead><tr><th>Aspect</th><th>Local</th><th>Dev</th><th>Staging</th><th>Pre-Prod</th><th>Production</th></tr></thead><tbody><tr><td><strong>Purpose</strong></td><td>Development</td><td>Integration</td><td>Testing</td><td>Final check</td><td>Live users</td></tr><tr><td><strong>Data</strong></td><td>Mock/seed</td><td>Synthetic</td><td>Subset of prod</td><td>Anonymized prod</td><td>Real data</td></tr><tr><td><strong>Users</strong></td><td>Developer</td><td>Dev team</td><td>QA team</td><td>Stakeholders</td><td>Everyone</td></tr><tr><td><strong>Infra</strong></td><td>Laptop</td><td>Shared server</td><td>Prod-like</td><td>Identical to prod</td><td>Full scale</td></tr><tr><td><strong>Deployment</strong></td><td>Manual</td><td>Auto (CI)</td><td>Auto (CD)</td><td>Manual gate</td><td>Approved only</td></tr><tr><td><strong>Monitoring</strong></td><td>Console logs</td><td>Basic</td><td>Full</td><td>Full</td><td>Full + alerting</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Environment Details</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Local Development Environment</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">Developer's Laptop:
++----------------------------+
+| IDE (VS Code / IntelliJ)   |
+| Node.js / Java runtime     |
+| Docker Desktop             |
+|  +--------+ +--------+    |
+|  | MySQL  | | MongoDB|    |
+|  |(Docker)| |(Docker)|    |
+|  +--------+ +--------+    |
+| Git, npm, Postman          |
++----------------------------+</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Staging Environment</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">Staging (mirrors production):
+- Same cloud provider (AWS)
+- Same architecture (load balancer + 2 app servers + DB)
+- Smaller instance sizes (cost savings)
+- Synthetic test data (not real customer data)
+- Full monitoring and logging
+- Used by QA team for integration and regression testing</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Production Environment</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">Production:
+- Full-scale infrastructure
+- Real customer data (encrypted, access-controlled)
+- Full monitoring, alerting, on-call rotation
+- Change management process for all deployments
+- Backup and disaster recovery configured
+- Performance-tuned and load-tested</div></div></div></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Environment Management Best Practices</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Practice</th><th>Why</th><th>How</th></tr></thead><tbody><tr><td><strong>Parity</strong></td><td>Reduce "works on my machine" issues</td><td>Use containers, IaC to match environments</td></tr><tr><td><strong>Data isolation</strong></td><td>Prevent test data in production</td><td>Separate databases, never share</td></tr><tr><td><strong>Access control</strong></td><td>Limit who can change what</td><td>RBAC: developers can deploy to dev, only ops deploys to prod</td></tr><tr><td><strong>Configuration</strong></td><td>Same code, different config per env</td><td>Environment variables, config files</td></tr><tr><td><strong>Promotion</strong></td><td>Code moves up, never down</td><td>Local -> Dev -> Staging -> Prod</td></tr><tr><td><strong>Refresh</strong></td><td>Keep staging data realistic</td><td>Periodically refresh staging from anonymized prod data</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Environment Variables Example</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</div><div class="cb-cd">// Same code, different config per environment
+// .env.development
+DB_HOST=localhost
+DB_NAME=foodexpress_dev
+LOG_LEVEL=debug
+
+// .env.staging
+DB_HOST=staging-db.internal
+DB_NAME=foodexpress_staging
+LOG_LEVEL=info
+
+// .env.production
+DB_HOST=prod-db.internal
+DB_NAME=foodexpress
+LOG_LEVEL=warn</div></div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">SDLC in Sustain Engineering Context</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Where Sustain Fits</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">SDLC Stages:
+Plan -&gt; Analyze -&gt; Design -&gt; Build -&gt; Test -&gt; Deploy -&gt; MAINTAIN -&gt; Retire
+                                                        ^^^^^^^^
+                                                     YOU ARE HERE</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Sustain Engineer's SDLC Activities</div>
+<table class="tbl"><thead><tr><th>SDLC Stage</th><th>Sustain Activity</th></tr></thead><tbody><tr><td><strong>Planning</strong></td><td>Sprint planning for bug fixes and enhancements</td></tr><tr><td><strong>Analysis</strong></td><td>Read requirements docs to understand expected behavior</td></tr><tr><td><strong>Design</strong></td><td>Review architecture docs, understand dependencies</td></tr><tr><td><strong>Build</strong></td><td>Fix bugs, add small features, refactor</td></tr><tr><td><strong>Test</strong></td><td>Add regression tests, verify fixes</td></tr><tr><td><strong>Deploy</strong></td><td>Follow change management, deploy fixes</td></tr><tr><td><strong>Maintain</strong></td><td>Monitor, respond to incidents, performance tune</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Sustain Anti-Patterns</div>
+<table class="tbl"><thead><tr><th>Anti-Pattern</th><th>Problem</th><th>Better Approach</th></tr></thead><tbody><tr><td>"Quick fix" without understanding</td><td>Introduces new bugs</td><td>Read the code, understand the system</td></tr><tr><td>No documentation</td><td>Knowledge lost when team changes</td><td>Document every fix and its root cause</td></tr><tr><td>Skip testing</td><td>Regression bugs</td><td>Add a test for every bug fix</td></tr><tr><td>Direct production fix</td><td>Untracked changes</td><td>Always go through Dev -> Staging -> Prod</td></tr><tr><td>Ignore monitoring</td><td>Miss early warnings</td><td>Set up alerts, check dashboards daily</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Change Management in Sustain</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Change Types</div>
+<table class="tbl"><thead><tr><th>Type</th><th>Description</th><th>Example</th><th>Approval</th></tr></thead><tbody><tr><td><strong>Standard</strong></td><td>Pre-approved, low-risk</td><td>Config change, restart</td><td>No approval needed</td></tr><tr><td><strong>Normal</strong></td><td>Planned, moderate risk</td><td>Bug fix deployment</td><td>CAB approval</td></tr><tr><td><strong>Emergency</strong></td><td>Urgent, production impact</td><td>Critical security patch</td><td>Emergency CAB</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Change Process</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">1. Request  --&gt; 2. Assess  --&gt; 3. Approve  --&gt; 4. Implement
+(RFC)           (Impact,        (CAB vote)      (Deploy)
+                Risk,
+                Rollback plan)
+
+5. Review   --&gt; 6. Close
+(Post-impl      (Document
+verification)   outcome)</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Change Example</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">Change Request: FOOD-CR-042
+Type: Normal
+Description: Fix order total calculation (Bug FOOD-156)
+Impact: Order service, payment service
+Risk: Medium (affects revenue calculation)
+Rollback Plan: Revert to previous Docker image
+Testing: Unit tests + staging verification
+Approval: CAB approved on 2026-07-25
+Deploy Window: 2026-07-27, 02:00-04:00 AM</div></div></div></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 15 - SDLC FUNDAMENTALS</span><span class="ct">FRAMEWORKS</span></div>
+    <div class="tt">Methodologies Comparison Summary</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Aspect</th><th>Waterfall</th><th>Scrum</th><th>Kanban</th><th>DevOps</th></tr></thead><tbody><tr><td><strong>Approach</strong></td><td>Sequential</td><td>Iterative</td><td>Continuous</td><td>Continuous</td></tr><tr><td><strong>Planning</strong></td><td>Upfront, detailed</td><td>Sprint-level</td><td>Just-in-time</td><td>Continuous</td></tr><tr><td><strong>Changes</strong></td><td>Difficult</td><td>Between sprints</td><td>Anytime</td><td>Anytime</td></tr><tr><td><strong>Delivery</strong></td><td>End of project</td><td>End of sprint</td><td>Continuous</td><td>Continuous</td></tr><tr><td><strong>Feedback</strong></td><td>Late</td><td>Every 2-4 weeks</td><td>Real-time</td><td>Real-time</td></tr><tr><td><strong>Documentation</strong></td><td>Heavy</td><td>Light</td><td>Minimal</td><td>As needed</td></tr><tr><td><strong>Team Size</strong></td><td>Large</td><td>3-9</td><td>Any</td><td>Cross-functional</td></tr><tr><td><strong>Best For</strong></td><td>Fixed scope</td><td>New features</td><td>Sustain/ops</td><td>High velocity</td></tr><tr><td><strong>Risk</strong></td><td>Late discovery</td><td>Scope creep</td><td>No deadlines</td><td>Complexity</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="25">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 15 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Concept</th><th>Key Lesson</th></tr></thead><tbody><tr><td>SDLC Stages</td><td>Plan -> Analyze -> Design -> Build -> Test -> Deploy -> Maintain -> Retire</td></tr><tr><td>Waterfall</td><td>Sequential, heavy documentation, fixed scope -- good for regulated environments</td></tr><tr><td>Scrum</td><td>Iterative sprints (2-4 weeks), roles (PO, SM, Team), ceremonies (standup, review, retro)</td></tr><tr><td>Kanban</td><td>Continuous flow, WIP limits, visualize work -- ideal for sustain and ops work</td></tr><tr><td>DevOps</td><td>Culture + automation + measurement + sharing; CI/CD, IaC, monitoring</td></tr><tr><td>BRD/SRS/FRD</td><td>BRD = business why, SRS = system what, FRD = functional how</td></tr><tr><td>STLC</td><td>Parallel to SDLC: requirement analysis -> test planning -> design -> execute -> close</td></tr><tr><td>Environments</td><td>Local -> Dev -> Staging -> Pre-Prod -> Prod; maintain parity, isolate data</td></tr><tr><td>Application Types</td><td>Web, mobile, API, SPA, batch, real-time -- each has different testing needs</td></tr><tr><td>Sustain Context</td><td>You work in the Maintain phase; follow change management, add tests, document everything</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 16 -- Confluence & Jira: Project management, agile boards, and team collaboration tools.</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 16 -- Confluence & Jira: Project management, agile boards, and team collaboration tools.</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 25</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

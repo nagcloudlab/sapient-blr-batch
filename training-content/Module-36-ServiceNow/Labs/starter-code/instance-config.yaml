@@ -1,0 +1,57 @@
+# FoodExpress ServiceNow Instance Configuration
+# THIS FILE CONTAINS 6 BUGS -- Find and fix them all!
+
+instance:
+  name: "foodexpress-prod"
+  url: "https://foodexpress.service-now.com"
+
+  # Bug 1: Admin password is trivially weak
+  admin:
+    username: "admin"
+    password: "admin123"
+
+  security:
+    # Bug 2: ACLs are disabled -- no access control
+    acl_enabled: false
+    # Bug 3: Session timeout of 0 means sessions never expire
+    session_timeout_minutes: 0
+    password_policy:
+      min_length: 8
+      require_uppercase: true
+      require_number: true
+      require_special_char: true
+      max_age_days: 90
+
+  # Bug 4: Working in "Default" update set
+  development:
+    current_update_set: "Default"
+    update_set_naming: "FE-YYYY-MM-description"
+
+  cmdb:
+    # Bug 5: Auto-discovery pointed at wrong network (192.168.1.x is office network, not data center)
+    auto_discovery:
+      enabled: true
+      ip_ranges:
+        - "192.168.1.0/24"
+      schedule: "Daily 02:00 IST"
+
+  integrations:
+    # Bug 6: API credentials stored in plain text
+    pagerduty:
+      api_key: "pd_api_key_abc123xyz789"
+      integration_url: "https://events.pagerduty.com/v2/enqueue"
+    prometheus:
+      url: "http://prometheus.foodexpress.internal:9090"
+      api_token: "prom_token_secret_456def"
+    slack:
+      webhook_url: "https://hooks.slack.com/services/T00000/B00000/xxxxxxxxxxxx"
+      bot_token: "xoxb-12345-abcde-secret-token"
+
+  email:
+    inbound:
+      enabled: true
+      address: "support@foodexpress.service-now.com"
+    outbound:
+      enabled: true
+      smtp_server: "smtp.service-now.com"
+      from_address: "noreply@foodexpress.service-now.com"

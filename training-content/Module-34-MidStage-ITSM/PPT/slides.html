@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mid-Stage Project + ITSM Introduction</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 34</div>
+    <div class="t-main">Mid-Stage Project + ITSM Introduction</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda -- Day 39</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>Mid-Stage Project Overview & Team Formation</td></tr><tr><td>02</td><td>Observability Stack Review: Prometheus, Grafana, Loki, Jaeger</td></tr><tr><td>03</td><td>FoodExpress Monitoring Architecture</td></tr><tr><td>04</td><td>Fault Injection: Chaos Engineering Principles</td></tr><tr><td>05</td><td>Fault Injection Lab: Break FoodExpress Services</td></tr><tr><td>06</td><td>Building Dashboards: Golden Signals for FoodExpress</td></tr><tr><td>07</td><td>Alert Rules & Runbooks: From Detection to Resolution</td></tr><tr><td>08</td><td>Mid-Stage Project Work Session</td></tr><tr><td>09</td><td>Day 39 Wrap-up & Demo Prep</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda -- Day 40</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>Mid-Stage Project: Final Work Session</td></tr><tr><td>02</td><td>Team Demos & Presentations</td></tr><tr><td>03</td><td>Evaluation & Feedback</td></tr><tr><td>04</td><td>ITSM: What is IT Service Management?</td></tr><tr><td>05</td><td>ITSM Process Architecture</td></tr><tr><td>06</td><td>Service Catalog & Service Portfolio</td></tr><tr><td>07</td><td>Incident Management Fundamentals</td></tr><tr><td>08</td><td>Day 40 Wrap-up</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct">HTML</span></div>
+    <div class="tt">Mid-Stage Project: Overview</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What You Will Build</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">┌─────────────────────────────────────────────────────┐
+│          FoodExpress Observability Platform          │
+│                                                     │
+│  ┌──────────┐  ┌───────────┐  ┌──────────────────┐ │
+│  │Prometheus│  │  Grafana   │  │     Jaeger       │ │
+│  │ Metrics  │  │ Dashboards │  │ Distributed      │ │
+│  │ Scraping │  │ &amp; Alerts   │  │ Tracing          │ │
+│  └────┬─────┘  └─────┬─────┘  └────────┬─────────┘ │
+│       │              │                  │           │
+│  ┌────▼──────────────▼──────────────────▼─────────┐ │
+│  │         FoodExpress Microservices              │ │
+│  │  Order │ Payment │ Menu │ Delivery │ Notify    │ │
+│  └────────────────────────────────────────────────┘ │
+│                                                     │
+│  ┌──────────┐  ┌───────────┐  ┌──────────────────┐ │
+│  │   Loki   │  │ Alertmgr  │  │  Chaos/Fault     │ │
+│  │ Log Agg  │  │ Routing   │  │  Injection       │ │
+│  └──────────┘  └───────────┘  └──────────────────┘ │
+└─────────────────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Golden Signals for FoodExpress</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Four Golden Signals (Google SRE)</div>
+<table class="tbl"><thead><tr><th>Signal</th><th>What It Measures</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>Latency</strong></td><td>Time to serve a request</td><td>Order API P95 < 500ms</td></tr><tr><td><strong>Traffic</strong></td><td>Demand on the system</td><td>Orders per minute</td></tr><tr><td><strong>Errors</strong></td><td>Rate of failed requests</td><td>5xx errors on Payment API</td></tr><tr><td><strong>Saturation</strong></td><td>How full a resource is</td><td>Database connection pool at 85%</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">FoodExpress SLIs:
+  - Order placement: P99 latency &lt; 2s
+  - Menu browsing:   P99 latency &lt; 500ms
+  - Payment processing: Error rate &lt; 0.1%
+  - Delivery tracking: Availability &gt; 99.9%</div></div></div></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Prometheus Metrics for FoodExpress</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Key Metric Types</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd"># Counter: Total orders placed (only goes up)
+foodexpress_orders_total{status="confirmed", restaurant="biryani_house"} 4521
+
+# Gauge: Current active deliveries (goes up and down)
+foodexpress_active_deliveries{city="bangalore"} 47
+
+# Histogram: Order processing duration
+foodexpress_order_duration_seconds_bucket{le="0.5"} 3201
+foodexpress_order_duration_seconds_bucket{le="1.0"} 4100
+foodexpress_order_duration_seconds_bucket{le="2.0"} 4480
+foodexpress_order_duration_seconds_count 4521
+foodexpress_order_duration_seconds_sum 2847.3
+
+# Summary: Payment response time
+foodexpress_payment_latency_seconds{quantile="0.95"} 0.42
+foodexpress_payment_latency_seconds{quantile="0.99"} 1.1</div></div></div></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Prometheus: PromQL Queries</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Essential Queries for FoodExpress Dashboards</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.pro</span><span class="cb-lg">PROMQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20</div><div class="cb-cd"># Request rate (orders per second, last 5 min)
+rate(foodexpress_orders_total[5m])
+
+# Error rate percentage
+100 * rate(foodexpress_http_requests_total{status=~"5.."}[5m])
+    / rate(foodexpress_http_requests_total[5m])
+
+# P95 latency for order placement
+histogram_quantile(0.95,
+  rate(foodexpress_order_duration_seconds_bucket[5m])
+)
+
+# Saturation: DB connection pool usage
+foodexpress_db_connections_active / foodexpress_db_connections_max * 100
+
+# Apdex score (satisfied &lt; 0.5s, tolerating &lt; 2s)
+(
+  rate(foodexpress_order_duration_seconds_bucket{le="0.5"}[5m])
+  + rate(foodexpress_order_duration_seconds_bucket{le="2.0"}[5m])
+) / 2 / rate(foodexpress_order_duration_seconds_count[5m])</div></div></div></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Grafana Dashboard Design</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Operations Dashboard Layout</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">┌─────────────────────────────────────────────────────┐
+│  FoodExpress Operations Dashboard                   │
+├─────────────┬─────────────┬─────────────┬───────────┤
+│ Orders/min  │ Error Rate  │ P95 Latency │ Uptime    │
+│   127       │   0.3%      │   420ms     │  99.97%   │
+│  (stat)     │  (stat)     │  (stat)     │ (stat)    │
+├─────────────┴─────────────┴─────────────┴───────────┤
+│  Request Rate by Service           (time series)    │
+│  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄        │
+├─────────────────────────┬───────────────────────────┤
+│  Error Rate by Service  │  Latency Heatmap          │
+│  (time series)          │  (heatmap)                │
+├─────────────────────────┴───────────────────────────┤
+│  Active Deliveries by City          (geo map)       │
+├─────────────────────────┬───────────────────────────┤
+│  DB Connection Pool     │  CPU/Memory per Pod       │
+│  (gauge)                │  (time series)            │
+└─────────────────────────┴───────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Alerting Rules for FoodExpress</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Prometheus Alerting Rules</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35</div><div class="cb-cd">groups:
+  - name: foodexpress-alerts
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          rate(foodexpress_http_requests_total{status=~"5.."}[5m])
+          / rate(foodexpress_http_requests_total[5m]) &gt; 0.01
+        for: 5m
+        labels:
+          severity: critical
+          team: sustain-engineering
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Error rate is {{ $value | humanizePercentage }}"
+          runbook: "https://wiki.foodexpress.in/runbooks/high-error-rate"
+
+      - alert: OrderLatencyHigh
+        expr: |
+          histogram_quantile(0.95,
+            rate(foodexpress_order_duration_seconds_bucket[5m])
+          ) &gt; 2
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Order P95 latency exceeds 2s"
+
+      - alert: PaymentServiceDown
+        expr: up{job="payment-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Payment service is down"
+          runbook: "https://wiki.foodexpress.in/runbooks/payment-down"</div></div></div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Alertmanager: Routing & Notification</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Alert Routing Configuration</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32</div><div class="cb-cd"># alertmanager.yml
+global:
+  resolve_timeout: 5m
+  slack_api_url: 'https://hooks.slack.com/services/T00/B00/xxx'
+
+route:
+  receiver: 'default-slack'
+  group_by: ['alertname', 'service']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  routes:
+    - match:
+        severity: critical
+      receiver: 'pagerduty-critical'
+      group_wait: 10s
+    - match:
+        severity: warning
+      receiver: 'slack-warnings'
+
+receivers:
+  - name: 'pagerduty-critical'
+    pagerduty_configs:
+      - service_key: '&lt;pagerduty-key&gt;'
+  - name: 'slack-warnings'
+    slack_configs:
+      - channel: '#foodexpress-alerts'
+        title: '{{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+  - name: 'default-slack'
+    slack_configs:
+      - channel: '#foodexpress-ops'</div></div></div></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Chaos Engineering: Principles</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What is Chaos Engineering?</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>The discipline of experimenting on a system to build confidence in its ability to withstand turbulent conditions in production.</strong></p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd">┌──────────────────────────────────────────┐
+│         Chaos Engineering Cycle          │
+│                                          │
+│  1. Define "steady state"                │
+│     (e.g., 99.9% order success rate)     │
+│              │                           │
+│              ▼                           │
+│  2. Hypothesize: "The system will        │
+│     maintain steady state even if..."    │
+│              │                           │
+│              ▼                           │
+│  3. Inject fault                         │
+│     (kill a pod, add latency, etc.)      │
+│              │                           │
+│              ▼                           │
+│  4. Observe: Did steady state hold?      │
+│              │                           │
+│        ┌─────┴─────┐                     │
+│        ▼           ▼                     │
+│      YES          NO                     │
+│   Confidence    Fix weakness,            │
+│   increased     then re-test             │
+└──────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Fault Injection Techniques</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Common Fault Types for FoodExpress</div>
+<table class="tbl"><thead><tr><th>Fault Type</th><th>Tool</th><th>FoodExpress Scenario</th></tr></thead><tbody><tr><td><strong>Pod kill</strong></td><td>kubectl delete pod</td><td>Payment pod dies mid-transaction</td></tr><tr><td><strong>Network latency</strong></td><td>tc netem</td><td>3s delay between Order and Payment</td></tr><tr><td><strong>Network partition</strong></td><td>iptables</td><td>Menu service cannot reach DB</td></tr><tr><td><strong>CPU stress</strong></td><td>stress-ng</td><td>Delivery service CPU spike</td></tr><tr><td><strong>Disk fill</strong></td><td>dd/fallocate</td><td>Log volume fills up on Order service</td></tr><tr><td><strong>DNS failure</strong></td><td>CoreDNS manipulation</td><td>Service discovery fails</td></tr><tr><td><strong>Dependency failure</strong></td><td>Mock server</td><td>External payment gateway timeout</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd"># Example: Add 3s latency to payment service
+kubectl exec -it payment-pod -- tc qdisc add dev eth0 root netem delay 3000ms
+
+# Example: Kill a pod
+kubectl delete pod order-service-abc123 --grace-period=0
+
+# Example: CPU stress for 60 seconds
+kubectl exec -it delivery-pod -- stress-ng --cpu 4 --timeout 60s</div></div></div></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Fault Injection Script: FoodExpress</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Structured Fault Injection Exercise</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42</div><div class="cb-cd">#!/bin/bash
+# fault-injection.sh -- FoodExpress Chaos Experiment
+
+EXPERIMENT_NAME="payment-latency-test"
+NAMESPACE="foodexpress"
+STEADY_STATE_METRIC="foodexpress_order_success_rate"
+THRESHOLD=0.99
+
+echo "=== Chaos Experiment: $EXPERIMENT_NAME ==="
+echo "Hypothesis: Order success rate stays above 99% when payment has 2s latency"
+
+# Step 1: Record steady state
+echo "[1/4] Recording steady state..."
+BASELINE=$(curl -s "http://prometheus:9090/api/v1/query?query=$STEADY_STATE_METRIC" \
+  | jq '.data.result[0].value[1]')
+echo "  Baseline: $BASELINE"
+
+# Step 2: Inject fault
+echo "[2/4] Injecting 2s latency on payment-service..."
+kubectl exec -n $NAMESPACE deploy/payment-service -- \
+  tc qdisc add dev eth0 root netem delay 2000ms
+
+# Step 3: Observe (wait 3 minutes)
+echo "[3/4] Observing for 3 minutes..."
+sleep 180
+
+CURRENT=$(curl -s "http://prometheus:9090/api/v1/query?query=$STEADY_STATE_METRIC" \
+  | jq '.data.result[0].value[1]')
+echo "  Current: $CURRENT"
+
+# Step 4: Rollback
+echo "[4/4] Rolling back fault injection..."
+kubectl exec -n $NAMESPACE deploy/payment-service -- \
+  tc qdisc del dev eth0 root netem
+
+# Evaluate
+if (( $(echo "$CURRENT &gt;= $THRESHOLD" | bc -l) )); then
+  echo "PASS: Steady state maintained ($CURRENT &gt;= $THRESHOLD)"
+else
+  echo "FAIL: Steady state violated ($CURRENT &lt; $THRESHOLD)"
+  echo "ACTION: Implement circuit breaker on Order-&gt;Payment call"
+fi</div></div></div></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Distributed Tracing with Jaeger</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Following a FoodExpress Order</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">Trace ID: abc123def456
+
+├── [200ms] POST /api/v1/orders (order-service)
+│   ├── [10ms]  Validate order items
+│   ├── [45ms]  GET /api/v1/menu/items (menu-service)
+│   │           Check item availability
+│   ├── [120ms] POST /api/v1/payments (payment-service)
+│   │   ├── [15ms]  Validate payment method
+│   │   ├── [80ms]  Charge payment gateway (external)
+│   │   └── [25ms]  Update payment record
+│   ├── [15ms]  Create order record
+│   └── [10ms]  Publish OrderPlaced event
+│
+├── [50ms] OrderPlaced -&gt; notification-service (async)
+│   └── [30ms]  Send order confirmation email
+│
+└── [30ms] OrderPlaced -&gt; delivery-service (async)
+    └── [20ms]  Assign rider</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Key insight:</strong> The payment gateway call (80ms) is the bottleneck. If it times out, the entire order flow stalls.</p></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Log Aggregation with Loki</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Structured Logging for FoodExpress</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jso</span><span class="cb-lg">JSON</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">{
+  "timestamp": "2026-09-05T14:23:45.123Z",
+  "level": "ERROR",
+  "service": "order-service",
+  "traceId": "abc123def456",
+  "spanId": "span789",
+  "message": "Payment service timeout",
+  "orderId": "ORD-2026-45678",
+  "customerId": "CUST-1234",
+  "errorCode": "PAYMENT_TIMEOUT",
+  "duration_ms": 5000,
+  "retryCount": 3,
+  "context": {
+    "paymentAmount": 450.00,
+    "paymentMethod": "UPI",
+    "restaurant": "Biryani House"
+  }
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">LogQL Query Examples</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.log</span><span class="cb-lg">LOGQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd"># Find all errors for a specific order
+{service="order-service"} |= "ORD-2026-45678" | json | level="ERROR"
+
+# Payment timeouts in last hour
+{service="order-service"} | json | errorCode="PAYMENT_TIMEOUT" | count_over_time([1h])
+
+# Slow queries (&gt; 2 seconds)
+{service=~".*-service"} | json | duration_ms &gt; 2000</div></div></div></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Runbook: High Error Rate</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Incident Runbook Template</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.mar</span><span class="cb-lg">MARKDOWN</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31</div><div class="cb-cd"># Runbook: High Error Rate on Order Service
+
+## Trigger
+Alert: HighErrorRate (order-service error rate &gt; 1% for 5 min)
+
+## Severity
+Critical -- Directly impacts revenue
+
+## Quick Diagnosis (first 5 minutes)
+1. Check which endpoint is failing:
+   - Dashboard: FoodExpress Operations &gt; Error Rate by Endpoint
+   - PromQL: rate(http_requests_total{service="order",status=~"5.."}[5m])
+2. Check recent deployments:
+   - `kubectl rollout history deploy/order-service -n foodexpress`
+3. Check dependent service health:
+   - Payment: up{job="payment-service"}
+   - Menu: up{job="menu-service"}
+   - Database: mysql_up{instance="order-db"}
+
+## Common Causes &amp; Fixes
+| Cause | Check | Fix |
+|-------|-------|-----|
+| Bad deployment | Recent rollout | `kubectl rollout undo deploy/order-service` |
+| DB connection exhaustion | Connection pool metrics | Restart pods, increase pool size |
+| Payment service down | Payment health check | Enable circuit breaker fallback |
+| Memory leak | Pod memory usage | Restart pod, investigate heap dump |
+
+## Escalation
+If not resolved in 15 minutes:
+- Page on-call SRE: @sre-oncall
+- Notify engineering lead: @eng-lead</div></div></div></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Demo Preparation</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Makes a Good Demo</div>
+<table class="tbl"><thead><tr><th>Element</th><th>Description</th><th>Time</th></tr></thead><tbody><tr><td><strong>Context</strong></td><td>What problem are you solving?</td><td>1 min</td></tr><tr><td><strong>Architecture</strong></td><td>Show the system diagram</td><td>2 min</td></tr><tr><td><strong>Live Demo</strong></td><td>Walk through dashboards and alerts</td><td>5 min</td></tr><tr><td><strong>Fault Injection</strong></td><td>Inject a fault, show detection & recovery</td><td>5 min</td></tr><tr><td><strong>Lessons Learned</strong></td><td>What surprised you? What would you change?</td><td>2 min</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Evaluation Criteria</div>
+<table class="tbl"><thead><tr><th>Criteria</th><th>Weight</th><th>Description</th></tr></thead><tbody><tr><td>Monitoring Coverage</td><td>25%</td><td>Are all services instrumented? Golden signals covered?</td></tr><tr><td>Alert Quality</td><td>20%</td><td>Meaningful alerts with proper thresholds and runbooks?</td></tr><tr><td>Fault Resilience</td><td>25%</td><td>Does the system handle injected faults gracefully?</td></tr><tr><td>Dashboard Design</td><td>15%</td><td>Clear, actionable dashboards with proper panels?</td></tr><tr><td>Presentation</td><td>15%</td><td>Clear communication, good demo flow?</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct">HTML</span></div>
+    <div class="tt">Mid-Stage Project Evaluation Rubric</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Scoring Guide</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26</div><div class="cb-cd">┌──────────────────────────────────────────────────────┐
+│                 Scoring (out of 100)                 │
+├──────────────────┬───────────────────────────────────┤
+│ Monitoring (25)  │ 25: All services, all 4 signals  │
+│                  │ 20: Most services, 3+ signals     │
+│                  │ 15: Some services, basic metrics   │
+│                  │ 10: Minimal monitoring             │
+├──────────────────┼───────────────────────────────────┤
+│ Alerting (20)    │ 20: Smart alerts, runbooks, routing│
+│                  │ 15: Good alerts, some runbooks     │
+│                  │ 10: Basic alerts, no runbooks      │
+│                  │  5: No alerting configured         │
+├──────────────────┼───────────────────────────────────┤
+│ Resilience (25)  │ 25: All faults handled gracefully │
+│                  │ 20: Most faults handled            │
+│                  │ 15: Some fault handling            │
+│                  │ 10: No fault handling              │
+├──────────────────┼───────────────────────────────────┤
+│ Dashboards (15)  │ 15: Professional, actionable      │
+│                  │ 10: Good layout, useful panels     │
+│                  │  5: Basic or cluttered             │
+├──────────────────┼───────────────────────────────────┤
+│ Presentation (15)│ 15: Clear, confident, structured  │
+│                  │ 10: Adequate communication         │
+│                  │  5: Unclear or disorganized        │
+└──────────────────┴───────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">ITSM: What is IT Service Management?</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Definition</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>IT Service Management (ITSM)</strong> is a set of practices for designing, delivering, managing, and improving the way IT is used within an organization.</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">┌──────────────────────────────────────────────────────┐
+│                 ITSM Core Concept                    │
+│                                                      │
+│   IT is not just technology --                       │
+│   IT is a SERVICE delivered to the business.         │
+│                                                      │
+│   ┌──────────┐    Service    ┌───────────────┐      │
+│   │  IT Org  │ ───────────&gt; │   Business    │      │
+│   │          │              │   (Customer)  │      │
+│   │ People   │ &lt;─────────── │               │      │
+│   │ Process  │   Value      │  FoodExpress  │      │
+│   │ Tech     │              │  Operations   │      │
+│   └──────────┘              └───────────────┘      │
+│                                                      │
+│   Key shift: From "managing technology"              │
+│              To "managing services"                  │
+└──────────────────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">ITSM vs ITIL vs DevOps</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">How They Relate</div>
+<table class="tbl"><thead><tr><th>Aspect</th><th>ITSM</th><th>ITIL</th><th>DevOps</th></tr></thead><tbody><tr><td><strong>What</strong></td><td>Overall discipline</td><td>Framework for ITSM</td><td>Culture & practices</td></tr><tr><td><strong>Focus</strong></td><td>Service delivery</td><td>Best practices & processes</td><td>Speed & collaboration</td></tr><tr><td><strong>Scope</strong></td><td>End-to-end service lifecycle</td><td>Structured guidance</td><td>Dev + Ops integration</td></tr><tr><td><strong>Approach</strong></td><td>Process-oriented</td><td>Practice-based (ITIL 4)</td><td>Automation-oriented</td></tr><tr><td><strong>Relation</strong></td><td>The "what"</td><td>The "how" (one option)</td><td>Complementary approach</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">┌─────────────────────────────────────────┐
+│              ITSM (discipline)          │
+│                                         │
+│  ┌──────────────┐  ┌────────────────┐  │
+│  │    ITIL 4    │  │    DevOps      │  │
+│  │  (framework) │  │  (culture)     │  │
+│  │              │  │                │  │
+│  │  Practices   │◄─┤  Automation    │  │
+│  │  Governance  │  │  CI/CD         │  │
+│  │  Continual   │  │  Collaboration │  │
+│  │  improvement │  │  Feedback      │  │
+│  └──────────────┘  └────────────────┘  │
+└─────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">ITSM: The Service Value System</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">ITIL 4 Service Value System (SVS)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">┌───────────────────────────────────────────────────────┐
+│                Service Value System                   │
+│                                                       │
+│  Opportunity/     ┌─────────────────────┐    Value    │
+│  Demand ─────────&gt;│  Service Value      │──────────&gt;  │
+│                   │  Chain              │             │
+│                   │  (Plan, Improve,    │             │
+│                   │   Engage, Design,   │             │
+│                   │   Obtain, Deliver)  │             │
+│                   └──────┬──────────────┘             │
+│                          │                            │
+│  ┌──────────────┐  ┌─────▼──────┐  ┌──────────────┐ │
+│  │  Guiding     │  │ Practices  │  │  Governance   │ │
+│  │  Principles  │  │ (34 ITIL   │  │              │ │
+│  │              │  │  practices)│  │              │ │
+│  └──────────────┘  └────────────┘  └──────────────┘ │
+│                                                       │
+│            Continual Improvement                      │
+└───────────────────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">ITIL 4 Guiding Principles</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Seven Principles for FoodExpress</div>
+<table class="tbl"><thead><tr><th>#</th><th>Principle</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td>1</td><td><strong>Focus on value</strong></td><td>Every process should improve customer experience (faster delivery, fewer errors)</td></tr><tr><td>2</td><td><strong>Start where you are</strong></td><td>Assess current monitoring before adding new tools</td></tr><tr><td>3</td><td><strong>Progress iteratively with feedback</strong></td><td>Deploy observability in phases, gather team feedback</td></tr><tr><td>4</td><td><strong>Collaborate and promote visibility</strong></td><td>Dev and Ops share dashboards and on-call rotations</td></tr><tr><td>5</td><td><strong>Think and work holistically</strong></td><td>A payment fix must consider order flow, notifications, delivery</td></tr><tr><td>6</td><td><strong>Keep it simple and practical</strong></td><td>Don't over-engineer alerting; start with golden signals</td></tr><tr><td>7</td><td><strong>Optimize and automate</strong></td><td>Auto-scaling, self-healing pods, automated runbooks</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">ITSM Process Architecture</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Core Process Areas</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd">┌─────────────────────────────────────────────────────┐
+│           ITSM Process Architecture                 │
+│                                                     │
+│  ┌───────────────────────────────────────────────┐  │
+│  │          Service Strategy                     │  │
+│  │  Service Portfolio │ Financial Mgmt │ Demand  │  │
+│  └───────────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────┐  │
+│  │          Service Design                       │  │
+│  │  Service Catalog │ SLA │ Capacity │ Avail.    │  │
+│  └───────────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────┐  │
+│  │          Service Transition                   │  │
+│  │  Change Mgmt │ Release │ Config │ Knowledge   │  │
+│  └───────────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────┐  │
+│  │          Service Operation                    │  │
+│  │  Incident │ Problem │ Event │ Request │ Access │  │
+│  └───────────────────────────────────────────────┘  │
+│  ┌───────────────────────────────────────────────┐  │
+│  │          Continual Service Improvement        │  │
+│  └───────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Service Catalog</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress IT Service Catalog</div>
+<table class="tbl"><thead><tr><th>Service</th><th>Description</th><th>SLA</th><th>Owner</th></tr></thead><tbody><tr><td><strong>Order Platform</strong></td><td>End-to-end food ordering</td><td>99.9% uptime, P95 < 2s</td><td>Platform Team</td></tr><tr><td><strong>Payment Processing</strong></td><td>Payment handling, refunds</td><td>99.95% uptime, PCI compliant</td><td>Payment Team</td></tr><tr><td><strong>Delivery Tracking</strong></td><td>Real-time rider tracking</td><td>99.5% uptime, < 30s GPS update</td><td>Logistics Team</td></tr><tr><td><strong>Menu Management</strong></td><td>Restaurant menu CRUD</td><td>99.5% uptime</td><td>Content Team</td></tr><tr><td><strong>Customer Support</strong></td><td>Support portal and chatbot</td><td>99% uptime, < 5 min first response</td><td>Support Team</td></tr><tr><td><strong>Partner Portal</strong></td><td>Restaurant onboarding</td><td>99% uptime</td><td>Partner Team</td></tr><tr><td><strong>Internal IT</strong></td><td>Email, VPN, laptops</td><td>99.5% uptime</td><td>IT Ops</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Service Catalog Structure</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">Business Services (visible to customers)
+├── Order Platform
+├── Delivery Tracking
+└── Customer Support
+
+Technical Services (supporting services)
+├── Kubernetes Cluster
+├── MySQL Database Cluster
+├── Redis Cache
+├── Message Queue (RabbitMQ)
+└── Monitoring Stack</div></div></div></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Service Portfolio vs Service Catalog</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Full Picture</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">┌─────────────────────────────────────────────────┐
+│              Service Portfolio                   │
+│                                                  │
+│  ┌─────────────────────────────────────────┐    │
+│  │  Service Pipeline (planned)             │    │
+│  │  - AI-powered food recommendations     │    │
+│  │  - Voice ordering via smart speakers    │    │
+│  │  - Drone delivery pilot                │    │
+│  └─────────────────────────────────────────┘    │
+│                                                  │
+│  ┌─────────────────────────────────────────┐    │
+│  │  Service Catalog (live)                 │    │
+│  │  - Order Platform        ✅ Active      │    │
+│  │  - Payment Processing    ✅ Active      │    │
+│  │  - Delivery Tracking     ✅ Active      │    │
+│  │  - Menu Management       ✅ Active      │    │
+│  └─────────────────────────────────────────┘    │
+│                                                  │
+│  ┌─────────────────────────────────────────┐    │
+│  │  Retired Services                       │    │
+│  │  - Legacy monolith v1    ❌ Retired     │    │
+│  │  - SMS-only ordering     ❌ Retired     │    │
+│  └─────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Incident Management: Overview</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What is an Incident?</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>An unplanned interruption to a service or reduction in the quality of a service.</strong></p>
+<table class="tbl"><thead><tr><th>Term</th><th>Definition</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>Incident</strong></td><td>Unplanned service disruption</td><td>Payment gateway returning 503 errors</td></tr><tr><td><strong>Major Incident</strong></td><td>High-impact incident</td><td>Complete order platform outage</td></tr><tr><td><strong>Event</strong></td><td>Observable occurrence</td><td>CPU usage above 80% threshold</td></tr><tr><td><strong>Alert</strong></td><td>Notification triggered by an event</td><td>PagerDuty alert for high error rate</td></tr><tr><td><strong>Problem</strong></td><td>Root cause of one or more incidents</td><td>Memory leak in order service v2.3</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Incident Lifecycle</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">From Detection to Closure</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">┌──────────┐   ┌──────────┐   ┌───────────┐   ┌──────────┐
+│ Detection│──&gt;│  Logging  │──&gt;│  Category │──&gt;│ Priority │
+│          │   │&amp; Recording│   │&amp; Classify │   │ Matrix   │
+└──────────┘   └──────────┘   └───────────┘   └────┬─────┘
+                                                     │
+┌──────────┐   ┌──────────┐   ┌───────────┐   ┌────▼─────┐
+│ Closure  │&lt;──│Resolution│&lt;──│Escalation │&lt;──│ Diagnosis│
+│&amp; Review  │   │          │   │(if needed)│   │&amp; Invest. │
+└──────────┘   └──────────┘   └───────────┘   └──────────┘
+
+FoodExpress Incident Flow:
+1. Prometheus alert fires (Detection)
+2. PagerDuty notifies on-call engineer (Logging)
+3. Engineer classifies: Order Service &gt; Payment Integration (Categorize)
+4. Priority: P1 (Critical impact, 500+ users affected) (Prioritize)
+5. Engineer investigates using Grafana, Jaeger, Loki (Diagnose)
+6. Applies fix or rollback (Resolve)
+7. Post-incident review within 48 hours (Close &amp; Review)</div></div></div></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Incident Priority Matrix</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Impact vs Urgency</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><div class="cb-cd">                        URGENCY
+                 High        Medium       Low
+         ┌──────────┬──────────┬──────────┐
+  High   │   P1     │   P2     │   P3     │
+         │ Critical │  High    │ Medium   │
+I        ├──────────┼──────────┼──────────┤
+M Medium │   P2     │   P3     │   P4     │
+P        │  High    │ Medium   │  Low     │
+A        ├──────────┼──────────┼──────────┤
+C  Low   │   P3     │   P4     │   P5     │
+T        │ Medium   │  Low     │ Planning │
+         └──────────┴──────────┴──────────┘</div></div></div>
+<table class="tbl"><thead><tr><th>Priority</th><th>Response Time</th><th>Resolution Time</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td>P1</td><td>15 min</td><td>4 hours</td><td>Complete order platform down</td></tr><tr><td>P2</td><td>30 min</td><td>8 hours</td><td>Payment service degraded</td></tr><tr><td>P3</td><td>2 hours</td><td>24 hours</td><td>Delivery tracking delayed</td></tr><tr><td>P4</td><td>4 hours</td><td>48 hours</td><td>Partner portal slow</td></tr><tr><td>P5</td><td>1 business day</td><td>5 business days</td><td>Report generation failing</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="29">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Incident Record Template</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What to Capture</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35</div><div class="cb-cd">┌──────────────────────────────────────────────────┐
+│              INCIDENT RECORD                     │
+├──────────────────────────────────────────────────┤
+│ INC Number:    INC-2026-0456                     │
+│ Title:         Payment Service 503 Errors        │
+│ Priority:      P1 - Critical                     │
+│ Status:        Resolved                          │
+│ Category:      Application &gt; Payment &gt; Gateway   │
+│                                                  │
+│ Affected Service: Payment Processing             │
+│ Affected Users:   ~2,000 customers               │
+│ Business Impact:  Orders failing, est. Rs 5L/hr  │
+│                   revenue loss                   │
+│                                                  │
+│ Timeline:                                        │
+│   09:15  Alert fired (HighErrorRate)             │
+│   09:18  On-call engineer acknowledged           │
+│   09:25  Root cause: DB connection pool exhaust  │
+│   09:30  Fix applied: increased pool size        │
+│   09:35  Error rate normalized                   │
+│   09:40  Incident resolved                       │
+│                                                  │
+│ Root Cause:    Connection pool max=10 too low     │
+│                after traffic spike                │
+│ Resolution:    Increased pool to 50, added        │
+│                connection timeout                 │
+│ Prevention:    Add auto-scaling for DB pool,      │
+│                alert on pool saturation &gt; 70%     │
+│                                                  │
+│ Assigned To:   Ravi Kumar (Sustain Eng)           │
+│ Resolved By:   Ravi Kumar                        │
+│ Created:       2026-09-05 09:15                  │
+│ Resolved:      2026-09-05 09:40                  │
+│ Duration:      25 minutes                        │
+└──────────────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">29</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="30">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Major Incident Process</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">When Things Go Really Wrong</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">┌─────────────────────────────────────────────────────┐
+│           Major Incident Process                    │
+│                                                     │
+│  1. DECLARE Major Incident                          │
+│     - Incident Manager takes ownership              │
+│     - Communication channel opened (#war-room)      │
+│                                                     │
+│  2. ASSEMBLE Response Team                          │
+│     - Incident Commander (coordinates)              │
+│     - Technical Lead (investigates)                 │
+│     - Communications Lead (updates stakeholders)    │
+│                                                     │
+│  3. COMMUNICATE Status                              │
+│     - Status page updated every 15 min              │
+│     - Business stakeholders notified                │
+│     - Customer-facing message posted                │
+│                                                     │
+│  4. RESOLVE &amp; RECOVER                               │
+│     - Apply fix / rollback / workaround             │
+│     - Verify service restoration                    │
+│     - Monitor for recurrence                        │
+│                                                     │
+│  5. POST-INCIDENT REVIEW (within 48 hours)          │
+│     - Blameless retrospective                       │
+│     - Timeline reconstruction                       │
+│     - Action items with owners and deadlines        │
+└─────────────────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">30</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="31">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Incident Management KPIs</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Measuring Incident Management Effectiveness</div>
+<table class="tbl"><thead><tr><th>KPI</th><th>Formula</th><th>Target</th><th>FoodExpress</th></tr></thead><tbody><tr><td><strong>MTTR</strong></td><td>Mean Time to Resolve</td><td>P1 < 4h, P2 < 8h</td><td>Currently: P1 = 2.5h</td></tr><tr><td><strong>MTTA</strong></td><td>Mean Time to Acknowledge</td><td>P1 < 15 min</td><td>Currently: 8 min</td></tr><tr><td><strong>MTTD</strong></td><td>Mean Time to Detect</td><td>< 5 min for critical</td><td>Currently: 3 min</td></tr><tr><td><strong>Incident Volume</strong></td><td>Incidents per month</td><td>Trending down</td><td>45 last month</td></tr><tr><td><strong>Reopen Rate</strong></td><td>% incidents reopened</td><td>< 5%</td><td>Currently: 3%</td></tr><tr><td><strong>First Contact Resolution</strong></td><td>% resolved at first touch</td><td>> 70%</td><td>Currently: 65%</td></tr><tr><td><strong>SLA Compliance</strong></td><td>% resolved within SLA</td><td>> 95%</td><td>Currently: 92%</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">MTTR Breakdown:
+
+  MTTD + MTTA + MTTI + MTTR = Total Resolution Time
+  ────   ────   ────   ────
+  Detect  Ack   Invest  Repair
+
+  For FoodExpress P1:
+  3 min + 8 min + 60 min + 79 min = 150 min (2.5 hours)</div></div></div></div>
+    <div class="ft"><span class="fr">31</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="32">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">ITSM in Practice: FoodExpress Scenario</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">A Day in the Life of a Sustain Engineer</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28</div><div class="cb-cd">09:00  Check overnight alerts in Slack (#foodexpress-alerts)
+       - 2 warnings: Delivery service memory usage high
+       - 1 resolved: Payment timeout (auto-recovered)
+
+09:15  Review Grafana dashboard for anomalies
+       - Order rate normal, error rate stable at 0.2%
+
+10:00  Incoming incident: INC-2026-0457
+       "Customer complaints: Some orders showing wrong total"
+       - Categorize: Application &gt; Order &gt; Calculation
+       - Priority: P3 (Medium impact, not widespread)
+       - Assign to self
+
+10:30  Investigate using Jaeger traces
+       - Find race condition in discount calculation
+       - Fix applied and deployed via CI/CD
+
+11:00  Update incident record, close with root cause
+
+14:00  Proactive: Review Problem PRB-2026-0023
+       "Recurring memory spikes in delivery service"
+       - Analyze trends in Prometheus
+       - Identify memory leak in WebSocket connections
+       - Create change request CHG-2026-0089
+
+16:00  Change Advisory Board (CAB) review
+       - Present CHG-2026-0089 for approval
+       - Scheduled for next maintenance window</div></div></div></div>
+    <div class="ft"><span class="fr">32</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="33">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">Connecting Observability to ITSM</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Bridge</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd">┌──────────────────────┐      ┌──────────────────────┐
+│    OBSERVABILITY     │      │        ITSM          │
+│                      │      │                      │
+│  Prometheus Alert ───┼──────┼──&gt; Incident Created  │
+│                      │      │                      │
+│  Grafana Dashboard ──┼──────┼──&gt; KPI Reporting     │
+│                      │      │                      │
+│  Jaeger Trace ───────┼──────┼──&gt; Root Cause in     │
+│                      │      │    Incident Record   │
+│                      │      │                      │
+│  Loki Logs ──────────┼──────┼──&gt; Evidence for      │
+│                      │      │    Problem Record    │
+│                      │      │                      │
+│  Chaos Experiment ───┼──────┼──&gt; Proactive Problem │
+│  Results             │      │    Identification    │
+│                      │      │                      │
+│  SLI/SLO Dashboards─┼──────┼──&gt; SLA Compliance    │
+│                      │      │    Reporting         │
+└──────────────────────┘      └──────────────────────┘
+
+Observability provides the DATA.
+ITSM provides the PROCESS.
+Together they deliver VALUE.</div></div></div></div>
+    <div class="ft"><span class="fr">33</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="34">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 34 - MID-STAGE PROJECT + ITSM INTRODUCTION</span><span class="ct"></span></div>
+    <div class="tt">ITSM Tools Landscape</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Common ITSM Platforms</div>
+<table class="tbl"><thead><tr><th>Tool</th><th>Type</th><th>Key Strength</th><th>Used By</th></tr></thead><tbody><tr><td><strong>ServiceNow</strong></td><td>Enterprise ITSM</td><td>Comprehensive, workflow automation</td><td>Large enterprises</td></tr><tr><td><strong>Jira Service Management</strong></td><td>Agile ITSM</td><td>Dev integration, flexibility</td><td>Mid-size teams</td></tr><tr><td><strong>BMC Helix</strong></td><td>Enterprise ITSM</td><td>AI-powered, multi-cloud</td><td>Large enterprises</td></tr><tr><td><strong>Freshservice</strong></td><td>Cloud ITSM</td><td>Easy setup, good UX</td><td>SMBs</td></tr><tr><td><strong>Zendesk</strong></td><td>Help desk + ITSM</td><td>Customer-centric</td><td>Customer-facing teams</td></tr><tr><td><strong>PagerDuty</strong></td><td>Incident management</td><td>On-call, escalation</td><td>DevOps/SRE teams</td></tr></tbody></table>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>FoodExpress uses:</strong> ServiceNow (ITSM) + PagerDuty (alerting) + Jira (dev tracking)</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">We will deep-dive into <strong>ServiceNow</strong> in Module 36.</p></div>
+    <div class="ft"><span class="fr">34</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="35">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 34 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Topic</th><th>Key Point</th></tr></thead><tbody><tr><td>Golden Signals</td><td>Latency, Traffic, Errors, Saturation -- monitor all four for every service</td></tr><tr><td>Prometheus + Grafana</td><td>Metrics collection and visualization; PromQL for powerful queries</td></tr><tr><td>Alerting</td><td>Meaningful alerts with runbooks; route by severity; avoid alert fatigue</td></tr><tr><td>Chaos Engineering</td><td>Proactively inject faults to find weaknesses before production does</td></tr><tr><td>Distributed Tracing</td><td>Follow requests across services; identify bottlenecks with Jaeger</td></tr><tr><td>Log Aggregation</td><td>Structured JSON logs; correlate with traceId; query with LogQL</td></tr><tr><td>ITSM Overview</td><td>IT as a service to the business; process + people + technology</td></tr><tr><td>ITSM vs ITIL vs DevOps</td><td>ITSM is the discipline, ITIL is a framework, DevOps is complementary</td></tr><tr><td>Service Catalog</td><td>Document all services with SLAs, owners, and dependencies</td></tr><tr><td>Incident Management</td><td>Detection -> Logging -> Classification -> Priority -> Diagnosis -> Resolution</td></tr><tr><td>Priority Matrix</td><td>Impact x Urgency = Priority; drives response and resolution times</td></tr><tr><td>Observability + ITSM</td><td>Observability provides data, ITSM provides process; together they deliver value</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 35 -- ITIL Practices</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 35 -- ITIL Practices</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 35</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

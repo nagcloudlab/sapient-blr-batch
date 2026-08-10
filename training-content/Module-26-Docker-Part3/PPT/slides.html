@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Docker Part 3 -- Networking, Docker Compose, Deployments</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 26</div>
+    <div class="t-main">Docker Part 3 -- Networking, Docker Compose, Deployments</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda -- Day 29</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>Docker Networking Fundamentals</td></tr><tr><td>02</td><td>Network Drivers: Bridge, Host, Overlay</td></tr><tr><td>03</td><td>Container-to-Container Communication</td></tr><tr><td>04</td><td>DNS & Service Discovery in Docker</td></tr><tr><td>05</td><td>Introduction to Docker Compose</td></tr><tr><td>06</td><td>docker-compose.yml Deep Dive</td></tr><tr><td>07</td><td>Multi-Container FoodExpress Stack</td></tr><tr><td>08</td><td>Docker Compose Commands & Lifecycle</td></tr><tr><td>09</td><td>Lab: Fix docker-compose.yml</td></tr><tr><td>10</td><td>Day Wrap-up & Key Takeaways</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Docker Networking -- Why It Matters</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Problem</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">Container A (Order Service :8081)
+      │
+      │  How does it talk to...
+      ▼
+Container B (MySQL :3306)     ← Different container, different filesystem
+Container C (Redis :6379)     ← Different network namespace
+Container D (Restaurant :3000) ← No shared localhost</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Containers are isolated. They can't just use <code>localhost</code> to talk to each other. Docker networking solves this.</p></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Docker Network Drivers</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</div><div class="cb-cd">┌──────────────────────────────────────────────────────┐
+│                  Docker Network Drivers               │
+│                                                       │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐           │
+│  │  bridge   │  │   host   │  │ overlay  │           │
+│  │  (default)│  │          │  │          │           │
+│  │           │  │ No NAT   │  │ Multi-   │           │
+│  │ Containers│  │ Share    │  │ host     │           │
+│  │ get own   │  │ host     │  │ Swarm/   │           │
+│  │ IP on     │  │ network  │  │ K8s      │           │
+│  │ virtual   │  │ stack    │  │          │           │
+│  │ bridge    │  │          │  │          │           │
+│  └──────────┘  └──────────┘  └──────────┘           │
+│                                                       │
+│  ┌──────────┐  ┌──────────┐                          │
+│  │  none     │  │ macvlan  │                          │
+│  │ No network│  │ Physical │                          │
+│  │ Isolated  │  │ network  │                          │
+│  │           │  │ access   │                          │
+│  └──────────┘  └──────────┘                          │
+└──────────────────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Bridge Network (Default)</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">Host Machine
+┌─────────────────────────────────────────┐
+│                                          │
+│  docker0 bridge (172.17.0.1)            │
+│  ┌────────────┬────────────┬──────────┐ │
+│  │            │            │          │ │
+│  │ order-svc  │ payment-svc│ mysql    │ │
+│  │ 172.17.0.2 │ 172.17.0.3 │172.17.0.4│ │
+│  │ :8081      │ :8082      │ :3306    │ │
+│  └────────────┘────────────┘──────────┘ │
+│                                          │
+│  Containers can reach each other by IP   │
+│  But NOT by name on default bridge!      │
+└─────────────────────────────────────────┘</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Default bridge limitations:</strong></p>
+<ul class="bl"><li>Containers can communicate by IP address</li><li>NO automatic DNS resolution by container name</li><li>NOT recommended for production</li></ul></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">User-Defined Bridge Network (Recommended)</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd"># Create a custom network
+docker network create foodexpress-net
+
+# Run containers on the custom network
+docker run -d --name mysql-db --network foodexpress-net \
+  -e MYSQL_ROOT_PASSWORD=secret mysql:8.0
+
+docker run -d --name order-svc --network foodexpress-net \
+  -e DB_HOST=mysql-db \
+  -p 8081:8081 \
+  foodexpress/order-service:1.0</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">foodexpress-net (user-defined bridge)
+┌────────────────────────────────────────┐
+│                                         │
+│  order-svc ──── DNS ────▶ mysql-db     │
+│  (can use name "mysql-db" as hostname!) │
+│                                         │
+│  Automatic DNS resolution by name!      │
+│  Better isolation from other containers │
+└────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Host Network</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd"># Container shares the host's network stack
+docker run -d --network host --name order-svc \
+  foodexpress/order-service:1.0
+
+# No port mapping needed (-p is ignored)
+# App listening on 8081 inside container = 8081 on host</div></div></div>
+<table class="tbl"><thead><tr><th>Feature</th><th>Bridge</th><th>Host</th></tr></thead><tbody><tr><td>Isolation</td><td>Yes (own IP)</td><td>No (shares host)</td></tr><tr><td>Port mapping</td><td>Required (-p)</td><td>Not needed</td></tr><tr><td>Performance</td><td>Slight overhead (NAT)</td><td>Best (no NAT)</td></tr><tr><td>Security</td><td>Better (isolated)</td><td>Lower (shared stack)</td></tr><tr><td>Use case</td><td>Most containers</td><td>Performance-critical apps</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>FoodExpress:</strong> We use bridge networks for all services. Host network only for the monitoring agent that needs to see all host traffic.</div></div></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Network Commands</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20</div><div class="cb-cd"># List networks
+docker network ls
+
+# Create a network
+docker network create foodexpress-net
+
+# Inspect a network
+docker network inspect foodexpress-net
+
+# Connect a running container to a network
+docker network connect foodexpress-net order-svc
+
+# Disconnect from a network
+docker network disconnect foodexpress-net order-svc
+
+# Remove a network
+docker network rm foodexpress-net
+
+# Remove all unused networks
+docker network prune</div></div></div></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Container DNS Resolution</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">How containers find each other</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20</div><div class="cb-cd">┌─────────────────────────────────────────────┐
+│  foodexpress-net (user-defined bridge)       │
+│                                              │
+│  ┌──────────┐          ┌──────────────┐     │
+│  │ order-svc│          │ mysql-db     │     │
+│  │          │ ─DNS──▶  │              │     │
+│  │ DB_HOST= │          │ Resolves to  │     │
+│  │ mysql-db │          │ 172.18.0.3   │     │
+│  └──────────┘          └──────────────┘     │
+│                                              │
+│  Docker's embedded DNS server resolves       │
+│  container names to their IP addresses       │
+│  automatically on user-defined networks      │
+└─────────────────────────────────────────────┘
+
+# In application.yml:
+spring:
+  datasource:
+    url: jdbc:mysql://mysql-db:3306/foodexpress
+    # "mysql-db" resolves to the container's IP</div></div></div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct">HTML</span></div>
+    <div class="tt">Container Linking (Legacy)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">--link is deprecated, use networks instead</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd"># OLD WAY (don't use)
+docker run --link mysql-db:db order-svc
+
+# NEW WAY (use networks)
+docker network create foodexpress-net
+docker run --network foodexpress-net --name mysql-db ...
+docker run --network foodexpress-net --name order-svc ...</div></div></div></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Introduction to Docker Compose</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Problem with docker run</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd"># Starting FoodExpress without Compose:
+docker network create foodexpress-net
+docker volume create mysql-data
+docker volume create redis-data
+
+docker run -d --name mysql-db --network foodexpress-net \
+  -v mysql-data:/var/lib/mysql \
+  -e MYSQL_ROOT_PASSWORD=secret \
+  mysql:8.0
+
+docker run -d --name redis --network foodexpress-net \
+  -v redis-data:/data \
+  redis:7-alpine
+
+docker run -d --name order-svc --network foodexpress-net \
+  -p 8081:8081 -e DB_HOST=mysql-db \
+  foodexpress/order-service:1.0
+
+docker run -d --name payment-svc --network foodexpress-net \
+  -p 8082:8082 -e DB_HOST=mysql-db \
+  foodexpress/payment-service:1.0
+
+# 6 commands, easy to mess up, hard to version control</div></div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Docker Compose -- The Solution</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">One YAML file, one command</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28</div><div class="cb-cd"># docker-compose.yml
+version: '3.8'
+
+services:
+  mysql-db:
+    image: mysql:8.0
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis-data:/data
+
+  order-service:
+    image: foodexpress/order-service:1.0
+    ports:
+      - "8081:8081"
+    environment:
+      DB_HOST: mysql-db
+    depends_on:
+      - mysql-db
+
+volumes:
+  mysql-data:
+  redis-data:</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2</div><div class="cb-cd"># One command to start everything:
+docker compose up -d</div></div></div></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">docker-compose.yml Structure</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">version: '3.8'              # Compose file version
+
+services:                    # Define your containers
+  service-name:
+    image: ...               # Docker image to use
+    build: ./path            # OR build from Dockerfile
+    ports:                   # Port mappings
+      - "host:container"
+    environment:             # Environment variables
+      KEY: value
+    volumes:                 # Volume mounts
+      - named-vol:/path
+      - ./local:/container
+    depends_on:              # Startup order
+      - other-service
+    networks:                # Network membership
+      - my-network
+    restart: unless-stopped  # Restart policy
+
+volumes:                     # Named volumes
+  named-vol:
+
+networks:                    # Custom networks
+  my-network:</div></div></div></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress Full Stack -- docker-compose.yml</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>64</div><div class="cb-cd">version: '3.8'
+
+services:
+  nginx:
+    image: nginx:1.25-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - order-service
+      - restaurant-service
+    networks:
+      - frontend
+
+  order-service:
+    build: ./order-service
+    ports:
+      - "8081:8081"
+    environment:
+      DB_HOST: mysql-db
+      REDIS_HOST: redis
+    depends_on:
+      - mysql-db
+      - redis
+    networks:
+      - frontend
+      - backend
+
+  restaurant-service:
+    build: ./restaurant-service
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql-db
+    networks:
+      - frontend
+      - backend
+
+  mysql-db:
+    image: mysql:8.0
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: foodexpress
+    networks:
+      - backend
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis-data:/data
+    networks:
+      - backend
+
+volumes:
+  mysql-data:
+  redis-data:
+
+networks:
+  frontend:
+  backend:</div></div></div></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">depends_on -- Startup Order</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">services:
+  order-service:
+    depends_on:
+      - mysql-db
+      - redis
+
+  # BUT: depends_on only waits for container START, not READY
+  # MySQL may not be accepting connections yet!</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Solution: Health Check + Condition</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">services:
+  mysql-db:
+    image: mysql:8.0
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  order-service:
+    depends_on:
+      mysql-db:
+        condition: service_healthy</div></div></div></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Docker Compose Commands</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd"># Start all services (detached)
+docker compose up -d
+
+# Start specific service
+docker compose up -d order-service
+
+# Stop all services
+docker compose down
+
+# Stop and remove volumes (CAREFUL!)
+docker compose down -v
+
+# View running services
+docker compose ps
+
+# View logs
+docker compose logs
+docker compose logs -f order-service
+
+# Rebuild and restart
+docker compose up -d --build
+
+# Scale a service
+docker compose up -d --scale order-service=3
+
+# Execute command in a service
+docker compose exec mysql-db mysql -uroot -psecret</div></div></div></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct">HTML</span></div>
+    <div class="tt">Docker Compose -- Build vs Image</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd">services:
+  # Use a pre-built image
+  mysql-db:
+    image: mysql:8.0
+
+  # Build from Dockerfile in directory
+  order-service:
+    build: ./order-service
+    # Uses ./order-service/Dockerfile
+
+  # Build with custom Dockerfile
+  restaurant-service:
+    build:
+      context: ./restaurant-service
+      dockerfile: Dockerfile.prod
+      args:
+        NODE_ENV: production
+
+  # Both: build and tag
+  payment-service:
+    build: ./payment-service
+    image: foodexpress/payment-service:1.0
+    # Builds AND tags the image</div></div></div></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Network Isolation with Compose</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">┌─────────────────────────────────────────────────┐
+│  frontend network                                │
+│  ┌──────┐  ┌────────────┐  ┌─────────────────┐ │
+│  │nginx │  │order-service│  │restaurant-svc   │ │
+│  │:80   │  │:8081        │  │:3000            │ │
+│  └──────┘  └──────┬─────┘  └────────┬────────┘ │
+│                    │                  │          │
+├────────────────────┼──────────────────┼──────────┤
+│  backend network   │                  │          │
+│               ┌────┴─────┐     ┌─────┴────┐     │
+│               │mysql-db  │     │ redis    │     │
+│               │:3306     │     │ :6379    │     │
+│               └──────────┘     └──────────┘     │
+│                                                  │
+│  nginx CANNOT reach mysql-db (different network) │
+│  order-service CAN reach both (on both networks) │
+└─────────────────────────────────────────────────┘</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>FoodExpress:</strong> We separate frontend and backend networks so the NGINX reverse proxy can't directly access the database.</div></div></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Environment Variables in Compose</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">services:
+  order-service:
+    environment:
+      # Inline values
+      DB_HOST: mysql-db
+      DB_PORT: 3306
+      SPRING_PROFILES_ACTIVE: production
+
+    # OR from .env file
+    env_file:
+      - .env
+      - .env.production
+
+# .env file:
+DB_HOST=mysql-db
+DB_PORT=3306
+MYSQL_ROOT_PASSWORD=super_secret_password</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Important:</strong> Never commit <code>.env</code> files with real secrets to Git. Use <code>.env.example</code> with placeholder values.</div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Docker Compose for Development vs Production</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Feature</th><th>Development</th><th>Production</th></tr></thead><tbody><tr><td>Build</td><td><code>build: .</code> (from source)</td><td><code>image: registry/app:1.0</code> (pre-built)</td></tr><tr><td>Volumes</td><td>Bind mount source code</td><td>Named volumes only</td></tr><tr><td>Ports</td><td>Expose all ports</td><td>Only expose needed ports</td></tr><tr><td>Restart</td><td><code>restart: no</code></td><td><code>restart: unless-stopped</code></td></tr><tr><td>Logging</td><td>Default (stdout)</td><td>Log driver (json-file with limits)</td></tr><tr><td>Secrets</td><td><code>.env</code> file</td><td>Docker secrets / Vault</td></tr><tr><td>Resources</td><td>No limits</td><td>CPU/memory limits</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Production Compose Enhancements</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd">services:
+  order-service:
+    image: foodexpress/order-service:1.0.3
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s</div></div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 1</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> Two containers on the default bridge network try to communicate by container name. What happens?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) They communicate successfully</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) DNS resolution fails -- container names don't resolve on the default bridge</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) Docker blocks the communication for security</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) The containers crash</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- The default bridge network does NOT provide DNS resolution. You must use a user-defined bridge network for name-based communication.</div></div></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 2</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> In docker-compose.yml, what does <code>depends_on: [mysql-db]</code> guarantee?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) MySQL is fully ready to accept connections before the service starts</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) MySQL container is started before this service, but may not be ready yet</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) MySQL container is built first</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) MySQL and this service share the same container</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- <code>depends_on</code> only controls startup ORDER, not readiness. Use health checks with <code>condition: service_healthy</code> to wait for actual readiness.</div></div></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 3</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> You have this in docker-compose.yml:</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">services:
+  web:
+    ports:
+      - "8080:80"
+  db:
+    # no ports section</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Can the <code>web</code> service connect to <code>db</code> on port 3306?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) No, because db doesn't have a ports section</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) Yes, containers on the same Compose network can reach any port on any other container</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) Only if you add <code>--link db:db</code></p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) Only if db uses host network</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- The <code>ports</code> section publishes ports to the HOST. Container-to-container communication works on all ports within the same Docker network, regardless of <code>ports</code>.</div></div></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 4</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> What does <code>docker compose down -v</code> do differently from <code>docker compose down</code>?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) It runs in verbose mode</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) It also removes named volumes, potentially deleting database data</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) It validates the compose file</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) It removes the Docker images</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- The <code>-v</code> flag removes named volumes declared in the <code>volumes</code> section. This will DELETE your database data. Use with extreme caution.</div></div></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 5</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> In the FoodExpress Compose setup, nginx is on the <code>frontend</code> network and mysql-db is on the <code>backend</code> network. Can nginx connect to mysql-db?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) Yes, all Compose services can talk to each other</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) No, they are on different networks and cannot communicate</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) Yes, but only if you use the IP address</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) Only if you restart nginx</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- Network isolation prevents cross-network communication. Only services sharing a network can communicate. This is a security feature.</div></div></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct">TROUBLESHOOTING</span></div>
+    <div class="tt">Troubleshooting Docker Compose</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Common Issues and Fixes</div>
+<table class="tbl"><thead><tr><th>Issue</th><th>Symptom</th><th>Fix</th></tr></thead><tbody><tr><td>Port conflict</td><td>"port is already allocated"</td><td>Change host port or stop conflicting container</td></tr><tr><td>Network not found</td><td>"network X not found"</td><td>Check network name spelling; run <code>docker compose up</code></td></tr><tr><td>Volume permissions</td><td>"permission denied"</td><td>Check USER in Dockerfile matches volume ownership</td></tr><tr><td>depends_on timing</td><td>"connection refused" to DB</td><td>Add healthcheck + condition: service_healthy</td></tr><tr><td>Build cache stale</td><td>Old code running</td><td><code>docker compose up -d --build --force-recreate</code></td></tr><tr><td>Container exit</td><td>Exits immediately</td><td>Check <code>docker compose logs &lt;service&gt;</code> for error</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 26 - DOCKER PART 3 -- NETWORKING, DOCKER COMPOSE, DEPLOYMENTS</span><span class="ct"></span></div>
+    <div class="tt">Deployment Strategies with Docker</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Strategy</th><th>How</th><th>Risk</th><th>Use Case</th></tr></thead><tbody><tr><td>Recreate</td><td>Stop old, start new</td><td>Downtime</td><td>Dev/staging</td></tr><tr><td>Rolling</td><td>Replace one at a time</td><td>Minimal</td><td>Production</td></tr><tr><td>Blue-Green</td><td>Run both, switch traffic</td><td>Low (instant rollback)</td><td>Critical services</td></tr><tr><td>Canary</td><td>Route % traffic to new</td><td>Very low</td><td>Gradual rollout</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd"># Simple rolling update with Compose
+docker compose pull order-service
+docker compose up -d --no-deps order-service
+# --no-deps: only restart this service, not its dependencies</div></div></div></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="29">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 26 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>#</th><th>Takeaway</th></tr></thead><tbody><tr><td>1</td><td>Use user-defined bridge networks, not the default bridge (for DNS resolution)</td></tr><tr><td>2</td><td>Container-to-container communication works on all ports within a shared network</td></tr><tr><td>3</td><td><code>ports</code> publishes to the host; containers don't need it to talk to each other</td></tr><tr><td>4</td><td>Docker Compose replaces multiple <code>docker run</code> commands with one YAML file</td></tr><tr><td>5</td><td><code>depends_on</code> controls start order, NOT readiness -- use health checks</td></tr><tr><td>6</td><td>Network isolation (frontend/backend) prevents unauthorized cross-service access</td></tr><tr><td>7</td><td>Never use <code>docker compose down -v</code> in production unless you want to lose data</td></tr><tr><td>8</td><td>Environment variables via <code>.env</code> files; never commit secrets to Git</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 27 -- Secure Engineering & DevSecOps</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 27 -- Secure Engineering & DevSecOps</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 29</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

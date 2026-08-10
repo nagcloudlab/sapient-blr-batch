@@ -1,0 +1,95 @@
+{
+  "dashboard": {
+    "title": "FoodExpress Production Dashboard",
+    "tags": ["foodexpress", "production"],
+    "timezone": "browser",
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Error Rate (%)",
+        "type": "stat",
+        "gridPos": { "h": 6, "w": 8, "x": 0, "y": 0 },
+        "targets": [
+          {
+            "refId": "A",
+            "datasource": "Prometheus",
+            "_comment": "FIX 1: Added rate() function to calculate rate percentage instead of cumulative count",
+            "expr": "rate(http_requests_total{status=~\"5..\"}[5m]) / rate(http_requests_total[5m]) * 100"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "thresholds": {
+              "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 1, "color": "yellow" },
+                { "value": 5, "color": "red" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 2,
+        "title": "Orders per Minute",
+        "type": "stat",
+        "gridPos": { "h": 6, "w": 8, "x": 8, "y": 0 },
+        "targets": [
+          {
+            "refId": "A",
+            "datasource": "Prometheus",
+            "_comment": "FIX 2: Changed '/ 60' to '* 60' -- rate() returns per-second, multiply by 60 for per-minute",
+            "expr": "rate(orders_placed_total{service=\"order-service\"}[1m]) * 60"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short"
+          }
+        }
+      },
+      {
+        "id": 3,
+        "title": "P99 Latency (ms)",
+        "type": "gauge",
+        "gridPos": { "h": 6, "w": 8, "x": 16, "y": 0 },
+        "targets": [
+          {
+            "refId": "A",
+            "datasource": "Prometheus",
+            "_comment": "FIX 3: Using histogram_quantile(0.99) instead of avg() -- shows true 99th percentile",
+            "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) * 1000"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ms",
+            "thresholds": {
+              "steps": [
+                { "value": 0, "color": "green" },
+                { "value": 500, "color": "yellow" },
+                { "value": 1000, "color": "red" }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "id": 4,
+        "title": "Request Rate by Service",
+        "type": "timeseries",
+        "gridPos": { "h": 8, "w": 24, "x": 0, "y": 6 },
+        "targets": [
+          {
+            "refId": "A",
+            "datasource": "Prometheus",
+            "expr": "rate(http_requests_total[5m])",
+            "legendFormat": "{{ service }} - {{ method }}"
+          }
+        ]
+      }
+    ]
+  }
+}

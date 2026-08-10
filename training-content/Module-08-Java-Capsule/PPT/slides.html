@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capsule Project: Java</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 08</div>
+    <div class="t-main">Capsule Project: Java</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day | Capsule project + presentation + MCQ</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda -- Full Day Schedule</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Activity</th></tr></thead><tbody><tr><td>01</td><td>Project briefing & architecture review</td></tr><tr><td>02</td><td>Team formation & repo setup</td></tr><tr><td>03</td><td>Sprint 1: Core development</td></tr><tr><td>04</td><td>Lunch break</td></tr><tr><td>05</td><td>Sprint 2: Integration & testing</td></tr><tr><td>06</td><td>Code freeze & prepare presentation</td></tr><tr><td>07</td><td>Team presentations & feedback</td></tr><tr><td>08</td><td>MCQ assessment</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct">LAB</span></div>
+    <div class="tt">What Is a Capsule Project?</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li>A <strong>time-boxed</strong>, hands-on project that consolidates learning from Modules 05-07</li><li>Simulates real sustain engineering work:</li><li class="s">Read and understand existing code</li><li class="s">Fix bugs and add features</li><li class="s">Work under time pressure</li><li class="s">Present your work to stakeholders</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Evaluation Criteria</div>
+<table class="tbl"><thead><tr><th>Criteria</th><th>Weight</th></tr></thead><tbody><tr><td>Code correctness & functionality</td><td>30%</td></tr><tr><td>Code quality & best practices</td><td>20%</td></tr><tr><td>Bug fixes completed</td><td>20%</td></tr><tr><td>Presentation & communication</td><td>15%</td></tr><tr><td>MCQ score</td><td>15%</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Project: FoodExpress Order Management System</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Business Context</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">FoodExpress needs a <strong>console-based Order Management System</strong> that allows:</p>
+<ul class="bl"><li>Restaurant staff to manage the menu catalog</li><li>Customers to browse menu and place orders</li><li>System to calculate totals, apply discounts, and persist data</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">You Will Build</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">FoodExpress Order Management System
++---------------------+
+|   MenuService       |  --&gt; Manage menu items (CRUD)
++---------------------+
+|   OrderService      |  --&gt; Create &amp; manage orders
++---------------------+
+|   ReportService     |  --&gt; Generate order summaries
++---------------------+
+|   Database (JDBC)   |  --&gt; Persist data to MySQL
++---------------------+</div></div></div></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Architecture Overview</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Class Diagram</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd">MenuItem
+  - id: String
+  - name: String
+  - price: double
+  - category: String
+  - available: boolean
+  + equals(), hashCode()
+
+OrderItem
+  - menuItem: MenuItem
+  - quantity: int
+  + getSubtotal(): double
+
+Order
+  - orderId: String
+  - customerName: String
+  - items: List&lt;OrderItem&gt;
+  - status: OrderStatus
+  - createdAt: LocalDateTime
+  + getTotal(): double
+
+OrderStatus (enum)
+  PENDING, CONFIRMED, PREPARING, DELIVERED, CANCELLED</div></div></div></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Technical Requirements</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Must Use (from Modules 05-07)</div>
+<table class="tbl"><thead><tr><th>Concept</th><th>Where to Apply</th></tr></thead><tbody><tr><td>Classes & Objects</td><td>MenuItem, Order, OrderItem</td></tr><tr><td>Inheritance</td><td>Base <code>Service</code> class for common operations</td></tr><tr><td>Interfaces</td><td><code>Searchable&lt;T&gt;</code> for menu search</td></tr><tr><td>Encapsulation</td><td>Private fields, getters/setters</td></tr><tr><td>ArrayList</td><td>Order items collection</td></tr><tr><td>HashMap</td><td>Menu catalog (id -> MenuItem)</td></tr><tr><td>HashSet</td><td>Track unique categories</td></tr><tr><td>Generics</td><td>Type-safe collections and methods</td></tr><tr><td>Iterator</td><td>Safe removal of cancelled orders</td></tr><tr><td>JDBC</td><td>Persist menu items and orders to MySQL</td></tr><tr><td>PreparedStatement</td><td>All database queries</td></tr><tr><td>Exception handling</td><td>Custom exceptions, try-with-resources</td></tr><tr><td>Maven</td><td>Project structure and dependency management</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Project Structure</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31</div><div class="cb-cd">foodexpress-capsule/
+  pom.xml
+  src/
+    main/
+      java/
+        com/foodexpress/
+          model/
+            MenuItem.java
+            OrderItem.java
+            Order.java
+            OrderStatus.java
+          service/
+            MenuService.java
+            OrderService.java
+            ReportService.java
+          dao/
+            MenuItemDAO.java
+            OrderDAO.java
+          util/
+            DatabaseConfig.java
+            InputValidator.java
+          App.java              &lt;-- Main entry point
+      resources/
+        db-schema.sql           &lt;-- Database setup script
+        application.properties  &lt;-- DB connection config
+    test/
+      java/
+        com/foodexpress/
+          service/
+            MenuServiceTest.java
+            OrderServiceTest.java</div></div></div></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Feature Requirements -- Sprint 1</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Feature 1: Menu Management</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">Console Menu:
+1. Add Menu Item
+2. Update Menu Item Price
+3. Remove Menu Item
+4. View All Menu Items
+5. Search by Category</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Acceptance Criteria:</strong></p>
+<ul class="bl"><li>Add item with name, price, category</li><li>Prevent duplicate item IDs</li><li>Update price by item ID</li><li>Remove item (mark as unavailable, don't delete)</li><li>List all items in a formatted table</li><li>Search/filter by category using HashMap</li></ul></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Feature Requirements -- Sprint 1 (continued)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Feature 2: Order Management</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">Console Menu:
+1. Create New Order
+2. Add Item to Order
+3. Remove Item from Order
+4. View Order Summary
+5. Confirm Order
+6. Cancel Order</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Acceptance Criteria:</strong></p>
+<ul class="bl"><li>Create order with customer name and auto-generated ID</li><li>Add menu items with quantity (validate item exists and is available)</li><li>Remove item using Iterator (safe removal)</li><li>Calculate subtotal, tax (8%), and total</li><li>Change order status through valid transitions only</li><li>Prevent adding items to confirmed/cancelled orders</li></ul></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Feature Requirements -- Sprint 2</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Feature 3: Database Persistence</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Acceptance Criteria:</strong></p>
+<ul class="bl"><li>Create MySQL tables for <code>menu_items</code> and <code>orders</code></li><li>Use <code>PreparedStatement</code> for all queries (no SQL injection)</li><li>Use <code>try-with-resources</code> for all connections</li><li>Save menu items and orders to database</li><li>Load menu catalog from database on startup</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Feature 4: Reports</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Acceptance Criteria:</strong></p>
+<ul class="bl"><li>Total orders count by status</li><li>Revenue report (sum of confirmed orders)</li><li>Most popular items (frequency count using Map)</li><li>Category breakdown using Set operations</li></ul></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Database Schema</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30</div><div class="cb-cd">-- db-schema.sql
+CREATE DATABASE IF NOT EXISTS foodexpress;
+USE foodexpress;
+
+CREATE TABLE menu_items (
+    id VARCHAR(36) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    available BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE orders (
+    id VARCHAR(36) PRIMARY KEY,
+    customer_name VARCHAR(100) NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'PENDING',
+    total DECIMAL(10, 2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE order_items (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    order_id VARCHAR(36) NOT NULL,
+    menu_item_id VARCHAR(36) NOT NULL,
+    quantity INT NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (order_id) REFERENCES orders(id),
+    FOREIGN KEY (menu_item_id) REFERENCES menu_items(id)
+);</div></div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Starter Code Provided</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">App.java (Main Entry Point)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28</div><div class="cb-cd">public class App {
+    private static final Scanner scanner = new Scanner(System.in);
+    private static MenuService menuService;
+    private static OrderService orderService;
+
+    public static void main(String[] args) {
+        System.out.println("=== FoodExpress Order Management ===");
+        menuService = new MenuService(new MenuItemDAO());
+        orderService = new OrderService(new OrderDAO());
+
+        // Load menu from database
+        menuService.loadFromDatabase();
+
+        boolean running = true;
+        while (running) {
+            printMainMenu();
+            int choice = getIntInput("Enter choice: ");
+            switch (choice) {
+                case 1: manageMenu(); break;
+                case 2: manageOrders(); break;
+                case 3: viewReports(); break;
+                case 0: running = false; break;
+                default: System.out.println("Invalid choice!");
+            }
+        }
+        System.out.println("Goodbye!");
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Bugs to Fix (Pre-planted)</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">The starter code has <strong>intentional bugs</strong>. Part of the project is finding and fixing them.</p>
+<table class="tbl"><thead><tr><th>#</th><th>Module</th><th>Bug Type</th><th>Symptom</th></tr></thead><tbody><tr><td>1</td><td>MenuItem</td><td>Missing hashCode</td><td>Duplicates appear in HashSet</td></tr><tr><td>2</td><td>OrderService</td><td>Raw types</td><td>Unsafe cast warnings</td></tr><tr><td>3</td><td>OrderService</td><td>ConcurrentModification</td><td>Crash when removing items in loop</td></tr><tr><td>4</td><td>MenuItemDAO</td><td>SQL injection</td><td>String concatenation in query</td></tr><tr><td>5</td><td>DatabaseConfig</td><td>Resource leak</td><td>Connection never closed</td></tr><tr><td>6</td><td>Order.getTotal()</td><td>Autoboxing NPE</td><td>Crashes when item price is null</td></tr><tr><td>7</td><td>ReportService</td><td>Wrong collection type</td><td>TreeMap used without Comparable</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Participants must identify these bugs and apply fixes learned in Modules 05-07.</div></div></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Coding Standards</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Must Follow</div>
+<ul class="bl"><li>[ ] All classes in appropriate packages</li><li>[ ] Private fields with getters/setters</li><li>[ ] Meaningful variable and method names</li><li>[ ] JavaDoc comments on public methods</li><li>[ ] No raw types (use generics everywhere)</li><li>[ ] try-with-resources for all I/O and JDBC</li><li>[ ] Custom exceptions (not generic Exception)</li><li>[ ] Logging with SLF4J (not System.out.println)</li><li>[ ] Constants for magic numbers/strings</li><li>[ ] Input validation on all user inputs</li></ul></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct">FORMS</span></div>
+    <div class="tt">Team Formation</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Team Size: 2-3 members</div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Role Distribution</div>
+<table class="tbl"><thead><tr><th>Role</th><th>Responsibilities</th></tr></thead><tbody><tr><td><strong>Developer 1</strong></td><td>MenuItem model, MenuService, MenuItemDAO</td></tr><tr><td><strong>Developer 2</strong></td><td>Order model, OrderService, OrderDAO</td></tr><tr><td><strong>Developer 3</strong></td><td>ReportService, App.java, integration, testing</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Collaboration Guidelines</div>
+<ul class="bl"><li>Use a shared Git repository</li><li>Commit frequently with meaningful messages</li><li>Communicate before modifying shared classes (model classes)</li><li>Resolve merge conflicts together</li></ul></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct">HTML</span></div>
+    <div class="tt">Sprint 1 Checklist (09:30 - 12:30)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Milestone 1 (by 10:30): Project Setup</div>
+<ul class="bl"><li>[ ] Maven project created with correct structure</li><li>[ ] pom.xml with MySQL connector dependency</li><li>[ ] Model classes created (MenuItem, Order, OrderItem, OrderStatus)</li><li>[ ] Database schema executed</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Milestone 2 (by 11:30): Core Services</div>
+<ul class="bl"><li>[ ] MenuService with add, update, remove, list, search</li><li>[ ] HashMap-based menu catalog</li><li>[ ] HashSet for category tracking</li><li>[ ] Basic input validation</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Milestone 3 (by 12:30): Order Flow</div>
+<ul class="bl"><li>[ ] OrderService with create, addItem, removeItem</li><li>[ ] Order total calculation with tax</li><li>[ ] Iterator-based safe removal</li><li>[ ] Status transitions validated</li></ul></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct">HTML</span></div>
+    <div class="tt">Sprint 2 Checklist (13:30 - 15:30)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Milestone 4 (by 14:30): Database Integration</div>
+<ul class="bl"><li>[ ] DatabaseConfig with connection pooling</li><li>[ ] MenuItemDAO with CRUD (PreparedStatement)</li><li>[ ] OrderDAO with save and load</li><li>[ ] try-with-resources on all DB operations</li><li>[ ] Load menu from DB on startup</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Milestone 5 (by 15:30): Reports & Bug Fixes</div>
+<ul class="bl"><li>[ ] ReportService with order counts, revenue, popular items</li><li>[ ] All 7 pre-planted bugs identified and fixed</li><li>[ ] Basic error handling for edge cases</li><li>[ ] Console output formatted cleanly</li></ul></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Presentation Guidelines</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Format: 10 minutes per team</div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Structure</div>
+<table class="tbl"><thead><tr><th>Section</th><th>Time</th><th>Content</th></tr></thead><tbody><tr><td>Demo</td><td>4 min</td><td>Live walkthrough of working features</td></tr><tr><td>Architecture</td><td>2 min</td><td>Class diagram, key design decisions</td></tr><tr><td>Bug Fixes</td><td>2 min</td><td>Which bugs found, how fixed</td></tr><tr><td>Challenges</td><td>2 min</td><td>What was hard, what you learned</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Tips</div>
+<ul class="bl"><li>Start with a working demo (most impactful)</li><li>Show the console output, not just code</li><li>Explain <strong>why</strong> you chose a particular collection type</li><li>Highlight the most interesting bug you fixed</li><li>Be prepared for questions from the trainer and peers</li></ul></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Presentation Scoring Rubric</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Criteria</th><th>Excellent (5)</th><th>Good (3)</th><th>Needs Work (1)</th></tr></thead><tbody><tr><td>Demo</td><td>All features work, smooth flow</td><td>Most features work</td><td>Major issues</td></tr><tr><td>Explanation</td><td>Clear, concise, technical depth</td><td>Adequate explanation</td><td>Vague or missing</td></tr><tr><td>Bug fixes</td><td>All 7 found and explained</td><td>4-6 found</td><td>< 4 found</td></tr><tr><td>Code quality</td><td>Clean, follows standards</td><td>Minor issues</td><td>Significant issues</td></tr><tr><td>Q&A</td><td>Confident, accurate answers</td><td>Adequate</td><td>Unable to answer</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ Assessment Topics</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The 30-minute MCQ will cover all Java topics (Modules 05-07):</div>
+<table class="tbl"><thead><tr><th>Topic Area</th><th># of Questions</th><th>Example Topic</th></tr></thead><tbody><tr><td>OOP Basics</td><td>5</td><td>Classes, objects, constructors</td></tr><tr><td>Inheritance & Polymorphism</td><td>5</td><td>extends, implements, override</td></tr><tr><td>Collections</td><td>5</td><td>List vs Set vs Map behavior</td></tr><tr><td>Generics</td><td>3</td><td>Wildcards, bounded types</td></tr><tr><td>JDBC</td><td>4</td><td>PreparedStatement, Connection</td></tr><tr><td>Exception Handling</td><td>3</td><td>try-catch, custom exceptions</td></tr><tr><td>Memory & GC</td><td>3</td><td>Heap, stack, GC types</td></tr><tr><td>Logging & Debugging</td><td>2</td><td>Log levels, debug techniques</td></tr></tbody></table>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Total: 30 questions, 1 minute each</strong></p></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct">MCQ</span></div>
+    <div class="tt">Sample MCQ Questions</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Question 1</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">What happens when you add a duplicate element to a <code>HashSet</code>?</p>
+<ul class="bl"><li>A) Throws <code>DuplicateElementException</code></li><li>B) Replaces the existing element</li><li>C) The add method returns <code>false</code> and the set is unchanged</li><li>D) Both elements are stored</li></ul>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Answer: C</strong></p></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct">MCQ</span></div>
+    <div class="tt">Sample MCQ Questions (continued)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Question 2</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Which code prevents SQL injection?</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">// Option A
+String sql = "SELECT * FROM users WHERE id = " + userId;
+Statement stmt = conn.createStatement();
+ResultSet rs = stmt.executeQuery(sql);
+
+// Option B
+String sql = "SELECT * FROM users WHERE id = ?";
+PreparedStatement pstmt = conn.prepareStatement(sql);
+pstmt.setInt(1, userId);
+ResultSet rs = pstmt.executeQuery();</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Answer: Option B</strong></p></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct">MCQ</span></div>
+    <div class="tt">Sample MCQ Questions (continued)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Question 3</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">What does this code print?</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">Map&lt;String, Integer&gt; map = new HashMap&lt;&gt;();
+map.put("A", 1);
+map.put("B", 2);
+map.put("A", 3);
+System.out.println(map.size() + " " + map.get("A"));</div></div></div>
+<ul class="bl"><li>A) <code>3 1</code></li><li>B) <code>2 3</code></li><li>C) <code>3 3</code></li><li>D) <code>2 1</code></li></ul>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Answer: B</strong> -- <code>put</code> with existing key overwrites the value. Size remains 2.</p></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct">MCQ</span></div>
+    <div class="tt">Sample MCQ Questions (continued)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Question 4</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Which exception is thrown by this code?</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">List&lt;String&gt; list = new ArrayList&lt;&gt;(Arrays.asList("A", "B", "C"));
+for (String s : list) {
+    if (s.equals("B")) {
+        list.remove(s);
+    }
+}</div></div></div>
+<ul class="bl"><li>A) <code>IndexOutOfBoundsException</code></li><li>B) <code>NullPointerException</code></li><li>C) <code>ConcurrentModificationException</code></li><li>D) No exception is thrown</li></ul>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Answer: C</strong></p></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct">MCQ</span></div>
+    <div class="tt">Sample MCQ Questions (continued)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Question 5</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">What is the output?</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">Integer a = 128;
+Integer b = 128;
+System.out.println(a == b);
+System.out.println(a.equals(b));</div></div></div>
+<ul class="bl"><li>A) <code>true true</code></li><li>B) <code>false true</code></li><li>C) <code>true false</code></li><li>D) <code>false false</code></li></ul>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Answer: B</strong> -- Integer cache only covers -128 to 127. <code>==</code> compares references; <code>equals()</code> compares values.</p></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Bonus Challenges</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">For teams that finish early:</p>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Challenge 1: Discount Engine</div>
+<ul class="bl"><li>Implement a discount system: 10% off orders over $50, 20% off orders over $100</li><li>Use a Strategy pattern with a <code>DiscountStrategy</code> interface</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Challenge 2: Order History Search</div>
+<ul class="bl"><li>Search orders by customer name, date range, or status</li><li>Use Streams API with filtering</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Challenge 3: Concurrent Orders</div>
+<ul class="bl"><li>Simulate multiple customers ordering simultaneously</li><li>Use <code>ConcurrentHashMap</code> instead of <code>HashMap</code></li><li>Handle thread safety in OrderService</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Challenge 4: Export to CSV</div>
+<ul class="bl"><li>Export order history to a CSV file</li><li>Use <code>BufferedWriter</code> with proper resource management</li></ul></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Common Pitfalls to Avoid</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Pitfall</th><th>Why It Happens</th><th>Prevention</th></tr></thead><tbody><tr><td>Starting to code without planning</td><td>Time pressure</td><td>Spend 15 min on design first</td></tr><tr><td>Not testing incrementally</td><td>"I'll test at the end"</td><td>Test each feature as you build it</td></tr><tr><td>Ignoring compiler warnings</td><td>"It works anyway"</td><td>Treat warnings as errors</td></tr><tr><td>Hardcoding DB credentials</td><td>Quick shortcut</td><td>Use properties file</td></tr><tr><td>Giant methods (100+ lines)</td><td>No refactoring</td><td>Extract helper methods</td></tr><tr><td>Not committing to Git</td><td>Forget</td><td>Commit after each milestone</td></tr><tr><td>System.out.println everywhere</td><td>Easy debug</td><td>Use SLF4J logger from the start</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">Resources & Reference</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Quick Reference During Project</div>
+<table class="tbl"><thead><tr><th>Topic</th><th>Where to Look</th></tr></thead><tbody><tr><td>Collections API</td><td>Module 07 slides or Java docs</td></tr><tr><td>JDBC template code</td><td>Module 07 JDBC section</td></tr><tr><td>Maven setup</td><td>Module 07 Maven slides</td></tr><tr><td>OOP patterns</td><td>Module 05-06 slides</td></tr><tr><td>Java docs</td><td>https://docs.oracle.com/en/java/javase/17/docs/api/</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Getting Help</div>
+<ul class="bl"><li>1. Check the error message carefully -- read the stack trace</li><li>2. Search the Module 05-07 slides for the concept</li><li>3. Ask your teammate</li><li>4. Ask the trainer (last resort -- try to debug first!)</li></ul></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="29">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 08 - CAPSULE PROJECT: JAVA</span><span class="ct"></span></div>
+    <div class="tt">End-of-Day Reflection</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">After presentations, reflect on:</div>
+<ul class="bl"><li>What Java concept was hardest to apply in practice?</li><li>Which bug was most surprising to find?</li><li>How did pair/team programming help or hinder?</li><li>What would you do differently with more time?</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">These skills transfer directly to sustain engineering:</div>
+<ul class="bl"><li>Reading and understanding existing code</li><li>Fixing bugs under time pressure</li><li>Communicating technical decisions to stakeholders</li><li>Working in a team with shared code</li></ul></div>
+    <div class="ft"><span class="fr">29</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="30">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 08 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Topic</th><th>Key Point</th></tr></thead><tbody><tr><td>Capsule project</td><td>Consolidates Modules 05-07 into hands-on practice</td></tr><tr><td>Collections</td><td>HashMap for catalog, ArrayList for orders, HashSet for categories</td></tr><tr><td>JDBC</td><td>PreparedStatement for all DB access, try-with-resources always</td></tr><tr><td>Bug fixing</td><td>7 pre-planted bugs testing real-world patterns</td></tr><tr><td>Code quality</td><td>Follow standards: generics, logging, exception handling</td></tr><tr><td>Teamwork</td><td>Divide work, commit often, communicate changes</td></tr><tr><td>Presentation</td><td>Demo first, explain architecture, highlight bug fixes</td></tr><tr><td>MCQ</td><td>30 questions covering all Java topics from Modules 05-07</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 09 -- Node.js Part 1 (server-side JavaScript fundamentals)</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 09 -- Node.js Part 1 (server-side JavaScript fundamentals)</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 30</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

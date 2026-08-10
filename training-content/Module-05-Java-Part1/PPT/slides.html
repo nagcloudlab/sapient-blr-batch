@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Programming (Part 1)</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 05</div>
+    <div class="t-main">Java Programming (Part 1)</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day | Workshop + guided lab</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct">AGENDA</span></div>
+    <div class="tt">By the end of this session</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">You can write, compile, and run Java programs using OOP principles -- classes, objects, encapsulation, constructors, and access control.</p>
+<table class="tbl"><thead><tr><th>Pillar</th><th>What you will do</th></tr></thead><tbody><tr><td><strong>Core Java</strong></td><td>JDK, JRE, JVM, compilation, execution</td></tr><tr><td><strong>Classes & Objects</strong></td><td>Define classes, create objects, invoke methods</td></tr><tr><td><strong>Packages</strong></td><td>Organize code, import statements, naming conventions</td></tr><tr><td><strong>Encapsulation</strong></td><td>Private fields, getters/setters, data hiding</td></tr><tr><td><strong>Access Control</strong></td><td>public, private, protected, default (package-private)</td></tr><tr><td><strong>Constructors</strong></td><td>Default, parameterized, constructor overloading</td></tr><tr><td><strong>Static Members</strong></td><td>Static fields, static methods, constants</td></tr><tr><td><strong>Scopes & Blocks</strong></td><td>Local, instance, class scope, initializer blocks</td></tr><tr><td><strong>References</strong></td><td>Object references, <code>this</code>, <code>null</code>, garbage collection</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Session agenda</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>Java platform overview: JDK, JRE, JVM</td></tr><tr><td>02</td><td>Hello World: compile and run</td></tr><tr><td>03</td><td>Variables, data types, operators</td></tr><tr><td>04</td><td>Control flow: if/else, switch, loops</td></tr><tr><td>05</td><td>Classes and objects</td></tr><tr><td>06</td><td>Packages and imports</td></tr><tr><td>07</td><td>Encapsulation and access control</td></tr><tr><td>08</td><td>Constructors and overloading</td></tr><tr><td>09</td><td>Static members and constants</td></tr><tr><td>10</td><td>Scopes, blocks, and references</td></tr><tr><td>11</td><td>Guided lab</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Why Java for sustain engineering</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li><strong>Enterprise standard</strong> -- most large-scale backend systems run on Java</li><li><strong>Strong typing</strong> -- catches bugs at compile time, not runtime</li><li><strong>Mature ecosystem</strong> -- Spring, Hibernate, Maven, Gradle, JUnit</li><li><strong>Platform independent</strong> -- "write once, run anywhere" (JVM)</li><li><strong>Backward compatible</strong> -- Java 8 code runs on Java 21</li><li><strong>Sustain reality</strong> -- you will maintain Java services daily</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Java in the FoodExpress architecture</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">Browser (HTML/CSS/JS)
+    |
+    v
+API Gateway
+    |
+    +-- Order Service (Java/Spring Boot)
+    +-- Restaurant Service (Java/Spring Boot)
+    +-- Payment Service (Java/Spring Boot)
+    +-- Notification Service (Node.js)</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Most FoodExpress backend services are Java. Understanding Java is essential for sustain engineers.</div></div></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct">FORMS</span></div>
+    <div class="tt">Java platform: JDK, JRE, JVM</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">+-------------------------------------------+
+|  JDK (Java Development Kit)               |
+|  +-------------------------------------+  |
+|  |  JRE (Java Runtime Environment)     |  |
+|  |  +-------------------------------+  |  |
+|  |  |  JVM (Java Virtual Machine)   |  |  |
+|  |  |  - Loads bytecode             |  |  |
+|  |  |  - Verifies code              |  |  |
+|  |  |  - Executes (JIT compiler)    |  |  |
+|  |  |  - Garbage collection         |  |  |
+|  |  +-------------------------------+  |  |
+|  |  + Java Class Libraries (rt.jar)   |  |
+|  +-------------------------------------+  |
+|  + Compiler (javac)                       |
+|  + Debugger (jdb)                         |
+|  + Tools (jar, javadoc, jshell)           |
++-------------------------------------------+</div></div></div>
+<table class="tbl"><thead><tr><th>Component</th><th>Contains</th><th>Used by</th></tr></thead><tbody><tr><td><strong>JVM</strong></td><td>Virtual machine that runs bytecode</td><td>End users</td></tr><tr><td><strong>JRE</strong></td><td>JVM + standard libraries</td><td>End users</td></tr><tr><td><strong>JDK</strong></td><td>JRE + compiler + dev tools</td><td>Developers</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Install the JDK for development. Production servers need only the JRE (or a minimal JDK image in containers).</div></div></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Compilation and execution</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3</div><div class="cb-cd">Source code         Compiler         Bytecode           JVM
+(.java)   -------&gt; (javac)  ------&gt; (.class)  -------&gt; Runs on
+                                                        any OS</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</div><div class="cb-cd"># Step 1: Write source code
+# File: HelloWorld.java
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, FoodExpress!");
+    }
+}
+
+# Step 2: Compile
+javac HelloWorld.java
+# Produces: HelloWorld.class (bytecode)
+
+# Step 3: Run
+java HelloWorld
+# Output: Hello, FoodExpress!</div></div></div>
+<table class="tbl"><thead><tr><th>Rule</th><th>Description</th></tr></thead><tbody><tr><td>File name must match class name</td><td><code>MenuItem.java</code> contains <code>class MenuItem</code></td></tr><tr><td>Every app needs <code>main</code> method</td><td>Entry point: <code>public static void main(String[] args)</code></td></tr><tr><td>Java is case-sensitive</td><td><code>menuItem</code> and <code>MenuItem</code> are different</td></tr><tr><td>Statements end with <code>;</code></td><td>Missing semicolons cause compile errors</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Variables and data types</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">// Primitive types (stored on stack)
+byte    itemCount    = 5;           // 8-bit  (-128 to 127)
+short   portNumber   = 8080;        // 16-bit (-32768 to 32767)
+int     orderId      = 104253;      // 32-bit (most common integer)
+long    timestamp    = 1690000000L; // 64-bit (note the L suffix)
+float   taxRate      = 0.08f;       // 32-bit decimal (note the f)
+double  price        = 8.99;        // 64-bit decimal (default)
+boolean isOpen       = true;        // true or false
+char    grade        = 'A';         // single character (single quotes)
+
+// Reference types (stored on heap)
+String  name         = "Burger Barn";   // immutable string
+int[]   ratings      = {4, 5, 3, 4};   // array</div></div></div>
+<table class="tbl"><thead><tr><th>Type</th><th>Size</th><th>Range</th><th>Default</th></tr></thead><tbody><tr><td><code>byte</code></td><td>1 byte</td><td>-128 to 127</td><td>0</td></tr><tr><td><code>short</code></td><td>2 bytes</td><td>-32,768 to 32,767</td><td>0</td></tr><tr><td><code>int</code></td><td>4 bytes</td><td>-2.1B to 2.1B</td><td>0</td></tr><tr><td><code>long</code></td><td>8 bytes</td><td>very large</td><td>0L</td></tr><tr><td><code>float</code></td><td>4 bytes</td><td>~7 decimal digits</td><td>0.0f</td></tr><tr><td><code>double</code></td><td>8 bytes</td><td>~15 decimal digits</td><td>0.0</td></tr><tr><td><code>boolean</code></td><td>1 bit</td><td>true / false</td><td>false</td></tr><tr><td><code>char</code></td><td>2 bytes</td><td>Unicode character</td><td>'\u0000'</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Type casting and conversion</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">// Widening (implicit) -- safe, no data loss
+int quantity = 5;
+double amount = quantity;  // int -&gt; double: 5.0
+
+// Narrowing (explicit) -- may lose data
+double price = 8.99;
+int rounded = (int) price;  // 8 (decimal truncated, NOT rounded)
+
+// String to number
+String input = "42";
+int value = Integer.parseInt(input);        // 42
+double dValue = Double.parseDouble("8.99"); // 8.99
+
+// Number to String
+String text = String.valueOf(42);           // "42"
+String text2 = Integer.toString(42);        // "42"
+String text3 = "" + 42;                     // "42" (concatenation)
+
+// Common bug: NumberFormatException
+try {
+    int bad = Integer.parseInt("abc");  // throws!
+} catch (NumberFormatException e) {
+    System.out.println("Invalid number format");
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Always use <code>try/catch</code> when parsing user input to numbers. Invalid input causes <code>NumberFormatException</code>.</div></div></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Operators</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26</div><div class="cb-cd">// Arithmetic
+int total = price * quantity;    // + - * / %
+int remainder = 10 % 3;         // 1
+
+// Division: integer vs floating point
+int result = 7 / 2;             // 3 (integer division!)
+double result2 = 7.0 / 2;       // 3.5
+
+// Comparison
+price == 8.99     // true (for primitives)
+price != 9.99     // true
+price &gt; 5         // true
+price &gt;= 8.99     // true
+
+// Logical
+isOpen &amp;&amp; hasItems    // AND
+isOpen || isTakeaway  // OR
+!isOpen               // NOT
+
+// Assignment shortcuts
+total += 5;   // total = total + 5
+count++;      // count = count + 1
+count--;      // count = count - 1
+
+// Ternary
+String status = isOpen ? "Open" : "Closed";</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Use <code>==</code> for primitives. Use <code>.equals()</code> for objects (especially <code>String</code>). <code>==</code> on objects compares references, not values.</div></div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">String operations</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28</div><div class="cb-cd">String name = "Burger Barn";
+
+// Common methods
+name.length();                    // 11
+name.charAt(0);                   // 'B'
+name.substring(0, 6);            // "Burger"
+name.toLowerCase();               // "burger barn"
+name.toUpperCase();               // "BURGER BARN"
+name.contains("Burger");          // true
+name.startsWith("Burger");        // true
+name.indexOf("Barn");             // 7
+name.trim();                      // removes leading/trailing spaces
+name.replace("Barn", "Palace");   // "Burger Palace"
+name.split(" ");                  // ["Burger", "Barn"]
+
+// String comparison (ALWAYS use .equals())
+String a = "hello";
+String b = new String("hello");
+a == b;          // false (different references!)
+a.equals(b);     // true (same content)
+
+// String concatenation
+String msg = "Order for " + name + " - $" + price;
+
+// StringBuilder (efficient for many concatenations)
+StringBuilder sb = new StringBuilder();
+sb.append("Order #").append(orderId).append(": ").append(name);
+String result = sb.toString();</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Never compare strings with <code>==</code>. Always use <code>.equals()</code>. This is the #1 Java bug in sustain engineering.</div></div></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Control flow: if / else / switch</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36</div><div class="cb-cd">// if / else if / else
+double cartTotal = 27.50;
+double deliveryFee;
+
+if (cartTotal &gt;= 25.0) {
+    deliveryFee = 0.0;
+    System.out.println("Free delivery!");
+} else if (cartTotal &gt;= 15.0) {
+    deliveryFee = 1.99;
+} else {
+    deliveryFee = 3.99;
+}
+
+// switch (classic)
+String status = "preparing";
+switch (status) {
+    case "placed":
+        System.out.println("Order received");
+        break;
+    case "preparing":
+        System.out.println("Kitchen is cooking");
+        break;
+    case "delivered":
+        System.out.println("Enjoy your meal!");
+        break;
+    default:
+        System.out.println("Unknown status");
+}
+
+// switch expression (Java 14+)
+String message = switch (status) {
+    case "placed" -&gt; "Order received";
+    case "preparing" -&gt; "Kitchen is cooking";
+    case "delivered" -&gt; "Enjoy your meal!";
+    default -&gt; "Unknown status";
+};</div></div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Control flow: loops</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31</div><div class="cb-cd">// for loop
+String[] menuItems = {"Burger", "Fries", "Shake", "Salad"};
+for (int i = 0; i &lt; menuItems.length; i++) {
+    System.out.println((i + 1) + ". " + menuItems[i]);
+}
+
+// enhanced for (for-each) -- preferred for arrays/collections
+for (String item : menuItems) {
+    System.out.println(item);
+}
+
+// while loop
+int attempts = 0;
+while (attempts &lt; 3) {
+    System.out.println("Attempt " + (attempts + 1));
+    attempts++;
+}
+
+// do-while loop (runs at least once)
+do {
+    retryConnection();
+    attempts++;
+} while (!isConnected &amp;&amp; attempts &lt; 5);
+
+// break and continue
+for (String item : menuItems) {
+    if (item.equals("Fries")) continue;  // skip Fries
+    if (item.equals("Salad")) break;     // stop at Salad
+    System.out.println(item);
+}
+// Output: Burger, Shake</div></div></div></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Arrays</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">// Declaration and initialization
+int[] ratings = new int[5];           // size 5, all zeros
+String[] cuisines = {"Italian", "Japanese", "Indian", "Mexican"};
+
+// Access and modify
+cuisines[0];                          // "Italian"
+cuisines[2] = "Thai";                 // replace "Indian"
+cuisines.length;                      // 4
+
+// Iterate
+for (int i = 0; i &lt; cuisines.length; i++) {
+    System.out.println(cuisines[i]);
+}
+
+// Multi-dimensional array
+double[][] prices = {
+    {8.99, 4.99, 5.99},   // restaurant 0
+    {10.99, 6.99, 7.99},  // restaurant 1
+};
+prices[0][1];  // 4.99
+
+// Common operations (java.util.Arrays)
+import java.util.Arrays;
+Arrays.sort(ratings);                  // sort in place
+Arrays.fill(ratings, 0);              // fill with zeros
+String str = Arrays.toString(ratings); // "[0, 0, 0, 0, 0]"
+int idx = Arrays.binarySearch(ratings, 4); // find index</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Arrays have a fixed size. For dynamic sizing, use <code>ArrayList</code> (covered in Part 2).</div></div></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Classes and objects: the foundation</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">// A class is a blueprint
+public class MenuItem {
+    // Fields (attributes)
+    String name;
+    double price;
+    String category;
+    boolean isAvailable;
+
+    // Method (behavior)
+    String getInfo() {
+        return name + " - $" + String.format("%.2f", price);
+    }
+
+    void toggleAvailability() {
+        isAvailable = !isAvailable;
+    }
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">// Creating objects (instances)
+MenuItem burger = new MenuItem();
+burger.name = "Smash Burger";
+burger.price = 8.99;
+burger.category = "Mains";
+burger.isAvailable = true;
+
+MenuItem fries = new MenuItem();
+fries.name = "Loaded Fries";
+fries.price = 4.99;
+fries.category = "Sides";
+fries.isAvailable = true;
+
+System.out.println(burger.getInfo());  // "Smash Burger - $8.99"</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">A class defines what an object looks like. An object is a specific instance of that class.</div></div></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Class vs Object analogy</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">Class (Blueprint)              Object (Instance)
++-----------------+            +-----------------+
+| MenuItem        |            | burger          |
++-----------------+   new      +-----------------+
+| name            | ---------&gt; | "Smash Burger"  |
+| price           |            | 8.99            |
+| category        |            | "Mains"         |
+| isAvailable     |            | true            |
++-----------------+            +-----------------+
+| getInfo()       |
+| toggle...()     |            | fries           |
++-----------------+   new      +-----------------+
+                   ---------&gt; | "Loaded Fries"  |
+                              | 4.99            |
+                              | "Sides"         |
+                              | true            |
+                              +-----------------+</div></div></div>
+<table class="tbl"><thead><tr><th>Concept</th><th>Class</th><th>Object</th></tr></thead><tbody><tr><td>What</td><td>Blueprint / template</td><td>Instance / real thing</td></tr><tr><td>Memory</td><td>No memory allocated for data</td><td>Allocated on heap</td></tr><tr><td>Count</td><td>One per type</td><td>Many per class</td></tr><tr><td>Fields</td><td>Defines structure</td><td>Holds actual values</td></tr><tr><td>Methods</td><td>Defines behavior</td><td>Executes behavior</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress: OrderItem class</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20</div><div class="cb-cd">public class OrderItem {
+    String menuItemName;
+    double unitPrice;
+    int quantity;
+    String specialInstructions;
+
+    double getSubtotal() {
+        return unitPrice * quantity;
+    }
+
+    String getSummary() {
+        String line = quantity + "x " + menuItemName
+            + " @ $" + String.format("%.2f", unitPrice)
+            + " = $" + String.format("%.2f", getSubtotal());
+        if (specialInstructions != null &amp;&amp; !specialInstructions.isEmpty()) {
+            line += " [" + specialInstructions + "]";
+        }
+        return line;
+    }
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">// Usage
+OrderItem item = new OrderItem();
+item.menuItemName = "Smash Burger";
+item.unitPrice = 8.99;
+item.quantity = 2;
+item.specialInstructions = "No onions";
+
+System.out.println(item.getSummary());
+// 2x Smash Burger @ $8.99 = $17.98 [No onions]
+System.out.println(item.getSubtotal());
+// 17.98</div></div></div></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Packages: organizing code</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">// Package declaration (first line of file)
+package com.foodexpress.order;
+
+// File structure must match package
+// src/com/foodexpress/order/OrderItem.java
+// src/com/foodexpress/menu/MenuItem.java
+// src/com/foodexpress/customer/Customer.java</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">com.foodexpress
+    |
+    +-- order/
+    |     OrderItem.java
+    |     OrderService.java
+    |
+    +-- menu/
+    |     MenuItem.java
+    |     MenuService.java
+    |
+    +-- customer/
+          Customer.java
+          CustomerService.java</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Import statements</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">// Import a specific class
+import com.foodexpress.menu.MenuItem;
+
+// Import all classes in a package
+import com.foodexpress.menu.*;
+
+// java.lang is auto-imported (String, System, Math, etc.)</div></div></div>
+<table class="tbl"><thead><tr><th>Convention</th><th>Example</th></tr></thead><tbody><tr><td>Reverse domain name</td><td><code>com.foodexpress.order</code></td></tr><tr><td>All lowercase</td><td><code>com.example.myapp</code></td></tr><tr><td>Avoid <code>java.<em></code> and <code>javax.</em></code></td><td>Reserved for JDK</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Package naming conventions</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Package</th><th>Purpose</th><th>Example classes</th></tr></thead><tbody><tr><td><code>com.foodexpress.model</code></td><td>Data classes (entities)</td><td><code>MenuItem</code>, <code>Order</code>, <code>Customer</code></td></tr><tr><td><code>com.foodexpress.service</code></td><td>Business logic</td><td><code>OrderService</code>, <code>MenuService</code></td></tr><tr><td><code>com.foodexpress.controller</code></td><td>HTTP handlers</td><td><code>OrderController</code></td></tr><tr><td><code>com.foodexpress.repository</code></td><td>Data access</td><td><code>OrderRepository</code></td></tr><tr><td><code>com.foodexpress.util</code></td><td>Utility/helper classes</td><td><code>PriceFormatter</code>, <code>Validator</code></td></tr><tr><td><code>com.foodexpress.exception</code></td><td>Custom exceptions</td><td><code>OrderNotFoundException</code></td></tr><tr><td><code>com.foodexpress.config</code></td><td>Configuration</td><td><code>AppConfig</code>, <code>DatabaseConfig</code></td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">// Full example with package and import
+package com.foodexpress.order;
+
+import com.foodexpress.menu.MenuItem;
+import java.util.List;
+import java.util.ArrayList;
+
+public class OrderService {
+    private List&lt;OrderItem&gt; items = new ArrayList&lt;&gt;();
+
+    public void addItem(MenuItem menuItem, int quantity) {
+        OrderItem item = new OrderItem();
+        item.menuItemName = menuItem.name;
+        item.unitPrice = menuItem.price;
+        item.quantity = quantity;
+        items.add(item);
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Encapsulation: hiding internal data</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Problem:</strong> Direct field access allows invalid state.</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">// Without encapsulation (BAD)
+MenuItem burger = new MenuItem();
+burger.price = -5.00;  // negative price? No protection!
+burger.name = "";       // empty name? Allowed!</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Solution:</strong> Make fields <code>private</code>, provide controlled access via methods.</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31</div><div class="cb-cd">public class MenuItem {
+    // Private fields -- cannot be accessed directly
+    private String name;
+    private double price;
+    private String category;
+    private boolean available;
+
+    // Getter: controlled read access
+    public String getName() {
+        return name;
+    }
+
+    // Setter: controlled write access with validation
+    public void setName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name cannot be empty");
+        }
+        this.name = name.trim();
+    }
+
+    public void setPrice(double price) {
+        if (price &lt; 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
+        }
+        this.price = price;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Encapsulation benefits</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</div><div class="cb-cd">// With encapsulation -- invalid state prevented
+MenuItem burger = new MenuItem();
+burger.setName("Smash Burger");    // OK
+burger.setPrice(8.99);             // OK
+burger.setPrice(-5.00);            // throws IllegalArgumentException!
+burger.setName("");                 // throws IllegalArgumentException!
+
+// Read-only field (getter only, no setter)
+public class Order {
+    private final String orderId;
+    private final long createdAt;
+
+    public Order(String orderId) {
+        this.orderId = orderId;
+        this.createdAt = System.currentTimeMillis();
+    }
+
+    public String getOrderId() { return orderId; }
+    public long getCreatedAt() { return createdAt; }
+    // No setters -- orderId and createdAt cannot change
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Benefit</th><th>How</th></tr></thead><tbody><tr><td><strong>Data validation</strong></td><td>Setters reject invalid values</td></tr><tr><td><strong>Read-only fields</strong></td><td>Getter only, no setter</td></tr><tr><td><strong>Computed properties</strong></td><td>Getter calculates on the fly</td></tr><tr><td><strong>Internal changes</strong></td><td>Can change field type without breaking callers</td></tr><tr><td><strong>Debugging</strong></td><td>Set breakpoints in getters/setters</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Encapsulation is the #1 OOP principle. Every field should be <code>private</code> unless there's a strong reason not to.</div></div></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Access modifiers</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">public class MenuItem {
+    public String name;           // accessible everywhere
+    protected String category;    // same package + subclasses
+    String cuisine;               // package-private (default)
+    private double cost;          // this class only
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Modifier</th><th>Same class</th><th>Same package</th><th>Subclass</th><th>Everywhere</th></tr></thead><tbody><tr><td><code>public</code></td><td>Yes</td><td>Yes</td><td>Yes</td><td>Yes</td></tr><tr><td><code>protected</code></td><td>Yes</td><td>Yes</td><td>Yes</td><td>No</td></tr><tr><td>(default)</td><td>Yes</td><td>Yes</td><td>No</td><td>No</td></tr><tr><td><code>private</code></td><td>Yes</td><td>No</td><td>No</td><td>No</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Rules of thumb</div>
+<table class="tbl"><thead><tr><th>What</th><th>Modifier</th><th>Why</th></tr></thead><tbody><tr><td>Fields</td><td><code>private</code></td><td>Encapsulation -- always</td></tr><tr><td>Getters/Setters</td><td><code>public</code></td><td>External access through controlled methods</td></tr><tr><td>Helper methods</td><td><code>private</code></td><td>Internal implementation detail</td></tr><tr><td>API methods</td><td><code>public</code></td><td>Part of the class's contract</td></tr><tr><td>Constants</td><td><code>public static final</code></td><td>Shared configuration values</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Access control in practice</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38</div><div class="cb-cd">package com.foodexpress.order;
+
+public class Order {
+    // Private: only Order methods can access
+    private String orderId;
+    private double total;
+    private String status;
+
+    // Public: anyone can call
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    // Public: controlled state transition
+    public void cancel() {
+        if (!"placed".equals(status)) {
+            throw new IllegalStateException(
+                "Cannot cancel order in status: " + status);
+        }
+        this.status = "cancelled";
+        logStatusChange("cancelled");  // private helper
+    }
+
+    // Private: internal helper
+    private void logStatusChange(String newStatus) {
+        System.out.println("Order " + orderId
+            + " status changed to " + newStatus);
+    }
+
+    // Package-private: only classes in same package
+    void setStatus(String status) {
+        this.status = status;
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Constructors: initializing objects</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22</div><div class="cb-cd">public class MenuItem {
+    private String name;
+    private double price;
+    private String category;
+    private boolean available;
+
+    // Default constructor (no arguments)
+    public MenuItem() {
+        this.name = "Unknown";
+        this.price = 0.0;
+        this.category = "Uncategorized";
+        this.available = false;
+    }
+
+    // Parameterized constructor
+    public MenuItem(String name, double price, String category) {
+        this.name = name;
+        this.price = price;
+        this.category = category;
+        this.available = true;
+    }
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">// Using constructors
+MenuItem unknown = new MenuItem();
+// name="Unknown", price=0.0, category="Uncategorized"
+
+MenuItem burger = new MenuItem("Smash Burger", 8.99, "Mains");
+// name="Smash Burger", price=8.99, category="Mains", available=true</div></div></div>
+<table class="tbl"><thead><tr><th>Rule</th><th>Description</th></tr></thead><tbody><tr><td>Same name as class</td><td><code>MenuItem()</code> inside <code>class MenuItem</code></td></tr><tr><td>No return type</td><td>Not even <code>void</code></td></tr><tr><td>Called with <code>new</code></td><td><code>new MenuItem()</code></td></tr><tr><td>Auto-generated</td><td>Java adds a no-arg constructor if you write none</td></tr><tr><td>Disappears</td><td>If you define ANY constructor, the default is NOT added</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Constructor overloading</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">public class OrderItem {
+    private String menuItemName;
+    private double unitPrice;
+    private int quantity;
+    private String specialInstructions;
+
+    // Constructor 1: all fields
+    public OrderItem(String name, double price, int qty, String instructions) {
+        this.menuItemName = name;
+        this.unitPrice = price;
+        this.quantity = qty;
+        this.specialInstructions = instructions;
+    }
+
+    // Constructor 2: without special instructions
+    public OrderItem(String name, double price, int qty) {
+        this(name, price, qty, null);  // delegate to constructor 1
+    }
+
+    // Constructor 3: single item (quantity = 1)
+    public OrderItem(String name, double price) {
+        this(name, price, 1, null);  // delegate to constructor 1
+    }
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">// Different ways to create
+OrderItem item1 = new OrderItem("Burger", 8.99, 2, "No onions");
+OrderItem item2 = new OrderItem("Fries", 4.99, 1);
+OrderItem item3 = new OrderItem("Shake", 5.99);</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Use <code>this(...)</code> to call another constructor in the same class. It must be the first statement.</div></div></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct">FORMS</span></div>
+    <div class="tt">Constructor validation</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">public class MenuItem {
+    private String name;
+    private double price;
+    private String category;
+
+    public MenuItem(String name, double price, String category) {
+        // Validate in constructor -- prevent invalid objects
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("Name is required");
+        }
+        if (price &lt; 0) {
+            throw new IllegalArgumentException("Price cannot be negative");
+        }
+        if (category == null || category.trim().isEmpty()) {
+            throw new IllegalArgumentException("Category is required");
+        }
+
+        this.name = name.trim();
+        this.price = price;
+        this.category = category.trim();
+    }
+
+    // No setters for name/category -- immutable after creation
+    public String getName() { return name; }
+    public double getPrice() { return price; }
+    public String getCategory() { return category; }
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Validate early, fail fast. Constructor validation ensures no invalid object ever exists.</div></div></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Static members: class-level data</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32</div><div class="cb-cd">public class Order {
+    // Static field: shared across ALL instances
+    private static int orderCounter = 1000;
+
+    // Static constant
+    public static final double TAX_RATE = 0.08;
+    public static final double FREE_DELIVERY_THRESHOLD = 25.00;
+
+    // Instance fields
+    private String orderId;
+    private double subtotal;
+
+    public Order() {
+        orderCounter++;
+        this.orderId = "FE-" + orderCounter;  // FE-1001, FE-1002, ...
+    }
+
+    // Static method: does NOT need an instance
+    public static double calculateTax(double amount) {
+        return amount * TAX_RATE;
+    }
+
+    // Instance method: needs an instance
+    public double getTotal() {
+        return subtotal + Order.calculateTax(subtotal);
+    }
+
+    // Static method: access static field
+    public static int getOrderCount() {
+        return orderCounter - 1000;
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Static vs instance</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">// Static: called on the CLASS
+double tax = Order.calculateTax(24.97);
+int count = Order.getOrderCount();
+double threshold = Order.FREE_DELIVERY_THRESHOLD;
+
+// Instance: called on an OBJECT
+Order order = new Order();
+String id = order.getOrderId();
+double total = order.getTotal();</div></div></div>
+<table class="tbl"><thead><tr><th>Feature</th><th>Static</th><th>Instance</th></tr></thead><tbody><tr><td>Belongs to</td><td>Class</td><td>Object</td></tr><tr><td>Access</td><td><code>ClassName.method()</code></td><td><code>object.method()</code></td></tr><tr><td>Can access static fields?</td><td>Yes</td><td>Yes</td></tr><tr><td>Can access instance fields?</td><td>No</td><td>Yes</td></tr><tr><td>Memory</td><td>One copy</td><td>One per object</td></tr><tr><td>Use for</td><td>Utility methods, constants, counters</td><td>Object-specific behavior</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Common static examples in Java</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">Math.max(a, b);              // utility method
+Math.PI;                     // constant
+Integer.parseInt("42");      // conversion
+String.valueOf(42);          // conversion
+System.currentTimeMillis();  // utility
+Collections.sort(list);     // utility</div></div></div></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Scopes in Java</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">public class OrderService {
+    // Class scope: accessible in all methods
+    private static final double TAX_RATE = 0.08;
+
+    // Instance scope: one per object
+    private List&lt;OrderItem&gt; items;
+
+    public OrderService() {
+        this.items = new ArrayList&lt;&gt;();
+    }
+
+    public double calculateTotal() {
+        // Local scope: only inside this method
+        double subtotal = 0;
+
+        for (OrderItem item : items) {
+            // Block scope: only inside this loop
+            double lineTotal = item.getUnitPrice() * item.getQuantity();
+            subtotal += lineTotal;
+        }
+        // lineTotal is NOT accessible here
+
+        double tax = subtotal * TAX_RATE;
+        return subtotal + tax;
+    }
+    // subtotal and tax are NOT accessible here
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Scope</th><th>Lifetime</th><th>Accessible in</th></tr></thead><tbody><tr><td><strong>Class</strong> (static)</td><td>Program lifetime</td><td>All methods (via class name)</td></tr><tr><td><strong>Instance</strong></td><td>Object lifetime</td><td>All instance methods</td></tr><tr><td><strong>Local</strong></td><td>Method execution</td><td>The method only</td></tr><tr><td><strong>Block</strong></td><td>Block execution</td><td>The <code>{}</code> block only</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="29">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Initializer blocks</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">public class MenuItem {
+    private String id;
+    private String name;
+    private double price;
+    private long createdAt;
+
+    // Static initializer: runs ONCE when class is loaded
+    private static int counter;
+    static {
+        counter = 0;
+        System.out.println("MenuItem class loaded");
+    }
+
+    // Instance initializer: runs EVERY TIME an object is created
+    // Runs BEFORE the constructor
+    {
+        counter++;
+        this.id = "ITEM-" + counter;
+        this.createdAt = System.currentTimeMillis();
+    }
+
+    public MenuItem(String name, double price) {
+        // id and createdAt already set by initializer block
+        this.name = name;
+        this.price = price;
+    }
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Block type</th><th>When it runs</th><th>Use for</th></tr></thead><tbody><tr><td><code>static { }</code></td><td>Once, when class first loaded</td><td>Load config, initialize static data</td></tr><tr><td><code>{ }</code> (instance)</td><td>Every time an object is created, before constructor</td><td>Common setup for all constructors</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">29</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="30">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">References and memory</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">// Primitives: value is stored directly
+int a = 5;
+int b = a;    // b gets a COPY of 5
+b = 10;       // a is still 5
+
+// Objects: variable holds a REFERENCE (pointer)
+MenuItem burger = new MenuItem("Burger", 8.99);
+MenuItem alias = burger;   // alias points to SAME object
+alias.setPrice(9.99);      // changes the shared object
+System.out.println(burger.getPrice());  // 9.99 (CHANGED!)</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">Stack                    Heap
++--------+              +-------------------+
+| burger | -----------&gt; | MenuItem          |
++--------+         /--&gt; | name: "Burger"    |
+| alias  | -------/     | price: 9.99       |
++--------+              +-------------------+</div></div></div>
+<table class="tbl"><thead><tr><th>Concept</th><th>Primitive</th><th>Reference</th></tr></thead><tbody><tr><td>Stores</td><td>Actual value</td><td>Memory address</td></tr><tr><td>Copy</td><td>Copies value</td><td>Copies reference (not object)</td></tr><tr><td><code>==</code> compares</td><td>Values</td><td>References (use <code>.equals()</code>)</td></tr><tr><td>Default</td><td><code>0</code>, <code>false</code>, <code>'\0'</code></td><td><code>null</code></td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">30</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="31">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">The <code>this</code> keyword</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">public class Order {
+    private String orderId;
+    private String customerName;
+    private double total;
+
+    // 'this' disambiguates field from parameter
+    public Order(String orderId, String customerName) {
+        this.orderId = orderId;           // field = parameter
+        this.customerName = customerName;
+    }
+
+    // 'this' calls another constructor
+    public Order(String orderId) {
+        this(orderId, "Guest");  // must be FIRST statement
+    }
+
+    // 'this' enables method chaining (fluent API)
+    public Order setTotal(double total) {
+        this.total = total;
+        return this;
+    }
+
+    public Order applyDiscount(double rate) {
+        this.total *= (1 - rate);
+        return this;
+    }
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">// Method chaining
+Order order = new Order("FE-1001", "Alice")
+    .setTotal(24.97)
+    .applyDiscount(0.10);</div></div></div></div>
+    <div class="ft"><span class="fr">31</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="32">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Null references and NullPointerException</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">// null means "no object"
+MenuItem item = null;
+item.getName();  // NullPointerException! (NPE)
+
+// Defensive coding: check for null
+if (item != null) {
+    System.out.println(item.getName());
+}
+
+// Common NPE scenarios
+String name = order.getCustomer().getName();
+// If getCustomer() returns null, calling .getName() throws NPE
+
+// Defensive approach
+Customer customer = order.getCustomer();
+if (customer != null) {
+    String name = customer.getName();
+}
+
+// Java Optional (Java 8+) -- better approach
+import java.util.Optional;
+
+Optional&lt;Customer&gt; customer = Optional.ofNullable(order.getCustomer());
+String name = customer.map(Customer::getName).orElse("Unknown");</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><code>NullPointerException</code> is the most common runtime error in Java. Always check for null before calling methods on objects.</div></div></div>
+    <div class="ft"><span class="fr">32</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="33">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct"></span></div>
+    <div class="tt">Garbage collection</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><div class="cb-cd">// Object becomes eligible for GC when no references point to it
+MenuItem burger = new MenuItem("Burger", 8.99);
+burger = null;  // original object has no references -&gt; eligible for GC
+
+// Also eligible when reference goes out of scope
+void processOrder() {
+    MenuItem temp = new MenuItem("Temp", 0.0);
+    // ... use temp ...
+}  // temp goes out of scope -&gt; eligible for GC
+
+// Cannot force GC, only suggest
+System.gc();  // suggestion only, JVM may ignore</div></div></div>
+<table class="tbl"><thead><tr><th>GC concept</th><th>Description</th></tr></thead><tbody><tr><td><strong>Heap</strong></td><td>Where objects live</td></tr><tr><td><strong>Stack</strong></td><td>Where references and primitives live</td></tr><tr><td><strong>GC roots</strong></td><td>Static fields, local variables, active threads</td></tr><tr><td><strong>Eligible</strong></td><td>Object with no path from any GC root</td></tr><tr><td><strong>Automatic</strong></td><td>JVM runs GC when it decides (no manual free/delete)</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Java manages memory automatically. You do not call <code>free()</code> or <code>delete</code>. But you must avoid holding unnecessary references (memory leaks).</div></div></div>
+    <div class="ft"><span class="fr">33</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="34">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct">CHECKPOINT</span></div>
+    <div class="tt">Checkpoint: code reading</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">What does this code print?</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">public class Test {
+    private int x = 10;
+    private static int count = 0;
+
+    public Test() { count++; }
+
+    public static void main(String[] args) {
+        Test a = new Test();
+        Test b = new Test();
+        Test c = a;
+
+        a.x = 20;
+        System.out.println(c.x);       // ?
+        System.out.println(Test.count); // ?
+        System.out.println(a == c);     // ?
+        System.out.println(a == b);     // ?
+    }
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Line</th><th>Output</th><th>Reason</th></tr></thead><tbody><tr><td><code>c.x</code></td><td><code>20</code></td><td><code>c</code> and <code>a</code> reference the same object</td></tr><tr><td><code>Test.count</code></td><td><code>2</code></td><td>Two <code>new Test()</code> calls</td></tr><tr><td><code>a == c</code></td><td><code>true</code></td><td>Same reference</td></tr><tr><td><code>a == b</code></td><td><code>false</code></td><td>Different objects</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">34</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="35">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct">LAB</span></div>
+    <div class="tt">Guided lab: build the FoodExpress OrderItem</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Step</th><th>Task</th></tr></thead><tbody><tr><td>01</td><td>Fix: <code>MenuItem</code> fields are public -- make them private with getters/setters</td></tr><tr><td>02</td><td>Fix: Constructor does not validate price (allows negative values)</td></tr><tr><td>03</td><td>Fix: <code>OrderItem.getSubtotal()</code> returns wrong result (integer division bug)</td></tr><tr><td>04</td><td>Fix: String comparison uses <code>==</code> instead of <code>.equals()</code></td></tr><tr><td>05</td><td>Fix: <code>NullPointerException</code> when <code>specialInstructions</code> is null</td></tr><tr><td>06</td><td>Add: Static <code>orderCounter</code> that generates unique order IDs</td></tr><tr><td>07</td><td>Add: Constructor overloading for <code>OrderItem</code> (with/without instructions)</td></tr><tr><td>08</td><td>Add: <code>toString()</code> method that returns a formatted order summary</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">35</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="36">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 05 - JAVA PROGRAMMING (PART 1)</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab acceptance criteria</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li>[ ] All fields are <code>private</code> with appropriate getters/setters</li><li>[ ] Constructor rejects negative price and empty name</li><li>[ ] <code>getSubtotal()</code> returns correct <code>double</code> result</li><li>[ ] String comparison uses <code>.equals()</code> throughout</li><li>[ ] No <code>NullPointerException</code> when optional fields are null</li><li>[ ] Static counter generates unique IDs (FE-1001, FE-1002, ...)</li><li>[ ] At least two constructor overloads work correctly</li><li>[ ] <code>toString()</code> returns readable output</li><li>[ ] Code compiles with <code>javac</code> without warnings</li><li>[ ] Code follows Java naming conventions (camelCase, PascalCase)</li></ul></div>
+    <div class="ft"><span class="fr">36</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="37">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 05 - COMPLETE</div>
+    <div class="e-ttl">Key takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Concept</th><th>Remember</th></tr></thead><tbody><tr><td>JDK vs JRE vs JVM</td><td>JDK for development, JRE for running, JVM executes bytecode</td></tr><tr><td>Primitives vs References</td><td>Primitives hold values, references hold addresses</td></tr><tr><td>String comparison</td><td>Always <code>.equals()</code>, never <code>==</code> for strings</td></tr><tr><td>Encapsulation</td><td>Fields <code>private</code>, access via getters/setters</td></tr><tr><td>Access modifiers</td><td><code>private</code> > default > <code>protected</code> > <code>public</code> (least privilege)</td></tr><tr><td>Constructors</td><td>Same name as class, no return type, validate inputs</td></tr><tr><td>Static</td><td>Belongs to class, not object. Use for utilities and constants</td></tr><tr><td><code>this</code></td><td>Refers to current object. Disambiguates fields from params</td></tr><tr><td>Null safety</td><td>Check for <code>null</code> before calling methods. NPE is #1 Java bug</td></tr><tr><td>Garbage collection</td><td>Automatic. No references = eligible for GC</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 06 -- Java Programming (Part 2): Exceptions, interfaces, abstract classes, I/O streams</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 06 -- Java Programming (Part 2): Exceptions, interfaces, abstract classes, I/O streams</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 37</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

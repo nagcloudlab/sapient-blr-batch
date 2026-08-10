@@ -1,0 +1,62 @@
+// FoodExpress Restaurant Service -- Jenkinsfile (Node.js)
+// Lab 2 Solution
+
+pipeline {
+    agent {
+        docker {
+            image 'node:18-alpine'
+        }
+    }
+
+    options {
+        timeout(time: 20, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    environment {
+        APP_NAME = 'restaurant-service'
+        DOCKER_CREDS = credentials('docker-hub-credentials')
+    }
+
+    stages {
+        stage('Install Dependencies') {
+            steps {
+                sh 'npm ci'
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                sh 'npm run lint'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'npm test -- --coverage --forceExit'
+            }
+            post {
+                always {
+                    junit 'test-results/*.xml'
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t ${DOCKER_CREDS_USR}/${APP_NAME}:${BUILD_NUMBER} ."
+            }
+        }
+    }
+
+    post {
+        failure {
+            slackSend channel: '#deployments',
+                      color: 'danger',
+                      message: "Restaurant Service build #${BUILD_NUMBER} FAILED: ${BUILD_URL}"
+        }
+        always {
+            cleanWs()
+        }
+    }
+}

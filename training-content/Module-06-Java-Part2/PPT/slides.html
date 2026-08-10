@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Programming (Part 2)</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 06</div>
+    <div class="t-main">Java Programming (Part 2)</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day | Workshop + guided lab</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct">AGENDA</span></div>
+    <div class="tt">By the end of this session</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">You can handle exceptions properly, design with interfaces and abstract classes, and read/write files using Java I/O streams.</p>
+<table class="tbl"><thead><tr><th>Pillar</th><th>What you will do</th></tr></thead><tbody><tr><td><strong>Exceptions</strong></td><td>Checked vs unchecked, throw, throws, custom exceptions</td></tr><tr><td><strong>Exception Hierarchy</strong></td><td>Throwable, Error, Exception, RuntimeException</td></tr><tr><td><strong>try/catch/finally</strong></td><td>Catch specific exceptions, multi-catch, try-with-resources</td></tr><tr><td><strong>Interfaces</strong></td><td>Define contracts, implement multiple interfaces</td></tr><tr><td><strong>Abstract Classes</strong></td><td>Partial implementation, template method pattern</td></tr><tr><td><strong>Implementation Dependencies</strong></td><td>Coupling, coding to interfaces, dependency injection</td></tr><tr><td><strong>I/O Streams</strong></td><td>InputStream, OutputStream, byte-level I/O</td></tr><tr><td><strong>Readers & Writers</strong></td><td>Character-level I/O, BufferedReader, PrintWriter</td></tr><tr><td><strong>Filter Streams</strong></td><td>BufferedInputStream, DataInputStream, ObjectInputStream</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Session agenda</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>Exception fundamentals</td></tr><tr><td>02</td><td>Exception hierarchy</td></tr><tr><td>03</td><td>try/catch/finally and multi-catch</td></tr><tr><td>04</td><td>Custom exceptions and best practices</td></tr><tr><td>05</td><td>try-with-resources</td></tr><tr><td>06</td><td>Interfaces</td></tr><tr><td>07</td><td>Abstract classes</td></tr><tr><td>08</td><td>Coding to interfaces and loose coupling</td></tr><tr><td>09</td><td>I/O streams: byte streams</td></tr><tr><td>10</td><td>Readers and writers: character streams</td></tr><tr><td>11</td><td>Filter streams and buffering</td></tr><tr><td>12</td><td>Guided lab</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">What is an exception?</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">An exception is an event that disrupts the normal flow of a program.</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">// This code crashes at runtime
+String input = "abc";
+int quantity = Integer.parseInt(input);  // NumberFormatException!
+
+// Without handling, the program terminates
+// Stack trace printed to console:
+// Exception in thread "main" java.lang.NumberFormatException:
+//     For input string: "abc"
+//     at java.lang.Integer.parseInt(Integer.java:652)
+//     at OrderService.processInput(OrderService.java:42)
+//     at Main.main(Main.java:15)</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Common exceptions in sustain engineering</div>
+<table class="tbl"><thead><tr><th>Exception</th><th>Cause</th><th>Example</th></tr></thead><tbody><tr><td><code>NullPointerException</code></td><td>Calling method on null</td><td><code>order.getCustomer().getName()</code></td></tr><tr><td><code>NumberFormatException</code></td><td>Invalid string to number</td><td><code>Integer.parseInt("abc")</code></td></tr><tr><td><code>ArrayIndexOutOfBoundsException</code></td><td>Index >= array length</td><td><code>items[10]</code> when length is 5</td></tr><tr><td><code>FileNotFoundException</code></td><td>File does not exist</td><td><code>new FileReader("missing.txt")</code></td></tr><tr><td><code>IOException</code></td><td>I/O operation failed</td><td>Network timeout, disk full</td></tr><tr><td><code>ClassCastException</code></td><td>Invalid type cast</td><td><code>(String) integerObject</code></td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Exception hierarchy</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">                    Throwable
+                    /       \
+                Error      Exception
+                /             /     \
+    OutOfMemoryError   IOException  RuntimeException
+    StackOverflowError FileNotFound     /    |     \
+                       SQLException  NPE  IOOBE  NFE</div></div></div>
+<table class="tbl"><thead><tr><th>Type</th><th>Checked?</th><th>Must handle?</th><th>Examples</th></tr></thead><tbody><tr><td><strong>Error</strong></td><td>No</td><td>No (unrecoverable)</td><td><code>OutOfMemoryError</code>, <code>StackOverflowError</code></td></tr><tr><td><strong>Checked Exception</strong></td><td>Yes</td><td>Yes (compile error if not)</td><td><code>IOException</code>, <code>SQLException</code>, <code>FileNotFoundException</code></td></tr><tr><td><strong>Unchecked Exception</strong></td><td>No</td><td>No (but should handle)</td><td><code>NullPointerException</code>, <code>IllegalArgumentException</code></td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The rule</div>
+<ul class="bl"><li><strong>Checked exceptions</strong> extend <code>Exception</code> (but not <code>RuntimeException</code>)</li><li><strong>Unchecked exceptions</strong> extend <code>RuntimeException</code></li><li><strong>Errors</strong> extend <code>Error</code> -- do NOT catch these</li></ul>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Checked exceptions force the caller to handle them. Unchecked exceptions indicate programming bugs.</div></div></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">try / catch / finally</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34</div><div class="cb-cd">// Basic try/catch
+try {
+    String input = getInput();
+    int quantity = Integer.parseInt(input);
+    processOrder(quantity);
+} catch (NumberFormatException e) {
+    System.err.println("Invalid quantity: " + e.getMessage());
+}
+
+// Multiple catch blocks (most specific first)
+try {
+    MenuItem item = loadMenuItem(id);
+    Order order = createOrder(item, quantity);
+    saveOrder(order);
+} catch (FileNotFoundException e) {
+    System.err.println("Menu file not found: " + e.getMessage());
+} catch (IOException e) {
+    System.err.println("I/O error: " + e.getMessage());
+} catch (Exception e) {
+    System.err.println("Unexpected error: " + e.getMessage());
+}
+
+// finally: always runs (cleanup)
+FileReader reader = null;
+try {
+    reader = new FileReader("menu.json");
+    // process file
+} catch (IOException e) {
+    System.err.println("Error reading file");
+} finally {
+    if (reader != null) {
+        try { reader.close(); } catch (IOException e) { }
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Multi-catch and re-throw</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29</div><div class="cb-cd">// Multi-catch (Java 7+): handle multiple exceptions the same way
+try {
+    MenuItem item = findMenuItem(name);
+    Order order = createOrder(item, quantity);
+} catch (NumberFormatException | IllegalArgumentException e) {
+    // Same handling for both
+    System.err.println("Invalid input: " + e.getMessage());
+} catch (IOException e) {
+    System.err.println("I/O error: " + e.getMessage());
+}
+
+// Re-throw: catch, log, and re-throw
+public Order processOrder(String input) throws OrderException {
+    try {
+        // ... processing logic ...
+        return createOrder(input);
+    } catch (NumberFormatException e) {
+        // Log the technical details
+        logger.error("Invalid order input", e);
+        // Throw a business-level exception
+        throw new OrderException("Invalid order data", e);
+    }
+}
+
+// Chained exceptions: preserve the original cause
+catch (SQLException e) {
+    throw new OrderException("Failed to save order", e);
+    // e is the "cause" -- accessible via getCause()
+}</div></div></div></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">The throws keyword</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">// Declaring that a method may throw a checked exception
+public MenuItem loadFromFile(String filename) throws IOException {
+    FileReader reader = new FileReader(filename);  // may throw
+    // ... read and parse ...
+    return menuItem;
+}
+
+// Caller MUST handle or propagate
+// Option 1: Handle it
+try {
+    MenuItem item = loadFromFile("menu.json");
+} catch (IOException e) {
+    System.err.println("Cannot load menu");
+}
+
+// Option 2: Propagate it (add throws to calling method)
+public void initializeMenu() throws IOException {
+    MenuItem item = loadFromFile("menu.json");
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Keyword</th><th>Purpose</th><th>Where</th></tr></thead><tbody><tr><td><code>throw</code></td><td>Actually throw an exception</td><td>Inside method body</td></tr><tr><td><code>throws</code></td><td>Declare that method MAY throw</td><td>In method signature</td></tr><tr><td><code>try</code></td><td>Start a protected block</td><td>Before risky code</td></tr><tr><td><code>catch</code></td><td>Handle a specific exception</td><td>After <code>try</code> block</td></tr><tr><td><code>finally</code></td><td>Always execute (cleanup)</td><td>After <code>catch</code> blocks</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Custom exceptions</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">// Custom checked exception
+public class OrderNotFoundException extends Exception {
+    private final String orderId;
+
+    public OrderNotFoundException(String orderId) {
+        super("Order not found: " + orderId);
+        this.orderId = orderId;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+}
+
+// Custom unchecked exception
+public class InvalidMenuItemException extends RuntimeException {
+    private final String field;
+
+    public InvalidMenuItemException(String field, String message) {
+        super(message);
+        this.field = field;
+    }
+
+    public String getField() {
+        return field;
+    }
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">// Using custom exceptions
+public Order findOrder(String id) throws OrderNotFoundException {
+    Order order = orderRepository.findById(id);
+    if (order == null) {
+        throw new OrderNotFoundException(id);
+    }
+    return order;
+}</div></div></div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">When to use checked vs unchecked</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Scenario</th><th>Type</th><th>Example</th></tr></thead><tbody><tr><td>Caller can recover</td><td>Checked</td><td><code>OrderNotFoundException</code> -- show "not found" page</td></tr><tr><td>Programming bug</td><td>Unchecked</td><td><code>InvalidMenuItemException</code> -- should be caught in tests</td></tr><tr><td>External system failure</td><td>Checked</td><td><code>PaymentServiceException</code> -- retry or fallback</td></tr><tr><td>Invalid argument</td><td>Unchecked</td><td><code>IllegalArgumentException</code> -- fix the calling code</td></tr><tr><td>Resource not found</td><td>Checked</td><td><code>FileNotFoundException</code> -- prompt user for correct path</td></tr><tr><td>Null where not expected</td><td>Unchecked</td><td><code>NullPointerException</code> -- add null check</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Best practices</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">// DO: Catch specific exceptions
+catch (FileNotFoundException e) { ... }
+
+// DON'T: Catch generic Exception unless necessary
+catch (Exception e) { ... }  // too broad
+
+// DO: Include context in messages
+throw new OrderException("Failed to process order " + orderId, e);
+
+// DON'T: Swallow exceptions silently
+catch (Exception e) { }  // NEVER do this
+
+// DO: Log the exception
+catch (Exception e) {
+    logger.error("Order processing failed for " + orderId, e);
+    throw e;  // or throw a new exception with cause
+}</div></div></div></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">try-with-resources (Java 7+)</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30</div><div class="cb-cd">// OLD way: manual close in finally
+FileReader reader = null;
+try {
+    reader = new FileReader("orders.csv");
+    BufferedReader br = new BufferedReader(reader);
+    String line;
+    while ((line = br.readLine()) != null) {
+        processLine(line);
+    }
+} catch (IOException e) {
+    System.err.println("Error: " + e.getMessage());
+} finally {
+    if (reader != null) {
+        try { reader.close(); } catch (IOException e) { }
+    }
+}
+
+// NEW way: try-with-resources (auto-close)
+try (FileReader reader = new FileReader("orders.csv");
+     BufferedReader br = new BufferedReader(reader)) {
+
+    String line;
+    while ((line = br.readLine()) != null) {
+        processLine(line);
+    }
+
+} catch (IOException e) {
+    System.err.println("Error: " + e.getMessage());
+}
+// reader and br are automatically closed!</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Any class that implements <code>AutoCloseable</code> can be used in try-with-resources. This includes all I/O streams, database connections, and network sockets.</div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Interfaces: defining contracts</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">// Interface: defines WHAT, not HOW
+public interface Payable {
+    double calculateTotal();
+    String getPaymentSummary();
+
+    // Default method (Java 8+): provides optional implementation
+    default String formatCurrency(double amount) {
+        return String.format("$%.2f", amount);
+    }
+
+    // Static method (Java 8+)
+    static double addTax(double amount, double rate) {
+        return amount * (1 + rate);
+    }
+
+    // Constant (implicitly public static final)
+    double TAX_RATE = 0.08;
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">// Implementation
+public class Order implements Payable {
+    private List&lt;OrderItem&gt; items;
+
+    @Override
+    public double calculateTotal() {
+        double subtotal = items.stream()
+            .mapToDouble(OrderItem::getSubtotal)
+            .sum();
+        return Payable.addTax(subtotal, TAX_RATE);
+    }
+
+    @Override
+    public String getPaymentSummary() {
+        return "Order total: " + formatCurrency(calculateTotal());
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Interface rules and features</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Feature</th><th>Interface</th><th>Notes</th></tr></thead><tbody><tr><td>Fields</td><td><code>public static final</code> only</td><td>Constants, implicitly</td></tr><tr><td>Abstract methods</td><td><code>public abstract</code></td><td>Implicitly, no body</td></tr><tr><td>Default methods</td><td><code>default</code> keyword (Java 8+)</td><td>Has body, can be overridden</td></tr><tr><td>Static methods</td><td><code>static</code> keyword (Java 8+)</td><td>Called on interface, not instance</td></tr><tr><td>Private methods</td><td>Java 9+</td><td>Helper methods for defaults</td></tr><tr><td>Constructors</td><td>NOT allowed</td><td>Cannot instantiate an interface</td></tr><tr><td>Multiple inheritance</td><td>YES</td><td>A class can implement many interfaces</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">// Multiple interface implementation
+public class DeliveryOrder implements Payable, Trackable, Cancellable {
+    @Override
+    public double calculateTotal() { /* ... */ }
+
+    @Override
+    public String getPaymentSummary() { /* ... */ }
+
+    @Override
+    public String getTrackingStatus() { /* ... */ }
+
+    @Override
+    public boolean cancel() { /* ... */ }
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Interfaces support multiple inheritance. Classes do not (single inheritance only). This is a key design advantage.</div></div></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress interface examples</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22</div><div class="cb-cd">// Trackable: anything with a status
+public interface Trackable {
+    String getStatus();
+    void updateStatus(String newStatus);
+    long getLastUpdated();
+}
+
+// Cancellable: anything that can be cancelled
+public interface Cancellable {
+    boolean cancel();
+    boolean isCancellable();
+}
+
+// Priceable: anything with a price
+public interface Priceable {
+    double getPrice();
+    double getDiscountedPrice(double discountRate);
+
+    default String getFormattedPrice() {
+        return String.format("$%.2f", getPrice());
+    }
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">// MenuItem implements Priceable
+public class MenuItem implements Priceable {
+    private String name;
+    private double price;
+
+    @Override
+    public double getPrice() { return price; }
+
+    @Override
+    public double getDiscountedPrice(double rate) {
+        return price * (1 - rate);
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Abstract classes: partial implementation</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33</div><div class="cb-cd">// Abstract class: cannot be instantiated
+public abstract class AbstractOrder {
+    // Concrete fields
+    protected String orderId;
+    protected String customerName;
+    protected double subtotal;
+    private long createdAt;
+
+    // Constructor (called by subclasses)
+    public AbstractOrder(String orderId, String customerName) {
+        this.orderId = orderId;
+        this.customerName = customerName;
+        this.createdAt = System.currentTimeMillis();
+    }
+
+    // Abstract method: subclass MUST implement
+    public abstract double calculateDeliveryFee();
+
+    // Abstract method
+    public abstract String getOrderType();
+
+    // Concrete method: shared by all subclasses
+    public double getTotal() {
+        return subtotal + calculateDeliveryFee();
+    }
+
+    // Concrete method
+    public String getSummary() {
+        return getOrderType() + " order " + orderId
+            + " for " + customerName
+            + " - Total: $" + String.format("%.2f", getTotal());
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Extending abstract classes</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36</div><div class="cb-cd">public class DeliveryOrder extends AbstractOrder {
+    private String deliveryAddress;
+    private double distance;
+
+    public DeliveryOrder(String id, String customer, String address, double distance) {
+        super(id, customer);  // call parent constructor
+        this.deliveryAddress = address;
+        this.distance = distance;
+    }
+
+    @Override
+    public double calculateDeliveryFee() {
+        return distance &gt; 5.0 ? 4.99 : 2.99;
+    }
+
+    @Override
+    public String getOrderType() {
+        return "Delivery";
+    }
+}
+
+public class PickupOrder extends AbstractOrder {
+    public PickupOrder(String id, String customer) {
+        super(id, customer);
+    }
+
+    @Override
+    public double calculateDeliveryFee() {
+        return 0.0;  // no delivery fee for pickup
+    }
+
+    @Override
+    public String getOrderType() {
+        return "Pickup";
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Abstract class vs interface</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Feature</th><th>Abstract class</th><th>Interface</th></tr></thead><tbody><tr><td>Instantiate?</td><td>No</td><td>No</td></tr><tr><td>Constructors?</td><td>Yes</td><td>No</td></tr><tr><td>Fields?</td><td>Any (instance, static)</td><td><code>public static final</code> only</td></tr><tr><td>Methods?</td><td>Abstract + concrete</td><td>Abstract + default + static</td></tr><tr><td>Inheritance</td><td>Single (<code>extends</code> one)</td><td>Multiple (<code>implements</code> many)</td></tr><tr><td>Access modifiers</td><td>Any</td><td><code>public</code> (methods implicitly)</td></tr><tr><td>When to use</td><td>Common base with shared state</td><td>Contract / capability definition</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Decision guide</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</div><div class="cb-cd">Need shared state (fields)?
+  YES -&gt; Abstract class
+  NO  -&gt; Interface
+
+Need multiple inheritance?
+  YES -&gt; Interface
+  NO  -&gt; Either works
+
+Is it "is-a" relationship?
+  YES -&gt; Abstract class (DeliveryOrder IS-A Order)
+  NO  -&gt; Interface (Order IS Payable, IS Trackable)
+
+Need constructor logic?
+  YES -&gt; Abstract class
+  NO  -&gt; Interface</div></div></div></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Coding to interfaces (loose coupling)</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22</div><div class="cb-cd">// TIGHT coupling: depends on concrete class
+public class OrderProcessor {
+    private MySQLOrderRepository repository;  // locked to MySQL
+
+    public OrderProcessor() {
+        this.repository = new MySQLOrderRepository();
+    }
+}
+
+// LOOSE coupling: depends on interface
+public class OrderProcessor {
+    private OrderRepository repository;  // any implementation
+
+    public OrderProcessor(OrderRepository repository) {
+        this.repository = repository;  // injected
+    }
+
+    public void process(Order order) {
+        // Works with MySQL, PostgreSQL, MongoDB, InMemory...
+        repository.save(order);
+    }
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">// Interface
+public interface OrderRepository {
+    void save(Order order);
+    Order findById(String id);
+    List&lt;Order&gt; findAll();
+}
+
+// Implementations
+public class MySQLOrderRepository implements OrderRepository { /* ... */ }
+public class MongoOrderRepository implements OrderRepository { /* ... */ }
+public class InMemoryOrderRepository implements OrderRepository { /* ... */ }</div></div></div></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Dependency injection pattern</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">// Production: use MySQL
+OrderRepository repo = new MySQLOrderRepository(connectionString);
+OrderProcessor processor = new OrderProcessor(repo);
+
+// Testing: use in-memory
+OrderRepository testRepo = new InMemoryOrderRepository();
+OrderProcessor testProcessor = new OrderProcessor(testRepo);
+
+// Spring Boot does this automatically
+@Service
+public class OrderProcessor {
+    private final OrderRepository repository;
+
+    @Autowired  // Spring injects the implementation
+    public OrderProcessor(OrderRepository repository) {
+        this.repository = repository;
+    }
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Principle</th><th>Description</th></tr></thead><tbody><tr><td><strong>Program to interfaces</strong></td><td>Declare variables as interface types, not concrete</td></tr><tr><td><strong>Dependency injection</strong></td><td>Pass dependencies in, don't create them inside</td></tr><tr><td><strong>Single responsibility</strong></td><td>Each class does one thing</td></tr><tr><td><strong>Open/closed</strong></td><td>Open for extension (new implementations), closed for modification</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">In sustain engineering, you often swap implementations (database, cache, API client) without changing business logic. Interfaces make this possible.</div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Polymorphism in action</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25</div><div class="cb-cd">// Process any type of order through a single method
+public class OrderService {
+    public void processOrder(AbstractOrder order) {
+        System.out.println(order.getSummary());
+        System.out.println("Delivery fee: $"
+            + String.format("%.2f", order.calculateDeliveryFee()));
+    }
+}
+
+// Usage
+OrderService service = new OrderService();
+
+AbstractOrder delivery = new DeliveryOrder("FE-1001", "Alice", "123 Main St", 3.5);
+delivery.subtotal = 24.97;
+
+AbstractOrder pickup = new PickupOrder("FE-1002", "Bob");
+pickup.subtotal = 18.50;
+
+service.processOrder(delivery);
+// Delivery order FE-1001 for Alice - Total: $27.96
+// Delivery fee: $2.99
+
+service.processOrder(pickup);
+// Pickup order FE-1002 for Bob - Total: $18.50
+// Delivery fee: $0.00</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Same method call (<code>calculateDeliveryFee</code>) produces different results based on the actual object type. This is polymorphism.</div></div></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">I/O streams overview</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">Java I/O Stream Hierarchy
+
+Byte Streams (binary data)          Character Streams (text)
++-----------------+                 +-----------------+
+| InputStream     |                 | Reader          |
+|   FileInput...  |                 |   FileReader    |
+|   BufferedInput..|                |   BufferedReader|
+|   DataInput...  |                 |   InputStreamR. |
++-----------------+                 +-----------------+
+| OutputStream    |                 | Writer          |
+|   FileOutput... |                 |   FileWriter    |
+|   BufferedOutput.|                |   BufferedWriter|
+|   DataOutput... |                 |   PrintWriter   |
++-----------------+                 +-----------------+</div></div></div>
+<table class="tbl"><thead><tr><th>Stream type</th><th>Unit</th><th>Use for</th></tr></thead><tbody><tr><td><strong>Byte streams</strong></td><td><code>byte</code> (8-bit)</td><td>Binary files: images, PDFs, serialized objects</td></tr><tr><td><strong>Character streams</strong></td><td><code>char</code> (16-bit)</td><td>Text files: CSV, JSON, logs, config</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Use character streams for text files. Use byte streams for binary files. Using the wrong type corrupts data.</div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Byte streams: FileInputStream / FileOutputStream</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32</div><div class="cb-cd">import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+// Reading bytes from a file
+try (FileInputStream fis = new FileInputStream("logo.png")) {
+    int byteData;
+    while ((byteData = fis.read()) != -1) {
+        // process each byte
+    }
+} catch (IOException e) {
+    System.err.println("Error reading file: " + e.getMessage());
+}
+
+// Writing bytes to a file
+try (FileOutputStream fos = new FileOutputStream("copy.png")) {
+    fos.write(byteArray);
+} catch (IOException e) {
+    System.err.println("Error writing file: " + e.getMessage());
+}
+
+// Copy a file byte by byte
+try (FileInputStream in = new FileInputStream("source.dat");
+     FileOutputStream out = new FileOutputStream("dest.dat")) {
+
+    int b;
+    while ((b = in.read()) != -1) {
+        out.write(b);
+    }
+} catch (IOException e) {
+    System.err.println("Copy failed: " + e.getMessage());
+}</div></div></div></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Reading with a buffer (efficient)</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">// Reading byte by byte: SLOW (one system call per byte)
+while ((b = fis.read()) != -1) { ... }
+
+// Reading with buffer: FAST (one system call per chunk)
+byte[] buffer = new byte[8192];  // 8 KB buffer
+int bytesRead;
+while ((bytesRead = fis.read(buffer)) != -1) {
+    out.write(buffer, 0, bytesRead);
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Approach</th><th>System calls for 1 MB file</th><th>Speed</th></tr></thead><tbody><tr><td>Byte-by-byte</td><td>~1,000,000</td><td>Very slow</td></tr><tr><td>1 KB buffer</td><td>~1,024</td><td>Fast</td></tr><tr><td>8 KB buffer</td><td>~128</td><td>Very fast</td></tr><tr><td>64 KB buffer</td><td>~16</td><td>Fastest (diminishing returns)</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><div class="cb-cd">// Complete efficient file copy
+public static void copyFile(String src, String dest) throws IOException {
+    try (FileInputStream in = new FileInputStream(src);
+         FileOutputStream out = new FileOutputStream(dest)) {
+
+        byte[] buffer = new byte[8192];
+        int bytesRead;
+        while ((bytesRead = in.read(buffer)) != -1) {
+            out.write(buffer, 0, bytesRead);
+        }
+    }
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Always use a buffer when reading/writing files. Byte-by-byte I/O is orders of magnitude slower.</div></div></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Character streams: FileReader / FileWriter</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26</div><div class="cb-cd">import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+
+// Reading characters from a text file
+try (FileReader reader = new FileReader("menu.txt")) {
+    int ch;
+    while ((ch = reader.read()) != -1) {
+        System.out.print((char) ch);
+    }
+} catch (IOException e) {
+    System.err.println("Error: " + e.getMessage());
+}
+
+// Writing text to a file
+try (FileWriter writer = new FileWriter("output.txt")) {
+    writer.write("FoodExpress Order Report\n");
+    writer.write("========================\n");
+    writer.write("Order ID: FE-1001\n");
+    writer.write("Total: $24.97\n");
+}
+
+// Append mode (don't overwrite)
+try (FileWriter writer = new FileWriter("log.txt", true)) {
+    writer.write("2026-07-27 10:30:00 Order placed FE-1001\n");
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Parameter</th><th><code>new FileWriter("file.txt")</code></th><th><code>new FileWriter("file.txt", true)</code></th></tr></thead><tbody><tr><td>Mode</td><td>Overwrite</td><td>Append</td></tr><tr><td>Existing content</td><td>Deleted</td><td>Preserved</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">BufferedReader and BufferedWriter</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29</div><div class="cb-cd">import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+
+// BufferedReader: read line by line
+try (BufferedReader br = new BufferedReader(new FileReader("orders.csv"))) {
+    String line;
+    int lineNumber = 0;
+    while ((line = br.readLine()) != null) {
+        lineNumber++;
+        String[] fields = line.split(",");
+        System.out.printf("Line %d: Order %s, Total $%s%n",
+            lineNumber, fields[0], fields[2]);
+    }
+}
+
+// BufferedWriter: write with buffering
+try (BufferedWriter bw = new BufferedWriter(new FileWriter("report.txt"))) {
+    bw.write("FoodExpress Daily Report");
+    bw.newLine();  // platform-independent line separator
+    bw.write("========================");
+    bw.newLine();
+
+    for (Order order : orders) {
+        bw.write(order.getSummary());
+        bw.newLine();
+    }
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><code>BufferedReader.readLine()</code> is the most common way to read text files in Java. It reads one line at a time and returns <code>null</code> at end of file.</div></div></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">PrintWriter: convenient text output</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd">import java.io.PrintWriter;
+import java.io.FileWriter;
+
+// PrintWriter: printf-style formatting
+try (PrintWriter pw = new PrintWriter(new FileWriter("report.csv"))) {
+    // Header
+    pw.println("OrderID,Customer,Total,Status");
+
+    // Data rows
+    for (Order order : orders) {
+        pw.printf("%s,%s,%.2f,%s%n",
+            order.getOrderId(),
+            order.getCustomerName(),
+            order.getTotal(),
+            order.getStatus());
+    }
+
+    pw.flush();  // ensure all data is written
+}
+
+// PrintWriter to System.out
+PrintWriter console = new PrintWriter(System.out, true);
+console.printf("Processing order %s for %s%n", orderId, customer);</div></div></div>
+<table class="tbl"><thead><tr><th>Method</th><th>Description</th></tr></thead><tbody><tr><td><code>print(x)</code></td><td>Write without newline</td></tr><tr><td><code>println(x)</code></td><td>Write with newline</td></tr><tr><td><code>printf(format, args)</code></td><td>Formatted output (like C)</td></tr><tr><td><code>flush()</code></td><td>Force write buffered data</td></tr><tr><td><code>close()</code></td><td>Flush and close</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">InputStreamReader: bridging byte and character streams</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">import java.io.InputStreamReader;
+import java.io.BufferedReader;
+import java.nio.charset.StandardCharsets;
+
+// Read from System.in (keyboard input)
+try (BufferedReader br = new BufferedReader(
+        new InputStreamReader(System.in))) {
+
+    System.out.print("Enter order ID: ");
+    String orderId = br.readLine();
+    System.out.println("Looking up: " + orderId);
+}
+
+// Read a file with specific encoding
+try (BufferedReader br = new BufferedReader(
+        new InputStreamReader(
+            new FileInputStream("menu.txt"),
+            StandardCharsets.UTF_8))) {
+
+    String line;
+    while ((line = br.readLine()) != null) {
+        System.out.println(line);
+    }
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">Byte Stream  --&gt;  InputStreamReader  --&gt;  Reader
+(bytes)           (bridge: bytes-&gt;chars)  (characters)
+
+Writer       --&gt;  OutputStreamWriter --&gt;  Byte Stream
+(characters)      (bridge: chars-&gt;bytes)  (bytes)</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Always specify the encoding (<code>UTF-8</code>) when reading/writing text across systems. Default encoding varies by OS.</div></div></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Filter streams: DataInputStream / DataOutputStream</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29</div><div class="cb-cd">import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
+// Write primitive types to a binary file
+try (DataOutputStream dos = new DataOutputStream(
+        new FileOutputStream("order.dat"))) {
+
+    dos.writeUTF("FE-1001");      // String (with length prefix)
+    dos.writeDouble(24.97);        // 8 bytes
+    dos.writeInt(3);               // 4 bytes
+    dos.writeBoolean(true);        // 1 byte
+    dos.writeLong(System.currentTimeMillis());  // 8 bytes
+}
+
+// Read primitive types from a binary file
+try (DataInputStream dis = new DataInputStream(
+        new FileInputStream("order.dat"))) {
+
+    String orderId = dis.readUTF();
+    double total = dis.readDouble();
+    int itemCount = dis.readInt();
+    boolean isPaid = dis.readBoolean();
+    long timestamp = dis.readLong();
+
+    System.out.printf("Order %s: $%.2f (%d items, paid=%b)%n",
+        orderId, total, itemCount, isPaid);
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Read in the SAME ORDER as written. <code>DataInputStream</code>/<code>DataOutputStream</code> do not store field names -- only raw values in sequence.</div></div></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="29">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">BufferedInputStream / BufferedOutputStream</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
+// Stack streams for efficient binary I/O
+try (BufferedInputStream bis = new BufferedInputStream(
+         new FileInputStream("large-file.dat"), 16384);
+     BufferedOutputStream bos = new BufferedOutputStream(
+         new FileOutputStream("copy.dat"), 16384)) {
+
+    byte[] buffer = new byte[8192];
+    int bytesRead;
+    while ((bytesRead = bis.read(buffer)) != -1) {
+        bos.write(buffer, 0, bytesRead);
+    }
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Stream decorator pattern</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">FileInputStream        (raw bytes from file)
+  |
+  v
+BufferedInputStream    (adds buffering)
+  |
+  v
+DataInputStream        (adds readInt, readDouble, etc.)</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Streams are composed using the decorator pattern. Wrap a stream to add capability without changing the base stream.</div></div></div>
+    <div class="ft"><span class="fr">29</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="30">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Java NIO: modern file operations (Java 7+)</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29</div><div class="cb-cd">import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
+// Read entire file as a string
+String content = Files.readString(Path.of("menu.json"));
+
+// Read all lines into a list
+List&lt;String&gt; lines = Files.readAllLines(Path.of("orders.csv"));
+
+// Write a string to a file
+Files.writeString(Path.of("output.txt"), "Hello FoodExpress");
+
+// Write lines to a file
+List&lt;String&gt; reportLines = List.of("Header", "Line 1", "Line 2");
+Files.write(Path.of("report.txt"), reportLines);
+
+// Check file properties
+Path path = Path.of("menu.json");
+Files.exists(path);           // true/false
+Files.size(path);             // file size in bytes
+Files.isReadable(path);       // true/false
+Files.getLastModifiedTime(path);
+
+// Copy and move
+Files.copy(Path.of("src.txt"), Path.of("dest.txt"));
+Files.move(Path.of("old.txt"), Path.of("new.txt"));
+Files.delete(Path.of("temp.txt"));</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">For simple file operations, prefer <code>java.nio.file.Files</code> over the stream-based API. It is more concise and handles encoding properly.</div></div></div>
+    <div class="ft"><span class="fr">30</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="31">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Reading CSV: FoodExpress menu example</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29</div><div class="cb-cd">import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MenuLoader {
+    public static List&lt;MenuItem&gt; loadMenu(String filename) throws IOException {
+        List&lt;MenuItem&gt; items = new ArrayList&lt;&gt;();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            String header = br.readLine();  // skip header row
+            String line;
+
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length &lt; 3) continue;  // skip malformed lines
+
+                String name = parts[0].trim();
+                double price = Double.parseDouble(parts[1].trim());
+                String category = parts[2].trim();
+
+                items.add(new MenuItem(name, price, category));
+            }
+        }
+
+        return items;
+    }
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">// menu.csv
+Name,Price,Category
+Smash Burger,8.99,Mains
+Loaded Fries,4.99,Sides
+Chocolate Shake,5.99,Drinks
+Caesar Salad,7.49,Starters</div></div></div></div>
+    <div class="ft"><span class="fr">31</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="32">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Writing reports: FoodExpress order summary</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33</div><div class="cb-cd">import java.io.PrintWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class ReportGenerator {
+    public static void generateOrderReport(List&lt;Order&gt; orders, String filename)
+            throws IOException {
+
+        try (PrintWriter pw = new PrintWriter(new FileWriter(filename))) {
+            pw.println("=== FoodExpress Order Report ===");
+            pw.printf("Generated: %s%n%n", java.time.LocalDateTime.now());
+
+            pw.printf("%-12s %-15s %10s %10s %-12s%n",
+                "Order ID", "Customer", "Subtotal", "Total", "Status");
+            pw.println("-".repeat(65));
+
+            double grandTotal = 0;
+            for (Order order : orders) {
+                pw.printf("%-12s %-15s %10.2f %10.2f %-12s%n",
+                    order.getOrderId(),
+                    order.getCustomerName(),
+                    order.getSubtotal(),
+                    order.getTotal(),
+                    order.getStatus());
+                grandTotal += order.getTotal();
+            }
+
+            pw.println("-".repeat(65));
+            pw.printf("%-27s %10s %10.2f%n", "GRAND TOTAL", "", grandTotal);
+            pw.printf("%nTotal orders: %d%n", orders.size());
+        }
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">32</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="33">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Object serialization (overview)</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">import java.io.Serializable;
+import java.io.ObjectOutputStream;
+import java.io.ObjectInputStream;
+import java.io.FileOutputStream;
+import java.io.FileInputStream;
+
+// Class must implement Serializable
+public class MenuItem implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private String name;
+    private double price;
+    private String category;
+    private transient int viewCount;  // transient = NOT serialized
+}
+
+// Serialize (write object to file)
+try (ObjectOutputStream oos = new ObjectOutputStream(
+        new FileOutputStream("menuItem.ser"))) {
+    oos.writeObject(burger);
+}
+
+// Deserialize (read object from file)
+try (ObjectInputStream ois = new ObjectInputStream(
+        new FileInputStream("menuItem.ser"))) {
+    MenuItem loaded = (MenuItem) ois.readObject();
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Keyword</th><th>Meaning</th></tr></thead><tbody><tr><td><code>Serializable</code></td><td>Marker interface -- enables serialization</td></tr><tr><td><code>serialVersionUID</code></td><td>Version control for serialized format</td></tr><tr><td><code>transient</code></td><td>Skip this field during serialization</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">In modern Java, prefer JSON serialization (Jackson, Gson) over <code>ObjectOutputStream</code>. Binary serialization has security risks and versioning issues.</div></div></div>
+    <div class="ft"><span class="fr">33</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="34">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Exception handling in I/O: complete pattern</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35</div><div class="cb-cd">public class OrderFileProcessor {
+
+    public List&lt;Order&gt; readOrders(String filename) {
+        List&lt;Order&gt; orders = new ArrayList&lt;&gt;();
+
+        try (BufferedReader br = new BufferedReader(
+                new FileReader(filename))) {
+
+            br.readLine();  // skip header
+            String line;
+            int lineNum = 1;
+
+            while ((line = br.readLine()) != null) {
+                lineNum++;
+                try {
+                    Order order = parseLine(line);
+                    orders.add(order);
+                } catch (NumberFormatException e) {
+                    System.err.printf("Line %d: Invalid number - %s%n",
+                        lineNum, e.getMessage());
+                } catch (IllegalArgumentException e) {
+                    System.err.printf("Line %d: Invalid data - %s%n",
+                        lineNum, e.getMessage());
+                }
+            }
+
+        } catch (FileNotFoundException e) {
+            System.err.println("File not found: " + filename);
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+
+        return orders;
+    }
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Separate file-level errors (IOException) from line-level errors (NumberFormatException). Process as many valid lines as possible.</div></div></div>
+    <div class="ft"><span class="fr">34</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="35">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct">CHECKPOINT</span></div>
+    <div class="tt">Checkpoint: exception handling</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">What happens in each scenario?</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</div><div class="cb-cd">public void scenario1() {
+    try {
+        int result = 10 / 0;
+    } catch (ArithmeticException e) {
+        System.out.println("A");
+    } finally {
+        System.out.println("B");
+    }
+    System.out.println("C");
+}
+
+public void scenario2() throws IOException {
+    try {
+        throw new IOException("file error");
+    } catch (FileNotFoundException e) {
+        System.out.println("D");
+    } finally {
+        System.out.println("E");
+    }
+    System.out.println("F");
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Scenario</th><th>Output</th><th>Explanation</th></tr></thead><tbody><tr><td>1</td><td><code>A B C</code></td><td>ArithmeticException caught, finally runs, continues</td></tr><tr><td>2</td><td><code>E</code> then IOException propagates</td><td>IOException is NOT FileNotFoundException, not caught, finally runs, F skipped</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">35</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="36">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct">CHECKPOINT</span></div>
+    <div class="tt">Checkpoint: interfaces and abstract classes</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Which should you use?</p>
+<table class="tbl"><thead><tr><th>Requirement</th><th>Answer</th><th>Why</th></tr></thead><tbody><tr><td>Multiple unrelated classes need a <code>save()</code> method</td><td>Interface</td><td>No shared state, just a contract</td></tr><tr><td>All orders share <code>orderId</code>, <code>createdAt</code>, <code>getSummary()</code></td><td>Abstract class</td><td>Shared fields and implementation</td></tr><tr><td>A class needs to be both <code>Payable</code> and <code>Trackable</code></td><td>Interface</td><td>Multiple interfaces, one abstract class</td></tr><tr><td>Want to enforce a template: validate -> process -> save</td><td>Abstract class</td><td>Template method pattern</td></tr><tr><td>Third-party classes need to integrate with your system</td><td>Interface</td><td>Cannot change their inheritance</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">36</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="37">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct">LAB</span></div>
+    <div class="tt">Guided lab: FoodExpress order file processor</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Step</th><th>Task</th></tr></thead><tbody><tr><td>01</td><td>Fix: <code>OrderNotFoundException</code> extends <code>RuntimeException</code> but should be checked (extend <code>Exception</code>)</td></tr><tr><td>02</td><td>Fix: Exception caught but silently swallowed (empty catch block)</td></tr><tr><td>03</td><td>Fix: <code>FileReader</code> not closed on exception (use try-with-resources)</td></tr><tr><td>04</td><td>Fix: <code>readLine()</code> result not checked for null (NullPointerException at end of file)</td></tr><tr><td>05</td><td>Fix: CSV parser crashes on malformed lines (missing try/catch for NumberFormatException)</td></tr><tr><td>06</td><td>Add: <code>Priceable</code> interface with <code>getPrice()</code> and <code>getFormattedPrice()</code></td></tr><tr><td>07</td><td>Add: Abstract <code>AbstractOrder</code> class with shared fields and <code>calculateDeliveryFee()</code></td></tr><tr><td>08</td><td>Add: Read <code>menu.csv</code>, create <code>MenuItem</code> objects, write <code>report.txt</code> using PrintWriter</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">37</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="38">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 06 - JAVA PROGRAMMING (PART 2)</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab acceptance criteria</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li>[ ] <code>OrderNotFoundException</code> is a checked exception (extends <code>Exception</code>)</li><li>[ ] No empty catch blocks -- all exceptions are logged or re-thrown</li><li>[ ] All file I/O uses try-with-resources (no manual close)</li><li>[ ] <code>readLine()</code> null check prevents NPE at end of file</li><li>[ ] Malformed CSV lines are skipped with a warning (not crash)</li><li>[ ] <code>Priceable</code> interface implemented by <code>MenuItem</code> and <code>OrderItem</code></li><li>[ ] <code>AbstractOrder</code> extended by <code>DeliveryOrder</code> and <code>PickupOrder</code></li><li>[ ] Report file generated with formatted output</li><li>[ ] Code compiles without warnings</li><li>[ ] Custom exceptions include meaningful messages and cause chaining</li></ul></div>
+    <div class="ft"><span class="fr">38</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="39">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 06 - COMPLETE</div>
+    <div class="e-ttl">Key takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Concept</th><th>Remember</th></tr></thead><tbody><tr><td>Checked vs unchecked</td><td>Checked = must handle; unchecked = programming bug</td></tr><tr><td>try-with-resources</td><td>Always use for I/O. Ensures close even on exception</td></tr><tr><td>Custom exceptions</td><td>Include context (orderId, field name) in the exception</td></tr><tr><td>Never swallow</td><td>Empty <code>catch {}</code> is the worst pattern. Log or re-throw</td></tr><tr><td>Interfaces</td><td>Define contracts. Support multiple inheritance</td></tr><tr><td>Abstract classes</td><td>Share state + partial implementation. Single inheritance</td></tr><tr><td>Code to interfaces</td><td>Declare variables as interface types for loose coupling</td></tr><tr><td>Byte streams</td><td><code>InputStream</code>/<code>OutputStream</code> for binary data</td></tr><tr><td>Character streams</td><td><code>Reader</code>/<code>Writer</code> for text. Always specify encoding</td></tr><tr><td>Buffering</td><td>Always buffer I/O. <code>BufferedReader.readLine()</code> for text files</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 07 -- Database Fundamentals: SQL, relational databases, CRUD operations</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 07 -- Database Fundamentals: SQL, relational databases, CRUD operations</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 39</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Node.js (Part 2)</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 10</div>
+    <div class="t-main">Node.js (Part 2)</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>0.5 day | Workshop + guided lab</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Session</th><th>Topics</th></tr></thead><tbody><tr><td>First half</td><td>Express.js, Routing, HTTP Verbs (GET/POST/PUT/DELETE), Middleware</td></tr><tr><td>Second half</td><td>Intro to MongoDB, CRUD Operations, Data Modelling, Indexing</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Building REST APIs with Express.js and persisting data with MongoDB.</div></div></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">What Is Express.js?</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li><strong>Minimal, unopinionated</strong> web framework for Node.js</li><li>De facto standard for building APIs in Node.js</li><li>Provides routing, middleware, request/response handling</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Express vs Raw HTTP</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">// Raw Node.js HTTP server (verbose)
+const http = require('http');
+const server = http.createServer((req, res) =&gt; {
+    if (req.method === 'GET' &amp;&amp; req.url === '/restaurants') {
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ data: [] }));
+    }
+});
+server.listen(3000);
+
+// Express (clean, maintainable)
+const express = require('express');
+const app = express();
+
+app.get('/restaurants', (req, res) =&gt; {
+    res.json({ data: [] });
+});
+
+app.listen(3000);</div></div></div></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Setting Up Express</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Installation</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">mkdir foodexpress-api &amp;&amp; cd foodexpress-api
+npm init -y
+npm install express
+npm install --save-dev nodemon</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">package.json Scripts</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jso</span><span class="cb-lg">JSON</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">{
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  }
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Basic Server</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd">// src/index.js
+const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Parse JSON request bodies
+app.use(express.json());
+
+// Health check
+app.get('/health', (req, res) =&gt; {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+app.listen(PORT, () =&gt; {
+    console.log(`FoodExpress API running on port ${PORT}`);
+});</div></div></div></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">HTTP Verbs and REST</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">RESTful API Design</div>
+<table class="tbl"><thead><tr><th>HTTP Verb</th><th>CRUD Operation</th><th>URL Pattern</th><th>Purpose</th></tr></thead><tbody><tr><td><code>GET</code></td><td>Read</td><td><code>/restaurants</code></td><td>List all restaurants</td></tr><tr><td><code>GET</code></td><td>Read</td><td><code>/restaurants/:id</code></td><td>Get one restaurant</td></tr><tr><td><code>POST</code></td><td>Create</td><td><code>/restaurants</code></td><td>Add new restaurant</td></tr><tr><td><code>PUT</code></td><td>Update (full)</td><td><code>/restaurants/:id</code></td><td>Replace a restaurant</td></tr><tr><td><code>PATCH</code></td><td>Update (partial)</td><td><code>/restaurants/:id</code></td><td>Update specific fields</td></tr><tr><td><code>DELETE</code></td><td>Delete</td><td><code>/restaurants/:id</code></td><td>Remove a restaurant</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Response Status Codes</div>
+<table class="tbl"><thead><tr><th>Code</th><th>Meaning</th><th>When to Use</th></tr></thead><tbody><tr><td><code>200</code></td><td>OK</td><td>Successful GET, PUT, PATCH</td></tr><tr><td><code>201</code></td><td>Created</td><td>Successful POST</td></tr><tr><td><code>204</code></td><td>No Content</td><td>Successful DELETE</td></tr><tr><td><code>400</code></td><td>Bad Request</td><td>Invalid input</td></tr><tr><td><code>404</code></td><td>Not Found</td><td>Resource doesn't exist</td></tr><tr><td><code>500</code></td><td>Internal Server Error</td><td>Unexpected server error</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Express Routing -- GET</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35</div><div class="cb-cd">const express = require('express');
+const app = express();
+
+// In-memory data store (replaced by MongoDB later)
+let restaurants = [
+    { id: '1', name: 'Pizza Palace', category: 'Italian', rating: 4.5 },
+    { id: '2', name: 'Wok Express', category: 'Chinese', rating: 4.2 },
+    { id: '3', name: 'Curry House', category: 'Indian', rating: 4.8 }
+];
+
+// GET all restaurants
+app.get('/api/restaurants', (req, res) =&gt; {
+    res.json({ count: restaurants.length, data: restaurants });
+});
+
+// GET restaurant by ID (route parameter)
+app.get('/api/restaurants/:id', (req, res) =&gt; {
+    const restaurant = restaurants.find(r =&gt; r.id === req.params.id);
+    if (!restaurant) {
+        return res.status(404).json({ error: 'Restaurant not found' });
+    }
+    res.json(restaurant);
+});
+
+// GET with query parameters: /api/restaurants?category=Italian&amp;minRating=4.0
+app.get('/api/restaurants', (req, res) =&gt; {
+    let result = restaurants;
+    if (req.query.category) {
+        result = result.filter(r =&gt; r.category === req.query.category);
+    }
+    if (req.query.minRating) {
+        result = result.filter(r =&gt; r.rating &gt;= parseFloat(req.query.minRating));
+    }
+    res.json({ count: result.length, data: result });
+});</div></div></div></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Express Routing -- POST</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25</div><div class="cb-cd">app.use(express.json());  // Required to parse JSON body
+
+// POST -- create new restaurant
+app.post('/api/restaurants', (req, res) =&gt; {
+    const { name, category, rating } = req.body;
+
+    // Validate input
+    if (!name || !category) {
+        return res.status(400).json({
+            error: 'Validation failed',
+            details: 'name and category are required'
+        });
+    }
+
+    const newRestaurant = {
+        id: String(Date.now()),
+        name,
+        category,
+        rating: rating || 0,
+        createdAt: new Date().toISOString()
+    };
+
+    restaurants.push(newRestaurant);
+    res.status(201).json(newRestaurant);
+});</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Testing with curl</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3</div><div class="cb-cd">curl -X POST http://localhost:3000/api/restaurants \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Sushi Bar", "category": "Japanese", "rating": 4.6}'</div></div></div></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Express Routing -- PUT and DELETE</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">PUT -- Full Update</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20</div><div class="cb-cd">app.put('/api/restaurants/:id', (req, res) =&gt; {
+    const index = restaurants.findIndex(r =&gt; r.id === req.params.id);
+    if (index === -1) {
+        return res.status(404).json({ error: 'Restaurant not found' });
+    }
+
+    const { name, category, rating } = req.body;
+    if (!name || !category) {
+        return res.status(400).json({ error: 'name and category are required' });
+    }
+
+    restaurants[index] = {
+        ...restaurants[index],
+        name,
+        category,
+        rating: rating || restaurants[index].rating
+    };
+
+    res.json(restaurants[index]);
+});</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">DELETE</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">app.delete('/api/restaurants/:id', (req, res) =&gt; {
+    const index = restaurants.findIndex(r =&gt; r.id === req.params.id);
+    if (index === -1) {
+        return res.status(404).json({ error: 'Restaurant not found' });
+    }
+
+    restaurants.splice(index, 1);
+    res.status(204).send();  // No content
+});</div></div></div></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Express Middleware</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Is Middleware?</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Functions that have access to <code>req</code>, <code>res</code>, and <code>next</code>. They execute <strong>in order</strong>.</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1</div><div class="cb-cd">Request --&gt; Middleware 1 --&gt; Middleware 2 --&gt; Route Handler --&gt; Response</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Built-in Middleware</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">// Parse JSON bodies
+app.use(express.json());
+
+// Parse URL-encoded bodies (form data)
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files
+app.use(express.static('public'));</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Custom Middleware: Request Logger</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">function requestLogger(req, res, next) {
+    const start = Date.now();
+    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+
+    res.on('finish', () =&gt; {
+        const duration = Date.now() - start;
+        console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} ${res.statusCode} ${duration}ms`);
+    });
+
+    next();  // Pass control to next middleware
+}
+
+app.use(requestLogger);</div></div></div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">More Middleware Patterns</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Error Handling Middleware</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">// Error handler (4 parameters -- Express recognizes this as error middleware)
+function errorHandler(err, req, res, next) {
+    console.error('Error:', err.message);
+    console.error('Stack:', err.stack);
+
+    const statusCode = err.statusCode || 500;
+    res.status(statusCode).json({
+        error: err.message || 'Internal Server Error',
+        ...(process.env.NODE_ENV === 'development' &amp;&amp; { stack: err.stack })
+    });
+}
+
+// Must be registered LAST
+app.use(errorHandler);</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Validation Middleware</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">function validateRestaurant(req, res, next) {
+    const { name, category } = req.body;
+    const errors = [];
+
+    if (!name || name.trim().length === 0) errors.push('name is required');
+    if (!category) errors.push('category is required');
+    if (req.body.rating &amp;&amp; (req.body.rating &lt; 0 || req.body.rating &gt; 5)) {
+        errors.push('rating must be between 0 and 5');
+    }
+
+    if (errors.length &gt; 0) {
+        return res.status(400).json({ error: 'Validation failed', details: errors });
+    }
+    next();
+}
+
+// Apply to specific routes
+app.post('/api/restaurants', validateRestaurant, (req, res) =&gt; { /* ... */ });
+app.put('/api/restaurants/:id', validateRestaurant, (req, res) =&gt; { /* ... */ });</div></div></div></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Express Router -- Organizing Routes</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd">// src/routes/restaurantRoutes.js
+const express = require('express');
+const router = express.Router();
+
+router.get('/', (req, res) =&gt; {
+    // GET /api/restaurants
+    res.json({ data: restaurants });
+});
+
+router.get('/:id', (req, res) =&gt; {
+    // GET /api/restaurants/:id
+    const restaurant = findById(req.params.id);
+    if (!restaurant) return res.status(404).json({ error: 'Not found' });
+    res.json(restaurant);
+});
+
+router.post('/', (req, res) =&gt; {
+    // POST /api/restaurants
+    const newRestaurant = createRestaurant(req.body);
+    res.status(201).json(newRestaurant);
+});
+
+module.exports = router;</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">// src/index.js
+const restaurantRoutes = require('./routes/restaurantRoutes');
+const menuRoutes = require('./routes/menuRoutes');
+
+app.use('/api/restaurants', restaurantRoutes);
+app.use('/api/menu', menuRoutes);</div></div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress: Complete API Structure</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">foodexpress-api/
+  src/
+    index.js                # App entry point
+    routes/
+      restaurantRoutes.js   # /api/restaurants
+      menuRoutes.js         # /api/menu
+      orderRoutes.js        # /api/orders
+    middleware/
+      logger.js             # Request logging
+      errorHandler.js       # Error handling
+      validator.js          # Input validation
+    models/
+      Restaurant.js         # Mongoose model
+      MenuItem.js           # Mongoose model
+    config/
+      database.js           # MongoDB connection
+  package.json
+  .env                      # Environment variables</div></div></div></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Introduction to MongoDB</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Is MongoDB?</div>
+<ul class="bl"><li><strong>NoSQL</strong> document database</li><li>Stores data as <strong>JSON-like documents</strong> (BSON)</li><li>Schema-flexible -- no fixed table structure</li><li>Horizontally scalable</li><li>Great for: APIs, content management, real-time analytics</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">MongoDB vs SQL</div>
+<table class="tbl"><thead><tr><th>Concept</th><th>SQL (MySQL)</th><th>MongoDB</th></tr></thead><tbody><tr><td>Database</td><td>Database</td><td>Database</td></tr><tr><td>Table</td><td>Table</td><td>Collection</td></tr><tr><td>Row</td><td>Row</td><td>Document</td></tr><tr><td>Column</td><td>Column</td><td>Field</td></tr><tr><td>Primary Key</td><td><code>id INT</code></td><td><code>_id ObjectId</code></td></tr><tr><td>Join</td><td><code>JOIN</code> clause</td><td><code>$lookup</code> or embed</td></tr><tr><td>Schema</td><td>Fixed, enforced</td><td>Flexible, optional</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">MongoDB Documents</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Document Structure (JSON/BSON)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jso</span><span class="cb-lg">JSON</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">{
+    "_id": "ObjectId('64f1a2b3c4d5e6f7a8b9c0d1')",
+    "name": "Pizza Palace",
+    "category": "Italian",
+    "address": {
+        "street": "123 Main St",
+        "city": "Bangalore",
+        "pincode": "560001"
+    },
+    "menu": [
+        { "name": "Margherita", "price": 299, "vegetarian": true },
+        { "name": "Pepperoni", "price": 399, "vegetarian": false }
+    ],
+    "rating": 4.5,
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z"
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Key Differences from SQL</div>
+<ul class="bl"><li>Documents can have <strong>nested objects</strong> (address)</li><li>Documents can have <strong>arrays</strong> (menu items)</li><li>Documents in the same collection can have <strong>different fields</strong></li><li>No need for JOINs when data is embedded</li></ul></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Mongoose -- MongoDB ODM</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Is Mongoose?</div>
+<ul class="bl"><li><strong>Object Document Mapper</strong> for MongoDB and Node.js</li><li>Provides schema validation, type casting, query building</li><li>Similar to JPA/Hibernate in Java</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Installation</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1</div><div class="cb-cd">npm install mongoose</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Connection</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">// src/config/database.js
+const mongoose = require('mongoose');
+
+async function connectDB() {
+    try {
+        await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/foodexpress');
+        console.log('Connected to MongoDB');
+    } catch (err) {
+        console.error('MongoDB connection error:', err.message);
+        process.exit(1);
+    }
+}
+
+module.exports = connectDB;</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3</div><div class="cb-cd">// src/index.js
+const connectDB = require('./config/database');
+connectDB();</div></div></div></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Mongoose Schema and Model</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41</div><div class="cb-cd">// src/models/Restaurant.js
+const mongoose = require('mongoose');
+
+const menuItemSchema = new mongoose.Schema({
+    name: { type: String, required: true },
+    price: { type: Number, required: true, min: 0 },
+    category: { type: String },
+    vegetarian: { type: Boolean, default: false },
+    available: { type: Boolean, default: true }
+});
+
+const restaurantSchema = new mongoose.Schema({
+    name: {
+        type: String,
+        required: [true, 'Restaurant name is required'],
+        trim: true,
+        maxlength: 100
+    },
+    category: {
+        type: String,
+        required: true,
+        enum: ['Italian', 'Chinese', 'Indian', 'Japanese', 'Mexican', 'American']
+    },
+    address: {
+        street: String,
+        city: String,
+        pincode: String
+    },
+    menu: [menuItemSchema],      // Embedded array of subdocuments
+    rating: {
+        type: Number,
+        default: 0,
+        min: 0,
+        max: 5
+    },
+    isActive: { type: Boolean, default: true }
+}, {
+    timestamps: true  // Adds createdAt and updatedAt automatically
+});
+
+module.exports = mongoose.model('Restaurant', restaurantSchema);</div></div></div></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">MongoDB CRUD -- Create</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32</div><div class="cb-cd">const Restaurant = require('./models/Restaurant');
+
+// Create a single document
+async function createRestaurant() {
+    const restaurant = new Restaurant({
+        name: 'Pizza Palace',
+        category: 'Italian',
+        address: { street: '123 Main St', city: 'Bangalore', pincode: '560001' },
+        menu: [
+            { name: 'Margherita', price: 299, vegetarian: true },
+            { name: 'Pepperoni', price: 399, vegetarian: false }
+        ],
+        rating: 4.5
+    });
+
+    const saved = await restaurant.save();
+    console.log('Created:', saved._id);
+    return saved;
+}
+
+// Alternative: Model.create()
+const restaurant = await Restaurant.create({
+    name: 'Wok Express',
+    category: 'Chinese',
+    rating: 4.2
+});
+
+// Create multiple
+const restaurants = await Restaurant.insertMany([
+    { name: 'Curry House', category: 'Indian', rating: 4.8 },
+    { name: 'Sushi Bar', category: 'Japanese', rating: 4.6 }
+]);</div></div></div></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">MongoDB CRUD -- Read</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30</div><div class="cb-cd">// Find all
+const allRestaurants = await Restaurant.find();
+
+// Find with filter
+const italianPlaces = await Restaurant.find({ category: 'Italian' });
+
+// Find one by ID
+const restaurant = await Restaurant.findById('64f1a2b3c4d5e6f7a8b9c0d1');
+
+// Find one by condition
+const topRated = await Restaurant.findOne({ rating: { $gte: 4.5 } });
+
+// Query with operators
+const results = await Restaurant.find({
+    category: { $in: ['Italian', 'Indian'] },
+    rating: { $gte: 4.0 },
+    isActive: true
+});
+
+// Select specific fields (projection)
+const names = await Restaurant.find({}, 'name category rating');
+
+// Sort, limit, skip (pagination)
+const page1 = await Restaurant.find()
+    .sort({ rating: -1 })     // Descending by rating
+    .skip(0)                   // Skip 0 for page 1
+    .limit(10);                // 10 per page
+
+// Count
+const count = await Restaurant.countDocuments({ category: 'Italian' });</div></div></div></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">MongoDB Query Operators</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Operator</th><th>Meaning</th><th>Example</th></tr></thead><tbody><tr><td><code>$eq</code></td><td>Equal</td><td><code>{ rating: { $eq: 5 } }</code></td></tr><tr><td><code>$ne</code></td><td>Not equal</td><td><code>{ category: { $ne: 'Italian' } }</code></td></tr><tr><td><code>$gt</code> / <code>$gte</code></td><td>Greater than / or equal</td><td><code>{ rating: { $gte: 4.0 } }</code></td></tr><tr><td><code>$lt</code> / <code>$lte</code></td><td>Less than / or equal</td><td><code>{ price: { $lt: 500 } }</code></td></tr><tr><td><code>$in</code></td><td>In array</td><td><code>{ category: { $in: ['Italian', 'Indian'] } }</code></td></tr><tr><td><code>$nin</code></td><td>Not in array</td><td><code>{ category: { $nin: ['Chinese'] } }</code></td></tr><tr><td><code>$exists</code></td><td>Field exists</td><td><code>{ phone: { $exists: true } }</code></td></tr><tr><td><code>$regex</code></td><td>Pattern match</td><td><code>{ name: { $regex: /pizza/i } }</code></td></tr><tr><td><code>$and</code></td><td>Logical AND</td><td><code>{ $and: [{ rating: { $gte: 4 } }, { isActive: true }] }</code></td></tr><tr><td><code>$or</code></td><td>Logical OR</td><td><code>{ $or: [{ category: 'Italian' }, { category: 'Indian' }] }</code></td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">// Search restaurants by name (case-insensitive)
+const results = await Restaurant.find({
+    name: { $regex: req.query.search, $options: 'i' }
+});</div></div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">MongoDB CRUD -- Update</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">// Update one document
+await Restaurant.findByIdAndUpdate(
+    '64f1a2b3c4d5e6f7a8b9c0d1',
+    { rating: 4.7 },
+    { new: true, runValidators: true }  // Return updated doc, validate
+);
+
+// Update with operators
+await Restaurant.findByIdAndUpdate(id, {
+    $set: { rating: 4.7, 'address.city': 'Mumbai' },
+    $push: { menu: { name: 'Garlic Bread', price: 149, vegetarian: true } }
+});
+
+// Update many
+await Restaurant.updateMany(
+    { isActive: false },
+    { $set: { isActive: true } }
+);</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Update Operators</div>
+<table class="tbl"><thead><tr><th>Operator</th><th>Purpose</th><th>Example</th></tr></thead><tbody><tr><td><code>$set</code></td><td>Set field value</td><td><code>{ $set: { rating: 4.5 } }</code></td></tr><tr><td><code>$unset</code></td><td>Remove a field</td><td><code>{ $unset: { phone: "" } }</code></td></tr><tr><td><code>$inc</code></td><td>Increment value</td><td><code>{ $inc: { orderCount: 1 } }</code></td></tr><tr><td><code>$push</code></td><td>Add to array</td><td><code>{ $push: { menu: newItem } }</code></td></tr><tr><td><code>$pull</code></td><td>Remove from array</td><td><code>{ $pull: { menu: { name: 'Pasta' } } }</code></td></tr><tr><td><code>$addToSet</code></td><td>Add unique to array</td><td><code>{ $addToSet: { tags: 'popular' } }</code></td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">MongoDB CRUD -- Delete</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">// Delete one by ID
+await Restaurant.findByIdAndDelete('64f1a2b3c4d5e6f7a8b9c0d1');
+
+// Delete one by condition
+await Restaurant.deleteOne({ name: 'Closed Restaurant' });
+
+// Delete many
+const result = await Restaurant.deleteMany({ isActive: false });
+console.log(`Deleted ${result.deletedCount} inactive restaurants`);</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Soft Delete Pattern (Recommended for Sustain)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">// Instead of actually deleting, mark as inactive
+async function softDelete(id) {
+    const restaurant = await Restaurant.findByIdAndUpdate(
+        id,
+        {
+            $set: {
+                isActive: false,
+                deletedAt: new Date()
+            }
+        },
+        { new: true }
+    );
+    return restaurant;
+}
+
+// Always filter out soft-deleted records in queries
+const activeRestaurants = await Restaurant.find({ isActive: true });</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Sustain tip:</strong> In production systems, prefer soft delete. Data recovery is much easier.</div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Data Modelling -- Embedding vs Referencing</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Embedding (Denormalized)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">// Menu items embedded inside restaurant document
+{
+    name: "Pizza Palace",
+    menu: [
+        { name: "Margherita", price: 299 },
+        { name: "Pepperoni", price: 399 }
+    ]
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Referencing (Normalized)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">// Restaurant document
+{ _id: "REST001", name: "Pizza Palace", menu: ["ITEM001", "ITEM002"] }
+
+// Separate MenuItem documents
+{ _id: "ITEM001", name: "Margherita", price: 299, restaurantId: "REST001" }
+{ _id: "ITEM002", name: "Pepperoni", price: 399, restaurantId: "REST001" }</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">When to Use Which?</div>
+<table class="tbl"><thead><tr><th>Criteria</th><th>Embed</th><th>Reference</th></tr></thead><tbody><tr><td>Data accessed together?</td><td>Yes -- embed</td><td>No -- reference</td></tr><tr><td>Data changes frequently?</td><td>Embed (few updates)</td><td>Reference (frequent updates)</td></tr><tr><td>Array size?</td><td>Small (< 100 items)</td><td>Large or unbounded</td></tr><tr><td>Need to query independently?</td><td>No</td><td>Yes</td></tr><tr><td>One-to-few</td><td>Embed</td><td>--</td></tr><tr><td>One-to-many</td><td>Embed or reference</td><td>Reference</td></tr><tr><td>Many-to-many</td><td>--</td><td>Reference</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Populate -- Joining Referenced Documents</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">// Order model with references
+const orderSchema = new mongoose.Schema({
+    customer: { type: String, required: true },
+    restaurant: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Restaurant',      // Reference to Restaurant model
+        required: true
+    },
+    items: [{
+        menuItem: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'MenuItem'
+        },
+        quantity: Number
+    }],
+    total: Number,
+    status: {
+        type: String,
+        enum: ['pending', 'confirmed', 'preparing', 'delivered', 'cancelled'],
+        default: 'pending'
+    }
+}, { timestamps: true });
+
+// Query with populate (like SQL JOIN)
+const order = await Order.findById(orderId)
+    .populate('restaurant', 'name category')    // Only get name and category
+    .populate('items.menuItem', 'name price');   // Populate nested ref</div></div></div></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">MongoDB Indexing</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Why Indexes?</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Without indexes, MongoDB scans <strong>every document</strong> (collection scan). With indexes, it jumps directly to matching documents.</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">// Create indexes in Mongoose schema
+const restaurantSchema = new mongoose.Schema({
+    name: { type: String, index: true },          // Single field index
+    category: String,
+    rating: Number,
+    location: {
+        type: { type: String, default: 'Point' },
+        coordinates: [Number]
+    }
+});
+
+// Compound index (queries on both fields)
+restaurantSchema.index({ category: 1, rating: -1 });
+
+// Unique index
+restaurantSchema.index({ name: 1 }, { unique: true });
+
+// Text index (full-text search)
+restaurantSchema.index({ name: 'text', 'menu.name': 'text' });</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Index Types</div>
+<table class="tbl"><thead><tr><th>Type</th><th>Use Case</th><th>Example</th></tr></thead><tbody><tr><td>Single field</td><td>Filter by one field</td><td><code>{ category: 1 }</code></td></tr><tr><td>Compound</td><td>Filter by multiple fields</td><td><code>{ category: 1, rating: -1 }</code></td></tr><tr><td>Unique</td><td>Prevent duplicates</td><td><code>{ email: 1 }, { unique: true }</code></td></tr><tr><td>Text</td><td>Full-text search</td><td><code>{ name: 'text' }</code></td></tr><tr><td>TTL</td><td>Auto-expire documents</td><td><code>{ createdAt: 1 }, { expireAfterSeconds: 3600 }</code></td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Index Best Practices</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Check Query Performance</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">// Explain query execution plan
+const explanation = await Restaurant.find({ category: 'Italian' }).explain('executionStats');
+console.log(explanation.executionStats);
+// Look for: totalDocsExamined vs nReturned
+// Ideal: totalDocsExamined === nReturned (no unnecessary scans)</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Rules of Thumb</div>
+<table class="tbl"><thead><tr><th>Rule</th><th>Why</th></tr></thead><tbody><tr><td>Index fields used in <code>find()</code> filters</td><td>Speed up reads</td></tr><tr><td>Index fields used in <code>sort()</code></td><td>Avoid in-memory sorting</td></tr><tr><td>Don't over-index</td><td>Each index slows writes</td></tr><tr><td>Compound index field order matters</td><td>Most selective field first</td></tr><tr><td>Monitor with <code>explain()</code></td><td>Verify indexes are used</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Sustain tip:</strong> Missing indexes are the #1 cause of slow MongoDB queries in production. Always check <code>explain()</code> output.</div></div></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct"></span></div>
+    <div class="tt">Putting It All Together: Express + MongoDB</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43</div><div class="cb-cd">// src/routes/restaurantRoutes.js
+const express = require('express');
+const router = express.Router();
+const Restaurant = require('../models/Restaurant');
+
+// GET all restaurants
+router.get('/', async (req, res, next) =&gt; {
+    try {
+        const { category, minRating, page = 1, limit = 10 } = req.query;
+        const filter = { isActive: true };
+        if (category) filter.category = category;
+        if (minRating) filter.rating = { $gte: parseFloat(minRating) };
+
+        const restaurants = await Restaurant.find(filter)
+            .sort({ rating: -1 })
+            .skip((page - 1) * limit)
+            .limit(parseInt(limit));
+
+        const total = await Restaurant.countDocuments(filter);
+
+        res.json({
+            data: restaurants,
+            pagination: { page: parseInt(page), limit: parseInt(limit), total }
+        });
+    } catch (err) {
+        next(err);
+    }
+});
+
+// POST create restaurant
+router.post('/', async (req, res, next) =&gt; {
+    try {
+        const restaurant = await Restaurant.create(req.body);
+        res.status(201).json(restaurant);
+    } catch (err) {
+        if (err.name === 'ValidationError') {
+            return res.status(400).json({ error: err.message });
+        }
+        next(err);
+    }
+});
+
+module.exports = router;</div></div></div></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab: FoodExpress Restaurant API</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Objective</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Build a complete REST API for the FoodExpress Restaurant Service using Express.js and MongoDB.</p>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Tasks</div>
+<ul class="bl"><li>1. <strong>Project Setup:</strong></li><li class="s">Initialize Node.js project with Express and Mongoose</li><li class="s">Create folder structure: <code>src/</code>, <code>routes/</code>, <code>models/</code>, <code>middleware/</code>, <code>config/</code></li><li class="s">Connect to MongoDB</li></ul>
+<ul class="bl"><li>2. <strong>Restaurant Model:</strong></li><li class="s">Fields: name, category, address (embedded), menu (embedded array), rating, isActive</li><li class="s">Validation: name required, category from enum, rating 0-5</li></ul>
+<ul class="bl"><li>3. <strong>CRUD API Endpoints:</strong></li><li class="s"><code>GET /api/restaurants</code> -- list all (with filtering, sorting, pagination)</li><li class="s"><code>GET /api/restaurants/:id</code> -- get by ID</li><li class="s"><code>POST /api/restaurants</code> -- create new</li><li class="s"><code>PUT /api/restaurants/:id</code> -- update</li><li class="s"><code>DELETE /api/restaurants/:id</code> -- soft delete</li></ul>
+<ul class="bl"><li>4. <strong>Menu Endpoints:</strong></li><li class="s"><code>POST /api/restaurants/:id/menu</code> -- add menu item</li><li class="s"><code>DELETE /api/restaurants/:id/menu/:itemId</code> -- remove menu item</li></ul></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 10 - NODE.JS (PART 2)</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab: Continued</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Tasks (continued)</div>
+<ul class="bl"><li>5. <strong>Middleware:</strong></li><li class="s">Request logger (log method, URL, status code, duration)</li><li class="s">Error handler (catch all errors, return proper JSON)</li><li class="s">Input validator for restaurant creation</li></ul>
+<ul class="bl"><li>6. <strong>Indexing:</strong></li><li class="s">Add index on <code>category</code> field</li><li class="s">Add compound index on <code>category</code> + <code>rating</code></li><li class="s">Verify with <code>explain()</code></li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Acceptance Criteria</div>
+<ul class="bl"><li>[ ] All 6 CRUD endpoints work correctly</li><li>[ ] Proper HTTP status codes (200, 201, 204, 400, 404)</li><li>[ ] Input validation with meaningful error messages</li><li>[ ] MongoDB connected with error handling</li><li>[ ] Soft delete (not hard delete)</li><li>[ ] Pagination on list endpoint</li><li>[ ] At least 2 indexes created</li></ul></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="29">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 10 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Topic</th><th>Key Point</th></tr></thead><tbody><tr><td>Express.js</td><td>Minimal web framework; routing, middleware, req/res handling</td></tr><tr><td>HTTP Verbs</td><td>GET (read), POST (create), PUT (update), DELETE (remove)</td></tr><tr><td>Middleware</td><td>Functions in the request pipeline; logging, validation, errors</td></tr><tr><td>Express Router</td><td>Organize routes into separate files by resource</td></tr><tr><td>MongoDB</td><td>NoSQL document database; flexible schema, JSON-like documents</td></tr><tr><td>Mongoose</td><td>ODM for MongoDB; schemas, models, validation</td></tr><tr><td>CRUD</td><td>create(), find(), findByIdAndUpdate(), findByIdAndDelete()</td></tr><tr><td>Data Modelling</td><td>Embed for small, related data; reference for large, independent data</td></tr><tr><td>Indexing</td><td>Speed up queries; always check with explain()</td></tr><tr><td>Soft Delete</td><td>Mark inactive instead of removing; safer for production</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 11 -- Linux Fundamentals (server administration for sustain engineers)</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 11 -- Linux Fundamentals (server administration for sustain engineers)</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 29</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

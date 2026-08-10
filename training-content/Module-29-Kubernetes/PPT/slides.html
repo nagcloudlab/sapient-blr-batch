@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kubernetes</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 29</div>
+    <div class="t-main">Kubernetes</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda -- Day 32</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>Why Container Orchestration?</td></tr><tr><td>02</td><td>Kubernetes Architecture Deep Dive</td></tr><tr><td>03</td><td>Pods, ReplicaSets, and Deployments</td></tr><tr><td>04</td><td>Services & Pod Connectivity</td></tr><tr><td>05</td><td>ConfigMaps, Secrets & Namespaces</td></tr><tr><td>06</td><td>Health Checks & Self-Healing</td></tr><tr><td>07</td><td>Resource Management & Scaling</td></tr><tr><td>08</td><td>Lab: Fix FoodExpress K8s Manifests</td></tr><tr><td>09</td><td>Monitoring & Troubleshooting</td></tr><tr><td>10</td><td>Day 32 Wrap-up</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Why Container Orchestration?</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Problem with Running Containers Manually</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">FoodExpress: 6 microservices x 3 replicas = 18 containers
+
+Manual management headaches:
+  - Which host runs which container?
+  - What if a container crashes at 3 AM?
+  - How to roll out a new version without downtime?
+  - How to scale order-service during Diwali rush?
+  - How do containers find each other?</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Container orchestration automates deployment, scaling, networking, and self-healing across a cluster of machines.</p></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Container Orchestration Landscape</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Tool</th><th>Description</th><th>Use Case</th></tr></thead><tbody><tr><td><strong>Kubernetes (K8s)</strong></td><td>Industry standard, CNCF graduated</td><td>Production workloads</td></tr><tr><td>Docker Swarm</td><td>Built into Docker Engine</td><td>Simple setups</td></tr><tr><td>Amazon ECS</td><td>AWS-native orchestrator</td><td>AWS-only shops</td></tr><tr><td>Nomad</td><td>HashiCorp, multi-workload</td><td>Mixed container/VM</td></tr><tr><td>OpenShift</td><td>Red Hat's K8s distribution</td><td>Enterprise K8s</td></tr></tbody></table>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Kubernetes won</strong> -- 92% of organizations use K8s for container orchestration (CNCF Survey 2024).</p></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">What is Kubernetes?</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Open-source container orchestration platform</div>
+<ul class="bl"><li>Originally designed by Google (based on Borg)</li><li>Donated to CNCF in 2014</li><li>Written in Go</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Core capabilities:</div>
+<ul class="bl"><li>1. <strong>Service discovery & load balancing</strong> -- containers find each other</li><li>2. <strong>Storage orchestration</strong> -- mount volumes automatically</li><li>3. <strong>Automated rollouts & rollbacks</strong> -- declarative updates</li><li>4. <strong>Self-healing</strong> -- restart crashed containers automatically</li><li>5. <strong>Secret & configuration management</strong> -- decouple config from code</li><li>6. <strong>Horizontal scaling</strong> -- add/remove pods based on load</li></ul></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Kubernetes Architecture Overview</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">┌──────────────────────────────────────────────────────────┐
+│                    CONTROL PLANE                         │
+│                                                          │
+│  ┌────────────┐  ┌───────────┐  ┌────────────────────┐  │
+│  │ API Server │  │ Scheduler │  │ Controller Manager  │  │
+│  │  (kube-    │  │           │  │  - ReplicaSet ctrl  │  │
+│  │  apiserver)│  │           │  │  - Deployment ctrl  │  │
+│  └─────┬──────┘  └───────────┘  │  - Node ctrl        │  │
+│        │                        └────────────────────┘  │
+│  ┌─────▼──────┐                                         │
+│  │   etcd     │  (Cluster state store)                  │
+│  └────────────┘                                         │
+├──────────────────────────────────────────────────────────┤
+│                    DATA PLANE (Worker Nodes)             │
+│                                                          │
+│  ┌─────────────────┐   ┌─────────────────┐              │
+│  │   Worker Node 1 │   │   Worker Node 2 │              │
+│  │  ┌───────────┐  │   │  ┌───────────┐  │              │
+│  │  │  kubelet  │  │   │  │  kubelet  │  │              │
+│  │  ├───────────┤  │   │  ├───────────┤  │              │
+│  │  │kube-proxy │  │   │  │kube-proxy │  │              │
+│  │  ├───────────┤  │   │  ├───────────┤  │              │
+│  │  │ Container │  │   │  │ Container │  │              │
+│  │  │ Runtime   │  │   │  │ Runtime   │  │              │
+│  │  └───────────┘  │   │  └───────────┘  │              │
+│  └─────────────────┘   └─────────────────┘              │
+└──────────────────────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Control Plane Components</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Component</th><th>Role</th><th>FoodExpress Analogy</th></tr></thead><tbody><tr><td><strong>kube-apiserver</strong></td><td>Front door to the cluster; all commands go through it</td><td>Restaurant reception -- all orders go through it</td></tr><tr><td><strong>etcd</strong></td><td>Distributed key-value store; holds cluster state</td><td>The order ledger -- source of truth</td></tr><tr><td><strong>kube-scheduler</strong></td><td>Assigns pods to nodes based on resources</td><td>Kitchen manager assigning dishes to chefs</td></tr><tr><td><strong>controller-manager</strong></td><td>Runs control loops (desired state vs actual state)</td><td>Quality supervisor checking every dish matches the order</td></tr><tr><td><strong>cloud-controller-manager</strong></td><td>Integrates with cloud provider APIs</td><td>The franchise HQ connecting to cloud kitchens</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">The control plane ensures the <strong>desired state</strong> (what you declared) matches the <strong>actual state</strong> (what is running).</div></div></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Data Plane Components</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Every Worker Node runs:</div>
+<table class="tbl"><thead><tr><th>Component</th><th>Role</th></tr></thead><tbody><tr><td><strong>kubelet</strong></td><td>Agent on each node; ensures pods are running as declared</td></tr><tr><td><strong>kube-proxy</strong></td><td>Manages network rules; enables Service abstraction</td></tr><tr><td><strong>Container Runtime</strong></td><td>Runs containers (containerd, CRI-O)</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">API Server says: "Run 3 replicas of order-service"
+
+kubelet on Node 1: "I'll run replica 1" ✓
+kubelet on Node 2: "I'll run replica 2" ✓
+kubelet on Node 3: "I'll run replica 3" ✓</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">The kubelet watches the API server and ensures its node runs the assigned pods.</p></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Management Plane: kubectl</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The CLI for interacting with Kubernetes</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd"># Get cluster info
+kubectl cluster-info
+
+# List all pods
+kubectl get pods
+
+# Describe a specific pod
+kubectl describe pod order-service-7d4b8c6f5-x2k9j
+
+# Apply a manifest
+kubectl apply -f deployment.yaml
+
+# View logs
+kubectl logs order-service-7d4b8c6f5-x2k9j
+
+# Execute into a running pod
+kubectl exec -it order-service-7d4b8c6f5-x2k9j -- /bin/sh</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Key pattern:</strong> <code>kubectl &lt;verb&gt; &lt;resource&gt; [name] [flags]</code></p></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct">CSS</span></div>
+    <div class="tt">Pods: The Smallest Deployable Unit</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">A pod wraps one or more containers</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">apiVersion: v1
+kind: Pod
+metadata:
+  name: order-service
+  labels:
+    app: foodexpress
+    tier: backend
+    service: order
+spec:
+  containers:
+    - name: order-service
+      image: foodexpress/order-service:1.2.0
+      ports:
+        - containerPort: 8080</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Key facts:</div>
+<ul class="bl"><li>Pods share network namespace (localhost communication)</li><li>Pods share storage volumes</li><li>Pods are <strong>ephemeral</strong> -- they can be killed and recreated</li><li>Never create bare pods; use Deployments</li></ul></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Pod Lifecycle</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">┌─────────┐    ┌─────────┐    ┌─────────┐    ┌────────────┐
+│ Pending │───&gt;│ Running │───&gt;│Succeeded│ or │   Failed   │
+└─────────┘    └─────────┘    └─────────┘    └────────────┘
+     │              │
+     │              ▼
+     │         ┌─────────┐
+     │         │CrashLoop│
+     │         │BackOff  │
+     │         └─────────┘
+     │
+     ▼
+┌──────────┐
+│  Unknown │  (Node lost contact)
+└──────────┘</div></div></div>
+<table class="tbl"><thead><tr><th>Phase</th><th>Meaning</th></tr></thead><tbody><tr><td>Pending</td><td>Accepted but not yet running (image pull, scheduling)</td></tr><tr><td>Running</td><td>At least one container is running</td></tr><tr><td>Succeeded</td><td>All containers terminated successfully</td></tr><tr><td>Failed</td><td>At least one container failed</td></tr><tr><td>CrashLoopBackOff</td><td>Container keeps crashing, K8s backs off restarts</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Deployments & ReplicaSets</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Deployment manages ReplicaSet manages Pods</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+        - name: order-service
+          image: foodexpress/order-service:1.2.0
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Deployment ensures exactly 3 pods are always running. If one crashes, a new one is created.</p></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Rolling Updates & Rollbacks</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Zero-downtime deployments</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1        # 1 extra pod during update
+      maxUnavailable: 0   # Never go below desired count</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">Update from v1.2.0 to v1.3.0:
+
+Step 1:  v1.2 v1.2 v1.2 v1.3    (maxSurge=1: create 1 new)
+Step 2:  v1.2 v1.2 v1.3 v1.3    (terminate 1 old, create 1 new)
+Step 3:  v1.2 v1.3 v1.3 v1.3    (terminate 1 old, create 1 new)
+Step 4:  v1.3 v1.3 v1.3         (terminate last old)</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd"># Rollback to previous version
+kubectl rollout undo deployment/order-service
+
+# Check rollout status
+kubectl rollout status deployment/order-service</div></div></div></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Services: Pod Connectivity</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The problem: Pods have ephemeral IPs</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2</div><div class="cb-cd">Pod order-service-abc  IP: 10.244.1.5  → dies
+Pod order-service-xyz  IP: 10.244.2.9  → new pod, new IP!</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A <strong>Service</strong> provides a stable virtual IP and DNS name for a set of pods.</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+spec:
+  selector:
+    app: order-service    # Finds pods with this label
+  ports:
+    - port: 80            # Service port
+      targetPort: 8080    # Container port
+  type: ClusterIP</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Other pods access it via: <code>http://order-service:80</code></p></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Service Types</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">┌─────────────────────────────────────────────────────────┐
+│                    EXTERNAL TRAFFIC                      │
+│                         │                                │
+│              ┌──────────▼──────────┐                    │
+│              │    LoadBalancer     │  Cloud LB           │
+│              │   (External IP)    │                      │
+│              └──────────┬──────────┘                    │
+│              ┌──────────▼──────────┐                    │
+│              │      NodePort      │  Port on every node  │
+│              │  (30000-32767)     │                      │
+│              └──────────┬──────────┘                    │
+│              ┌──────────▼──────────┐                    │
+│              │     ClusterIP      │  Internal only       │
+│              │  (default type)    │                      │
+│              └──────────┬──────────┘                    │
+│                    ┌────▼────┐                           │
+│                    │  Pods   │                           │
+│                    └─────────┘                           │
+└─────────────────────────────────────────────────────────┘</div></div></div>
+<table class="tbl"><thead><tr><th>Type</th><th>Use Case</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>ClusterIP</strong></td><td>Internal service-to-service</td><td>order-service -> payment-service</td></tr><tr><td><strong>NodePort</strong></td><td>Dev/test external access</td><td>Testing on Minikube</td></tr><tr><td><strong>LoadBalancer</strong></td><td>Production external access</td><td>Customer-facing API gateway</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Endpoints: How Services Find Pods</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Endpoints are the bridge between Services and Pods</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3</div><div class="cb-cd">$ kubectl get endpoints order-service
+NAME            ENDPOINTS                                      AGE
+order-service   10.244.1.5:8080,10.244.2.9:8080,10.244.3.2:8080   5m</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">Service (order-service:80)
+    │
+    ├──&gt; Endpoint 10.244.1.5:8080 (Pod 1)
+    ├──&gt; Endpoint 10.244.2.9:8080 (Pod 2)
+    └──&gt; Endpoint 10.244.3.2:8080 (Pod 3)</div></div></div>
+<ul class="bl"><li>Endpoints are auto-managed by the Endpoints Controller</li><li>When a pod matches the Service selector AND passes readiness checks, it gets added</li><li>When a pod fails readiness checks, it is removed from endpoints (no traffic sent)</li></ul></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">ConfigMaps & Secrets</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Decouple configuration from container images</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd"># ConfigMap for FoodExpress
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: foodexpress-config
+data:
+  DATABASE_HOST: "mysql-service"
+  DATABASE_PORT: "3306"
+  LOG_LEVEL: "info"
+  MAX_ORDER_ITEMS: "50"</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd"># Secret for sensitive data
+apiVersion: v1
+kind: Secret
+metadata:
+  name: foodexpress-secrets
+type: Opaque
+data:
+  DB_PASSWORD: cGFzc3dvcmQxMjM=      # base64 encoded
+  JWT_SECRET: bXlTZWNyZXRLZXkxMjM=   # base64 encoded</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Secrets are base64 encoded, NOT encrypted by default. Use external secret managers (Vault, AWS Secrets Manager) in production.</div></div></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Namespaces: Virtual Clusters</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Isolate environments within a single cluster</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">$ kubectl get namespaces
+NAME              STATUS   AGE
+default           Active   30d
+kube-system       Active   30d
+foodexpress-dev   Active   15d
+foodexpress-stg   Active   15d
+foodexpress-prod  Active   15d</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">┌── Cluster ───────────────────────────────────────┐
+│                                                    │
+│  ┌─ foodexpress-dev ──┐  ┌─ foodexpress-prod ──┐  │
+│  │  order-service     │  │  order-service      │  │
+│  │  menu-service      │  │  menu-service       │  │
+│  │  (relaxed limits)  │  │  (strict limits)    │  │
+│  └────────────────────┘  └─────────────────────┘  │
+│                                                    │
+└────────────────────────────────────────────────────┘</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Use namespaces for: environment isolation, team separation, resource quotas.</p></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Health Checks: Probes</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Kubernetes checks if your app is healthy</div>
+<table class="tbl"><thead><tr><th>Probe</th><th>Purpose</th><th>What happens if it fails</th></tr></thead><tbody><tr><td><strong>Liveness</strong></td><td>Is the container alive?</td><td>Container is restarted</td></tr><tr><td><strong>Readiness</strong></td><td>Is the container ready to serve traffic?</td><td>Removed from Service endpoints</td></tr><tr><td><strong>Startup</strong></td><td>Has the container started?</td><td>Liveness/readiness probes are disabled until it passes</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</div><div class="cb-cd">containers:
+  - name: order-service
+    livenessProbe:
+      httpGet:
+        path: /actuator/health
+        port: 8080
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      failureThreshold: 3
+    readinessProbe:
+      httpGet:
+        path: /actuator/health/readiness
+        port: 8080
+      initialDelaySeconds: 5
+      periodSeconds: 5</div></div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Probe Types</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Three ways to check container health</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd"># HTTP GET probe (most common for web services)
+livenessProbe:
+  httpGet:
+    path: /healthz
+    port: 8080
+
+# TCP Socket probe (for non-HTTP services)
+livenessProbe:
+  tcpSocket:
+    port: 3306
+
+# Command probe (run a script inside the container)
+livenessProbe:
+  exec:
+    command:
+      - cat
+      - /tmp/healthy</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>FoodExpress pattern:</strong> All microservices expose <code>/actuator/health</code> (Spring Boot) or <code>/healthz</code> (Node.js).</p></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Resource Management</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Requests vs Limits</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">resources:
+  requests:          # Minimum guaranteed
+    cpu: "250m"      # 250 millicores = 0.25 CPU
+    memory: "256Mi"  # 256 MiB
+  limits:            # Maximum allowed
+    cpu: "500m"      # 500 millicores = 0.5 CPU
+    memory: "512Mi"  # 512 MiB</div></div></div>
+<table class="tbl"><thead><tr><th>Concept</th><th>Purpose</th><th>What happens</th></tr></thead><tbody><tr><td><strong>Request</strong></td><td>Scheduling guarantee</td><td>Scheduler places pod on a node with enough capacity</td></tr><tr><td><strong>Limit</strong></td><td>Hard cap</td><td>CPU: throttled. Memory: OOMKilled</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">FoodExpress resource planning:
+
+order-service:   req 250m/256Mi, lim 500m/512Mi  (medium)
+menu-service:    req 100m/128Mi, lim 250m/256Mi  (light)
+payment-service: req 250m/256Mi, lim 500m/512Mi  (medium)
+delivery-service:req 100m/128Mi, lim 250m/256Mi  (light)</div></div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Horizontal Pod Autoscaler (HPA)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Scale pods based on metrics</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: order-service-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: order-service
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">Normal day:    2 pods  (min)
+Lunch rush:    5 pods  (CPU &gt; 70%)
+Diwali sale:  10 pods  (max)
+Late night:    2 pods  (scales back down)</div></div></div></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Scaling Strategies</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Strategy</th><th>How</th><th>When</th></tr></thead><tbody><tr><td><strong>HPA</strong></td><td>Add more pods</td><td>CPU/memory pressure</td></tr><tr><td><strong>VPA</strong></td><td>Increase pod resources</td><td>Right-sizing containers</td></tr><tr><td><strong>Cluster Autoscaler</strong></td><td>Add more nodes</td><td>No room for new pods</td></tr><tr><td><strong>KEDA</strong></td><td>Event-driven scaling</td><td>Queue depth, custom metrics</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">FoodExpress Diwali scaling scenario:
+
+1. Order flood arrives
+2. HPA: 2 pods → 10 pods (CPU &gt; 70%)
+3. Nodes full → Cluster Autoscaler adds 2 nodes
+4. KEDA: Scale notification-service based on message queue depth
+5. After rush: scale down (cooldown period)</div></div></div></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Kubernetes Networking Model</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Every pod gets its own IP address</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">┌── Cluster Network (10.244.0.0/16) ──────────────────┐
+│                                                       │
+│  Node 1 (10.244.1.0/24)    Node 2 (10.244.2.0/24)  │
+│  ┌──────────────────┐      ┌──────────────────┐      │
+│  │ Pod A: 10.244.1.5│─────&gt;│ Pod C: 10.244.2.3│      │
+│  │ Pod B: 10.244.1.6│      │ Pod D: 10.244.2.4│      │
+│  └──────────────────┘      └──────────────────┘      │
+│                                                       │
+│  Rules:                                               │
+│  1. Every pod can reach every other pod (no NAT)     │
+│  2. Agents on a node can reach all pods on that node │
+│  3. Pods see their own IP (no surprises)             │
+└───────────────────────────────────────────────────────┘</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">CNI plugins (Calico, Flannel, Cilium) implement this network model.</p></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Ingress: HTTP Routing</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Route external HTTP traffic to Services</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd">apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: foodexpress-ingress
+spec:
+  rules:
+    - host: api.foodexpress.in
+      http:
+        paths:
+          - path: /api/v1/menu
+            pathType: Prefix
+            backend:
+              service:
+                name: menu-service
+                port:
+                  number: 80
+          - path: /api/v1/orders
+            pathType: Prefix
+            backend:
+              service:
+                name: order-service
+                port:
+                  number: 80</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Ingress Controller (NGINX, Traefik) handles TLS termination, path routing, rate limiting.</p></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress on Kubernetes</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Complete architecture</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">                    Internet
+                       │
+              ┌────────▼────────┐
+              │    Ingress      │
+              │  (NGINX ctrl)   │
+              └────────┬────────┘
+                       │
+        ┌──────────────┼──────────────┐
+        │              │              │
+  ┌─────▼─────┐ ┌─────▼─────┐ ┌─────▼─────┐
+  │   Menu    │ │   Order   │ │ Delivery  │
+  │  Service  │ │  Service  │ │  Service  │
+  │ (3 pods)  │ │ (3 pods)  │ │ (2 pods)  │
+  └─────┬─────┘ └─────┬─────┘ └─────┬─────┘
+        │              │              │
+  ┌─────▼─────┐ ┌─────▼─────┐ ┌─────▼─────┐
+  │  Menu DB  │ │ Order DB  │ │Delivery DB│
+  │ (MySQL)   │ │ (MySQL)   │ │ (MongoDB) │
+  └───────────┘ └───────────┘ └───────────┘</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Each service: Deployment + Service + ConfigMap + Secret + HPA</p></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Monitoring K8s with kubectl</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Essential troubleshooting commands</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd"># Cluster health
+kubectl get nodes
+kubectl top nodes
+
+# Pod issues
+kubectl get pods -n foodexpress-prod
+kubectl describe pod &lt;pod-name&gt;
+kubectl logs &lt;pod-name&gt; --previous    # logs from crashed container
+kubectl logs &lt;pod-name&gt; -f            # stream logs
+
+# Resource usage
+kubectl top pods -n foodexpress-prod
+
+# Events (recent cluster activity)
+kubectl get events --sort-by=.lastTimestamp
+
+# Debug networking
+kubectl exec -it &lt;pod&gt; -- curl http://order-service:80/health</div></div></div></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct">TROUBLESHOOTING</span></div>
+    <div class="tt">Common K8s Troubleshooting</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Symptom</th><th>Likely Cause</th><th>Fix</th></tr></thead><tbody><tr><td><strong>ImagePullBackOff</strong></td><td>Wrong image name or registry auth</td><td>Check image tag, imagePullSecrets</td></tr><tr><td><strong>CrashLoopBackOff</strong></td><td>App crashes on startup</td><td>Check logs: <code>kubectl logs --previous</code></td></tr><tr><td><strong>Pending</strong></td><td>Insufficient resources</td><td>Check node capacity, resource requests</td></tr><tr><td><strong>OOMKilled</strong></td><td>Memory limit exceeded</td><td>Increase memory limit or fix memory leak</td></tr><tr><td><strong>Service not reachable</strong></td><td>Selector mismatch</td><td>Compare service selector vs pod labels</td></tr><tr><td><strong>Readiness probe failing</strong></td><td>App not ready, wrong port/path</td><td>Check probe config, app startup time</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="29">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">K8s Dashboard & Monitoring</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Built-in and third-party tools</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">┌─────────────────────────────────────────────┐
+│             Monitoring Stack                │
+│                                             │
+│  ┌─────────────┐    ┌──────────────────┐   │
+│  │ Prometheus  │───&gt;│    Grafana       │   │
+│  │ (metrics)   │    │  (dashboards)    │   │
+│  └─────────────┘    └──────────────────┘   │
+│                                             │
+│  ┌─────────────┐    ┌──────────────────┐   │
+│  │  Loki       │───&gt;│    Grafana       │   │
+│  │ (logs)      │    │  (log viewer)    │   │
+│  └─────────────┘    └──────────────────┘   │
+│                                             │
+│  ┌─────────────┐                            │
+│  │ K8s         │  (Web UI)                  │
+│  │ Dashboard   │                            │
+│  └─────────────┘                            │
+└─────────────────────────────────────────────┘</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Metrics Server is required for <code>kubectl top</code> and HPA.</p></div>
+    <div class="ft"><span class="fr">29</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="30">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Kubernetes RBAC</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Role-Based Access Control</div></div>
+    <div class="ft"><span class="fr">30</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="31">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt"></div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">apiVersion: rbac.authorization.k8s.io/v1</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">kind: RoleBinding</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">metadata:</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">  namespace: foodexpress-prod</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">  name: read-pods</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">subjects:</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">    name: sustain-engineer</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">roleRef:</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">  kind: Role</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">  name: pod-reader</p></div>
+    <div class="ft"><span class="fr">31</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="32">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab: Fix FoodExpress K8s Manifests</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Scenario</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">FoodExpress K8s deployment has bugs causing:</p>
+<ul class="bl"><li>CrashLoopBackOff on order-service</li><li>Payment-service unreachable from order-service</li><li>No health checks (dead pods serve traffic)</li><li>Missing resource limits (noisy neighbor problem)</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Files to fix:</div>
+<ul class="bl"><li>1. <code>order-deployment.yaml</code> -- 4 bugs</li><li>2. <code>order-service.yaml</code> -- 3 bugs</li><li>3. <code>payment-deployment.yaml</code> -- 3 bugs</li><li>4. <code>namespace-config.yaml</code> -- 2 bugs</li></ul>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">See <code>Labs/lab-exercises.md</code> for detailed bug list.</p></div>
+    <div class="ft"><span class="fr">32</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="33">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 29 - KUBERNETES</span><span class="ct"></span></div>
+    <div class="tt">Best Practices for Production K8s</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Practice</th><th>Why</th></tr></thead><tbody><tr><td>Always set resource requests AND limits</td><td>Prevent noisy neighbors, enable scheduling</td></tr><tr><td>Use readiness AND liveness probes</td><td>Remove unhealthy pods from traffic</td></tr><tr><td>Never use <code>latest</code> tag</td><td>Non-deterministic deployments</td></tr><tr><td>Use namespaces for isolation</td><td>Separate dev/staging/prod</td></tr><tr><td>Store secrets in external vault</td><td>K8s secrets are only base64</td></tr><tr><td>Set PodDisruptionBudgets</td><td>Ensure availability during node drain</td></tr><tr><td>Use Network Policies</td><td>Restrict pod-to-pod communication</td></tr><tr><td>Label everything consistently</td><td>Enable filtering and selection</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">33</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="34">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 29 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Concept</th><th>Key Point</th></tr></thead><tbody><tr><td>Control Plane</td><td>API Server, Scheduler, Controller Manager, etcd</td></tr><tr><td>Data Plane</td><td>kubelet, kube-proxy, container runtime on each node</td></tr><tr><td>Pod</td><td>Smallest deployable unit; ephemeral; use Deployments</td></tr><tr><td>Service</td><td>Stable IP/DNS for pod discovery (ClusterIP, NodePort, LoadBalancer)</td></tr><tr><td>Probes</td><td>Liveness (restart), Readiness (remove from traffic), Startup (slow apps)</td></tr><tr><td>Resources</td><td>Requests (scheduling), Limits (hard cap); always set both</td></tr><tr><td>HPA</td><td>Auto-scale pods based on CPU/memory/custom metrics</td></tr><tr><td>Namespaces</td><td>Virtual clusters for environment isolation</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next:</strong> Module 30 -- Ansible (Configuration Management & Automation)</span></div></div>
+    <div class="e-ban"><span><strong>Next:</strong> Module 30 -- Ansible (Configuration Management & Automation)</span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 34</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

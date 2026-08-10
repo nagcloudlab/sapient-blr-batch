@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Database & SQL</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 12</div>
+    <div class="t-main">Database &amp; SQL</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day | Lecture + hands-on labs</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Session</th><th>Topics</th></tr></thead><tbody><tr><td>First half</td><td>RDBMS Concepts, Create/Drop DB, Data Types, Tables, CRUD (Insert/Select/Where/Update/Delete), LIKE</td></tr><tr><td>Second half</td><td>Sorting, Duplicates, Grouping, HAVING, Joins, Sub-Queries, Aliases, NULL Values</td></tr><tr><td>DB Ops</td><td>Query Optimization, Indexing, Backup & Recovery, Transaction Failure, Clustering</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Master SQL with the FoodExpress schema: orders, order_items, customers, restaurants.</div></div></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">Why Databases Matter for Sustain Engineers</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li><strong>70%+ of production incidents</strong> involve database issues</li><li>Slow queries, missing indexes, deadlocks, data corruption</li><li>Sustain engineers must:</li><li class="s">Read and debug existing SQL queries</li><li class="s">Optimize slow queries</li><li class="s">Understand backup/recovery procedures</li><li class="s">Handle transaction failures gracefully</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Database</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">FoodExpress uses MySQL 8.0 with 4 core tables:
+- customers     (user profiles, addresses)
+- restaurants   (restaurant info, cuisine, rating)
+- orders        (order header: customer, restaurant, status, total)
+- order_items   (line items: what was ordered, quantity, price)</div></div></div></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">Relational Database Concepts</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Is an RDBMS?</div>
+<table class="tbl"><thead><tr><th>Term</th><th>Definition</th></tr></thead><tbody><tr><td>Database</td><td>Organized collection of structured data</td></tr><tr><td>Table</td><td>A set of rows and columns (like a spreadsheet)</td></tr><tr><td>Row (Record)</td><td>A single entry in a table</td></tr><tr><td>Column (Field)</td><td>A specific attribute of the data</td></tr><tr><td>Primary Key</td><td>Unique identifier for each row</td></tr><tr><td>Foreign Key</td><td>A column that references a primary key in another table</td></tr><tr><td>Schema</td><td>The structure/blueprint of the database</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">RDBMS vs NoSQL</div>
+<table class="tbl"><thead><tr><th>Feature</th><th>RDBMS (MySQL)</th><th>NoSQL (MongoDB)</th></tr></thead><tbody><tr><td>Structure</td><td>Fixed schema, tables</td><td>Flexible schema, documents</td></tr><tr><td>Query Language</td><td>SQL</td><td>MongoDB Query Language</td></tr><tr><td>Relationships</td><td>JOINs</td><td>Embedded documents / references</td></tr><tr><td>ACID</td><td>Full support</td><td>Varies by engine</td></tr><tr><td>Best For</td><td>Structured, relational data</td><td>Unstructured, rapidly changing data</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">Create and Drop Database</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">-- Create a new database
+CREATE DATABASE foodexpress;
+
+-- Create with character set
+CREATE DATABASE foodexpress
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+-- Show all databases
+SHOW DATABASES;
+
+-- Use a specific database
+USE foodexpress;
+
+-- Drop (delete) a database -- DANGEROUS!
+DROP DATABASE foodexpress;
+
+-- Safe drop: only if it exists
+DROP DATABASE IF EXISTS foodexpress;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Best Practice</div>
+<ul class="bl"><li>Always use <code>IF EXISTS</code> / <code>IF NOT EXISTS</code> to prevent errors</li><li>Never drop a database in production without authorization</li><li>In sustain work: you read/query databases, rarely create/drop them</li></ul></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">MySQL Data Types</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Numeric Types</div>
+<table class="tbl"><thead><tr><th>Type</th><th>Range</th><th>Use Case</th></tr></thead><tbody><tr><td><code>INT</code></td><td>-2B to 2B</td><td>Order IDs, quantities</td></tr><tr><td><code>BIGINT</code></td><td>Very large numbers</td><td>Auto-increment IDs at scale</td></tr><tr><td><code>DECIMAL(10,2)</code></td><td>Exact precision</td><td>Prices, totals (money!)</td></tr><tr><td><code>FLOAT</code></td><td>Approximate</td><td>Ratings, coordinates</td></tr><tr><td><code>TINYINT</code></td><td>0-255</td><td>Boolean flags, small counts</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">String Types</div>
+<table class="tbl"><thead><tr><th>Type</th><th>Max Size</th><th>Use Case</th></tr></thead><tbody><tr><td><code>VARCHAR(n)</code></td><td>Up to 65,535</td><td>Names, emails, addresses</td></tr><tr><td><code>CHAR(n)</code></td><td>Fixed length</td><td>Status codes, country codes</td></tr><tr><td><code>TEXT</code></td><td>65,535</td><td>Descriptions, notes</td></tr><tr><td><code>ENUM('a','b')</code></td><td>Predefined set</td><td>Status values, categories</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Date/Time Types</div>
+<table class="tbl"><thead><tr><th>Type</th><th>Format</th><th>Use Case</th></tr></thead><tbody><tr><td><code>DATE</code></td><td>YYYY-MM-DD</td><td>Birth dates</td></tr><tr><td><code>DATETIME</code></td><td>YYYY-MM-DD HH:MM:SS</td><td>Order timestamps</td></tr><tr><td><code>TIMESTAMP</code></td><td>Auto-updates</td><td>created_at, updated_at</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress Schema Design</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">CREATE TABLE customers (
+    customer_id   INT AUTO_INCREMENT PRIMARY KEY,
+    name          VARCHAR(100) NOT NULL,
+    email         VARCHAR(150) UNIQUE NOT NULL,
+    phone         VARCHAR(15),
+    address       VARCHAR(255),
+    city          VARCHAR(50) DEFAULT 'Bangalore',
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE restaurants (
+    restaurant_id INT AUTO_INCREMENT PRIMARY KEY,
+    name          VARCHAR(100) NOT NULL,
+    cuisine       VARCHAR(50) NOT NULL,
+    rating        DECIMAL(2,1) DEFAULT 0.0,
+    is_active     TINYINT(1) DEFAULT 1,
+    city          VARCHAR(50) DEFAULT 'Bangalore',
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);</div></div></div></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress Schema (continued)</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">CREATE TABLE orders (
+    order_id      INT AUTO_INCREMENT PRIMARY KEY,
+    customer_id   INT NOT NULL,
+    restaurant_id INT NOT NULL,
+    order_date    DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status        ENUM('placed','confirmed','preparing',
+                       'out_for_delivery','delivered','cancelled')
+                  DEFAULT 'placed',
+    total_amount  DECIMAL(10,2) NOT NULL,
+    delivery_address VARCHAR(255),
+    FOREIGN KEY (customer_id) REFERENCES customers(customer_id),
+    FOREIGN KEY (restaurant_id) REFERENCES restaurants(restaurant_id)
+);
+
+CREATE TABLE order_items (
+    item_id       INT AUTO_INCREMENT PRIMARY KEY,
+    order_id      INT NOT NULL,
+    item_name     VARCHAR(100) NOT NULL,
+    quantity      INT NOT NULL DEFAULT 1,
+    unit_price    DECIMAL(10,2) NOT NULL,
+    subtotal      DECIMAL(10,2) GENERATED ALWAYS AS
+                  (quantity * unit_price) STORED,
+    FOREIGN KEY (order_id) REFERENCES orders(order_id)
+);</div></div></div></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">Entity Relationship Diagram</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33</div><div class="cb-cd">+----------------+       +----------------+
+|   customers    |       |  restaurants   |
++----------------+       +----------------+
+| customer_id PK |       | restaurant_id PK|
+| name           |       | name           |
+| email          |       | cuisine        |
+| phone          |       | rating         |
+| address        |       | is_active      |
+| city           |       | city           |
++-------+--------+       +-------+--------+
+        |                         |
+        | 1:N                     | 1:N
+        |                         |
++-------v-------------------------v--------+
+|                 orders                    |
++-------------------------------------------+
+| order_id PK                               |
+| customer_id FK  -----&gt; customers          |
+| restaurant_id FK ----&gt; restaurants        |
+| order_date, status, total_amount          |
++-------------------+-----------------------+
+                    | 1:N
+                    |
+          +---------v----------+
+          |    order_items     |
+          +--------------------+
+          | item_id PK         |
+          | order_id FK        |
+          | item_name          |
+          | quantity           |
+          | unit_price         |
+          | subtotal (computed)|
+          +--------------------+</div></div></div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">INSERT -- Adding Data</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25</div><div class="cb-cd">-- Insert a single customer
+INSERT INTO customers (name, email, phone, address, city)
+VALUES ('Priya Sharma', 'priya@email.com', '9876543210',
+        '42 MG Road', 'Bangalore');
+
+-- Insert multiple restaurants
+INSERT INTO restaurants (name, cuisine, rating, is_active, city)
+VALUES
+  ('Spice Garden', 'Indian', 4.5, 1, 'Bangalore'),
+  ('Pizza Palace', 'Italian', 4.2, 1, 'Bangalore'),
+  ('Dragon Wok', 'Chinese', 3.8, 1, 'Bangalore'),
+  ('Burger Barn', 'American', 4.0, 0, 'Bangalore'),
+  ('Sushi House', 'Japanese', 4.7, 1, 'Mumbai');
+
+-- Insert an order
+INSERT INTO orders (customer_id, restaurant_id, status, total_amount,
+                    delivery_address)
+VALUES (1, 1, 'placed', 649.00, '42 MG Road, Bangalore');
+
+-- Insert order items
+INSERT INTO order_items (order_id, item_name, quantity, unit_price)
+VALUES
+  (1, 'Butter Chicken', 2, 249.00),
+  (1, 'Naan', 3, 49.00),
+  (1, 'Mango Lassi', 1, 99.00);</div></div></div></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct">FORMS</span></div>
+    <div class="tt">SELECT -- Reading Data</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">-- Select all columns
+SELECT * FROM customers;
+
+-- Select specific columns
+SELECT name, email, city FROM customers;
+
+-- Select with alias
+SELECT name AS customer_name,
+       email AS contact_email
+FROM customers;
+
+-- Count rows
+SELECT COUNT(*) AS total_customers FROM customers;
+
+-- Distinct values
+SELECT DISTINCT city FROM customers;
+SELECT DISTINCT cuisine FROM restaurants;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Example</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">-- All active restaurants with their ratings
+SELECT name, cuisine, rating
+FROM restaurants
+WHERE is_active = 1
+ORDER BY rating DESC;</div></div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">WHERE -- Filtering Data</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">-- Comparison operators
+SELECT * FROM orders WHERE total_amount &gt; 500;
+SELECT * FROM orders WHERE status = 'delivered';
+SELECT * FROM restaurants WHERE rating &gt;= 4.0;
+
+-- AND / OR
+SELECT * FROM restaurants
+WHERE cuisine = 'Indian' AND rating &gt;= 4.0;
+
+SELECT * FROM orders
+WHERE status = 'cancelled' OR status = 'delivered';
+
+-- IN operator
+SELECT * FROM orders
+WHERE status IN ('placed', 'confirmed', 'preparing');
+
+-- BETWEEN
+SELECT * FROM orders
+WHERE total_amount BETWEEN 200 AND 1000;
+
+-- NOT
+SELECT * FROM restaurants
+WHERE cuisine NOT IN ('Chinese', 'Japanese');
+
+-- NULL checks
+SELECT * FROM customers WHERE phone IS NULL;
+SELECT * FROM customers WHERE phone IS NOT NULL;</div></div></div></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">LIKE -- Pattern Matching</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd">-- % matches zero or more characters
+SELECT * FROM customers WHERE name LIKE 'P%';      -- starts with P
+SELECT * FROM customers WHERE email LIKE '%gmail%'; -- contains gmail
+SELECT * FROM restaurants WHERE name LIKE '%Palace'; -- ends with Palace
+
+-- _ matches exactly one character
+SELECT * FROM customers WHERE phone LIKE '98765_____'; -- starts with 98765
+
+-- FoodExpress: Find restaurants with "Pizza" in the name
+SELECT name, cuisine, rating
+FROM restaurants
+WHERE name LIKE '%Pizza%'
+  AND is_active = 1;
+
+-- Case-insensitive search (MySQL default for utf8)
+SELECT * FROM restaurants WHERE name LIKE '%garden%';</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">LIKE Performance Warning</div>
+<table class="tbl"><thead><tr><th>Pattern</th><th>Uses Index?</th><th>Performance</th></tr></thead><tbody><tr><td><code>LIKE 'Pizza%'</code></td><td>Yes (prefix)</td><td>Fast</td></tr><tr><td><code>LIKE '%Pizza'</code></td><td>No (suffix)</td><td>Slow -- full table scan</td></tr><tr><td><code>LIKE '%Pizza%'</code></td><td>No (contains)</td><td>Slow -- full table scan</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">UPDATE -- Modifying Data</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23</div><div class="cb-cd">-- Update a single column
+UPDATE customers
+SET phone = '9999888877'
+WHERE customer_id = 1;
+
+-- Update multiple columns
+UPDATE orders
+SET status = 'delivered',
+    total_amount = 699.00
+WHERE order_id = 1;
+
+-- Update with condition
+UPDATE restaurants
+SET is_active = 0
+WHERE rating &lt; 3.0;
+
+-- DANGER: UPDATE without WHERE affects ALL rows!
+UPDATE restaurants SET rating = 5.0;  -- DO NOT DO THIS!
+
+-- Safe update: Always include WHERE
+UPDATE restaurants
+SET rating = 4.8
+WHERE restaurant_id = 5;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress: Update Order Status</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">-- Typical order lifecycle
+UPDATE orders SET status = 'confirmed' WHERE order_id = 1;
+UPDATE orders SET status = 'preparing' WHERE order_id = 1;
+UPDATE orders SET status = 'out_for_delivery' WHERE order_id = 1;
+UPDATE orders SET status = 'delivered' WHERE order_id = 1;</div></div></div></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">DELETE -- Removing Data</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">-- Delete specific rows
+DELETE FROM order_items WHERE item_id = 3;
+
+-- Delete with condition
+DELETE FROM orders WHERE status = 'cancelled';
+
+-- DANGER: DELETE without WHERE removes ALL rows!
+DELETE FROM customers;  -- DO NOT DO THIS!
+
+-- Safe delete: Always use WHERE
+DELETE FROM customers WHERE customer_id = 10;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Soft Delete vs Hard Delete</div>
+<table class="tbl"><thead><tr><th>Approach</th><th>SQL</th><th>Pros</th><th>Cons</th></tr></thead><tbody><tr><td>Hard Delete</td><td><code>DELETE FROM restaurants WHERE id = 5</code></td><td>Frees storage</td><td>Data lost forever</td></tr><tr><td>Soft Delete</td><td><code>UPDATE restaurants SET is_active = 0 WHERE id = 5</code></td><td>Recoverable, audit trail</td><td>Extra storage, queries need filter</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Uses Soft Delete</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">-- "Delete" a restaurant (soft)
+UPDATE restaurants
+SET is_active = 0
+WHERE restaurant_id = 4;
+
+-- All queries must filter:
+SELECT * FROM restaurants WHERE is_active = 1;</div></div></div></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">ORDER BY -- Sorting Results</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd">-- Sort ascending (default)
+SELECT * FROM restaurants ORDER BY rating ASC;
+
+-- Sort descending
+SELECT * FROM restaurants ORDER BY rating DESC;
+
+-- Sort by multiple columns
+SELECT * FROM orders
+ORDER BY status ASC, order_date DESC;
+
+-- FoodExpress: Top-rated active restaurants
+SELECT name, cuisine, rating
+FROM restaurants
+WHERE is_active = 1
+ORDER BY rating DESC
+LIMIT 5;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">LIMIT and OFFSET (Pagination)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">-- First page (items 1-10)
+SELECT * FROM orders ORDER BY order_date DESC LIMIT 10 OFFSET 0;
+
+-- Second page (items 11-20)
+SELECT * FROM orders ORDER BY order_date DESC LIMIT 10 OFFSET 10;
+
+-- Shorthand: LIMIT offset, count
+SELECT * FROM orders ORDER BY order_date DESC LIMIT 10, 10;</div></div></div></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">DISTINCT -- Removing Duplicates</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">-- Unique cuisines
+SELECT DISTINCT cuisine FROM restaurants;
+
+-- Unique cities where we have customers
+SELECT DISTINCT city FROM customers;
+
+-- Count of unique cuisines
+SELECT COUNT(DISTINCT cuisine) AS cuisine_count
+FROM restaurants;
+
+-- Distinct combinations
+SELECT DISTINCT city, cuisine
+FROM restaurants
+ORDER BY city, cuisine;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">When to Use DISTINCT</div>
+<table class="tbl"><thead><tr><th>Scenario</th><th>Use DISTINCT?</th></tr></thead><tbody><tr><td>List all cuisine types</td><td>Yes</td></tr><tr><td>Count unique customers who ordered</td><td>Yes</td></tr><tr><td>Get all orders for a customer</td><td>No (orders are already unique by PK)</td></tr><tr><td>Find duplicate emails</td><td>No (use GROUP BY + HAVING)</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">GROUP BY -- Aggregating Data</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">-- Count orders per customer
+SELECT customer_id, COUNT(*) AS order_count
+FROM orders
+GROUP BY customer_id;
+
+-- Total revenue per restaurant
+SELECT restaurant_id,
+       SUM(total_amount) AS total_revenue,
+       COUNT(*) AS order_count,
+       AVG(total_amount) AS avg_order_value
+FROM orders
+GROUP BY restaurant_id;
+
+-- Orders per status
+SELECT status, COUNT(*) AS count
+FROM orders
+GROUP BY status
+ORDER BY count DESC;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Aggregate Functions</div>
+<table class="tbl"><thead><tr><th>Function</th><th>Description</th><th>Example</th></tr></thead><tbody><tr><td><code>COUNT(*)</code></td><td>Count rows</td><td>Number of orders</td></tr><tr><td><code>SUM(col)</code></td><td>Total</td><td>Total revenue</td></tr><tr><td><code>AVG(col)</code></td><td>Average</td><td>Average order value</td></tr><tr><td><code>MIN(col)</code></td><td>Minimum</td><td>Cheapest order</td></tr><tr><td><code>MAX(col)</code></td><td>Maximum</td><td>Most expensive order</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">HAVING -- Filtering Groups</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">-- Customers with more than 5 orders
+SELECT customer_id, COUNT(*) AS order_count
+FROM orders
+GROUP BY customer_id
+HAVING COUNT(*) &gt; 5;
+
+-- Restaurants with average order &gt; 500
+SELECT restaurant_id,
+       AVG(total_amount) AS avg_order
+FROM orders
+GROUP BY restaurant_id
+HAVING AVG(total_amount) &gt; 500;
+
+-- Cuisines with more than 2 restaurants
+SELECT cuisine, COUNT(*) AS restaurant_count
+FROM restaurants
+GROUP BY cuisine
+HAVING COUNT(*) &gt; 2;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">WHERE vs HAVING</div>
+<table class="tbl"><thead><tr><th>Clause</th><th>Filters On</th><th>Timing</th></tr></thead><tbody><tr><td><code>WHERE</code></td><td>Individual rows</td><td>Before grouping</td></tr><tr><td><code>HAVING</code></td><td>Grouped results</td><td>After grouping</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">-- WHERE filters rows, HAVING filters groups
+SELECT restaurant_id, SUM(total_amount) AS revenue
+FROM orders
+WHERE status = 'delivered'        -- filter rows first
+GROUP BY restaurant_id
+HAVING SUM(total_amount) &gt; 10000; -- then filter groups</div></div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct">HTML</span></div>
+    <div class="tt">Joins -- Combining Tables</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">INNER JOIN</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">-- Orders with customer names
+SELECT o.order_id, c.name AS customer_name,
+       o.total_amount, o.status
+FROM orders o
+INNER JOIN customers c ON o.customer_id = c.customer_id;
+
+-- Orders with restaurant names
+SELECT o.order_id, r.name AS restaurant_name,
+       o.total_amount, o.order_date
+FROM orders o
+INNER JOIN restaurants r ON o.restaurant_id = r.restaurant_id;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Multi-Table JOIN</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</div><div class="cb-cd">-- Complete order view: customer + restaurant + items
+SELECT o.order_id,
+       c.name AS customer,
+       r.name AS restaurant,
+       oi.item_name,
+       oi.quantity,
+       oi.unit_price,
+       oi.subtotal,
+       o.total_amount,
+       o.status
+FROM orders o
+INNER JOIN customers c ON o.customer_id = c.customer_id
+INNER JOIN restaurants r ON o.restaurant_id = r.restaurant_id
+INNER JOIN order_items oi ON o.order_id = oi.order_id
+ORDER BY o.order_id;</div></div></div></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct">FRAMEWORKS</span></div>
+    <div class="tt">Join Types Comparison</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">INNER JOIN          LEFT JOIN           RIGHT JOIN          FULL OUTER JOIN
++---+---+          +---+---+          +---+---+           +---+---+
+| A | B |          | A | B |          | A | B |           | A | B |
++---+---+          +---+---+          +---+---+           +---+---+
+|   |XXX|          |XXX|XXX|          |   |XXX|           |XXX|XXX|
+|   |XXX|          |XXX|XXX|          |   |XXX|           |XXX|XXX|
++---+---+          |XXX|   |          +---+---+           |XXX|   |
+                   +---+---+                              |   |XXX|
+                                                          +---+---+
+Only matching      All from A,        All from B,         All from both
+rows               NULL if no B       NULL if no A</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Examples</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">-- LEFT JOIN: All customers, even those with no orders
+SELECT c.name, COUNT(o.order_id) AS order_count
+FROM customers c
+LEFT JOIN orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, c.name;
+
+-- Customers who NEVER ordered (LEFT JOIN + IS NULL)
+SELECT c.name, c.email
+FROM customers c
+LEFT JOIN orders o ON c.customer_id = o.customer_id
+WHERE o.order_id IS NULL;</div></div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">Sub-Queries</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">-- Find customers who ordered more than average
+SELECT name, email
+FROM customers
+WHERE customer_id IN (
+    SELECT customer_id
+    FROM orders
+    GROUP BY customer_id
+    HAVING SUM(total_amount) &gt; (
+        SELECT AVG(total_amount) FROM orders
+    )
+);
+
+-- Restaurant with the highest average order value
+SELECT name, cuisine
+FROM restaurants
+WHERE restaurant_id = (
+    SELECT restaurant_id
+    FROM orders
+    GROUP BY restaurant_id
+    ORDER BY AVG(total_amount) DESC
+    LIMIT 1
+);
+
+-- Orders above the average order amount
+SELECT order_id, total_amount
+FROM orders
+WHERE total_amount &gt; (SELECT AVG(total_amount) FROM orders);</div></div></div></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">Sub-Queries (continued)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Correlated Sub-Queries</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">-- Find each customer's latest order
+SELECT c.name, o.order_id, o.order_date, o.total_amount
+FROM orders o
+INNER JOIN customers c ON o.customer_id = c.customer_id
+WHERE o.order_date = (
+    SELECT MAX(o2.order_date)
+    FROM orders o2
+    WHERE o2.customer_id = o.customer_id
+);
+
+-- Restaurants with orders above their own average
+SELECT r.name, o.order_id, o.total_amount
+FROM orders o
+INNER JOIN restaurants r ON o.restaurant_id = r.restaurant_id
+WHERE o.total_amount &gt; (
+    SELECT AVG(o2.total_amount)
+    FROM orders o2
+    WHERE o2.restaurant_id = o.restaurant_id
+);</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">EXISTS Sub-Query</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">-- Active restaurants that have at least one order
+SELECT r.name, r.cuisine
+FROM restaurants r
+WHERE EXISTS (
+    SELECT 1 FROM orders o
+    WHERE o.restaurant_id = r.restaurant_id
+);</div></div></div></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">Aliases</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26</div><div class="cb-cd">-- Column aliases
+SELECT
+    c.name AS customer_name,
+    COUNT(o.order_id) AS total_orders,
+    SUM(o.total_amount) AS lifetime_value,
+    AVG(o.total_amount) AS avg_order_value
+FROM customers c
+INNER JOIN orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, c.name;
+
+-- Table aliases (shorthand)
+SELECT o.order_id, c.name, r.name
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+JOIN restaurants r ON o.restaurant_id = r.restaurant_id;
+
+-- Derived table (sub-query as table)
+SELECT restaurant_name, total_revenue
+FROM (
+    SELECT r.name AS restaurant_name,
+           SUM(o.total_amount) AS total_revenue
+    FROM orders o
+    JOIN restaurants r ON o.restaurant_id = r.restaurant_id
+    GROUP BY r.restaurant_id, r.name
+) AS revenue_summary
+WHERE total_revenue &gt; 5000;</div></div></div></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">NULL Values</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22</div><div class="cb-cd">-- NULL is not a value -- it means "unknown" or "missing"
+
+-- Check for NULL (cannot use = or !=)
+SELECT * FROM customers WHERE phone IS NULL;
+SELECT * FROM customers WHERE phone IS NOT NULL;
+
+-- NULL in calculations
+SELECT 5 + NULL;           -- Result: NULL
+SELECT NULL = NULL;        -- Result: NULL (not TRUE!)
+SELECT NULL != NULL;       -- Result: NULL
+
+-- COALESCE: Replace NULL with a default
+SELECT name,
+       COALESCE(phone, 'No phone') AS phone,
+       COALESCE(address, 'No address') AS address
+FROM customers;
+
+-- IFNULL (MySQL-specific)
+SELECT name, IFNULL(phone, 'N/A') AS phone FROM customers;
+
+-- NULL-safe comparison
+SELECT * FROM customers WHERE phone &lt;=&gt; NULL; -- same as IS NULL</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">NULL Gotcha in Aggregations</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">-- COUNT(*) counts all rows, COUNT(col) skips NULLs
+SELECT COUNT(*) AS total_rows,
+       COUNT(phone) AS rows_with_phone
+FROM customers;
+-- If 10 rows, 3 have NULL phone: total_rows=10, rows_with_phone=7</div></div></div></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">Query Optimization</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">EXPLAIN -- Understanding Query Plans</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">-- See how MySQL executes a query
+EXPLAIN SELECT * FROM orders
+WHERE customer_id = 1 AND status = 'delivered';
+
+-- Key columns in EXPLAIN output:
+-- type:    ALL (full scan), ref (index), const (PK lookup)
+-- key:     Which index is used (NULL = no index)
+-- rows:    Estimated rows to examine
+-- Extra:   Using where, Using index, Using filesort</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Optimization Rules</div>
+<table class="tbl"><thead><tr><th>Problem</th><th>Bad Query</th><th>Good Query</th></tr></thead><tbody><tr><td>No index on filter</td><td><code>WHERE status = 'delivered'</code></td><td>Add index on <code>status</code></td></tr><tr><td>SELECT *</td><td><code>SELECT * FROM orders</code></td><td><code>SELECT order_id, status</code></td></tr><tr><td>Function on column</td><td><code>WHERE YEAR(order_date) = 2026</code></td><td><code>WHERE order_date &gt;= '2026-01-01'</code></td></tr><tr><td>Leading wildcard</td><td><code>WHERE name LIKE '%Pizza%'</code></td><td><code>WHERE name LIKE 'Pizza%'</code></td></tr><tr><td>N+1 queries</td><td>Loop with single SELECTs</td><td>Use JOIN instead</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">Indexing</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Creating Indexes</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd">-- Single column index
+CREATE INDEX idx_orders_status ON orders(status);
+
+-- Composite index (order matters!)
+CREATE INDEX idx_orders_cust_status
+ON orders(customer_id, status);
+
+-- Unique index
+CREATE UNIQUE INDEX idx_customers_email
+ON customers(email);
+
+-- Show indexes on a table
+SHOW INDEX FROM orders;
+
+-- Drop an index
+DROP INDEX idx_orders_status ON orders;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">When to Index</div>
+<table class="tbl"><thead><tr><th>Index When</th><th>Do Not Index When</th></tr></thead><tbody><tr><td>Column in WHERE/JOIN</td><td>Table has very few rows</td></tr><tr><td>Column in ORDER BY</td><td>Column has low cardinality (e.g., boolean)</td></tr><tr><td>Column in GROUP BY</td><td>Column is rarely queried</td></tr><tr><td>Foreign key columns</td><td>Table has heavy writes</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Indexes</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">-- Essential indexes for FoodExpress
+CREATE INDEX idx_orders_customer ON orders(customer_id);
+CREATE INDEX idx_orders_restaurant ON orders(restaurant_id);
+CREATE INDEX idx_orders_status ON orders(status);
+CREATE INDEX idx_orders_date ON orders(order_date);
+CREATE INDEX idx_items_order ON order_items(order_id);
+CREATE INDEX idx_restaurants_cuisine ON restaurants(cuisine);</div></div></div></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">Backup and Recovery</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">mysqldump</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd"># Full database backup
+mysqldump -u root -p foodexpress &gt; foodexpress_backup.sql
+
+# Backup specific tables
+mysqldump -u root -p foodexpress orders order_items &gt; orders_backup.sql
+
+# Backup with structure only (no data)
+mysqldump -u root -p --no-data foodexpress &gt; schema_only.sql
+
+# Backup with data only (no structure)
+mysqldump -u root -p --no-create-info foodexpress &gt; data_only.sql</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Restore</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd"># Restore from backup
+mysql -u root -p foodexpress &lt; foodexpress_backup.sql
+
+# Restore to a new database
+mysql -u root -p -e "CREATE DATABASE foodexpress_restored"
+mysql -u root -p foodexpress_restored &lt; foodexpress_backup.sql</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Backup Best Practices</div>
+<table class="tbl"><thead><tr><th>Practice</th><th>Why</th></tr></thead><tbody><tr><td>Schedule daily backups</td><td>Minimize data loss window</td></tr><tr><td>Test restores regularly</td><td>Backups are worthless if they cannot be restored</td></tr><tr><td>Store backups off-site</td><td>Protect against hardware failure</td></tr><tr><td>Use binary logs for point-in-time recovery</td><td>Recover to any point, not just last backup</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="29">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">Transactions</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">ACID Properties</div>
+<table class="tbl"><thead><tr><th>Property</th><th>Meaning</th><th>Example</th></tr></thead><tbody><tr><td><strong>A</strong>tomicity</td><td>All or nothing</td><td>Transfer money: debit AND credit both succeed or both fail</td></tr><tr><td><strong>C</strong>onsistency</td><td>Valid state to valid state</td><td>Order total matches sum of items</td></tr><tr><td><strong>I</strong>solation</td><td>Concurrent transactions don't interfere</td><td>Two customers ordering same last item</td></tr><tr><td><strong>D</strong>urability</td><td>Committed data survives crashes</td><td>Power failure after COMMIT -- data is safe</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Transaction Syntax</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd">-- FoodExpress: Place an order (atomic)
+START TRANSACTION;
+
+INSERT INTO orders (customer_id, restaurant_id, status, total_amount)
+VALUES (1, 2, 'placed', 598.00);
+
+SET @order_id = LAST_INSERT_ID();
+
+INSERT INTO order_items (order_id, item_name, quantity, unit_price)
+VALUES (@order_id, 'Margherita Pizza', 2, 299.00);
+
+-- If everything succeeded:
+COMMIT;
+
+-- If something went wrong:
+-- ROLLBACK;</div></div></div></div>
+    <div class="ft"><span class="fr">29</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="30">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">Transaction Failure Handling</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Common Transaction Failures</div>
+<table class="tbl"><thead><tr><th>Failure</th><th>Cause</th><th>Impact</th></tr></thead><tbody><tr><td>Deadlock</td><td>Two transactions wait for each other's locks</td><td>One is rolled back automatically</td></tr><tr><td>Lock timeout</td><td>Transaction waits too long for a lock</td><td>Error: lock wait timeout</td></tr><tr><td>Constraint violation</td><td>FK/unique violation mid-transaction</td><td>Insert/update fails</td></tr><tr><td>Connection drop</td><td>Network or server crash</td><td>Uncommitted work is lost</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Deadlock Example</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">-- Transaction A:                    Transaction B:
+-- UPDATE orders SET ...             UPDATE order_items SET ...
+--   WHERE order_id = 1;               WHERE order_id = 2;
+-- UPDATE order_items SET ...        UPDATE orders SET ...
+--   WHERE order_id = 2;               WHERE order_id = 1;
+-- DEADLOCK! A waits for B, B waits for A</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Prevention</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">-- Always access tables in the same order
+-- Keep transactions short
+-- Use appropriate isolation levels:
+SET TRANSACTION ISOLATION LEVEL READ COMMITTED;</div></div></div></div>
+    <div class="ft"><span class="fr">30</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="31">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">MySQL Clustering</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Replication Architecture</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd">+--------+     writes     +--------+
+| Client | ------------&gt; | Primary |
++--------+               +----+----+
+                              |
+              +---------------+---------------+
+              | replication   | replication   |
+              v               v               v
+         +---------+    +---------+    +---------+
+         | Replica |    | Replica |    | Replica |
+         |   (R1)  |    |   (R2)  |    |   (R3)  |
+         +---------+    +---------+    +---------+
+              ^               ^               ^
+              |   reads       |   reads       |   reads
+         +--------+      +--------+      +--------+
+         | Client |      | Client |      | Client |
+         +--------+      +--------+      +--------+</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Clustering Concepts</div>
+<table class="tbl"><thead><tr><th>Concept</th><th>Description</th></tr></thead><tbody><tr><td>Primary-Replica</td><td>One writer, multiple readers</td></tr><tr><td>Read replicas</td><td>Scale read-heavy workloads</td></tr><tr><td>Failover</td><td>Promote replica to primary on failure</td></tr><tr><td>Replication lag</td><td>Replicas may be seconds behind primary</td></tr><tr><td>Split-brain</td><td>Two nodes think they are primary -- dangerous</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">31</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="32">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress Database Operations</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Common Sustain Queries</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26</div><div class="cb-cd">-- 1. Daily order summary
+SELECT DATE(order_date) AS day,
+       COUNT(*) AS order_count,
+       SUM(total_amount) AS revenue
+FROM orders
+WHERE order_date &gt;= CURDATE() - INTERVAL 7 DAY
+GROUP BY DATE(order_date)
+ORDER BY day;
+
+-- 2. Top 5 customers by lifetime value
+SELECT c.name, SUM(o.total_amount) AS lifetime_value
+FROM customers c
+JOIN orders o ON c.customer_id = o.customer_id
+WHERE o.status = 'delivered'
+GROUP BY c.customer_id, c.name
+ORDER BY lifetime_value DESC
+LIMIT 5;
+
+-- 3. Most popular items
+SELECT oi.item_name,
+       SUM(oi.quantity) AS total_ordered,
+       SUM(oi.subtotal) AS total_revenue
+FROM order_items oi
+GROUP BY oi.item_name
+ORDER BY total_ordered DESC
+LIMIT 10;</div></div></div></div>
+    <div class="ft"><span class="fr">32</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="33">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress Database Operations (continued)</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.sql</span><span class="cb-lg">SQL</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28</div><div class="cb-cd">-- 4. Cancelled order rate by restaurant
+SELECT r.name,
+       COUNT(*) AS total_orders,
+       SUM(CASE WHEN o.status = 'cancelled' THEN 1 ELSE 0 END) AS cancelled,
+       ROUND(SUM(CASE WHEN o.status = 'cancelled' THEN 1 ELSE 0 END)
+             * 100.0 / COUNT(*), 1) AS cancel_rate
+FROM orders o
+JOIN restaurants r ON o.restaurant_id = r.restaurant_id
+GROUP BY r.restaurant_id, r.name
+ORDER BY cancel_rate DESC;
+
+-- 5. Stuck orders (placed &gt; 30 min ago, not confirmed)
+SELECT o.order_id, c.name, r.name AS restaurant,
+       o.order_date, o.status
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+JOIN restaurants r ON o.restaurant_id = r.restaurant_id
+WHERE o.status = 'placed'
+  AND o.order_date &lt; NOW() - INTERVAL 30 MINUTE;
+
+-- 6. Revenue by cuisine type
+SELECT r.cuisine,
+       COUNT(o.order_id) AS order_count,
+       SUM(o.total_amount) AS total_revenue
+FROM orders o
+JOIN restaurants r ON o.restaurant_id = r.restaurant_id
+GROUP BY r.cuisine
+ORDER BY total_revenue DESC;</div></div></div></div>
+    <div class="ft"><span class="fr">33</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="34">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">SQL Execution Order</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">SELECT   columns        -- 5. Pick columns
+FROM     table           -- 1. Choose table
+JOIN     other_table     -- 2. Combine tables
+WHERE    condition       -- 3. Filter rows
+GROUP BY column          -- 4. Group rows
+HAVING   group_condition -- 6. Filter groups
+ORDER BY column          -- 7. Sort results
+LIMIT    n               -- 8. Limit output</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Understanding this order explains:</p>
+<ul class="bl"><li>Why you <strong>cannot</strong> use column aliases in WHERE (alias defined in step 5, WHERE is step 3)</li><li>Why you <strong>can</strong> use column aliases in ORDER BY (step 7 comes after step 5)</li><li>Why HAVING exists separately from WHERE (different steps)</li></ul></div>
+    <div class="ft"><span class="fr">34</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="35">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 12 - DATABASE &amp; SQL</span><span class="ct"></span></div>
+    <div class="tt">Common SQL Mistakes in Sustain Work</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Mistake</th><th>Example</th><th>Fix</th></tr></thead><tbody><tr><td>Missing WHERE on UPDATE/DELETE</td><td><code>UPDATE orders SET status='cancelled'</code></td><td>Always add WHERE clause</td></tr><tr><td>Comparing with NULL using <code>=</code></td><td><code>WHERE phone = NULL</code></td><td><code>WHERE phone IS NULL</code></td></tr><tr><td>GROUP BY missing columns</td><td><code>SELECT name, COUNT(*) FROM ...</code> (no GROUP BY)</td><td>Add <code>GROUP BY name</code></td></tr><tr><td>String vs number comparison</td><td><code>WHERE status = 0</code> (status is ENUM)</td><td><code>WHERE status = 'placed'</code></td></tr><tr><td>Case sensitivity</td><td><code>WHERE name = 'pizza palace'</code></td><td>Use <code>LOWER()</code> or <code>COLLATE</code></td></tr><tr><td>Cartesian product</td><td><code>FROM orders, customers</code> (no JOIN condition)</td><td>Always specify JOIN ON</td></tr><tr><td>Ignoring index hints</td><td>Slow query on indexed column</td><td>Check EXPLAIN output</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">35</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="36">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 12 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Concept</th><th>Key Lesson</th></tr></thead><tbody><tr><td>CRUD</td><td>INSERT, SELECT, UPDATE, DELETE -- always use WHERE for mutations</td></tr><tr><td>Filtering</td><td>WHERE for rows, HAVING for groups, LIKE for patterns</td></tr><tr><td>Joins</td><td>INNER JOIN for matching rows, LEFT JOIN to include unmatched</td></tr><tr><td>Sub-Queries</td><td>Nest queries for complex conditions; correlated sub-queries for per-row logic</td></tr><tr><td>NULL</td><td>Use IS NULL, COALESCE; NULL propagates in calculations</td></tr><tr><td>Indexing</td><td>Index columns used in WHERE, JOIN, ORDER BY; check with EXPLAIN</td></tr><tr><td>Transactions</td><td>ACID guarantees; keep transactions short; handle deadlocks</td></tr><tr><td>Backup</td><td>mysqldump regularly; test restores; use binary logs for PITR</td></tr><tr><td>Clustering</td><td>Primary-Replica for read scaling; handle replication lag</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 13 -- QE/QC: Quality Engineering and Quality Control fundamentals for sustain teams.</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 13 -- QE/QC: Quality Engineering and Quality Control fundamentals for sustain teams.</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 36</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

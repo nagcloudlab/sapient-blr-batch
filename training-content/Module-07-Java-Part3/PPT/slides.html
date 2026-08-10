@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Programming (Part 3)</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 07</div>
+    <div class="t-main">Java Programming (Part 3)</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day | Workshop + guided lab</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Session</th><th>Topics</th></tr></thead><tbody><tr><td>Morning (1st half)</td><td>Collections Framework, Generics, List, Set, Map, Maven</td></tr><tr><td>Afternoon (2nd half)</td><td>Iterator, Autoboxing, JDBC, DriverManager, Connection</td></tr><tr><td>Backend Ops</td><td>Memory Management, Performance Tuning, Logging, Debugging</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Building on Module 05-06 Java foundations -- today we go deeper into real-world backend Java.</div></div></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Why Collections Matter in Sustain Engineering</div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li>Legacy codebases are <strong>full</strong> of collections -- <code>List</code>, <code>Map</code>, <code>Set</code> everywhere</li><li>Understanding collection behavior is critical for:</li><li class="s">Debugging <code>ConcurrentModificationException</code></li><li class="s">Fixing memory leaks from growing collections</li><li class="s">Optimizing slow loops over large datasets</li><li>In sustain work, you <strong>read</strong> collections code far more than you write it</li></ul></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct">FRAMEWORKS</span></div>
+    <div class="tt">Java Collections Framework -- Overview</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">                  Iterable
+                     |
+                 Collection
+                /    |     \
+             List   Set    Queue
+              |      |       |
+         ArrayList HashSet PriorityQueue
+         LinkedList TreeSet</div></div></div>
+<table class="tbl"><thead><tr><th>Interface</th><th>Duplicates</th><th>Ordered</th><th>Key Use Case</th></tr></thead><tbody><tr><td><code>List</code></td><td>Yes</td><td>Yes (insertion order)</td><td>Ordered items, indexed access</td></tr><tr><td><code>Set</code></td><td>No</td><td>Depends on impl</td><td>Unique items, membership checks</td></tr><tr><td><code>Map</code></td><td>Keys: No, Values: Yes</td><td>Depends on impl</td><td>Key-value lookups</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Generics -- Type Safety</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Without Generics (raw types -- legacy code)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">List items = new ArrayList();
+items.add("Pizza");
+items.add(42);  // No compile error!
+String name = (String) items.get(1);  // ClassCastException at runtime!</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">With Generics</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">List&lt;String&gt; items = new ArrayList&lt;&gt;();
+items.add("Pizza");
+// items.add(42);  // Compile error -- caught early!
+String name = items.get(0);  // No cast needed</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Generics move errors from <strong>runtime</strong> to <strong>compile time</strong> -- crucial for sustain reliability.</div></div></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Generic Classes and Methods</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Generic Class</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</div><div class="cb-cd">public class OrderResult&lt;T&gt; {
+    private T data;
+    private boolean success;
+
+    public OrderResult(T data, boolean success) {
+        this.data = data;
+        this.success = success;
+    }
+
+    public T getData() { return data; }
+}
+
+// Usage
+OrderResult&lt;MenuItem&gt; result = new OrderResult&lt;&gt;(menuItem, true);
+OrderResult&lt;String&gt; error = new OrderResult&lt;&gt;("Not found", false);</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Generic Method</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">public static &lt;T&gt; List&lt;T&gt; filterByCondition(List&lt;T&gt; items, Predicate&lt;T&gt; condition) {
+    List&lt;T&gt; filtered = new ArrayList&lt;&gt;();
+    for (T item : items) {
+        if (condition.test(item)) filtered.add(item);
+    }
+    return filtered;
+}</div></div></div></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Bounded Type Parameters</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">// T must extend Comparable
+public static &lt;T extends Comparable&lt;T&gt;&gt; T findMax(List&lt;T&gt; items) {
+    T max = items.get(0);
+    for (T item : items) {
+        if (item.compareTo(max) &gt; 0) max = item;
+    }
+    return max;
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Wildcards</div>
+<table class="tbl"><thead><tr><th>Wildcard</th><th>Meaning</th><th>Use Case</th></tr></thead><tbody><tr><td><code>&lt;?&gt;</code></td><td>Any type</td><td>Read-only access</td></tr><tr><td><code>&lt;? extends T&gt;</code></td><td>T or subclass</td><td>Producer (read)</td></tr><tr><td><code>&lt;? super T&gt;</code></td><td>T or superclass</td><td>Consumer (write)</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">// Accepts List of MenuItem or any subclass of MenuItem
+public void displayItems(List&lt;? extends MenuItem&gt; items) {
+    for (MenuItem item : items) {
+        System.out.println(item.getName());
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct">HTML</span></div>
+    <div class="tt">List Interface -- ArrayList</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">import java.util.ArrayList;
+import java.util.List;
+
+List&lt;MenuItem&gt; menu = new ArrayList&lt;&gt;();
+
+// Add items
+menu.add(new MenuItem("Burger", 9.99));
+menu.add(new MenuItem("Pizza", 12.99));
+menu.add(0, new MenuItem("Salad", 7.99));  // Insert at index
+
+// Access
+MenuItem first = menu.get(0);          // Salad
+int size = menu.size();                 // 3
+boolean has = menu.contains(burger);    // true
+
+// Modify
+menu.set(1, new MenuItem("Veggie Burger", 10.99));
+menu.remove(0);                         // Remove by index
+menu.remove(burger);                    // Remove by object</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">ArrayList Internals</div>
+<table class="tbl"><thead><tr><th>Operation</th><th>Time Complexity</th><th>Notes</th></tr></thead><tbody><tr><td><code>get(i)</code></td><td>O(1)</td><td>Direct array access</td></tr><tr><td><code>add(e)</code></td><td>O(1) amortized</td><td>May trigger resize</td></tr><tr><td><code>add(i, e)</code></td><td>O(n)</td><td>Shifts elements</td></tr><tr><td><code>remove(i)</code></td><td>O(n)</td><td>Shifts elements</td></tr><tr><td><code>contains(e)</code></td><td>O(n)</td><td>Linear search</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct">HTML</span></div>
+    <div class="tt">ArrayList vs LinkedList</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2</div><div class="cb-cd">List&lt;OrderItem&gt; arrayList = new ArrayList&lt;&gt;();   // Array-backed
+List&lt;OrderItem&gt; linkedList = new LinkedList&lt;&gt;();  // Node-backed</div></div></div>
+<table class="tbl"><thead><tr><th>Criteria</th><th>ArrayList</th><th>LinkedList</th></tr></thead><tbody><tr><td>Random access <code>get(i)</code></td><td>O(1) -- fast</td><td>O(n) -- slow</td></tr><tr><td>Add/Remove at end</td><td>O(1) amortized</td><td>O(1)</td></tr><tr><td>Add/Remove at middle</td><td>O(n) -- shifting</td><td>O(1) if at node</td></tr><tr><td>Memory overhead</td><td>Lower</td><td>Higher (node pointers)</td></tr><tr><td>Cache performance</td><td>Better (contiguous)</td><td>Worse (scattered)</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Sustain tip:</strong> In 95% of cases, <code>ArrayList</code> is the right choice. Only use <code>LinkedList</code> when you have measured proof it helps.</div></div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct">HTML</span></div>
+    <div class="tt">FoodExpress: OrderItem List Example</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26</div><div class="cb-cd">public class OrderService {
+    private List&lt;OrderItem&gt; orderItems = new ArrayList&lt;&gt;();
+
+    public void addItem(MenuItem menuItem, int quantity) {
+        // Check if item already exists in order
+        for (OrderItem item : orderItems) {
+            if (item.getMenuItemId().equals(menuItem.getId())) {
+                item.setQuantity(item.getQuantity() + quantity);
+                return;
+            }
+        }
+        orderItems.add(new OrderItem(menuItem, quantity));
+    }
+
+    public double calculateTotal() {
+        double total = 0;
+        for (OrderItem item : orderItems) {
+            total += item.getPrice() * item.getQuantity();
+        }
+        return total;
+    }
+
+    public List&lt;OrderItem&gt; getItems() {
+        return Collections.unmodifiableList(orderItems);  // Defensive copy
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Set Interface -- HashSet</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">import java.util.HashSet;
+import java.util.Set;
+
+Set&lt;String&gt; cuisines = new HashSet&lt;&gt;();
+cuisines.add("Italian");
+cuisines.add("Chinese");
+cuisines.add("Italian");   // Duplicate -- ignored!
+
+System.out.println(cuisines.size());  // 2
+System.out.println(cuisines.contains("Italian"));  // true</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">How HashSet Works</div>
+<ul class="bl"><li>1. Calls <code>hashCode()</code> on the object</li><li>2. Determines bucket from hash</li><li>3. If bucket has items, calls <code>equals()</code> to check duplicates</li><li>4. Stores only if no equal object found</li></ul>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Critical:</strong> If you override <code>equals()</code>, you <strong>must</strong> override <code>hashCode()</code> too!</div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">equals() and hashCode() Contract</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">public class MenuItem {
+    private String id;
+    private String name;
+    private double price;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MenuItem that = (MenuItem) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Rules</div>
+<table class="tbl"><thead><tr><th>Rule</th><th>Violation Impact</th></tr></thead><tbody><tr><td>Equal objects must have same hashCode</td><td>Items "disappear" from HashSet/HashMap</td></tr><tr><td>Same hashCode does NOT mean equal</td><td>Normal -- hash collisions happen</td></tr><tr><td>hashCode must be consistent</td><td>Unpredictable behavior</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Set Implementations Compared</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3</div><div class="cb-cd">Set&lt;String&gt; hashSet   = new HashSet&lt;&gt;();    // Unordered, fastest
+Set&lt;String&gt; linkedSet = new LinkedHashSet&lt;&gt;();  // Insertion order
+Set&lt;String&gt; treeSet   = new TreeSet&lt;&gt;();    // Sorted (natural order)</div></div></div>
+<table class="tbl"><thead><tr><th>Implementation</th><th>Order</th><th>Add/Remove/Contains</th><th>Use Case</th></tr></thead><tbody><tr><td><code>HashSet</code></td><td>None</td><td>O(1) average</td><td>Default choice</td></tr><tr><td><code>LinkedHashSet</code></td><td>Insertion order</td><td>O(1) average</td><td>Need order preserved</td></tr><tr><td><code>TreeSet</code></td><td>Sorted</td><td>O(log n)</td><td>Need sorted iteration</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Set Operations</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">Set&lt;String&gt; a = new HashSet&lt;&gt;(Arrays.asList("Pizza", "Burger", "Pasta"));
+Set&lt;String&gt; b = new HashSet&lt;&gt;(Arrays.asList("Pizza", "Sushi", "Pasta"));
+
+Set&lt;String&gt; union = new HashSet&lt;&gt;(a);
+union.addAll(b);          // [Pizza, Burger, Pasta, Sushi]
+
+Set&lt;String&gt; intersection = new HashSet&lt;&gt;(a);
+intersection.retainAll(b); // [Pizza, Pasta]
+
+Set&lt;String&gt; difference = new HashSet&lt;&gt;(a);
+difference.removeAll(b);   // [Burger]</div></div></div></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Map Interface -- HashMap</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">import java.util.HashMap;
+import java.util.Map;
+
+Map&lt;String, Double&gt; menuPrices = new HashMap&lt;&gt;();
+
+// Put entries
+menuPrices.put("Burger", 9.99);
+menuPrices.put("Pizza", 12.99);
+menuPrices.put("Salad", 7.99);
+
+// Access
+Double price = menuPrices.get("Pizza");        // 12.99
+Double missing = menuPrices.get("Sushi");      // null
+Double safe = menuPrices.getOrDefault("Sushi", 0.0);  // 0.0
+
+// Check
+boolean hasKey = menuPrices.containsKey("Burger");     // true
+boolean hasVal = menuPrices.containsValue(9.99);       // true
+
+// Remove
+menuPrices.remove("Salad");
+
+// Size
+int count = menuPrices.size();  // 2</div></div></div></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Iterating Over Maps</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</div><div class="cb-cd">Map&lt;String, MenuItem&gt; menuCatalog = new HashMap&lt;&gt;();
+
+// Method 1: entrySet (most common, most efficient)
+for (Map.Entry&lt;String, MenuItem&gt; entry : menuCatalog.entrySet()) {
+    System.out.println(entry.getKey() + " -&gt; " + entry.getValue().getPrice());
+}
+
+// Method 2: keySet
+for (String key : menuCatalog.keySet()) {
+    MenuItem item = menuCatalog.get(key);  // Extra lookup
+}
+
+// Method 3: values only
+for (MenuItem item : menuCatalog.values()) {
+    System.out.println(item.getName());
+}
+
+// Method 4: forEach (Java 8+)
+menuCatalog.forEach((key, value) -&gt;
+    System.out.println(key + ": " + value.getPrice())
+);</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Best practice:</strong> Use <code>entrySet()</code> when you need both key and value. Avoids extra <code>get()</code> calls.</div></div></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress: Order Tracking with Map</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30</div><div class="cb-cd">public class OrderTracker {
+    // orderId -&gt; Order
+    private Map&lt;String, Order&gt; activeOrders = new HashMap&lt;&gt;();
+    // customerId -&gt; list of orderIds
+    private Map&lt;String, List&lt;String&gt;&gt; customerOrders = new HashMap&lt;&gt;();
+
+    public void placeOrder(Order order) {
+        activeOrders.put(order.getId(), order);
+
+        // computeIfAbsent: create list if customer has no orders yet
+        customerOrders
+            .computeIfAbsent(order.getCustomerId(), k -&gt; new ArrayList&lt;&gt;())
+            .add(order.getId());
+    }
+
+    public Order getOrder(String orderId) {
+        Order order = activeOrders.get(orderId);
+        if (order == null) {
+            throw new OrderNotFoundException("Order not found: " + orderId);
+        }
+        return order;
+    }
+
+    public List&lt;Order&gt; getCustomerOrders(String customerId) {
+        List&lt;String&gt; orderIds = customerOrders.getOrDefault(customerId, List.of());
+        return orderIds.stream()
+            .map(activeOrders::get)
+            .collect(Collectors.toList());
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Map Implementations Compared</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Implementation</th><th>Order</th><th>Performance</th><th>Null Keys</th><th>Thread Safe</th></tr></thead><tbody><tr><td><code>HashMap</code></td><td>None</td><td>O(1) avg</td><td>1 allowed</td><td>No</td></tr><tr><td><code>LinkedHashMap</code></td><td>Insertion</td><td>O(1) avg</td><td>1 allowed</td><td>No</td></tr><tr><td><code>TreeMap</code></td><td>Sorted</td><td>O(log n)</td><td>No</td><td>No</td></tr><tr><td><code>Hashtable</code></td><td>None</td><td>O(1) avg</td><td>No</td><td>Yes (legacy)</td></tr><tr><td><code>ConcurrentHashMap</code></td><td>None</td><td>O(1) avg</td><td>No</td><td>Yes (modern)</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Sustain tip:</strong> Never use <code>Hashtable</code> in new code. Use <code>ConcurrentHashMap</code> for thread safety.</div></div></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Maven -- Build Tool Overview</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Maven Does</div>
+<ul class="bl"><li><strong>Dependency management</strong> -- downloads JAR files automatically</li><li><strong>Build lifecycle</strong> -- compile, test, package, deploy</li><li><strong>Project structure</strong> -- standard directory layout</li><li><strong>Plugin ecosystem</strong> -- extend build capabilities</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Standard Maven Project Structure</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">my-project/
+  pom.xml
+  src/
+    main/
+      java/          # Application source code
+      resources/     # Config files, properties
+    test/
+      java/          # Test source code
+      resources/     # Test config files
+  target/            # Build output (generated)</div></div></div></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">POM.xml -- Project Object Model</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.xml</span><span class="cb-lg">XML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29</div><div class="cb-cd">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xmlns="http://maven.apache.org/POM/4.0.0"&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+
+    &lt;groupId&gt;com.foodexpress&lt;/groupId&gt;
+    &lt;artifactId&gt;order-service&lt;/artifactId&gt;
+    &lt;version&gt;1.0.0&lt;/version&gt;
+    &lt;packaging&gt;jar&lt;/packaging&gt;
+
+    &lt;properties&gt;
+        &lt;java.version&gt;17&lt;/java.version&gt;
+        &lt;maven.compiler.source&gt;17&lt;/maven.compiler.source&gt;
+        &lt;maven.compiler.target&gt;17&lt;/maven.compiler.target&gt;
+    &lt;/properties&gt;
+
+    &lt;dependencies&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;mysql&lt;/groupId&gt;
+            &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+            &lt;version&gt;8.0.33&lt;/version&gt;
+        &lt;/dependency&gt;
+        &lt;dependency&gt;
+            &lt;groupId&gt;junit&lt;/groupId&gt;
+            &lt;artifactId&gt;junit&lt;/artifactId&gt;
+            &lt;version&gt;4.13.2&lt;/version&gt;
+            &lt;scope&gt;test&lt;/scope&gt;
+        &lt;/dependency&gt;
+    &lt;/dependencies&gt;
+&lt;/project&gt;</div></div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Maven Lifecycle & Commands</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Phase</th><th>Description</th><th>Command</th></tr></thead><tbody><tr><td><code>validate</code></td><td>Check project structure</td><td><code>mvn validate</code></td></tr><tr><td><code>compile</code></td><td>Compile source code</td><td><code>mvn compile</code></td></tr><tr><td><code>test</code></td><td>Run unit tests</td><td><code>mvn test</code></td></tr><tr><td><code>package</code></td><td>Create JAR/WAR</td><td><code>mvn package</code></td></tr><tr><td><code>install</code></td><td>Install to local repo</td><td><code>mvn install</code></td></tr><tr><td><code>deploy</code></td><td>Deploy to remote repo</td><td><code>mvn deploy</code></td></tr><tr><td><code>clean</code></td><td>Delete target/ directory</td><td><code>mvn clean</code></td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Common Commands in Sustain Work</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd"># Clean build
+mvn clean package
+
+# Skip tests (use sparingly!)
+mvn clean package -DskipTests
+
+# Run specific test class
+mvn test -Dtest=OrderServiceTest
+
+# Check dependency tree (debug dependency conflicts)
+mvn dependency:tree
+
+# Check for outdated dependencies
+mvn versions:display-dependency-updates</div></div></div></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Iterator Pattern</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">List&lt;OrderItem&gt; items = getOrderItems();
+Iterator&lt;OrderItem&gt; iterator = items.iterator();
+
+while (iterator.hasNext()) {
+    OrderItem item = iterator.next();
+    if (item.getQuantity() == 0) {
+        iterator.remove();  // Safe removal during iteration!
+    }
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Why Iterator Matters</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">// THIS WILL CRASH -- ConcurrentModificationException
+for (OrderItem item : items) {
+    if (item.getQuantity() == 0) {
+        items.remove(item);  // Modifying list during for-each!
+    }
+}
+
+// Use Iterator.remove() instead -- or Java 8+:
+items.removeIf(item -&gt; item.getQuantity() == 0);</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Sustain bug pattern:</strong> <code>ConcurrentModificationException</code> is one of the most common collection bugs in production code.</div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct">HTML</span></div>
+    <div class="tt">ListIterator -- Bidirectional Traversal</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29</div><div class="cb-cd">List&lt;MenuItem&gt; menu = new ArrayList&lt;&gt;(Arrays.asList(
+    new MenuItem("Burger", 9.99),
+    new MenuItem("Pizza", 12.99),
+    new MenuItem("Salad", 7.99)
+));
+
+ListIterator&lt;MenuItem&gt; li = menu.listIterator();
+
+// Forward traversal
+while (li.hasNext()) {
+    int index = li.nextIndex();
+    MenuItem item = li.next();
+    System.out.println(index + ": " + item.getName());
+}
+
+// Backward traversal
+while (li.hasPrevious()) {
+    MenuItem item = li.previous();
+    System.out.println(item.getName());
+}
+
+// Modify during iteration
+ListIterator&lt;MenuItem&gt; li2 = menu.listIterator();
+while (li2.hasNext()) {
+    MenuItem item = li2.next();
+    if (item.getPrice() &gt; 10.0) {
+        li2.set(new MenuItem(item.getName(), item.getPrice() * 0.9));  // 10% discount
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Autoboxing and Unboxing</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Is It?</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">// Autoboxing: primitive -&gt; wrapper (automatic)
+int primitivePrice = 10;
+Integer wrappedPrice = primitivePrice;  // int -&gt; Integer
+
+// Unboxing: wrapper -&gt; primitive (automatic)
+Integer wrappedQty = 5;
+int primitiveQty = wrappedQty;  // Integer -&gt; int</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Primitive-Wrapper Mapping</div>
+<table class="tbl"><thead><tr><th>Primitive</th><th>Wrapper</th><th>Size</th></tr></thead><tbody><tr><td><code>byte</code></td><td><code>Byte</code></td><td>1 byte</td></tr><tr><td><code>short</code></td><td><code>Short</code></td><td>2 bytes</td></tr><tr><td><code>int</code></td><td><code>Integer</code></td><td>4 bytes</td></tr><tr><td><code>long</code></td><td><code>Long</code></td><td>8 bytes</td></tr><tr><td><code>float</code></td><td><code>Float</code></td><td>4 bytes</td></tr><tr><td><code>double</code></td><td><code>Double</code></td><td>8 bytes</td></tr><tr><td><code>char</code></td><td><code>Character</code></td><td>2 bytes</td></tr><tr><td><code>boolean</code></td><td><code>Boolean</code></td><td>1 bit</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Autoboxing Pitfalls</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">NullPointerException from Unboxing</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">Map&lt;String, Integer&gt; itemCounts = new HashMap&lt;&gt;();
+// itemCounts.get("Burger") returns null (not in map)
+int count = itemCounts.get("Burger");  // NPE! Unboxing null -&gt; crash
+
+// Fix:
+Integer count = itemCounts.get("Burger");
+if (count != null) {
+    // safe to use
+}
+// Or:
+int count = itemCounts.getOrDefault("Burger", 0);</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Performance Trap</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">// BAD: Creates ~1000 Integer objects due to autoboxing
+Long sum = 0L;
+for (long i = 0; i &lt; 1000; i++) {
+    sum += i;  // Unbox, add, rebox on every iteration!
+}
+
+// GOOD: Use primitives for calculations
+long sum = 0L;
+for (long i = 0; i &lt; 1000; i++) {
+    sum += i;
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Sustain tip:</strong> Watch for autoboxing in loops -- it silently creates garbage and slows performance.</div></div></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">JDBC Overview</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Is JDBC?</div>
+<ul class="bl"><li><strong>Java Database Connectivity</strong> -- standard API for relational databases</li><li>Part of <code>java.sql</code> package</li><li>Works with MySQL, PostgreSQL, Oracle, SQLite, etc.</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">JDBC Architecture</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">Java Application
+      |
+   JDBC API (java.sql)
+      |
+   JDBC Driver (vendor-specific)
+      |
+   Database Server</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Key JDBC Interfaces</div>
+<table class="tbl"><thead><tr><th>Interface</th><th>Purpose</th></tr></thead><tbody><tr><td><code>DriverManager</code></td><td>Manages database drivers, creates connections</td></tr><tr><td><code>Connection</code></td><td>Represents a database session</td></tr><tr><td><code>Statement</code></td><td>Executes SQL queries</td></tr><tr><td><code>PreparedStatement</code></td><td>Pre-compiled SQL (prevents SQL injection)</td></tr><tr><td><code>ResultSet</code></td><td>Holds query results</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">JDBC Connection Setup</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">1. Add MySQL Driver (Maven)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.xml</span><span class="cb-lg">XML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">&lt;dependency&gt;
+    &lt;groupId&gt;mysql&lt;/groupId&gt;
+    &lt;artifactId&gt;mysql-connector-java&lt;/artifactId&gt;
+    &lt;version&gt;8.0.33&lt;/version&gt;
+&lt;/dependency&gt;</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">2. Establish Connection</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+public class DatabaseConfig {
+    private static final String URL = "jdbc:mysql://localhost:3306/foodexpress";
+    private static final String USER = "app_user";
+    private static final String PASSWORD = "secret";
+
+    public static Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(URL, USER, PASSWORD);
+    }
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">3. Always Use Try-with-Resources</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">try (Connection conn = DatabaseConfig.getConnection()) {
+    // Use connection
+} catch (SQLException e) {
+    System.err.println("Database connection failed: " + e.getMessage());
+}
+// Connection auto-closed here</div></div></div></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">JDBC CRUD Operations</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">INSERT</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">String sql = "INSERT INTO menu_items (name, price, category) VALUES (?, ?, ?)";
+try (Connection conn = DatabaseConfig.getConnection();
+     PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+    pstmt.setString(1, "Margherita Pizza");
+    pstmt.setDouble(2, 12.99);
+    pstmt.setString(3, "Italian");
+
+    int rowsInserted = pstmt.executeUpdate();
+    System.out.println(rowsInserted + " row(s) inserted.");
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">SELECT</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">String sql = "SELECT id, name, price FROM menu_items WHERE category = ?";
+try (Connection conn = DatabaseConfig.getConnection();
+     PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+    pstmt.setString(1, "Italian");
+    try (ResultSet rs = pstmt.executeQuery()) {
+        while (rs.next()) {
+            int id = rs.getInt("id");
+            String name = rs.getString("name");
+            double price = rs.getDouble("price");
+            System.out.println(id + ": " + name + " - $" + price);
+        }
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">PreparedStatement vs Statement</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">NEVER Use String Concatenation (SQL Injection!)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">// DANGEROUS -- SQL Injection vulnerability
+String sql = "SELECT * FROM users WHERE username = '" + username + "'";
+// If username = "admin' OR '1'='1" -- returns ALL users!
+
+// SAFE -- Use PreparedStatement
+String sql = "SELECT * FROM users WHERE username = ?";
+PreparedStatement pstmt = conn.prepareStatement(sql);
+pstmt.setString(1, username);  // Properly escaped</div></div></div>
+<table class="tbl"><thead><tr><th>Feature</th><th>Statement</th><th>PreparedStatement</th></tr></thead><tbody><tr><td>SQL Injection</td><td>Vulnerable</td><td>Protected</td></tr><tr><td>Performance</td><td>Parsed every time</td><td>Pre-compiled, cached</td></tr><tr><td>Readability</td><td>Hard (concatenation)</td><td>Clean (placeholders)</td></tr><tr><td>Batch support</td><td>Limited</td><td>Full support</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Rule:</strong> Always use <code>PreparedStatement</code>. No exceptions.</div></div></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="29">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress: Menu Item DAO</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33</div><div class="cb-cd">public class MenuItemDAO {
+    public List&lt;MenuItem&gt; findByCategory(String category) throws SQLException {
+        String sql = "SELECT id, name, price, category FROM menu_items WHERE category = ?";
+        List&lt;MenuItem&gt; items = new ArrayList&lt;&gt;();
+
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, category);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    items.add(new MenuItem(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getDouble("price"),
+                        rs.getString("category")
+                    ));
+                }
+            }
+        }
+        return items;
+    }
+
+    public boolean updatePrice(int itemId, double newPrice) throws SQLException {
+        String sql = "UPDATE menu_items SET price = ? WHERE id = ?";
+        try (Connection conn = DatabaseConfig.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setDouble(1, newPrice);
+            pstmt.setInt(2, itemId);
+            return pstmt.executeUpdate() &gt; 0;
+        }
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">29</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="30">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Memory Management -- JVM Heap</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">JVM Memory Areas</div>
+<table class="tbl"><thead><tr><th>Area</th><th>Stores</th><th>Managed By</th></tr></thead><tbody><tr><td><strong>Heap</strong></td><td>Objects, arrays</td><td>Garbage Collector</td></tr><tr><td><strong>Stack</strong></td><td>Method frames, local vars, refs</td><td>Automatic (per thread)</td></tr><tr><td><strong>Metaspace</strong></td><td>Class metadata, method info</td><td>JVM</td></tr><tr><td><strong>Code Cache</strong></td><td>JIT-compiled native code</td><td>JVM</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Heap Generations</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">Heap Memory
++-------------------+-------------------+
+|    Young Gen      |     Old Gen       |
+| +-----+--------+ |                   |
+| | Eden | S0 |S1| |   (Tenured)       |
+| +-----+--------+ |                   |
++-------------------+-------------------+</div></div></div>
+<ul class="bl"><li><strong>Eden:</strong> New objects created here</li><li><strong>Survivor (S0/S1):</strong> Objects that survived minor GC</li><li><strong>Old Gen:</strong> Long-lived objects promoted from Young Gen</li></ul></div>
+    <div class="ft"><span class="fr">30</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="31">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Garbage Collection Basics</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">How GC Works</div>
+<ul class="bl"><li>1. <strong>Mark:</strong> Identify reachable objects (from GC roots)</li><li>2. <strong>Sweep:</strong> Remove unreachable objects</li><li>3. <strong>Compact:</strong> Defragment memory (optional)</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Common GC Algorithms</div>
+<table class="tbl"><thead><tr><th>Algorithm</th><th>Flag</th><th>Best For</th></tr></thead><tbody><tr><td>Serial GC</td><td><code>-XX:+UseSerialGC</code></td><td>Small apps, single CPU</td></tr><tr><td>Parallel GC</td><td><code>-XX:+UseParallelGC</code></td><td>Throughput-focused</td></tr><tr><td>G1 GC</td><td><code>-XX:+UseG1GC</code></td><td>Balanced (default Java 9+)</td></tr><tr><td>ZGC</td><td><code>-XX:+UseZGC</code></td><td>Ultra-low latency</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">JVM Memory Flags</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd"># Set heap sizes
+java -Xms512m -Xmx2g -jar order-service.jar
+
+# -Xms: Initial heap size
+# -Xmx: Maximum heap size
+# Rule of thumb: Set -Xms = -Xmx to avoid resize overhead</div></div></div></div>
+    <div class="ft"><span class="fr">31</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="32">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Common Memory Issues in Sustain Work</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Memory Leak Patterns</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">// 1. Static collections that grow forever
+public class EventLog {
+    private static List&lt;Event&gt; events = new ArrayList&lt;&gt;();  // Never cleared!
+    public static void log(Event e) { events.add(e); }
+}
+
+// 2. Unclosed resources
+public void readFile(String path) {
+    FileInputStream fis = new FileInputStream(path);  // Never closed!
+    // ...
+}
+
+// 3. Listener/callback not deregistered
+button.addActionListener(this);  // Holds reference to 'this' forever</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Detection</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd"># Generate heap dump when OOM occurs
+java -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/tmp/heapdump.hprof -jar app.jar
+
+# Monitor GC activity
+java -verbose:gc -jar app.jar</div></div></div></div>
+    <div class="ft"><span class="fr">32</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="33">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct">FORMS</span></div>
+    <div class="tt">Performance Tuning Checklist</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Area</th><th>Check</th><th>Tool</th></tr></thead><tbody><tr><td>Slow queries</td><td>Enable slow query log</td><td>MySQL slow log</td></tr><tr><td>Memory usage</td><td>Monitor heap utilization</td><td>JVisualVM, JConsole</td></tr><tr><td>Thread contention</td><td>Check for deadlocks</td><td><code>jstack &lt;pid&gt;</code></td></tr><tr><td>CPU hotspots</td><td>Profile method execution time</td><td>JFR, async-profiler</td></tr><tr><td>GC pauses</td><td>Monitor GC frequency and duration</td><td>GC logs</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Quick JVM Diagnostic Commands</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd"># List running Java processes
+jps -l
+
+# Thread dump (find deadlocks, blocked threads)
+jstack &lt;pid&gt;
+
+# Heap summary
+jmap -heap &lt;pid&gt;
+
+# GC statistics
+jstat -gcutil &lt;pid&gt; 1000 10   # Every 1s, 10 samples</div></div></div></div>
+    <div class="ft"><span class="fr">33</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="34">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Logging with java.util.logging and SLF4J</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">java.util.logging (built-in)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd">import java.util.logging.Logger;
+import java.util.logging.Level;
+
+public class OrderService {
+    private static final Logger logger = Logger.getLogger(OrderService.class.getName());
+
+    public void placeOrder(Order order) {
+        logger.info("Placing order: " + order.getId());
+        try {
+            // process order
+            logger.fine("Order processed successfully");  // DEBUG level
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Failed to place order", e);
+        }
+    }
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Log Levels</div>
+<table class="tbl"><thead><tr><th>Level</th><th>When to Use</th></tr></thead><tbody><tr><td><code>SEVERE</code></td><td>System errors, unrecoverable failures</td></tr><tr><td><code>WARNING</code></td><td>Potential problems, degraded behavior</td></tr><tr><td><code>INFO</code></td><td>Key business events, startup/shutdown</td></tr><tr><td><code>FINE</code></td><td>Debug details (development/troubleshooting)</td></tr><tr><td><code>FINER/FINEST</code></td><td>Very detailed tracing</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">34</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="35">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">SLF4J + Logback (Industry Standard)</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.xml</span><span class="cb-lg">XML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">&lt;!-- pom.xml --&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;org.slf4j&lt;/groupId&gt;
+    &lt;artifactId&gt;slf4j-api&lt;/artifactId&gt;
+    &lt;version&gt;2.0.9&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;ch.qos.logback&lt;/groupId&gt;
+    &lt;artifactId&gt;logback-classic&lt;/artifactId&gt;
+    &lt;version&gt;1.4.11&lt;/version&gt;
+&lt;/dependency&gt;</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class OrderService {
+    private static final Logger log = LoggerFactory.getLogger(OrderService.class);
+
+    public void placeOrder(Order order) {
+        log.info("Placing order id={} for customer={}", order.getId(), order.getCustomerId());
+        // Parameterized logging -- no string concatenation overhead if level disabled
+    }
+}</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Why SLF4J?</strong> Facade pattern -- switch logging backends (Logback, Log4j2) without changing code.</div></div></div>
+    <div class="ft"><span class="fr">35</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="36">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Debugging Techniques</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">IDE Debugging (IntelliJ / Eclipse)</div>
+<table class="tbl"><thead><tr><th>Feature</th><th>Shortcut (IntelliJ)</th><th>Purpose</th></tr></thead><tbody><tr><td>Set breakpoint</td><td>Click gutter / Ctrl+F8</td><td>Pause execution</td></tr><tr><td>Step Over</td><td>F8</td><td>Execute current line</td></tr><tr><td>Step Into</td><td>F7</td><td>Enter method call</td></tr><tr><td>Step Out</td><td>Shift+F8</td><td>Exit current method</td></tr><tr><td>Evaluate Expression</td><td>Alt+F8</td><td>Inspect values</td></tr><tr><td>Conditional Breakpoint</td><td>Right-click breakpoint</td><td>Break only when condition true</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Remote Debugging</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd"># Start JVM with debug agent
+java -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=5005 -jar app.jar
+
+# Then attach IDE debugger to localhost:5005</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Sustain scenario:</strong> Use remote debugging to troubleshoot issues in staging/test environments.</div></div></div>
+    <div class="ft"><span class="fr">36</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="37">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Deployment Basics</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Building a Deployable JAR</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd"># Standard JAR
+mvn clean package
+# Output: target/order-service-1.0.0.jar
+
+# Fat JAR (all dependencies included)
+# Add maven-shade-plugin or spring-boot-maven-plugin
+mvn clean package
+java -jar target/order-service-1.0.0.jar</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Environment Configuration</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">// Read from environment variables (12-factor app)
+String dbUrl = System.getenv("DATABASE_URL");
+String dbUser = System.getenv("DATABASE_USER");
+
+// Or from properties file
+Properties props = new Properties();
+props.load(new FileInputStream("config.properties"));
+String dbUrl = props.getProperty("db.url");</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Deployment Checklist</div>
+<table class="tbl"><thead><tr><th>Step</th><th>Action</th></tr></thead><tbody><tr><td>1</td><td>Run all tests: <code>mvn test</code></td></tr><tr><td>2</td><td>Build artifact: <code>mvn clean package</code></td></tr><tr><td>3</td><td>Verify config for target environment</td></tr><tr><td>4</td><td>Deploy JAR to server</td></tr><tr><td>5</td><td>Check application logs for startup errors</td></tr><tr><td>6</td><td>Run smoke tests against deployed app</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">37</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="38">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Collections Utility Methods</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</div><div class="cb-cd">import java.util.Collections;
+
+List&lt;MenuItem&gt; menu = new ArrayList&lt;&gt;(/* ... */);
+
+// Sort
+Collections.sort(menu, Comparator.comparing(MenuItem::getPrice));
+
+// Reverse
+Collections.reverse(menu);
+
+// Shuffle (random order)
+Collections.shuffle(menu);
+
+// Unmodifiable (defensive programming)
+List&lt;MenuItem&gt; readOnly = Collections.unmodifiableList(menu);
+// readOnly.add(item);  // UnsupportedOperationException!
+
+// Immutable (Java 9+)
+List&lt;String&gt; categories = List.of("Italian", "Chinese", "Indian");
+Map&lt;String, Double&gt; fixed = Map.of("Tax", 0.08, "Tip", 0.15);
+Set&lt;String&gt; statuses = Set.of("PENDING", "CONFIRMED", "DELIVERED");</div></div></div></div>
+    <div class="ft"><span class="fr">38</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="39">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct"></span></div>
+    <div class="tt">Common Collection Patterns in Sustain Code</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Frequency Count</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">Map&lt;String, Integer&gt; orderCounts = new HashMap&lt;&gt;();
+for (Order order : allOrders) {
+    orderCounts.merge(order.getCategory(), 1, Integer::sum);
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Grouping</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">Map&lt;String, List&lt;MenuItem&gt;&gt; byCategory = new HashMap&lt;&gt;();
+for (MenuItem item : menu) {
+    byCategory.computeIfAbsent(item.getCategory(), k -&gt; new ArrayList&lt;&gt;()).add(item);
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Top-N Pattern</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVA</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">List&lt;MenuItem&gt; topExpensive = menu.stream()
+    .sorted(Comparator.comparing(MenuItem::getPrice).reversed())
+    .limit(5)
+    .collect(Collectors.toList());</div></div></div></div>
+    <div class="ft"><span class="fr">39</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="40">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab: FoodExpress Order Service Collections</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Objective</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Build a complete <code>OrderService</code> class using Java Collections and JDBC.</p>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Tasks</div>
+<ul class="bl"><li>1. <strong>Menu Catalog (Map):</strong> Store <code>MenuItem</code> objects in a <code>HashMap&lt;String, MenuItem&gt;</code> keyed by item ID</li><li>2. <strong>Order Cart (List):</strong> Maintain an <code>ArrayList&lt;OrderItem&gt;</code> for the shopping cart</li><li>3. <strong>Unique Categories (Set):</strong> Extract unique cuisine categories using <code>HashSet</code></li><li>4. <strong>Iterator Cleanup:</strong> Remove out-of-stock items using <code>Iterator.remove()</code></li><li>5. <strong>JDBC Integration:</strong> Save completed orders to a MySQL database using <code>PreparedStatement</code></li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Acceptance Criteria</div>
+<ul class="bl"><li>All CRUD operations work correctly</li><li>No <code>ConcurrentModificationException</code></li><li>SQL injection is prevented (PreparedStatement only)</li><li>Resources are closed properly (try-with-resources)</li><li>Proper logging with SLF4J</li></ul></div>
+    <div class="ft"><span class="fr">40</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="41">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 07 - JAVA PROGRAMMING (PART 3)</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab: Debugging Exercise</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Scenario</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">The FoodExpress OrderService has 5 bugs reported in production. Find and fix them.</p>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Bug List</div>
+<table class="tbl"><thead><tr><th>#</th><th>Symptom</th><th>Hint</th></tr></thead><tbody><tr><td>1</td><td><code>NullPointerException</code> on checkout</td><td>Check autoboxing with Map.get()</td></tr><tr><td>2</td><td>Duplicate menu items in catalog</td><td>Check equals/hashCode in MenuItem</td></tr><tr><td>3</td><td><code>ConcurrentModificationException</code></td><td>Look at the for-each loop removing items</td></tr><tr><td>4</td><td>Slow order history query</td><td>Check if PreparedStatement is used</td></tr><tr><td>5</td><td>Database connection leak</td><td>Look for missing close/try-with-resources</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Tools to Use</div>
+<ul class="bl"><li>IDE debugger with breakpoints</li><li><code>jstack</code> for thread analysis</li><li>GC logs for memory issues</li></ul></div>
+    <div class="ft"><span class="fr">41</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="42">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 07 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Topic</th><th>Key Point</th></tr></thead><tbody><tr><td>Collections</td><td>Framework of interfaces (List, Set, Map) and implementations</td></tr><tr><td>Generics</td><td>Type safety at compile time; avoid raw types</td></tr><tr><td>ArrayList</td><td>Default List choice; O(1) access, O(n) insert/remove</td></tr><tr><td>HashSet</td><td>No duplicates; requires proper equals/hashCode</td></tr><tr><td>HashMap</td><td>Key-value pairs; O(1) average lookup</td></tr><tr><td>Maven</td><td>Build tool; POM.xml manages dependencies and lifecycle</td></tr><tr><td>Iterator</td><td>Safe removal during iteration; avoids ConcurrentModificationException</td></tr><tr><td>Autoboxing</td><td>Automatic primitive-wrapper conversion; watch for NPE and perf</td></tr><tr><td>JDBC</td><td>Standard DB access; always use PreparedStatement</td></tr><tr><td>Memory Mgmt</td><td>Heap generations, GC algorithms, JVM flags</td></tr><tr><td>Logging</td><td>Use SLF4J; parameterized messages; proper log levels</td></tr><tr><td>Debugging</td><td>IDE breakpoints, remote debug, jstack, jmap</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 08 -- Capsule Project: Java (full-day hands-on project)</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 08 -- Capsule Project: Java (full-day hands-on project)</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 42</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

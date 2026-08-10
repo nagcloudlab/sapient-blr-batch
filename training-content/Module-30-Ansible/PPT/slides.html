@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ansible</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 30</div>
+    <div class="t-main">Ansible</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda -- Day 33</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>Why Configuration Management?</td></tr><tr><td>02</td><td>Ansible Architecture & Key Concepts</td></tr><tr><td>03</td><td>Inventory & Ad-Hoc Commands</td></tr><tr><td>04</td><td>Playbooks: Structure & Execution</td></tr><tr><td>05</td><td>Modules, Tasks & Handlers</td></tr><tr><td>06</td><td>Variables, Facts & Templates</td></tr><tr><td>07</td><td>Roles & Galaxy</td></tr><tr><td>08</td><td>Lab: Fix FoodExpress Ansible Playbooks</td></tr><tr><td>09</td><td>Behavioral Role Play: Incident Escalation</td></tr><tr><td>10</td><td>Day 33 Wrap-up</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Why Configuration Management?</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Problem: Server Snowflakes</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">FoodExpress has 12 servers across dev, staging, prod.
+
+Without config management:
+  - Server A has Java 17, Server B has Java 11
+  - Someone SSH'd into prod and changed nginx.conf manually
+  - "It works on staging but not on prod" -- config drift
+  - New server setup takes 2 days of manual work
+  - No audit trail of changes</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Configuration management automates server setup and ensures <strong>consistency</strong> across all environments.</p></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Configuration Management Tools</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Tool</th><th>Approach</th><th>Agent</th><th>Language</th></tr></thead><tbody><tr><td><strong>Ansible</strong></td><td>Agentless (SSH)</td><td>No agent needed</td><td>YAML (Playbooks)</td></tr><tr><td>Puppet</td><td>Agent-based</td><td>Agent on each node</td><td>Puppet DSL (Ruby)</td></tr><tr><td>Chef</td><td>Agent-based</td><td>Agent on each node</td><td>Ruby</td></tr><tr><td>SaltStack</td><td>Agent or agentless</td><td>Optional minion</td><td>YAML/Python</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Why Ansible?</div>
+<ul class="bl"><li><strong>Agentless</strong> -- uses SSH; nothing to install on managed nodes</li><li><strong>YAML</strong> -- easy to read, no programming required</li><li><strong>Idempotent</strong> -- running the same playbook twice produces the same result</li><li><strong>Large module library</strong> -- 3,400+ modules for any task</li></ul></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Ansible Architecture</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24</div><div class="cb-cd">┌──────────────────────────────────────────────────────────┐
+│                   CONTROL NODE                           │
+│                                                          │
+│  ┌─────────────┐  ┌───────────┐  ┌──────────────────┐  │
+│  │  Playbooks  │  │ Inventory │  │   ansible.cfg    │  │
+│  │  (YAML)     │  │ (hosts)   │  │  (configuration) │  │
+│  └──────┬──────┘  └─────┬─────┘  └──────────────────┘  │
+│         │               │                                │
+│         ▼               ▼                                │
+│  ┌────────────────────────────────┐                     │
+│  │       Ansible Engine          │                      │
+│  │  ┌─────────┐  ┌───────────┐  │                     │
+│  │  │ Modules │  │ Plugins   │  │                     │
+│  │  └─────────┘  └───────────┘  │                     │
+│  └──────────────┬────────────────┘                     │
+└─────────────────┼────────────────────────────────────────┘
+                  │ SSH
+      ┌───────────┼───────────┐
+      ▼           ▼           ▼
+┌──────────┐ ┌──────────┐ ┌──────────┐
+│ Managed  │ │ Managed  │ │ Managed  │
+│ Node 1   │ │ Node 2   │ │ Node 3   │
+│ (web)    │ │ (app)    │ │ (db)     │
+└──────────┘ └──────────┘ └──────────┘</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">No agents on managed nodes. Ansible pushes configuration over SSH.</p></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Key Concepts</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Concept</th><th>Description</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>Control Node</strong></td><td>Machine where Ansible runs</td><td>Your laptop or CI/CD server</td></tr><tr><td><strong>Managed Node</strong></td><td>Target server being configured</td><td>FoodExpress web/app/db servers</td></tr><tr><td><strong>Inventory</strong></td><td>List of managed nodes</td><td><code>web1.foodexpress.in</code>, <code>db1.foodexpress.in</code></td></tr><tr><td><strong>Playbook</strong></td><td>YAML file defining desired state</td><td><code>deploy-foodexpress.yml</code></td></tr><tr><td><strong>Task</strong></td><td>Single action (install, copy, restart)</td><td>Install nginx, copy config</td></tr><tr><td><strong>Module</strong></td><td>Code that performs a task</td><td><code>apt</code>, <code>copy</code>, <code>service</code>, <code>template</code></td></tr><tr><td><strong>Handler</strong></td><td>Task triggered by notification</td><td>Restart nginx after config change</td></tr><tr><td><strong>Role</strong></td><td>Reusable bundle of tasks, files, templates</td><td><code>nginx</code> role, <code>java</code> role</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Inventory</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Defining your managed nodes</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.ini</span><span class="cb-lg">INI</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</div><div class="cb-cd"># inventory/hosts.ini
+
+[webservers]
+web1.foodexpress.in
+web2.foodexpress.in
+
+[appservers]
+app1.foodexpress.in ansible_port=2222
+app2.foodexpress.in
+
+[dbservers]
+db1.foodexpress.in ansible_user=dbadmin
+
+[foodexpress:children]
+webservers
+appservers
+dbservers
+
+[webservers:vars]
+nginx_port=80
+max_connections=1024</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Groups allow targeting subsets: <code>ansible webservers -m ping</code></p></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Ad-Hoc Commands</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Quick one-off tasks without a playbook</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd"># Ping all hosts
+ansible all -m ping -i inventory/hosts.ini
+
+# Check disk space on web servers
+ansible webservers -m shell -a "df -h" -i inventory/hosts.ini
+
+# Install a package
+ansible appservers -m apt -a "name=openjdk-17-jdk state=present" \
+  -i inventory/hosts.ini --become
+
+# Copy a file
+ansible webservers -m copy -a "src=nginx.conf dest=/etc/nginx/nginx.conf" \
+  -i inventory/hosts.ini --become
+
+# Restart a service
+ansible webservers -m service -a "name=nginx state=restarted" \
+  -i inventory/hosts.ini --become</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Ad-hoc is for quick checks. Use playbooks for repeatable automation.</p></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Playbook Structure</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">YAML-based automation scripts</div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt"></div>
+    <div class="dv"></div>
+    <div class="bd"><ul class="bl"><li>name: Configure FoodExpress web servers</li></ul>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">  hosts: webservers</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">  become: yes                    # Run as root (sudo)</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">  vars:</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">    app_port: 8080</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">    nginx_worker_processes: 4</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">  tasks:</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">      apt:</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">        name: nginx</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">        state: present</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">        update_cache: yes</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">      template:</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">        src: templates/nginx.conf.j2</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">        dest: /etc/nginx/nginx.conf</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">      notify: restart nginx      # Trigger handler</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">      service:</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">        name: nginx</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">        state: started</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">        enabled: yes</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">  handlers:</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">      service:</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">        name: nginx</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">        state: restarted</p></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Playbook Execution Flow</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">$ ansible-playbook deploy-foodexpress.yml -i inventory/hosts.ini
+
+PLAY [Configure FoodExpress web servers] **********
+
+TASK [Gathering Facts] ****************************
+ok: [web1.foodexpress.in]
+ok: [web2.foodexpress.in]
+
+TASK [Install nginx] ******************************
+changed: [web1.foodexpress.in]
+changed: [web2.foodexpress.in]
+
+TASK [Copy nginx configuration] *******************
+changed: [web1.foodexpress.in]
+changed: [web2.foodexpress.in]
+
+TASK [Ensure nginx is running] ********************
+ok: [web1.foodexpress.in]
+ok: [web2.foodexpress.in]
+
+RUNNING HANDLER [restart nginx] *******************
+changed: [web1.foodexpress.in]
+changed: [web2.foodexpress.in]
+
+PLAY RECAP ****************************************
+web1.foodexpress.in  : ok=5  changed=3  failed=0
+web2.foodexpress.in  : ok=5  changed=3  failed=0</div></div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Common Ansible Modules</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Module</th><th>Purpose</th><th>Example</th></tr></thead><tbody><tr><td><code>apt</code> / <code>yum</code></td><td>Package management</td><td>Install Java, nginx</td></tr><tr><td><code>copy</code></td><td>Copy files to remote</td><td>Deploy config files</td></tr><tr><td><code>template</code></td><td>Copy with Jinja2 templating</td><td>Generate nginx.conf from template</td></tr><tr><td><code>service</code> / <code>systemd</code></td><td>Manage services</td><td>Start/stop/restart nginx</td></tr><tr><td><code>file</code></td><td>File/directory management</td><td>Create dirs, set permissions</td></tr><tr><td><code>user</code></td><td>User management</td><td>Create application user</td></tr><tr><td><code>git</code></td><td>Git operations</td><td>Clone application repo</td></tr><tr><td><code>docker_container</code></td><td>Docker management</td><td>Run containers</td></tr><tr><td><code>command</code> / <code>shell</code></td><td>Run commands</td><td>Custom scripts</td></tr><tr><td><code>lineinfile</code></td><td>Modify single line in file</td><td>Update a config value</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Tasks & Conditionals</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Control task execution</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30</div><div class="cb-cd">tasks:
+  - name: Install Java 17 (Debian/Ubuntu)
+    apt:
+      name: openjdk-17-jdk
+      state: present
+    when: ansible_os_family == "Debian"
+
+  - name: Install Java 17 (RedHat/CentOS)
+    yum:
+      name: java-17-openjdk
+      state: present
+    when: ansible_os_family == "RedHat"
+
+  - name: Deploy FoodExpress JAR
+    copy:
+      src: "foodexpress-order-service-{{ app_version }}.jar"
+      dest: /opt/foodexpress/order-service.jar
+      owner: foodexpress
+      group: foodexpress
+      mode: '0644'
+    notify: restart order-service
+
+  - name: Wait for service to start
+    uri:
+      url: "http://localhost:{{ app_port }}/actuator/health"
+      status_code: 200
+    retries: 10
+    delay: 5
+    register: health_check
+    until: health_check.status == 200</div></div></div></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Handlers</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Triggered only when notified; run once at end of play</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd">tasks:
+  - name: Update nginx config
+    template:
+      src: nginx.conf.j2
+      dest: /etc/nginx/nginx.conf
+    notify: restart nginx          # Notify the handler
+
+  - name: Update SSL certificate
+    copy:
+      src: foodexpress.crt
+      dest: /etc/ssl/certs/foodexpress.crt
+    notify: restart nginx          # Same handler, runs only once
+
+handlers:
+  - name: restart nginx
+    service:
+      name: nginx
+      state: restarted</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Key facts:</strong></p>
+<ul class="bl"><li>Handlers run <strong>only if notified</strong> (task changed something)</li><li>Handlers run <strong>once</strong> at the end, even if notified multiple times</li><li>Handler name must <strong>exactly match</strong> the notify string</li></ul></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Variables & Precedence</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Multiple places to define variables</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd"># 1. In the playbook
+vars:
+  app_port: 8080
+
+# 2. In a vars file
+vars_files:
+  - vars/foodexpress.yml
+
+# 3. In inventory
+[appservers:vars]
+app_port=8080
+
+# 4. On the command line (highest precedence)
+# ansible-playbook deploy.yml -e "app_port=9090"</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Variable precedence (lowest to highest):</div>
+<ul class="bl"><li>1. Role defaults</li><li>2. Inventory vars</li><li>3. Playbook vars</li><li>4. Role vars</li><li>5. Extra vars (<code>-e</code> flag) -- <strong>always wins</strong></li></ul></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Jinja2 Templates</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Dynamic configuration files</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26</div><div class="cb-cd"># templates/nginx.conf.j2
+
+worker_processes {{ nginx_worker_processes }};
+
+http {
+    upstream foodexpress_backend {
+        {% for host in groups['appservers'] %}
+        server {{ hostvars[host]['ansible_host'] }}:{{ app_port }};
+        {% endfor %}
+    }
+
+    server {
+        listen {{ nginx_port }};
+        server_name {{ server_name }};
+
+        location /api/ {
+            proxy_pass http://foodexpress_backend;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+        }
+
+        location /health {
+            return 200 'OK';
+        }
+    }
+}</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Templates use <strong>Jinja2</strong> syntax: <code>{{ variable }}</code>, <code>{% for %}</code>, <code>{% if %}</code>.</p></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Ansible Facts</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Auto-discovered system information</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">$ ansible web1.foodexpress.in -m setup | head -30
+
+"ansible_facts": {
+    "ansible_os_family": "Debian",
+    "ansible_distribution": "Ubuntu",
+    "ansible_distribution_version": "22.04",
+    "ansible_processor_cores": 4,
+    "ansible_memtotal_mb": 8192,
+    "ansible_hostname": "web1",
+    "ansible_default_ipv4": {
+        "address": "10.0.1.10"
+    }
+}</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Use facts in playbooks: <code>{{ ansible_memtotal_mb }}</code>, <code>{{ ansible_os_family }}</code></p></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Roles: Reusable Automation</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Standard directory structure</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div><div class="cb-cd">roles/
+  foodexpress-app/
+    tasks/
+      main.yml          # Task list
+    handlers/
+      main.yml          # Handlers
+    templates/
+      app.service.j2    # Systemd service file
+      application.yml.j2 # Spring Boot config
+    files/
+      foodexpress.jar   # Static files
+    vars/
+      main.yml          # Role variables
+    defaults/
+      main.yml          # Default values (lowest precedence)
+    meta/
+      main.yml          # Dependencies</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd"># Use the role in a playbook
+- hosts: appservers
+  become: yes
+  roles:
+    - common
+    - java
+    - foodexpress-app</div></div></div></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Ansible Galaxy</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Community roles & collections</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd"># Install a role from Galaxy
+ansible-galaxy install geerlingguy.docker
+
+# Install a collection
+ansible-galaxy collection install community.docker
+
+# Create a new role skeleton
+ansible-galaxy init foodexpress-app</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Popular Galaxy roles for FoodExpress:</div>
+<ul class="bl"><li><code>geerlingguy.docker</code> -- Install Docker</li><li><code>geerlingguy.java</code> -- Install Java</li><li><code>geerlingguy.nginx</code> -- Configure nginx</li><li><code>geerlingguy.mysql</code> -- Set up MySQL</li></ul></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Idempotency</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Running playbooks multiple times is safe</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15</div><div class="cb-cd">First run:
+TASK [Install nginx]           changed    ← installed
+TASK [Copy config]             changed    ← file copied
+TASK [Start nginx]             changed    ← started
+
+Second run (nothing changed):
+TASK [Install nginx]           ok         ← already installed
+TASK [Copy config]             ok         ← file unchanged
+TASK [Start nginx]             ok         ← already running
+
+Third run (config file updated):
+TASK [Install nginx]           ok         ← already installed
+TASK [Copy config]             changed    ← new config copied
+TASK [Start nginx]             ok         ← already running
+HANDLER [restart nginx]        changed    ← restarted (notified)</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Avoid:</strong> <code>command</code> and <code>shell</code> modules are NOT idempotent by default. Use <code>creates</code> parameter.</p></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Ansible Vault</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Encrypt sensitive data</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd"># Create an encrypted file
+ansible-vault create secrets.yml
+
+# Edit an encrypted file
+ansible-vault edit secrets.yml
+
+# Encrypt an existing file
+ansible-vault encrypt vars/passwords.yml
+
+# Run playbook with vault password
+ansible-playbook deploy.yml --ask-vault-pass</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd"># secrets.yml (encrypted at rest, decrypted at runtime)
+db_password: "Pr0d_P@ssw0rd_2026!"
+jwt_secret: "mySecretKey123"
+api_keys:
+  payment_gateway: "pk_live_xyz123"</div></div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Behavioral Role Play: Incident Escalation</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Scenario</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">You are a sustain engineer on the FoodExpress night shift. At 2:00 AM, you receive an alert: "Order Service DOWN on all app servers." You have Ansible playbooks for deployment and rollback.</p>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Roles</div>
+<ul class="bl"><li><strong>Sustain Engineer</strong> (you): Diagnose, decide, and act</li><li><strong>On-Call Manager</strong> (trainer): Available for escalation decisions</li><li><strong>Client Stakeholder</strong> (trainer): Wants status updates</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Discussion Points</div>
+<ul class="bl"><li>1. What Ansible ad-hoc commands would you run first to diagnose?</li><li>2. When do you escalate vs. fix yourself?</li><li>3. How do you communicate status to the client?</li><li>4. When do you decide to rollback vs. fix forward?</li><li>5. How do you write the post-incident report?</li></ul></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Behavioral Role Play: Rubric</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Dimension</th><th>Exceeds</th><th>Meets</th><th>Below</th></tr></thead><tbody><tr><td><strong>Diagnosis</strong></td><td>Uses systematic approach: check service status, logs, recent changes</td><td>Checks basics but misses some steps</td><td>Jumps to conclusions without data</td></tr><tr><td><strong>Escalation</strong></td><td>Escalates appropriately with clear context</td><td>Escalates but missing key information</td><td>Either escalates too early or too late</td></tr><tr><td><strong>Communication</strong></td><td>Proactive updates with ETA and impact</td><td>Responds when asked, accurate updates</td><td>Vague updates, no ETA</td></tr><tr><td><strong>Decision Making</strong></td><td>Weighs rollback vs fix with data, chooses correctly</td><td>Makes reasonable choice with some analysis</td><td>Makes impulsive decision without analysis</td></tr><tr><td><strong>Documentation</strong></td><td>Writes clear post-incident with timeline and action items</td><td>Documents basics but misses root cause</td><td>No documentation</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab: Fix FoodExpress Ansible Playbooks</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Scenario</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">FoodExpress deployment playbooks have bugs causing:</p>
+<ul class="bl"><li>Playbook fails with "MODULE FAILURE" errors</li><li>Tasks run without sudo (permission denied on apt install)</li><li>Variables not rendering in templates</li><li>Services not restarting after config changes</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Files to fix:</div>
+<ul class="bl"><li>1. <code>deploy-foodexpress.yml</code> -- 4 bugs</li><li>2. <code>inventory/hosts.ini</code> -- 2 bugs</li><li>3. <code>templates/nginx.conf.j2</code> -- 2 bugs</li></ul>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">See <code>Labs/lab-exercises.md</code> for detailed bug list.</p></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 30 - ANSIBLE</span><span class="ct"></span></div>
+    <div class="tt">Ansible Best Practices</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Practice</th><th>Why</th></tr></thead><tbody><tr><td>Use <code>state: present</code> not <code>state: latest</code></td><td>Predictable, idempotent installs</td></tr><tr><td>Always use <code>become: yes</code> for system tasks</td><td>Explicit privilege escalation</td></tr><tr><td>Use <code>template</code> over <code>copy</code> for config files</td><td>Dynamic configuration</td></tr><tr><td>Use Ansible Vault for secrets</td><td>Never commit plaintext passwords</td></tr><tr><td>Use roles for reusable automation</td><td>DRY principle, Galaxy sharing</td></tr><tr><td>Name every task</td><td>Readable output, easier debugging</td></tr><tr><td>Test with <code>--check --diff</code></td><td>Dry run before applying</td></tr><tr><td>Use <code>block/rescue/always</code> for error handling</td><td>Graceful failure handling</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="26">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 30 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Concept</th><th>Key Point</th></tr></thead><tbody><tr><td>Agentless</td><td>Ansible uses SSH; no software needed on managed nodes</td></tr><tr><td>Inventory</td><td>Defines hosts and groups; supports variables per group</td></tr><tr><td>Playbook</td><td>YAML file declaring desired state; runs top to bottom</td></tr><tr><td>Module</td><td>Pre-built code for a specific task (apt, copy, template, service)</td></tr><tr><td>Handler</td><td>Runs only when notified; triggers once at end of play</td></tr><tr><td>Variables</td><td>Multiple sources; extra vars (<code>-e</code>) always win</td></tr><tr><td>Templates</td><td>Jinja2 templating for dynamic config files</td></tr><tr><td>Idempotency</td><td>Running playbooks multiple times is safe; same result every time</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next:</strong> Module 31 -- DevOps Capsule Project (Docker + K8s + Jenkins + Ansible + Git)</span></div></div>
+    <div class="e-ban"><span><strong>Next:</strong> Module 31 -- DevOps Capsule Project (Docker + K8s + Jenkins + Ansible + Git)</span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 26</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

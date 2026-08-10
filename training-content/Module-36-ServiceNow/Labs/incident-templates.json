@@ -1,0 +1,74 @@
+{
+  "templates": [
+    {
+      "name": "Order Service Unresponsive",
+      "category": "Application",
+      "priority": "P2",
+      "assignment_group": "FoodExpress Backend Team",
+      "short_description": "Order Service not responding to health checks",
+      "description": "Order Service at port 8080 is not responding to /health endpoint.\n\nSymptoms:\n- Orders failing for all customers\n- Grafana showing 100% error rate on Order Service\n- Cart Service logging connection timeouts\n\nImmediate actions:\n1. Check pod/container status\n2. Check logs for errors\n3. Attempt restart\n4. If restart fails, escalate to L3",
+      "sla_response": "30 minutes",
+      "sla_resolution": "8 hours"
+    },
+    {
+      "name": "Payment Gateway Timeout",
+      "category": "External Dependency",
+      "priority": "P1",
+      "assignment_group": "FoodExpress Backend Team",
+      "short_description": "Payment gateway returning timeouts - orders stuck",
+      "description": "External payment gateway is not responding.\n\nImpact: No orders can complete payment. All new orders stuck in PAYMENT_PENDING.\n\nImmediate actions:\n1. Verify gateway status page\n2. Enable circuit breaker fallback\n3. Log affected orders for reprocessing\n4. Notify stakeholders\n5. Contact gateway vendor if outage > 15 min",
+      "sla_response": "15 minutes",
+      "sla_resolution": "4 hours"
+    },
+    {
+      "name": "Database Connection Pool Exhaustion",
+      "category": "Infrastructure",
+      "priority": "P2",
+      "assignment_group": "FoodExpress Platform Team",
+      "short_description": "MongoDB/MySQL connection pool at capacity - requests queuing",
+      "description": "Database connection pool is exhausted.\n\nSymptoms:\n- Increased latency across all services\n- Grafana showing db_pool_active near max\n- Timeout errors in logs\n\nImmediate actions:\n1. Check active connections: db.serverStatus().connections (MongoDB) or SHOW STATUS LIKE 'Threads_connected' (MySQL)\n2. Identify leaking service\n3. Restart the leaking service\n4. Monitor pool recovery",
+      "sla_response": "30 minutes",
+      "sla_resolution": "8 hours"
+    },
+    {
+      "name": "High Error Rate Alert",
+      "category": "Application",
+      "priority": "P3",
+      "assignment_group": "FoodExpress Backend Team",
+      "short_description": "Error rate above 5% threshold on [service]",
+      "description": "Prometheus alert: error rate exceeded 5% for 2+ minutes.\n\nInvestigation steps:\n1. Check Grafana dashboard for affected service\n2. Check logs for error patterns\n3. Identify if caused by recent deployment\n4. Rollback if deployment-related\n5. Fix and redeploy if code bug",
+      "sla_response": "2 hours",
+      "sla_resolution": "24 hours"
+    },
+    {
+      "name": "SSL Certificate Expiry",
+      "category": "Infrastructure",
+      "priority": "P2",
+      "assignment_group": "FoodExpress Platform Team",
+      "short_description": "SSL certificate expired/expiring - HTTPS failing",
+      "description": "SSL certificate for foodexpress.example.com has expired or is about to expire.\n\nImpact: Users see security warnings, browsers block access.\n\nResolution:\n1. Generate/renew certificate\n2. Install new certificate\n3. Restart Apache/Nginx\n4. Verify HTTPS works\n5. Set up monitoring for next expiry",
+      "sla_response": "15 minutes",
+      "sla_resolution": "2 hours"
+    },
+    {
+      "name": "Restaurant Search Slow",
+      "category": "Application",
+      "priority": "P3",
+      "assignment_group": "FoodExpress Backend Team",
+      "short_description": "Restaurant search taking 3+ seconds - customers abandoning",
+      "description": "Restaurant search latency has increased significantly.\n\nSymptoms:\n- Search takes 3+ seconds (normal is <500ms)\n- Grafana p95 latency panel spiking\n- Customers reporting slow search on mobile\n\nInvestigation:\n1. Check MongoDB text index exists: db.restaurants.getIndexes()\n2. Run explain on search query\n3. Check container resource usage\n4. Rebuild index if missing",
+      "sla_response": "2 hours",
+      "sla_resolution": "24 hours"
+    },
+    {
+      "name": "Delivery Tracking Not Updating",
+      "category": "Application",
+      "priority": "P2",
+      "assignment_group": "FoodExpress Backend Team",
+      "short_description": "Delivery status not updating - customers seeing stale ETA",
+      "description": "Delivery Service at port 3002 is not updating delivery status.\n\nImpact: Customers see stale delivery ETAs, support calls increasing.\n\nImmediate actions:\n1. Check Delivery Service health: curl http://localhost:3002/health\n2. Check MongoDB connection for deliveries collection\n3. Check event listener for order status changes\n4. Restart Delivery Service if needed",
+      "sla_response": "30 minutes",
+      "sla_resolution": "8 hours"
+    }
+  ]
+}

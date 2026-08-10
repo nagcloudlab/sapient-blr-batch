@@ -1,0 +1,34 @@
+# FoodExpress Production Security Configuration
+# BUG: Multiple security misconfigurations
+
+spring:
+  application:
+    name: foodexpress-api
+
+  # BUG: Debug mode enabled in production
+  # Exposes detailed error pages, stack traces, and environment variables
+  debug: true
+
+  # BUG: Actuator endpoints exposed without security
+  management:
+    endpoints:
+      web:
+        exposure:
+          include: "*"    # BUG: Exposes ALL actuator endpoints including env, configprops
+    endpoint:
+      env:
+        enabled: true     # BUG: Exposes environment variables (may contain secrets)
+      shutdown:
+        enabled: true     # BUG: Allows remote shutdown of the application!
+
+server:
+  error:
+    # BUG: Detailed errors shown to users
+    include-message: always
+    include-stacktrace: always
+    include-binding-errors: always
+
+logging:
+  level:
+    root: DEBUG           # BUG: DEBUG logging in production -- performance impact
+    org.springframework.security: DEBUG  # BUG: Security events logged verbosely
