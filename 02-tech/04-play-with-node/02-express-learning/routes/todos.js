@@ -1,65 +1,119 @@
 
 const express = require('express');
+const { ObjectId } = require('mongodb');
 const router = express.Router();
 
-const todos = require('../data/todos.json'); // Import the todos array from data/todos.js
+function toApiTodo(todoDoc) {
+    return {
+        id: todoDoc._id.toString(),
+        title: todoDoc.title,
+        completed: Boolean(todoDoc.completed)
+    };
+}
 
-// const todos = [
-//     { id: 1, title: 'Learn Express', completed: false },
-//     { id: 2, title: 'Build a REST API', completed: false },
-//     { id: 3, title: 'Deploy to Heroku', completed: false },
-//     { id: 4, title: 'Learn React', completed: false },
-//     { id: 5, title: 'Build a React App', completed: false },
-//     { id: 6, title: 'Learn Redux', completed: false },
-//     { id: 7, title: 'Build a Redux App', completed: false },
-//     { id: 8, title: 'Learn TypeScript', completed: false },
-//     { id: 9, title: 'Build a TypeScript App', completed: false },
-//     { id: 10, title: 'Learn GraphQL', completed: false },
-//     { id: 11, title: 'Build a GraphQL API', completed: false },
-//     { id: 12, title: 'Learn Next.js', completed: false },
-//     { id: 13, title: 'Build a Next.js App', completed: false },
-//     { id: 14, title: 'Learn Gatsby', completed: false },
-//     { id: 15, title: 'Build a Gatsby App', completed: false },
-//     { id: 16, title: 'Learn Vue.js', completed: false },
-//     { id: 17, title: 'Build a Vue.js App', completed: false },
-//     { id: 18, title: 'Learn Angular', completed: false },
-//     { id: 19, title: 'Build an Angular App', completed: false },
-//     { id: 20, title: 'Learn Svelte', completed: false },
-// ];
+function parseTodoId(rawId) {
+    return ObjectId.isValid(rawId) ? new ObjectId(rawId) : null;
+}
+
+function getTodosCollection(req) {
+    return req.app.locals.todosCollection;
+}
 
 router
-    .get("/", (req, res) => {
-        //const count = req.query.count || 20;
-        //res.json(todos.slice(0, count));
-        return res.json(todos);
-    })
-    .get('/:todoId', (req, res) => {
-        const id = parseInt(req.params.todoId, 10);
-        const todo = todos.find(todo => todo.id === id);
-        if (todo) {
-            res.json(todo);
-        } else {
-            res.status(404).json({ error: 'Todo not found' });
+    .get('/', async (req, res) => {
+        const todosCollection = getTodosCollection(req);
+        const limit = Number(req.query.count || 0);
+
+        const cursor = todosCollection
+            .find({})
+            .sort({ _id: -1 });
+
+        if (Number.isFinite(limit) && limit > 0) {
+            cursor.limit(limit);
         }
+
+        const todos = await cursor.toArray();
+        return res.json(todos.map(toApiTodo));
     })
-    .post('/', express.json(), (req, res) => {
-        const { id, title, completed } = req.body; // destructuring
-        if (id && title && typeof completed === 'boolean') {
-            const newTodo = { id, title, completed };
-            todos.push(newTodo);
-            res.status(201).json(newTodo);
-        } else {
-            res.status(400).json({ error: 'Invalid todo data' });
+    .get('/:todoId', async (req, res) => {
+        const todoId = parseTodoId(req.params.todoId);
+        if (!todoId) {
+            return res.status(400).json({ error: 'Invalid todo id' });
         }
+
+        const todosCollection = getTodosCollection(req);
+        const todo = await todosCollection.findOne({ _id: todoId });
+        if (!todo) {
+            return res.status(404).json({ error: 'Todo not found' });
+        }
+
+        return res.json(toApiTodo(todo));
     })
-    .delete('/:todoId', (req, res) => {
-        const id = parseInt(req.params.todoId, 10);
-        const index = todos.findIndex(todo => todo.id === id);
-        if (index !== -1) {
-            const deletedTodo = todos.splice(index, 1)[0];
-            res.json(deletedTodo);
-        } else {
-            res.status(404).json({ error: 'Todo not found' });
+    .post('/', async (req, res) => {
+        const { title, completed = false } = req.body;
+        if (!title || typeof title !== 'string') {
+            return res.status(400).json({ error: 'title is required and must be a string' });
         }
+
+        if (typeof completed !== 'boolean') {
+            return res.status(400).json({ error: 'completed must be a boolean' });
+        }
+
+        const todosCollection = getTodosCollection(req);
+        const newTodo = {
+            title: title.trim(),
+            completed
+        };
+
+        const result = await todosCollection.insertOne(newTodo);
+        return res.status(201).json({
+            id: result.insertedId.toString(),
+            title: newTodo.title,
+            completed: newTodo.completed
+        });
+    })
+    .put('/:todoId', async (req, res) => {
+        const todoId = parseTodoId(req.params.todoId);
+        if (!todoId) {
+            return res.status(400).json({ error: 'Invalid todo id' });
+        }
+
+        const { title, completed } = req.body;
+        if (!title || typeof title !== 'string') {
+            return res.status(400).json({ error: 'title is required and must be a string' });
+        }
+
+        if (typeof completed !== 'boolean') {
+            return res.status(400).json({ error: 'completed must be a boolean' });
+        }
+
+        const todosCollection = getTodosCollection(req);
+        const updateResult = await todosCollection.updateOne(
+            { _id: todoId },
+            { $set: { title: title.trim(), completed } }
+        );
+
+        if (updateResult.matchedCount === 0) {
+            return res.status(404).json({ error: 'Todo not found' });
+        }
+
+        const updatedTodo = await todosCollection.findOne({ _id: todoId });
+        return res.json(toApiTodo(updatedTodo));
+    })
+    .delete('/:todoId', async (req, res) => {
+        const todoId = parseTodoId(req.params.todoId);
+        if (!todoId) {
+            return res.status(400).json({ error: 'Invalid todo id' });
+        }
+
+        const todosCollection = getTodosCollection(req);
+        const deletedTodo = await todosCollection.findOne({ _id: todoId });
+        if (!deletedTodo) {
+            return res.status(404).json({ error: 'Todo not found' });
+        }
+
+        await todosCollection.deleteOne({ _id: todoId });
+        return res.json(toApiTodo(deletedTodo));
     });
+
 module.exports = router;
