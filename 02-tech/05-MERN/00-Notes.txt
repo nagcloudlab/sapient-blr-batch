@@ -1,0 +1,24 @@
+
+- start mongo database server
+
+    > mongod --dbpath /path/to/your/db --port 27017
+
+- start mongo shell
+
+    > mongo --port 27017 --host localhost
+
+
+REST-api for todos management
+-------------------------------
+
+/api/v1/todos [GET] - get all todos
+/api/v1/todos [POST] - create a new todo
+/api/v1/todos/:id [GET] - get a todo by id
+/api/v1/todos/:id [PUT] - update a todo by id
+/api/v1/todos/:id [DELETE] - delete a todo by id
+
+Content-Type: application/json
+
+
+
+

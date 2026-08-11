@@ -1,0 +1,12 @@
+[
+  { "id": 1, "name": "Laptop", "price": 999.99, "category": "Electronics" },
+  { "id": 2, "name": "Headphones", "price": 149.99, "category": "Electronics" },
+  { "id": 3, "name": "Backpack", "price": 59.99, "category": "Accessories" },
+  { "id": 4, "name": "Keyboard", "price": 79.99, "category": "Electronics" },
+  { "id": 5, "name": "Mouse", "price": 29.99, "category": "Electronics" },
+  { "id": 6, "name": "Monitor", "price": 349.99, "category": "Electronics" },
+  { "id": 7, "name": "Desk Lamp", "price": 39.99, "category": "Home" },
+  { "id": 8, "name": "Notebook", "price": 12.99, "category": "Stationery" },
+  { "id": 9, "name": "Water Bottle", "price": 24.99, "category": "Accessories" },
+  { "id": 10, "name": "USB Hub", "price": 19.99, "category": "Electronics" }
+]

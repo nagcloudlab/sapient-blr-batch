@@ -1,0 +1,39 @@
+
+
+teaching mongodb indexing
+--------------------------
+
+create collection 1M products
+-------------------------------
+
+in mongo shell, run the following command to create a collection named "products" and insert 1 million documents into it:
+
+db.products.insertMany(
+  Array.from({ length: 1000000 }, (_, i) => ({
+    productId: i + 1,
+    name: `Product ${i + 1}`,
+    category: `Category ${Math.floor(Math.random() * 10) + 1}`,
+    price: Math.floor(Math.random() * 1000) + 1,
+    inStock: Math.random() < 0.5
+  }))
+);
+
+
+without indexing, query performance ( )
+-------------------------------
+
+
+EXPLAIN the following query to see how it performs without any indexes:
+
+db.products.find({ category: "Category 5", inStock: true }).explain("executionStats");
+
+With Indexing, query performance ( )
+-------------------------------
+
+create an index on the "category" and "inStock" fields:
+
+db.products.createIndex({ category: 1, inStock: 1 });
+
+EXPLAIN the same query to see how it performs with the index:
+
+db.products.find({ category: "Category 5", inStock: true }).explain("executionStats");
