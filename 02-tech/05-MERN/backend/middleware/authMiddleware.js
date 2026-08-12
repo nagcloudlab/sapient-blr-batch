@@ -12,6 +12,11 @@ const AuthMiddleware = (req, res, next) => {
     console.log('AuthMiddleware invoked');
     const token = req.headers['authorization'];
 
+    // split the token if it starts with 'Bearer '
+    if (token && token.startsWith('Bearer ')) {
+        token = token.slice(7, token.length).trimLeft();
+    }
+
     if (!token) {
         return res.status(401).json({ message: 'Access denied. No token provided.' });
     }
