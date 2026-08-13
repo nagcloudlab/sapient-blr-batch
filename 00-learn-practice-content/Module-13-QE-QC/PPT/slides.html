@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quality Engineering & Quality Control</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 13</div>
+    <div class="t-main">Quality Engineering &amp; Quality Control</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day | Lecture + MCQ + Role Play (90 min)</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Session</th><th>Topics</th></tr></thead><tbody><tr><td>First half</td><td>Quality Mindset, QA vs QC vs QE, Roles & Responsibilities, Testing Fundamentals</td></tr><tr><td>Second half</td><td>Testing Types (Functional/Non-Functional), Tool Selection, Manual & Automation, Risk-Based Testing</td></tr><tr><td>Assessment</td><td>MCQ (30 min) + Role Play (90 min, 2 rounds)</td></tr></tbody></table>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Building a quality-first culture for sustain engineering teams.</div></div></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Why Quality Matters in Sustain Engineering</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Cost of Defects</div>
+<table class="tbl"><thead><tr><th>Stage Found</th><th>Cost to Fix</th><th>Example</th></tr></thead><tbody><tr><td>Requirements</td><td>$1</td><td>Catch a missing validation rule</td></tr><tr><td>Development</td><td>$10</td><td>Fix during code review</td></tr><tr><td>Testing</td><td>$100</td><td>Bug found in QA environment</td></tr><tr><td>Production</td><td>$1,000+</td><td>Customer-facing outage, data loss</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Impact</div>
+<ul class="bl"><li>A payment bug in production: <strong>lost revenue + customer trust</strong></li><li>A missing null check: <strong>500 errors on 10% of orders</strong></li><li>Wrong tax calculation: <strong>legal compliance risk</strong></li><li>Sustain engineers are the <strong>last line of defense</strong> before production</li></ul></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Quality Mindset</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Is Quality?</div>
+<ul class="bl"><li><strong>Conformance to requirements</strong> -- Does it do what was specified?</li><li><strong>Fitness for use</strong> -- Does it serve the user's actual needs?</li><li><strong>Customer satisfaction</strong> -- Does it meet or exceed expectations?</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Quality in Sustain Context</div>
+<table class="tbl"><thead><tr><th>Traditional Development</th><th>Sustain Engineering</th></tr></thead><tbody><tr><td>Build new features</td><td>Fix bugs in existing code</td></tr><tr><td>Define quality upfront</td><td>Improve quality of inherited code</td></tr><tr><td>Write tests from scratch</td><td>Add tests to untested code</td></tr><tr><td>Known codebase</td><td>Unfamiliar, often undocumented code</td></tr><tr><td>Greenfield</td><td>Legacy systems, technical debt</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Quality Principles</div>
+<ul class="bl"><li>1. <strong>Prevention over detection</strong> -- Catch defects early</li><li>2. <strong>Shift left</strong> -- Move testing earlier in the lifecycle</li><li>3. <strong>Everyone owns quality</strong> -- Not just the QA team</li><li>4. <strong>Continuous improvement</strong> -- Every bug is a learning opportunity</li></ul></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">QA vs QC vs QE</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Definitions</div>
+<table class="tbl"><thead><tr><th>Term</th><th>Full Name</th><th>Focus</th><th>Nature</th></tr></thead><tbody><tr><td><strong>QA</strong></td><td>Quality Assurance</td><td>Process</td><td>Preventive</td></tr><tr><td><strong>QC</strong></td><td>Quality Control</td><td>Product</td><td>Detective</td></tr><tr><td><strong>QE</strong></td><td>Quality Engineering</td><td>System</td><td>Proactive</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">QA (Quality Assurance)</div>
+<ul class="bl"><li>Focuses on <strong>processes</strong> that prevent defects</li><li>Reviews, audits, standards, checklists</li><li>Example: Code review guidelines, branching strategy, CI/CD gates</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">QC (Quality Control)</div>
+<ul class="bl"><li>Focuses on <strong>finding defects</strong> in the product</li><li>Testing, inspection, validation</li><li>Example: Running test cases, verifying bug fixes, regression testing</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">QE (Quality Engineering)</div>
+<ul class="bl"><li><strong>Engineering approach</strong> to quality at scale</li><li>Builds quality into the system: test automation, observability, chaos engineering</li><li>Example: Automated test pipelines, performance benchmarks, SLO monitoring</li></ul></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct">FRAMEWORKS</span></div>
+    <div class="tt">QA vs QC Comparison</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Aspect</th><th>QA</th><th>QC</th></tr></thead><tbody><tr><td>Focus</td><td>Process</td><td>Product</td></tr><tr><td>Goal</td><td>Prevent defects</td><td>Find defects</td></tr><tr><td>Approach</td><td>Proactive</td><td>Reactive</td></tr><tr><td>Scope</td><td>Entire lifecycle</td><td>Testing phase</td></tr><tr><td>Activities</td><td>Reviews, audits, standards</td><td>Test execution, bug reporting</td></tr><tr><td>Responsibility</td><td>Everyone</td><td>QC/Testing team</td></tr><tr><td>Output</td><td>Process improvements</td><td>Bug reports, test results</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Example</div>
+<table class="tbl"><thead><tr><th>QA Activity</th><th>QC Activity</th></tr></thead><tbody><tr><td>Define code review checklist</td><td>Execute test cases for order flow</td></tr><tr><td>Set up CI/CD pipeline with test gates</td><td>Verify payment calculation accuracy</td></tr><tr><td>Create coding standards document</td><td>Test API responses for edge cases</td></tr><tr><td>Establish branching strategy</td><td>Regression test after each release</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Roles and Responsibilities</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Quality Roles in a Sustain Team</div>
+<table class="tbl"><thead><tr><th>Role</th><th>Responsibilities</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>QA Lead</strong></td><td>Define test strategy, manage test plan, report metrics</td><td>Decide which modules need regression testing</td></tr><tr><td><strong>Test Engineer</strong></td><td>Write and execute test cases, report bugs</td><td>Test the order placement API endpoint</td></tr><tr><td><strong>SDET</strong></td><td>Build test automation frameworks, CI integration</td><td>Write Selenium tests for the checkout flow</td></tr><tr><td><strong>Performance Engineer</strong></td><td>Load testing, capacity planning, bottleneck analysis</td><td>Load test the restaurant search API</td></tr><tr><td><strong>Release Manager</strong></td><td>Coordinate releases, gate checks, go/no-go</td><td>Approve FoodExpress v2.3 for production</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Sustain Engineer's Quality Role</div>
+<ul class="bl"><li><strong>You are not just a developer</strong> -- you also own quality</li><li>Review existing tests when fixing bugs</li><li>Add tests for every bug fix (regression prevention)</li><li>Question: "How was this bug missed? What test should exist?"</li></ul></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Testing Fundamentals</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Is Testing?</div>
+<ul class="bl"><li>Process of evaluating a system to find differences between <strong>expected</strong> and <strong>actual</strong> behavior</li><li>Testing proves the <strong>presence</strong> of bugs, not their <strong>absence</strong></li><li>Testing is a <strong>risk reduction</strong> activity, not a guarantee</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Testing Terminology</div>
+<table class="tbl"><thead><tr><th>Term</th><th>Definition</th></tr></thead><tbody><tr><td><strong>Test Case</strong></td><td>A specific set of inputs, execution conditions, and expected results</td></tr><tr><td><strong>Test Suite</strong></td><td>A collection of related test cases</td></tr><tr><td><strong>Test Plan</strong></td><td>Document describing the testing approach, scope, and schedule</td></tr><tr><td><strong>Defect/Bug</strong></td><td>Deviation from expected behavior</td></tr><tr><td><strong>Severity</strong></td><td>Impact of the bug (Critical, Major, Minor, Trivial)</td></tr><tr><td><strong>Priority</strong></td><td>Urgency of fixing (P1-urgent, P2-high, P3-medium, P4-low)</td></tr><tr><td><strong>Regression</strong></td><td>A previously working feature that breaks after a change</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Severity vs Priority Matrix</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th></th><th>High Priority</th><th>Low Priority</th></tr></thead><tbody><tr><td><strong>High Severity</strong></td><td>Payment fails for all users (fix NOW)</td><td>Export to PDF crashes (workaround: use CSV)</td></tr><tr><td><strong>Low Severity</strong></td><td>Typo on homepage (CEO noticed)</td><td>Color mismatch on admin settings page</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Examples</div>
+<table class="tbl"><thead><tr><th>Bug</th><th>Severity</th><th>Priority</th><th>Reasoning</th></tr></thead><tbody><tr><td>Order total calculates wrong tax</td><td>Critical</td><td>P1</td><td>Financial/legal impact, affects all orders</td></tr><tr><td>Restaurant search returns 500</td><td>Major</td><td>P1</td><td>Core feature broken, customers cannot browse</td></tr><tr><td>Order history shows wrong timezone</td><td>Minor</td><td>P3</td><td>Cosmetic, data is correct internally</td></tr><tr><td>Admin dashboard font is wrong</td><td>Trivial</td><td>P4</td><td>No functional impact</td></tr><tr><td>CEO's profile photo does not load</td><td>Trivial</td><td>P1</td><td>Low severity but CEO escalated</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Testing Types -- Functional</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Functional Testing Categories</div>
+<table class="tbl"><thead><tr><th>Type</th><th>What It Tests</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>Unit Testing</strong></td><td>Individual functions/methods</td><td><code>calculateTotal()</code> returns correct sum</td></tr><tr><td><strong>Integration Testing</strong></td><td>Components working together</td><td>Order API saves to database correctly</td></tr><tr><td><strong>System Testing</strong></td><td>End-to-end system</td><td>Place order -> confirm -> deliver flow</td></tr><tr><td><strong>Smoke Testing</strong></td><td>Critical paths after deployment</td><td>Can users log in and search restaurants?</td></tr><tr><td><strong>Sanity Testing</strong></td><td>Specific fix verification</td><td>Bug fix for tax calculation works</td></tr><tr><td><strong>Regression Testing</strong></td><td>Previously working features</td><td>Old order flow still works after new feature</td></tr><tr><td><strong>UAT</strong></td><td>Business requirements</td><td>Product owner verifies order flow</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Testing Types -- Functional (continued)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Unit Testing</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">// FoodExpress: Unit test for calculateTotal
+describe('calculateTotal', () =&gt; {
+  it('should sum item prices correctly', () =&gt; {
+    const items = [
+      { name: 'Pizza', price: 299, qty: 2 },
+      { name: 'Coke', price: 49, qty: 1 }
+    ];
+    expect(calculateTotal(items)).toBe(647);
+  });
+
+  it('should return 0 for empty cart', () =&gt; {
+    expect(calculateTotal([])).toBe(0);
+  });
+
+  it('should handle negative quantities', () =&gt; {
+    const items = [{ name: 'Pizza', price: 299, qty: -1 }];
+    expect(() =&gt; calculateTotal(items)).toThrow('Invalid quantity');
+  });
+});</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Integration Testing</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.jav</span><span class="cb-lg">JAVASCRIPT</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">// FoodExpress: Integration test for order creation
+describe('POST /api/orders', () =&gt; {
+  it('should create order and return 201', async () =&gt; {
+    const response = await request(app)
+      .post('/api/orders')
+      .send({ customerId: 1, restaurantId: 2, items: [...] });
+    expect(response.status).toBe(201);
+    expect(response.body.order_id).toBeDefined();
+  });
+});</div></div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Testing Types -- Non-Functional</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Type</th><th>What It Tests</th><th>FoodExpress Example</th></tr></thead><tbody><tr><td><strong>Performance</strong></td><td>Speed, throughput</td><td>API responds in < 200ms</td></tr><tr><td><strong>Load Testing</strong></td><td>Behavior under expected load</td><td>1000 concurrent users browsing</td></tr><tr><td><strong>Stress Testing</strong></td><td>Behavior beyond capacity</td><td>10,000 concurrent orders</td></tr><tr><td><strong>Scalability</strong></td><td>Growth handling</td><td>Double the restaurants -- still fast?</td></tr><tr><td><strong>Security</strong></td><td>Vulnerabilities</td><td>SQL injection, auth bypass</td></tr><tr><td><strong>Usability</strong></td><td>User experience</td><td>Can a user place an order in 3 clicks?</td></tr><tr><td><strong>Compatibility</strong></td><td>Cross-platform</td><td>Works on Chrome, Safari, mobile</td></tr><tr><td><strong>Reliability</strong></td><td>Uptime, failure recovery</td><td>Service restarts after crash</td></tr><tr><td><strong>Accessibility</strong></td><td>Disability support</td><td>Screen reader compatible</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct">FORMS</span></div>
+    <div class="tt">Performance Testing Deep Dive</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Key Metrics</div>
+<table class="tbl"><thead><tr><th>Metric</th><th>Definition</th><th>FoodExpress Target</th></tr></thead><tbody><tr><td><strong>Response Time</strong></td><td>Time from request to response</td><td>< 200ms (P95)</td></tr><tr><td><strong>Throughput</strong></td><td>Requests per second</td><td>> 500 RPS</td></tr><tr><td><strong>Error Rate</strong></td><td>% of failed requests</td><td>< 0.1%</td></tr><tr><td><strong>Concurrent Users</strong></td><td>Simultaneous active users</td><td>1000+</td></tr><tr><td><strong>Latency P99</strong></td><td>99th percentile response time</td><td>< 1 second</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Load Testing Progression</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">Step 1: Baseline     (10 users,    5 min)  --&gt; Measure normal performance
+Step 2: Load Test    (100 users,   15 min) --&gt; Expected production load
+Step 3: Stress Test  (500 users,   10 min) --&gt; Find breaking point
+Step 4: Spike Test   (1000 users,  1 min)  --&gt; Sudden traffic burst
+Step 5: Soak Test    (100 users,   4 hrs)  --&gt; Memory leaks, degradation</div></div></div></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct">FORMS</span></div>
+    <div class="tt">Tool Selection</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Testing Tools by Category</div>
+<table class="tbl"><thead><tr><th>Category</th><th>Tools</th><th>Use Case</th></tr></thead><tbody><tr><td><strong>Unit Testing</strong></td><td>Jest, JUnit, Mocha, pytest</td><td>Function-level testing</td></tr><tr><td><strong>API Testing</strong></td><td>Postman, REST Assured, Supertest</td><td>HTTP endpoint testing</td></tr><tr><td><strong>UI Automation</strong></td><td>Selenium, Cypress, Playwright</td><td>Browser-based testing</td></tr><tr><td><strong>Performance</strong></td><td>JMeter, Gatling, k6, Locust</td><td>Load and stress testing</td></tr><tr><td><strong>Security</strong></td><td>OWASP ZAP, Burp Suite, SonarQube</td><td>Vulnerability scanning</td></tr><tr><td><strong>Mobile</strong></td><td>Appium, Espresso, XCTest</td><td>Mobile app testing</td></tr><tr><td><strong>CI Integration</strong></td><td>Jenkins, GitHub Actions, GitLab CI</td><td>Automated test execution</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Tool Selection Criteria</div>
+<table class="tbl"><thead><tr><th>Criteria</th><th>Questions to Ask</th></tr></thead><tbody><tr><td><strong>Tech stack</strong></td><td>What language/framework is the app built with?</td></tr><tr><td><strong>Team skills</strong></td><td>What tools does the team already know?</td></tr><tr><td><strong>Budget</strong></td><td>Open source vs commercial?</td></tr><tr><td><strong>Integration</strong></td><td>Does it integrate with CI/CD pipeline?</td></tr><tr><td><strong>Reporting</strong></td><td>Does it generate useful test reports?</td></tr><tr><td><strong>Maintenance</strong></td><td>How much effort to maintain the test suite?</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Manual vs Automation Testing</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">When to Use Each</div>
+<table class="tbl"><thead><tr><th>Use Manual Testing When</th><th>Use Automation When</th></tr></thead><tbody><tr><td>Exploratory testing</td><td>Regression testing</td></tr><tr><td>Usability testing</td><td>Smoke/sanity testing</td></tr><tr><td>One-time tests</td><td>Repetitive test execution</td></tr><tr><td>Complex visual validation</td><td>Data-driven testing</td></tr><tr><td>Ad-hoc bug investigation</td><td>CI/CD pipeline gates</td></tr><tr><td>New feature validation</td><td>Performance testing</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Automation Pyramid</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">           /\
+          /  \         UI Tests (few, slow, expensive)
+         /    \        - Selenium, Cypress
+        /------\
+       /        \      Integration Tests (moderate)
+      /          \     - API tests, service tests
+     /------------\
+    /              \   Unit Tests (many, fast, cheap)
+   /                \  - Jest, JUnit
+  /------------------\</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Rule of Thumb</div>
+<ul class="bl"><li><strong>70%</strong> unit tests</li><li><strong>20%</strong> integration tests</li><li><strong>10%</strong> UI/E2E tests</li></ul></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Test Case Design</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress: Order Placement Test Cases</div>
+<table class="tbl"><thead><tr><th>ID</th><th>Scenario</th><th>Input</th><th>Expected Result</th><th>Priority</th></tr></thead><tbody><tr><td>TC-01</td><td>Place valid order</td><td>Valid customer, restaurant, items</td><td>Order created, 201</td><td>P1</td></tr><tr><td>TC-02</td><td>Empty cart</td><td>No items</td><td>Error 400: "Cart is empty"</td><td>P1</td></tr><tr><td>TC-03</td><td>Invalid customer ID</td><td>Non-existent customer_id</td><td>Error 404: "Customer not found"</td><td>P1</td></tr><tr><td>TC-04</td><td>Closed restaurant</td><td>Restaurant with is_active=false</td><td>Error 400: "Restaurant closed"</td><td>P2</td></tr><tr><td>TC-05</td><td>Negative quantity</td><td>Item with qty = -1</td><td>Error 400: "Invalid quantity"</td><td>P2</td></tr><tr><td>TC-06</td><td>Very large order</td><td>100 items</td><td>Order created successfully</td><td>P3</td></tr><tr><td>TC-07</td><td>Special characters</td><td>Item name with emojis/unicode</td><td>Handled correctly</td><td>P3</td></tr><tr><td>TC-08</td><td>Concurrent orders</td><td>50 simultaneous order requests</td><td>All succeed, no duplicates</td><td>P2</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Risk-Based Testing</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Is Risk-Based Testing?</div>
+<ul class="bl"><li>Prioritize testing based on <strong>risk</strong> = probability x impact</li><li>Focus limited testing time on the most critical areas</li><li>Sustain teams often have limited time -- risk-based approach is essential</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Risk Assessment Matrix</div>
+<table class="tbl"><thead><tr><th></th><th>High Impact</th><th>Low Impact</th></tr></thead><tbody><tr><td><strong>High Probability</strong></td><td>Test extensively</td><td>Test moderately</td></tr><tr><td><strong>Low Probability</strong></td><td>Test moderately</td><td>Test minimally</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Risk Assessment</div>
+<table class="tbl"><thead><tr><th>Feature</th><th>Probability of Failure</th><th>Impact</th><th>Risk Level</th><th>Testing Effort</th></tr></thead><tbody><tr><td>Payment processing</td><td>Medium</td><td>Critical</td><td>HIGH</td><td>Extensive</td></tr><tr><td>Order placement</td><td>High (complex logic)</td><td>Critical</td><td>HIGH</td><td>Extensive</td></tr><tr><td>Restaurant search</td><td>Low</td><td>Major</td><td>MEDIUM</td><td>Moderate</td></tr><tr><td>User profile update</td><td>Low</td><td>Minor</td><td>LOW</td><td>Minimal</td></tr><tr><td>Admin dashboard</td><td>Low</td><td>Minor</td><td>LOW</td><td>Minimal</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Defect Lifecycle</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">+--------+    +----------+    +--------+    +----------+
+|  New   | -&gt; | Assigned | -&gt; | Fixed  | -&gt; | Verified |
++--------+    +----------+    +--------+    +----------+
+    |              |                              |
+    v              v                              v
++--------+    +----------+                  +--------+
+|Rejected|    |Deferred  |                  | Closed |
++--------+    +----------+                  +--------+
+                                                |
+                                                v
+                                          +----------+
+                                          | Reopened |
+                                          +----------+</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Defect Report Template</div>
+<table class="tbl"><thead><tr><th>Field</th><th>Example</th></tr></thead><tbody><tr><td><strong>Title</strong></td><td>Order total incorrect when discount applied</td></tr><tr><td><strong>Severity</strong></td><td>Major</td></tr><tr><td><strong>Priority</strong></td><td>P1</td></tr><tr><td><strong>Steps to Reproduce</strong></td><td>1. Add item (Rs 500) 2. Apply 20% discount 3. View total</td></tr><tr><td><strong>Expected</strong></td><td>Total = Rs 400</td></tr><tr><td><strong>Actual</strong></td><td>Total = Rs 500 (discount not applied)</td></tr><tr><td><strong>Environment</strong></td><td>Staging, Chrome 114, API v2.3</td></tr><tr><td><strong>Attachments</strong></td><td>Screenshot, API response JSON</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Test Metrics</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Key Metrics for Sustain Teams</div>
+<table class="tbl"><thead><tr><th>Metric</th><th>Formula</th><th>Target</th></tr></thead><tbody><tr><td><strong>Defect Density</strong></td><td>Defects / KLOC</td><td>< 5 per KLOC</td></tr><tr><td><strong>Defect Leakage</strong></td><td>Prod bugs / Total bugs found</td><td>< 10%</td></tr><tr><td><strong>Test Coverage</strong></td><td>Lines covered / Total lines</td><td>> 80%</td></tr><tr><td><strong>Test Pass Rate</strong></td><td>Passed / Total executed</td><td>> 95%</td></tr><tr><td><strong>MTTR</strong></td><td>Mean time to resolve defects</td><td>< 4 hours (P1)</td></tr><tr><td><strong>Automation Rate</strong></td><td>Automated / Total test cases</td><td>> 60%</td></tr><tr><td><strong>Regression Rate</strong></td><td>Regressions / Total bugs</td><td>< 5%</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Dashboard</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd">+---------------------------------------------+
+|  FoodExpress Quality Dashboard              |
++---------------------------------------------+
+| Open Bugs: 12  | Critical: 2 | Major: 5    |
+| Test Coverage: 72%  | Pass Rate: 94%       |
+| Automation Rate: 45% | Defect Leakage: 8%  |
+| MTTR (P1): 3.2 hrs  | Regression Rate: 3% |
++---------------------------------------------+</div></div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Shift-Left Testing</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Traditional vs Shift-Left</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">Traditional:
+Requirements -&gt; Design -&gt; Code -&gt; Test -&gt; Deploy
+                                  ^^^^
+                          Testing happens late
+
+Shift-Left:
+Requirements -&gt; Design -&gt; Code -&gt; Test -&gt; Deploy
+^^^^^^^^^^^^    ^^^^^^    ^^^^
+Testing starts early at every stage</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Shift-Left Activities</div>
+<table class="tbl"><thead><tr><th>Stage</th><th>Testing Activity</th></tr></thead><tbody><tr><td><strong>Requirements</strong></td><td>Review requirements for testability, ambiguity</td></tr><tr><td><strong>Design</strong></td><td>Review architecture for test hooks, observability</td></tr><tr><td><strong>Code</strong></td><td>Unit tests (TDD), code review, static analysis</td></tr><tr><td><strong>Build</strong></td><td>Automated tests in CI pipeline</td></tr><tr><td><strong>Deploy</strong></td><td>Smoke tests, canary deployments</td></tr><tr><td><strong>Production</strong></td><td>Monitoring, alerting, chaos testing</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ Assessment Topics</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Topic</th><th>Key Concepts</th></tr></thead><tbody><tr><td>Quality Mindset</td><td>Prevention vs detection, cost of defects</td></tr><tr><td>QA vs QC vs QE</td><td>Definitions, focus, activities</td></tr><tr><td>Testing Types</td><td>Functional vs non-functional, when to use each</td></tr><tr><td>Test Design</td><td>Test cases, boundary values, equivalence partitioning</td></tr><tr><td>Severity vs Priority</td><td>Matrix, examples, when they differ</td></tr><tr><td>Manual vs Automation</td><td>When to use each, automation pyramid</td></tr><tr><td>Risk-Based Testing</td><td>Risk matrix, prioritization</td></tr><tr><td>Defect Lifecycle</td><td>States, transitions, report format</td></tr><tr><td>Test Metrics</td><td>Coverage, pass rate, defect density</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Role Play -- Overview (90 minutes)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Format</div>
+<ul class="bl"><li><strong>2 rounds</strong>, 45 minutes each</li><li>Teams of 4-5 people</li><li>Each round has a different FoodExpress scenario</li><li>Roles rotate between rounds</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Roles</div>
+<table class="tbl"><thead><tr><th>Role</th><th>Responsibility</th></tr></thead><tbody><tr><td><strong>Product Owner</strong></td><td>Describes the feature/bug, accepts/rejects fixes</td></tr><tr><td><strong>QA Lead</strong></td><td>Creates test plan, assigns test cases</td></tr><tr><td><strong>Test Engineer</strong></td><td>Writes test cases, executes tests, reports bugs</td></tr><tr><td><strong>Developer</strong></td><td>Fixes bugs, explains root cause</td></tr><tr><td><strong>Scrum Master</strong></td><td>Facilitates discussion, manages time</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Role Play -- Round 1: New Feature Testing</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Scenario</div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">"FoodExpress is launching a <strong>loyalty rewards program</strong>. Customers earn 1 point per Rs 100 spent. At 500 points, they get Rs 200 off their next order. The feature is ready for testing."</div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Tasks</div>
+<ul class="bl"><li>1. <strong>Product Owner:</strong> Present the feature requirements (5 min)</li><li>2. <strong>QA Lead:</strong> Create a test plan -- what needs to be tested? (10 min)</li><li>3. <strong>Test Engineer:</strong> Write 10 test cases covering positive, negative, and edge cases (15 min)</li><li>4. <strong>Developer:</strong> Review test cases and identify gaps (5 min)</li><li>5. <strong>Team:</strong> Prioritize test cases using risk-based approach (10 min)</li></ul>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Expected Test Cases</div>
+<ul class="bl"><li>Points calculated correctly for exact amounts</li><li>Points for amounts not divisible by 100 (e.g., Rs 350 = 3 points)</li><li>Redemption at exactly 500 points</li><li>Redemption with more than 500 points (e.g., 600 points)</li><li>Attempt to redeem with less than 500 points</li><li>Points after cancelled order (should they be reversed?)</li><li>Concurrent point additions</li></ul></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Role Play -- Round 2: Production Bug Triage</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Scenario</div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">"FoodExpress production has 5 open bugs reported by customers. The team has capacity to fix only 3 before the weekend. Prioritize and create a fix plan."</div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Bug List</div>
+<table class="tbl"><thead><tr><th>#</th><th>Bug</th><th>Reported By</th></tr></thead><tbody><tr><td>1</td><td>Payment charged twice for some orders</td><td>15 customers</td></tr><tr><td>2</td><td>Restaurant search shows closed restaurants</td><td>3 customers</td></tr><tr><td>3</td><td>Order confirmation email has wrong total</td><td>8 customers</td></tr><tr><td>4</td><td>Profile photo upload fails on iOS</td><td>2 customers</td></tr><tr><td>5</td><td>Delivery ETA shows negative time after delivery</td><td>5 customers</td></tr></tbody></table>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Tasks</div>
+<ul class="bl"><li>1. <strong>QA Lead:</strong> Classify each bug by severity and priority (10 min)</li><li>2. <strong>Developer:</strong> Estimate fix effort for each bug (10 min)</li><li>3. <strong>Product Owner:</strong> Decide which 3 bugs to fix first with justification (10 min)</li><li>4. <strong>Scrum Master:</strong> Create a sprint plan for the fixes (10 min)</li><li>5. <strong>Team:</strong> Present triage decisions to the class (5 min)</li></ul></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Role Play -- Evaluation Criteria</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Criteria</th><th>Weight</th><th>What Evaluators Look For</th></tr></thead><tbody><tr><td>Test case quality</td><td>25%</td><td>Coverage, edge cases, clear expected results</td></tr><tr><td>Prioritization logic</td><td>25%</td><td>Risk-based, data-driven, justified decisions</td></tr><tr><td>Communication</td><td>20%</td><td>Clear explanations, active listening, consensus building</td></tr><tr><td>Role adherence</td><td>15%</td><td>Staying in character, fulfilling role responsibilities</td></tr><tr><td>Time management</td><td>15%</td><td>Completing tasks within time boxes</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13 - QUALITY ENGINEERING &amp; QUALITY CONTROL</span><span class="ct"></span></div>
+    <div class="tt">Quality in CI/CD Pipeline</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">FoodExpress Quality Gates</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26</div><div class="cb-cd">Code Commit
+    |
+    v
++-----------+     +-----------+     +------------+
+| Lint +    | --&gt; | Unit      | --&gt; | Integration|
+| Static    |     | Tests     |     | Tests      |
+| Analysis  |     | (&lt; 2 min) |     | (&lt; 10 min) |
++-----------+     +-----------+     +------------+
+                                         |
+                                         v
+                                   +------------+     +-----------+
+                                   | Security   | --&gt; | Deploy to |
+                                   | Scan       |     | Staging   |
+                                   +------------+     +-----------+
+                                                           |
+                                                           v
+                                                     +-----------+
+                                                     | Smoke     |
+                                                     | Tests     |
+                                                     +-----------+
+                                                           |
+                                                           v
+                                                     +-----------+
+                                                     | Deploy to |
+                                                     | Production|
+                                                     +-----------+</div></div></div></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="27">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 13 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Concept</th><th>Key Lesson</th></tr></thead><tbody><tr><td>Quality Mindset</td><td>Prevention is cheaper than detection; shift testing left</td></tr><tr><td>QA vs QC vs QE</td><td>QA = process/preventive, QC = product/detective, QE = systemic/proactive</td></tr><tr><td>Testing Types</td><td>Functional (unit, integration, E2E) + Non-functional (perf, security, usability)</td></tr><tr><td>Automation Pyramid</td><td>70% unit, 20% integration, 10% UI -- fast feedback at the base</td></tr><tr><td>Severity vs Priority</td><td>Severity = impact, Priority = urgency -- they can differ</td></tr><tr><td>Risk-Based Testing</td><td>Focus testing effort where probability x impact is highest</td></tr><tr><td>Defect Management</td><td>Clear lifecycle, good bug reports, track metrics</td></tr><tr><td>Tool Selection</td><td>Match tools to tech stack, team skills, and CI/CD integration</td></tr><tr><td>Sustain Quality</td><td>Every bug fix needs a test; question why the bug was missed</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 14 -- Infrastructure Fundamentals: Understanding IT infrastructure, cloud vs traditional, and resilience.</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 14 -- Infrastructure Fundamentals: Understanding IT infrastructure, cloud vs traditional, and resilience.</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 27</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>
