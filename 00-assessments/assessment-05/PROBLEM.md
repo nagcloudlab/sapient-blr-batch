@@ -59,15 +59,30 @@ Expected columns: `user_name`, `email`, `total_spent`. Sorted descending, limite
 
 ---
 
-## Question 3 -- API Test Assertions [Complex] (35 marks)
+## Question 3 -- API Test Design & Assertions [Complex] (35 marks)
 
-Three test stubs in `api-tests.js` have empty assertion bodies. Write the Postman `pm.test()` assertions:
+The QA team needs complete API test coverage for the booking endpoints. Use the Postman collection (`QuickTicket-API-Tests.postman_collection.json`) and write your final assertions in `api-tests.js`.
 
-**TEST-301 (12 marks):** POST `/api/bookings` -- Verify response status is 201, response body contains an `id` field, and `status` equals `"pending"`.
+**TEST-301 (7 marks): Happy Path -- Create Booking**
+POST `/api/bookings` with `{ "userId": 1, "eventId": 1, "seats": 2 }`.
+Verify: response status is 201, body contains `id`, `status` equals `"pending"`, and `totalAmount` is correctly calculated (event price x seats). Save the returned `id` for use in later tests.
 
-**TEST-302 (12 marks):** GET `/api/bookings/99999` (non-existent) -- Verify response status is 404 and response body contains an `error` field.
+**TEST-302 (7 marks): Retrieve & Validate -- Verify Created Booking**
+GET `/api/bookings/{{bookingId}}` using the ID saved from TEST-301.
+Verify: response status is 200, and response body fields (`userId`, `eventId`, `seats`) match what was sent in TEST-301.
 
-**TEST-303 (11 marks):** After DELETE `/api/bookings/:id` returns 200, a subsequent GET to the same ID should return 404.
+**TEST-303 (7 marks): Negative Testing -- Error Handling**
+Design and write assertions for TWO error scenarios:
+- GET `/api/bookings/99999` (non-existent) -- Verify 404 status and response body contains `error` field.
+- POST `/api/bookings` with `{ "userId": 1, "eventId": 99999, "seats": 2 }` (invalid event) -- Verify the API returns an error status and response body contains `error` field.
+
+**TEST-304 (7 marks): Delete & Verify -- Flow Test**
+DELETE `/api/bookings/{{bookingId}}` then GET the same ID.
+Verify: DELETE returns 200, subsequent GET returns 404.
+
+**TEST-305 (7 marks): Edge Case -- Invalid Input**
+POST `/api/bookings` with `{ "userId": 1, "eventId": 1, "seats": 0 }`.
+Verify: the API does NOT return 201 (should reject invalid seats), and response body contains `error` field. Write a brief comment explaining what you are testing and why.
 
 **Files to fix:** `api-tests.js`
 

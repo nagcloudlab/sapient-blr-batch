@@ -1,7 +1,7 @@
 {
 	"info": {
 		"name": "QuickTicket API Tests",
-		"description": "Assessment 5 - API Test Assertions (Q3 - 35 marks)\n\nWrite pm.test() assertions in the Tests tab of each request.",
+		"description": "Assessment 5 - API Test Design & Assertions (Q3 - 35 marks)\n\nWrite pm.test() assertions in the Tests tab of each request.\nRun requests in order (TEST-301 first) as later tests depend on earlier ones.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
@@ -16,26 +16,24 @@
 	],
 	"item": [
 		{
-			"name": "TEST-301: POST Create Booking",
+			"name": "TEST-301: POST Create Booking (Happy Path)",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"// TEST-301 (12 marks): POST /api/bookings",
-							"// Verify:",
-							"//   - Response status is 201",
-							"//   - Response body contains an \"id\" field",
-							"//   - Response body \"status\" equals \"pending\"",
+							"// TEST-301 (7 marks): Happy Path -- Create Booking",
+							"// Verify: 201, has id, status is pending, totalAmount is correct",
+							"// Save the booking ID for later tests",
 							"",
-							"pm.test(\"POST /api/bookings returns 201 and pending booking\", function () {",
+							"pm.test(\"POST /api/bookings creates a pending booking\", function () {",
 							"    // Write your assertions here",
 							"});",
 							"",
-							"// Save booking ID for TEST-303",
+							"// Save booking ID for later tests (do NOT remove this block)",
 							"var jsonData = pm.response.json();",
-							"if (jsonData.id) {",
+							"if (jsonData && jsonData.id) {",
 							"    pm.collectionVariables.set(\"bookingId\", jsonData.id);",
 							"}"
 						]
@@ -62,19 +60,44 @@
 			}
 		},
 		{
-			"name": "TEST-302: GET Non-Existent Booking",
+			"name": "TEST-302: GET Verify Created Booking",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"// TEST-302 (12 marks): GET /api/bookings/99999 (non-existent booking)",
-							"// Verify:",
-							"//   - Response status is 404",
-							"//   - Response body contains an \"error\" field",
+							"// TEST-302 (7 marks): Retrieve & Validate",
+							"// Verify: 200, userId/eventId/seats match what was sent in TEST-301",
 							"",
-							"pm.test(\"GET /api/bookings/99999 returns 404 with error field\", function () {",
+							"pm.test(\"GET /api/bookings/:id returns the created booking with correct data\", function () {",
+							"    // Write your assertions here",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"url": {
+					"raw": "{{baseUrl}}/api/bookings/{{bookingId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "bookings", "{{bookingId}}"]
+				}
+			}
+		},
+		{
+			"name": "TEST-303a: GET Non-Existent Booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// TEST-303 Scenario A (part of 7 marks): Negative Testing",
+							"// Verify: 404, body has error field",
+							"",
+							"pm.test(\"GET non-existent booking returns 404 with error\", function () {",
 							"    // Write your assertions here",
 							"});"
 						]
@@ -91,16 +114,52 @@
 			}
 		},
 		{
-			"name": "TEST-303a: DELETE Booking",
+			"name": "TEST-303b: POST with Invalid EventId",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"// TEST-303 (11 marks): DELETE /api/bookings/:id",
-							"// Verify:",
-							"//   - DELETE returns status 200",
+							"// TEST-303 Scenario B (part of 7 marks): Negative Testing",
+							"// Verify: error status (not 201), body has error field",
+							"",
+							"pm.test(\"POST with invalid eventId returns error\", function () {",
+							"    // Write your assertions here",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": 1,\n    \"eventId\": 99999,\n    \"seats\": 2\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/bookings",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "bookings"]
+				}
+			}
+		},
+		{
+			"name": "TEST-304a: DELETE Booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// TEST-304 Step 1 (part of 7 marks): Delete & Verify",
+							"// Verify: DELETE returns 200",
 							"",
 							"pm.test(\"DELETE /api/bookings/:id returns 200\", function () {",
 							"    // Write your assertions here",
@@ -119,16 +178,15 @@
 			}
 		},
 		{
-			"name": "TEST-303b: GET Deleted Booking",
+			"name": "TEST-304b: GET Deleted Booking",
 			"event": [
 				{
 					"listen": "test",
 					"script": {
 						"type": "text/javascript",
 						"exec": [
-							"// TEST-303 (continued): GET /api/bookings/:id after DELETE",
-							"// Verify:",
-							"//   - Subsequent GET to same ID returns 404",
+							"// TEST-304 Step 2 (part of 7 marks): Delete & Verify",
+							"// Verify: GET after DELETE returns 404",
 							"",
 							"pm.test(\"GET deleted booking returns 404\", function () {",
 							"    // Write your assertions here",
@@ -143,6 +201,45 @@
 					"raw": "{{baseUrl}}/api/bookings/{{bookingId}}",
 					"host": ["{{baseUrl}}"],
 					"path": ["api", "bookings", "{{bookingId}}"]
+				}
+			}
+		},
+		{
+			"name": "TEST-305: POST with Zero Seats (Edge Case)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// TEST-305 (7 marks): Edge Case -- Invalid Input",
+							"// Verify: NOT 201, body has error field",
+							"// Add a comment explaining what you are testing and why",
+							"",
+							"pm.test(\"POST with zero seats is rejected\", function () {",
+							"    // Write your assertions here",
+							"    // Add a comment explaining what you are testing and why",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": 1,\n    \"eventId\": 1,\n    \"seats\": 0\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/bookings",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "bookings"]
 				}
 			}
 		}

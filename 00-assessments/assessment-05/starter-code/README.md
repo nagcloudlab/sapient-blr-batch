@@ -188,13 +188,15 @@ events ─────┘
 | DEF-206  | 5     | BookingServiceTest.java | assertEquals fails despite correct value |
 | DEF-207  | 5     | BookingServiceTest.java | Test uses real DB instead of mock |
 
-### Question 3 -- API Test Assertions (35 marks) --> Postman Collection + `api-tests.js`
+### Question 3 -- API Test Design & Assertions (35 marks) --> Postman Collection + `api-tests.js`
 
 | Test     | Marks | Task |
 |----------|-------|------|
-| TEST-301 | 12    | POST /api/bookings -- verify 201, id, and pending status |
-| TEST-302 | 12    | GET /api/bookings/99999 -- verify 404 and error field |
-| TEST-303 | 11    | DELETE then GET -- verify 200 then 404 |
+| TEST-301 | 7     | Happy path: POST create booking -- verify 201, id, pending, totalAmount |
+| TEST-302 | 7     | Retrieve & validate: GET created booking -- verify data matches POST |
+| TEST-303 | 7     | Negative testing: GET 99999 (404) + POST invalid eventId (error) |
+| TEST-304 | 7     | Delete flow: DELETE returns 200, then GET returns 404 |
+| TEST-305 | 7     | Edge case: POST with seats=0 -- verify rejection + explain why |
 
 ---
 

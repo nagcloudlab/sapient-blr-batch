@@ -29,6 +29,16 @@ public class BookingService {
     }
 
     public Booking createBooking(Booking booking) {
+        if (booking.getUserId() == null) {
+            throw new IllegalArgumentException("userId is required");
+        }
+        if (booking.getEventId() == null) {
+            throw new IllegalArgumentException("eventId is required");
+        }
+        if (booking.getSeats() <= 0) {
+            throw new IllegalArgumentException("Seats must be greater than 0");
+        }
+
         Event event = findEvent(booking.getEventId());
 
         BigDecimal total = event.getPrice().multiply(BigDecimal.valueOf(booking.getSeats()));
