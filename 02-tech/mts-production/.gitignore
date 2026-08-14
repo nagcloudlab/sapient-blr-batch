@@ -1,0 +1,16 @@
+# Java
+target/
+*.class
+
+# Node
+node_modules/
+package-lock.json
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.DS_Store
+
+# Env
+.env
