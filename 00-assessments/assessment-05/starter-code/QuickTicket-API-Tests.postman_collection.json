@@ -1,0 +1,150 @@
+{
+	"info": {
+		"name": "QuickTicket API Tests",
+		"description": "Assessment 5 - API Test Assertions (Q3 - 35 marks)\n\nWrite pm.test() assertions in the Tests tab of each request.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080"
+		},
+		{
+			"key": "bookingId",
+			"value": ""
+		}
+	],
+	"item": [
+		{
+			"name": "TEST-301: POST Create Booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// TEST-301 (12 marks): POST /api/bookings",
+							"// Verify:",
+							"//   - Response status is 201",
+							"//   - Response body contains an \"id\" field",
+							"//   - Response body \"status\" equals \"pending\"",
+							"",
+							"pm.test(\"POST /api/bookings returns 201 and pending booking\", function () {",
+							"    // Write your assertions here",
+							"});",
+							"",
+							"// Save booking ID for TEST-303",
+							"var jsonData = pm.response.json();",
+							"if (jsonData.id) {",
+							"    pm.collectionVariables.set(\"bookingId\", jsonData.id);",
+							"}"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"userId\": 1,\n    \"eventId\": 1,\n    \"seats\": 2\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/bookings",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "bookings"]
+				}
+			}
+		},
+		{
+			"name": "TEST-302: GET Non-Existent Booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// TEST-302 (12 marks): GET /api/bookings/99999 (non-existent booking)",
+							"// Verify:",
+							"//   - Response status is 404",
+							"//   - Response body contains an \"error\" field",
+							"",
+							"pm.test(\"GET /api/bookings/99999 returns 404 with error field\", function () {",
+							"    // Write your assertions here",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"url": {
+					"raw": "{{baseUrl}}/api/bookings/99999",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "bookings", "99999"]
+				}
+			}
+		},
+		{
+			"name": "TEST-303a: DELETE Booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// TEST-303 (11 marks): DELETE /api/bookings/:id",
+							"// Verify:",
+							"//   - DELETE returns status 200",
+							"",
+							"pm.test(\"DELETE /api/bookings/:id returns 200\", function () {",
+							"    // Write your assertions here",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"url": {
+					"raw": "{{baseUrl}}/api/bookings/{{bookingId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "bookings", "{{bookingId}}"]
+				}
+			}
+		},
+		{
+			"name": "TEST-303b: GET Deleted Booking",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"// TEST-303 (continued): GET /api/bookings/:id after DELETE",
+							"// Verify:",
+							"//   - Subsequent GET to same ID returns 404",
+							"",
+							"pm.test(\"GET deleted booking returns 404\", function () {",
+							"    // Write your assertions here",
+							"});"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"url": {
+					"raw": "{{baseUrl}}/api/bookings/{{bookingId}}",
+					"host": ["{{baseUrl}}"],
+					"path": ["api", "bookings", "{{bookingId}}"]
+				}
+			}
+		}
+	]
+}
