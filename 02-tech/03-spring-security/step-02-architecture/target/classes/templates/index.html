@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Welcome to myCalendar!</title>
+    <!--/*/ <th:block th:insert="~{fragments/headerinc :: head}"></th:block> /*/-->
+</head>
+<body>
+<div class="container">
+    <!--/*/ <th:block th:insert="~{fragments/header :: header}"></th:block> /*/-->
+
+    <div class="alert alert-info">
+        <strong>Step 02: Architecture</strong> &mdash;
+        Debug logging is enabled. Check the console to see every security filter that processes each request.
+        A <code>SecurityFilterLogger</code> bean prints all registered filters at startup.
+    </div>
+
+    <h4>What Changed in This Step</h4>
+    <div class="card border-info mb-3">
+        <div class="card-body">
+            <ol>
+                <li><strong>Debug logging</strong> &mdash; <code>logging.level.org.springframework.security=DEBUG</code> in application.properties</li>
+                <li><strong>SecurityFilterLogger</strong> &mdash; A bean that prints all filters in the chain at startup</li>
+                <li><strong>No security behavior changed</strong> &mdash; This step is about understanding, not changing</li>
+            </ol>
+        </div>
+    </div>
+
+    <h4>Try This</h4>
+    <div class="card border-success mb-3">
+        <div class="card-body">
+            <ol>
+                <li>Look at the startup console &rarr; see the <strong>SPRING SECURITY FILTER CHAIN</strong> listing</li>
+                <li>Make a request &rarr; watch the DEBUG log show each filter processing the request</li>
+                <li>Count the filters &mdash; there are 15+ filters for every single HTTP request!</li>
+                <li>Open the <strong>presentation.html</strong> to understand what each filter does</li>
+            </ol>
+        </div>
+    </div>
+
+    <h4>Application Features</h4>
+    <div class="list-group mb-4">
+        <a class="list-group-item list-group-item-action" th:href="@{/events/}">All Events</a>
+        <a class="list-group-item list-group-item-action" th:href="@{/events/my}">My Events</a>
+        <a class="list-group-item list-group-item-action" th:href="@{/events/form}">Create Event</a>
+    </div>
+
+    <!--/*/ <th:block th:insert="~{fragments/footer :: foot}"></th:block> /*/-->
+</div>
+</body>
+</html>

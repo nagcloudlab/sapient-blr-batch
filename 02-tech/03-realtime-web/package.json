@@ -1,0 +1,12 @@
+{
+  "name": "realtime-web-demo",
+  "version": "1.0.0",
+  "description": "Demo server showing Polling, Long Polling, SSE, and WebSocket patterns",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

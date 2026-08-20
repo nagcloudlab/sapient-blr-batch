@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Create Event</title>
+    <!--/*/ <th:block th:insert="~{fragments/headerinc :: head}"></th:block> /*/-->
+</head>
+<body>
+<div class="container">
+    <!--/*/ <th:block th:insert="~{fragments/header :: header}"></th:block> /*/-->
+
+    <h3>Create New Event</h3>
+    <p class="text-muted">Owner will be the currently hardcoded user (user1@example.com).</p>
+
+    <form method="post" th:action="@{/events/new}" th:object="${createEventForm}">
+        <div class="alert alert-danger" th:if="${#fields.hasErrors('*')}">
+            <ul>
+                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
+            </ul>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="attendeeEmail">Attendee Email</label>
+            <input class="form-control" id="attendeeEmail" th:field="*{attendeeEmail}" type="text"
+                   placeholder="e.g. admin1@example.com"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="when">Date/Time</label>
+            <input class="form-control" id="when" th:field="*{when}" type="text"
+                   placeholder="yyyy-MM-dd HH:mm"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="summary">Summary</label>
+            <input class="form-control" id="summary" th:field="*{summary}" type="text"/>
+        </div>
+        <div class="mb-3">
+            <label class="form-label" for="description">Description</label>
+            <textarea class="form-control" id="description" th:field="*{description}" rows="4"></textarea>
+        </div>
+        <button class="btn btn-primary" type="submit">Create Event</button>
+        <button class="btn btn-secondary" name="auto" type="submit">Auto Populate</button>
+    </form>
+
+    <!--/*/ <th:block th:insert="~{fragments/footer :: foot}"></th:block> /*/-->
+</div>
+</body>
+</html>

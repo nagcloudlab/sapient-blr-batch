@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Welcome to myCalendar!</title>
+    <!--/*/ <th:block th:insert="~{fragments/headerinc :: head}"></th:block> /*/-->
+</head>
+<body>
+<div class="container">
+    <!--/*/ <th:block th:insert="~{fragments/header :: header}"></th:block> /*/-->
+
+    <div class="alert alert-warning">
+        <strong>Step 03: SecurityFilterChain</strong> &mdash;
+        This page is now <strong>public</strong> (no login required)! We wrote our first <code>SecurityConfig</code>
+        with <code>requestMatchers("/").permitAll()</code>.
+    </div>
+
+    <h4>What Changed</h4>
+    <div class="card border-warning mb-3">
+        <div class="card-body">
+            <ol>
+                <li><strong>New class: <code>SecurityConfig.java</code></strong> &mdash; our first custom <code>@Bean SecurityFilterChain</code></li>
+                <li><strong>Public pages:</strong> <code>/</code>, <code>/login</code>, <code>/css/**</code>, <code>/webjars/**</code> &mdash; no login needed</li>
+                <li><strong>Protected pages:</strong> <code>/events/**</code> &mdash; still requires authentication</li>
+                <li><strong>H2 Console fixed:</strong> frames allowed with <code>sameOrigin()</code>, CSRF disabled for <code>/h2-console/**</code></li>
+                <li><strong>Auto-config replaced:</strong> our bean overrides Spring Boot's default SecurityFilterChain</li>
+            </ol>
+        </div>
+    </div>
+
+    <h4>Try This</h4>
+    <div class="card border-success mb-3">
+        <div class="card-body">
+            <ol>
+                <li>Notice: you can see THIS page without logging in!</li>
+                <li>Click "All Events" below &rarr; you'll be redirected to <code>/login</code></li>
+                <li>Login with <code>user</code> / <code>(generated password from console)</code></li>
+                <li>After login, you land on <code>/events/</code> (the page you originally tried)</li>
+                <li>Try <a th:href="@{/h2-console}" target="_blank">H2 Console</a> &mdash; it works now! (JDBC URL: <code>jdbc:h2:mem:calendardb</code>)</li>
+                <li>Compare the filter chain in console &mdash; no more <code>DefaultLoginPageGeneratingFilter</code>... wait, it's still there because we use <code>formLogin(withDefaults())</code></li>
+            </ol>
+        </div>
+    </div>
+
+    <h4>Application Features</h4>
+    <div class="list-group mb-4">
+        <a class="list-group-item list-group-item-action list-group-item-success" th:href="@{/}">
+            <strong>Welcome (this page)</strong>
+            <span class="badge bg-success float-end">PUBLIC</span>
+        </a>
+        <a class="list-group-item list-group-item-action list-group-item-warning" th:href="@{/events/}">
+            <strong>All Events</strong>
+            <span class="badge bg-warning text-dark float-end">LOGIN REQUIRED</span>
+        </a>
+        <a class="list-group-item list-group-item-action list-group-item-warning" th:href="@{/events/my}">
+            <strong>My Events</strong>
+            <span class="badge bg-warning text-dark float-end">LOGIN REQUIRED</span>
+        </a>
+        <a class="list-group-item list-group-item-action list-group-item-warning" th:href="@{/events/form}">
+            <strong>Create Event</strong>
+            <span class="badge bg-warning text-dark float-end">LOGIN REQUIRED</span>
+        </a>
+        <a class="list-group-item list-group-item-action list-group-item-success" th:href="@{/h2-console}" target="_blank">
+            <strong>H2 Console</strong>
+            <span class="badge bg-success float-end">PUBLIC (dev only!)</span>
+        </a>
+    </div>
+
+    <!--/*/ <th:block th:insert="~{fragments/footer :: foot}"></th:block> /*/-->
+</div>
+</body>
+</html>

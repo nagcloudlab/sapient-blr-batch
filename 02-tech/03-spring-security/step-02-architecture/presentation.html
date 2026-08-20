@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Step 02 - Spring Security Architecture</title>
+<style>
+  :root { --bg: #0f172a; --surface: #1e293b; --accent: #38bdf8; --accent2: #818cf8; --accent3: #34d399; --accent4: #fb923c; --accent5: #f472b6; --text: #e2e8f0; --muted: #94a3b8; --code-bg: #0d1117; --border: #334155; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); overflow: hidden; height: 100vh; }
+  .slide { display: none; flex-direction: column; justify-content: center; align-items: center; height: 100vh; padding: 40px 80px; animation: fadeIn .4s ease; }
+  .slide.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  .nav { position: fixed; bottom: 20px; right: 30px; z-index: 100; display: flex; gap: 10px; align-items: center; }
+  .nav button { background: var(--surface); border: 1px solid var(--border); color: var(--text); padding: 10px 18px; border-radius: 8px; cursor: pointer; font-size: 16px; transition: all .2s; }
+  .nav button:hover { background: var(--accent); color: var(--bg); }
+  .nav .counter { color: var(--muted); font-size: 14px; }
+  .progress { position: fixed; top: 0; left: 0; height: 3px; background: linear-gradient(90deg, var(--accent2), var(--accent5)); transition: width .3s; z-index: 100; }
+  h1 { font-size: 3em; font-weight: 800; margin-bottom: 16px; } h2 { font-size: 2.2em; font-weight: 700; margin-bottom: 20px; }
+  h3 { font-size: 1.4em; font-weight: 600; margin-bottom: 12px; color: var(--accent); }
+  .subtitle { font-size: 1.3em; color: var(--muted); margin-bottom: 20px; }
+  .gradient-text { background: linear-gradient(135deg, var(--accent2), var(--accent5)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .content { max-width: 1100px; width: 100%; } .content-wide { max-width: 1300px; width: 100%; }
+  pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; overflow-x: auto; font-family: 'Fira Code', monospace; font-size: 0.88em; line-height: 1.7; margin: 10px 0; }
+  .kw { color: #c678dd; } .str { color: #98c379; } .cm { color: #5c6370; font-style: italic; } .fn { color: #61afef; } .num { color: #d19a66; } .tag { color: #e06c75; } .ann { color: #e5c07b; }
+  .grid { display: grid; gap: 20px; } .grid-2 { grid-template-columns: 1fr 1fr; } .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 22px; } .card:hover { transform: translateY(-2px); transition: transform .2s; }
+  .card-green { border-left: 4px solid var(--accent3); } .card-blue { border-left: 4px solid var(--accent); } .card-orange { border-left: 4px solid var(--accent4); } .card-pink { border-left: 4px solid var(--accent5); } .card-purple { border-left: 4px solid var(--accent2); }
+  .card p, .card li { color: var(--muted); line-height: 1.6; }
+  ul { list-style: none; padding: 0; } ul li { padding: 6px 0 6px 24px; position: relative; font-size: 1.05em; line-height: 1.5; }
+  ul li::before { content: ''; position: absolute; left: 0; top: 14px; width: 10px; height: 10px; border-radius: 50%; }
+  .list-green li::before { background: var(--accent3); } .list-blue li::before { background: var(--accent); } .list-orange li::before { background: var(--accent4); } .list-pink li::before { background: var(--accent5); }
+  .highlight-box { background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.3); border-radius: 12px; padding: 20px; margin: 14px 0; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: start; }
+  table { width: 100%; border-collapse: collapse; margin: 10px 0; background: var(--surface); border-radius: 12px; overflow: hidden; }
+  th { background: var(--code-bg); padding: 10px 16px; text-align: left; color: var(--accent); font-weight: 600; font-size: 0.9em; }
+  td { padding: 8px 16px; border-bottom: 1px solid var(--border); color: var(--muted); font-size: 0.9em; } tr:last-child td { border-bottom: none; }
+  .diagram { background: var(--code-bg); border: 1px solid var(--border); border-radius: 12px; padding: 20px; font-family: monospace; font-size: 0.88em; line-height: 1.7; white-space: pre; overflow-x: auto; }
+  .d-client { color: var(--accent); } .d-server { color: var(--accent3); } .d-arrow { color: var(--accent4); } .d-data { color: var(--accent5); } .d-label { color: var(--muted); } .d-filter { color: var(--accent2); }
+  .kbd { display: inline-block; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 3px 8px; font-size: 0.85em; font-family: monospace; }
+  .filter-box { background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 8px 14px; margin: 4px 0; display: flex; align-items: center; gap: 10px; font-size: 0.92em; }
+  .filter-num { background: var(--accent2); color: var(--bg); border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75em; flex-shrink: 0; }
+  .filter-box.highlight { border-color: var(--accent3); background: rgba(52,211,153,0.08); }
+  @media (max-width: 900px) { .slide { padding: 20px 30px; } h1 { font-size: 2em; } .grid-2,.grid-3 { grid-template-columns: 1fr; } .two-col { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+
+<!-- SLIDE 1: Title -->
+<div class="slide active">
+  <h1><span class="gradient-text">Step 02</span></h1>
+  <p class="subtitle">Spring Security Architecture</p>
+  <p style="color:var(--muted);margin-top:10px;font-size:1.1em;">"It's Filters All The Way Down"</p>
+  <div style="margin-top:40px;text-align:center;"><p style="color:var(--muted);">Servlet Filters &rarr; DelegatingFilterProxy &rarr; FilterChainProxy &rarr; SecurityFilterChain &rarr; 15+ Filters</p></div>
+  <p style="margin-top:40px;color:var(--muted);font-size:0.9em;"><span class="kbd">&larr;</span> <span class="kbd">&rarr;</span> to navigate</p>
+</div>
+
+<!-- SLIDE 2: Big Picture -->
+<div class="slide">
+  <div class="content">
+    <h2>The Big Picture</h2>
+    <p class="subtitle">Spring Security is fundamentally a chain of Servlet Filters</p>
+    <div class="diagram" style="text-align:center;font-size:0.95em;">
+<span class="d-client">HTTP Request</span>
+      <span class="d-arrow">|</span>
+      <span class="d-arrow">v</span>
+<span class="d-label">+-------------------------------+</span>
+<span class="d-label">|</span>   <span class="d-server">Servlet Container (Tomcat)</span>   <span class="d-label">|</span>
+<span class="d-label">|</span>   <span class="d-label">Servlet Filter Chain</span>         <span class="d-label">|</span>
+<span class="d-label">|</span>                               <span class="d-label">|</span>
+<span class="d-label">|</span>   <span class="d-label">[Filter 1]</span> CharEncoding      <span class="d-label">|</span>
+<span class="d-label">|</span>   <span class="d-label">[Filter 2]</span> HiddenHttpMethod  <span class="d-label">|</span>
+<span class="d-label">|</span>   <span class="d-filter">[Filter 3]</span> <span class="d-data">DelegatingFilterProxy</span> <span class="d-label">&larr; bridge</span>
+<span class="d-label">|</span>       <span class="d-arrow">|</span>                       <span class="d-label">|</span>
+<span class="d-label">|</span>       <span class="d-arrow">v</span>                       <span class="d-label">|</span>
+<span class="d-label">|</span>   <span class="d-filter">FilterChainProxy</span>            <span class="d-label">|</span>  <span class="d-data">&larr; Spring Bean</span>
+<span class="d-label">|</span>       <span class="d-arrow">|</span>                       <span class="d-label">|</span>
+<span class="d-label">|</span>       <span class="d-arrow">v</span>                       <span class="d-label">|</span>
+<span class="d-label">|</span>   <span class="d-filter">SecurityFilterChain</span>         <span class="d-label">|</span>  <span class="d-data">&larr; 15+ filters</span>
+<span class="d-label">|</span>                               <span class="d-label">|</span>
+<span class="d-label">|</span>   <span class="d-label">[Filter N]</span> ...              <span class="d-label">|</span>
+<span class="d-label">+-------------------------------+</span>
+      <span class="d-arrow">|</span>
+      <span class="d-arrow">v</span>
+<span class="d-server">DispatcherServlet</span> <span class="d-label">&rarr; Controller &rarr; View</span></div>
+  </div>
+</div>
+
+<!-- SLIDE 3: Servlet Filters Recap -->
+<div class="slide">
+  <div class="content">
+    <h2>Servlet Filters Recap</h2>
+    <div class="two-col" style="margin-top:20px;">
+      <div>
+        <p style="color:var(--muted);line-height:1.6;margin-bottom:16px;">Servlet Filters intercept HTTP requests <strong>before</strong> they reach the Servlet. Each filter can:</p>
+        <ul class="list-blue">
+          <li><strong>Pass</strong> the request to the next filter</li>
+          <li><strong>Block</strong> the request (send error/redirect)</li>
+          <li><strong>Modify</strong> the request or response</li>
+          <li><strong>Wrap</strong> the request/response objects</li>
+        </ul>
+      </div>
+      <div>
+<pre><span class="kw">public interface</span> <span class="fn">Filter</span> {
+  <span class="kw">void</span> <span class="fn">doFilter</span>(
+    ServletRequest request,
+    ServletResponse response,
+    FilterChain chain
+  );
+}
+
+<span class="cm">// Typical implementation:</span>
+<span class="kw">public void</span> <span class="fn">doFilter</span>(...) {
+  <span class="cm">// 1. Pre-processing</span>
+  log(<span class="str">"Request coming in"</span>);
+
+  <span class="cm">// 2. Pass to next filter</span>
+  chain.<span class="fn">doFilter</span>(request, response);
+
+  <span class="cm">// 3. Post-processing</span>
+  log(<span class="str">"Response going out"</span>);
+}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: DelegatingFilterProxy -->
+<div class="slide">
+  <div class="content">
+    <h2>Layer 1: DelegatingFilterProxy</h2>
+    <p class="subtitle">The bridge between Servlet Container and Spring</p>
+    <div class="two-col" style="margin-top:20px;">
+      <div>
+        <div class="card card-orange"><h3>Problem</h3><p>Tomcat manages its own filters. It doesn't know about Spring beans.</p></div>
+        <div class="card card-green" style="margin-top:14px;"><h3>Solution</h3><p><code>DelegatingFilterProxy</code> is a Servlet Filter that <strong>delegates</strong> to a Spring bean named <code>springSecurityFilterChain</code>.</p></div>
+        <div class="highlight-box"><strong>Key:</strong> Tomcat &rarr; DelegatingFilterProxy &rarr; FilterChainProxy (Spring bean)</div>
+      </div>
+      <div>
+<pre><span class="cm">// Simplified:</span>
+<span class="kw">public class</span> <span class="fn">DelegatingFilterProxy</span>
+    <span class="kw">implements</span> Filter {
+
+  <span class="kw">private</span> String targetBeanName =
+    <span class="str">"springSecurityFilterChain"</span>;
+
+  <span class="kw">public void</span> <span class="fn">doFilter</span>(...) {
+    <span class="cm">// Look up Spring bean</span>
+    Filter delegate = appContext
+      .<span class="fn">getBean</span>(targetBeanName);
+
+    <span class="cm">// Delegate the work</span>
+    delegate.<span class="fn">doFilter</span>(req, res, chain);
+  }
+}
+<span class="cm">// The bean = FilterChainProxy</span></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 5: FilterChainProxy -->
+<div class="slide">
+  <div class="content">
+    <h2>Layer 2: FilterChainProxy</h2>
+    <p class="subtitle">The router &mdash; picks the right SecurityFilterChain</p>
+    <div class="two-col" style="margin-top:20px;">
+      <div>
+        <ul class="list-green">
+          <li>Spring bean: <code>springSecurityFilterChain</code></li>
+          <li>Contains 1+ SecurityFilterChain instances</li>
+          <li>Matches request URL to the right chain</li>
+          <li><strong>First matching chain</strong> wins</li>
+          <li>Single point for debugging</li>
+        </ul>
+        <div class="highlight-box" style="margin-top:14px;"><strong>Why?</strong> Different URLs need different security: <code>/api/**</code> &rarr; JWT, <code>/web/**</code> &rarr; form login.</div>
+      </div>
+      <div class="diagram"><span class="d-filter">FilterChainProxy</span>
+  <span class="d-arrow">|</span>
+  <span class="d-arrow">|-- matches /api/** ?</span>
+  <span class="d-arrow">|</span>     <span class="d-data">Chain #1</span> (JWT)
+  <span class="d-arrow">|</span>       <span class="d-label">[BearerTokenFilter]</span>
+  <span class="d-arrow">|</span>       <span class="d-label">[AuthorizationFilter]</span>
+  <span class="d-arrow">|</span>
+  <span class="d-arrow">|-- matches /** ?</span>
+  <span class="d-arrow">|</span>     <span class="d-data">Chain #2</span> (Form)
+  <span class="d-arrow">|</span>       <span class="d-label">[CsrfFilter]</span>
+  <span class="d-arrow">|</span>       <span class="d-label">[UsernamePasswordFilter]</span>
+  <span class="d-arrow">|</span>       <span class="d-label">[AuthorizationFilter]</span>
+  <span class="d-arrow">|</span>
+  <span class="d-label">First match wins!</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 6: SecurityFilterChain -->
+<div class="slide">
+  <div class="content">
+    <h2>Layer 3: SecurityFilterChain</h2>
+    <p class="subtitle">The chain you configure via HttpSecurity DSL</p>
+    <div class="two-col" style="margin-top:16px;">
+      <div>
+<pre><span class="ann">@Configuration</span>
+<span class="kw">public class</span> <span class="fn">SecurityConfig</span> {
+
+  <span class="ann">@Bean</span>
+  <span class="kw">public</span> SecurityFilterChain <span class="fn">filterChain</span>(
+      HttpSecurity http) <span class="kw">throws</span> Exception {
+
+    http
+      .<span class="fn">authorizeHttpRequests</span>(a -> a
+        .<span class="fn">anyRequest</span>().<span class="fn">authenticated</span>()
+      )
+      .<span class="fn">formLogin</span>(withDefaults())
+      .<span class="fn">httpBasic</span>(withDefaults());
+
+    <span class="kw">return</span> http.<span class="fn">build</span>();
+    <span class="cm">// build() creates a chain</span>
+    <span class="cm">// with ~15 filters</span>
+  }
+}</pre>
+      </div>
+      <div>
+        <h3>DSL Method &rarr; Filter</h3>
+        <table>
+          <thead><tr><th>DSL</th><th>Creates</th></tr></thead>
+          <tbody>
+            <tr><td><code>.csrf()</code></td><td>CsrfFilter</td></tr>
+            <tr><td><code>.formLogin()</code></td><td>UsernamePasswordAuthFilter</td></tr>
+            <tr><td><code>.httpBasic()</code></td><td>BasicAuthenticationFilter</td></tr>
+            <tr><td><code>.logout()</code></td><td>LogoutFilter</td></tr>
+            <tr><td><code>.authorizeHttpRequests()</code></td><td>AuthorizationFilter</td></tr>
+            <tr><td><code>.headers()</code></td><td>HeaderWriterFilter</td></tr>
+            <tr><td><code>.exceptionHandling()</code></td><td>ExceptionTranslationFilter</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 7: All 15 Filters -->
+<div class="slide">
+  <div class="content-wide">
+    <h2>Default Filter Chain (All 15 Filters)</h2>
+    <p class="subtitle">SecurityFilterLogger prints these at startup</p>
+    <div class="grid grid-3" style="margin-top:10px;font-size:0.88em;">
+      <div>
+        <div class="filter-box"><span class="filter-num">1</span><strong>DisableEncodeUrlFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">No session ID in URLs</p>
+        <div class="filter-box"><span class="filter-num">2</span><strong>WebAsyncManagerFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">Async support</p>
+        <div class="filter-box"><span class="filter-num">3</span><strong>SecurityContextHolderFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">Load context from session</p>
+        <div class="filter-box highlight"><span class="filter-num">4</span><strong>HeaderWriterFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">Security headers</p>
+        <div class="filter-box highlight"><span class="filter-num">5</span><strong>CsrfFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">CSRF validation</p>
+      </div>
+      <div>
+        <div class="filter-box highlight"><span class="filter-num">6</span><strong>LogoutFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">POST /logout</p>
+        <div class="filter-box highlight"><span class="filter-num">7</span><strong>UsernamePasswordAuthFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">Form login POST</p>
+        <div class="filter-box"><span class="filter-num">8</span><strong>DefaultLoginPageFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">Generate /login HTML</p>
+        <div class="filter-box"><span class="filter-num">9</span><strong>DefaultLogoutPageFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">Generate /logout HTML</p>
+        <div class="filter-box highlight"><span class="filter-num">10</span><strong>BasicAuthenticationFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">HTTP Basic header</p>
+      </div>
+      <div>
+        <div class="filter-box"><span class="filter-num">11</span><strong>RequestCacheFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">Replay saved requests</p>
+        <div class="filter-box"><span class="filter-num">12</span><strong>SecurityContextAwareFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">Servlet API integration</p>
+        <div class="filter-box"><span class="filter-num">13</span><strong>AnonymousAuthFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">Anonymous token</p>
+        <div class="filter-box highlight"><span class="filter-num">14</span><strong>ExceptionTranslationFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">Catch auth exceptions</p>
+        <div class="filter-box highlight"><span class="filter-num">15</span><strong>AuthorizationFilter</strong></div>
+        <p style="color:var(--muted);font-size:0.8em;padding-left:36px;">Final allow/deny</p>
+      </div>
+    </div>
+    <p style="color:var(--accent3);text-align:center;margin-top:6px;font-size:0.85em;">Highlighted = key filters you customize most</p>
+  </div>
+</div>
+
+<!-- SLIDE 8: Unauthenticated Flow -->
+<div class="slide">
+  <div class="content">
+    <h2>Flow: Unauthenticated Request</h2>
+    <p class="subtitle">GET /events without logging in</p>
+    <div class="diagram" style="margin-top:14px;font-size:0.85em;">
+<span class="d-client">Browser: GET /events</span>
+  <span class="d-arrow">v</span>
+<span class="d-filter">[1-5]</span> <span class="d-label">DisableEncode &rarr; WebAsync &rarr; SecurityContext &rarr; Headers &rarr; CSRF</span>
+  <span class="d-arrow">|</span>     <span class="d-label">(pass through for GET)</span>
+<span class="d-filter">[6]</span>  <span class="d-label">LogoutFilter</span>            <span class="d-label">&rarr; Not /logout, skip</span>
+<span class="d-filter">[7]</span>  <span class="d-label">UsernamePasswordFilter</span>  <span class="d-label">&rarr; Not POST /login, skip</span>
+<span class="d-filter">[8-10]</span> <span class="d-label">LoginPage, LogoutPage, BasicAuth &rarr; skip</span>
+<span class="d-filter">[11-12]</span> <span class="d-label">RequestCache, ContextAware &rarr; pass through</span>
+<span class="d-filter">[13]</span> <span class="d-label">AnonymousAuthFilter</span>     <span class="d-label">&rarr; No auth &rarr; assigns AnonymousToken</span>
+  <span class="d-arrow">v</span>
+<span class="d-filter">[14]</span> <span class="d-data">ExceptionTranslationFilter</span>  <span class="d-label">&rarr; calls next...</span>
+<span class="d-filter">[15]</span> <span class="d-data">AuthorizationFilter</span>         <span class="d-label">&rarr; anyRequest().authenticated()</span>
+         <span class="tag">AnonymousUser NOT authenticated! &rarr; AccessDeniedException</span>
+  <span class="d-arrow">v</span>
+<span class="d-filter">[14]</span> <span class="d-data">ExceptionTranslationFilter catches it!</span>
+         <span class="d-label">&rarr; Saves /events to RequestCache</span>
+         <span class="d-label">&rarr; Redirects to /login</span>
+  <span class="d-arrow">v</span>
+<span class="d-client">Browser: 302 &rarr; /login</span></div>
+  </div>
+</div>
+
+<!-- SLIDE 9: Login Flow -->
+<div class="slide">
+  <div class="content">
+    <h2>Flow: Login POST</h2>
+    <p class="subtitle">User submits credentials</p>
+    <div class="diagram" style="margin-top:14px;font-size:0.85em;">
+<span class="d-client">Browser: POST /login (username=user, password=xxx, _csrf=token)</span>
+  <span class="d-arrow">v</span>
+<span class="d-filter">[5]</span> <span class="d-label">CsrfFilter</span>  <span class="d-label">&rarr; Validates _csrf &rarr; VALID</span>
+<span class="d-filter">[6]</span> <span class="d-label">LogoutFilter</span> <span class="d-label">&rarr; Not /logout, skip</span>
+  <span class="d-arrow">v</span>
+<span class="d-filter">[7]</span> <span class="d-data">UsernamePasswordAuthenticationFilter</span>
+       <span class="d-label">&rarr; POST /login matches! INTERCEPT!</span>
+       <span class="d-label">&rarr; Extract username + password</span>
+       <span class="d-label">&rarr; Create UsernamePasswordAuthenticationToken</span>
+       <span class="d-label">&rarr; Call AuthenticationManager.authenticate()</span>
+            <span class="d-arrow">v</span>
+       <span class="d-data">AuthenticationManager</span>
+            <span class="d-arrow">v</span>
+       <span class="d-data">DaoAuthenticationProvider</span>
+            <span class="d-arrow">v</span>
+       <span class="d-data">UserDetailsService.loadUserByUsername("user")</span>
+            <span class="d-arrow">v</span>
+       <span class="d-data">PasswordEncoder.matches(raw, stored)</span>
+            <span class="d-arrow">v</span>
+       <span class="d-label">SUCCESS! &rarr; Store Authentication in SecurityContext</span>
+       <span class="d-label">&rarr; Create session &rarr; Replay saved /events from RequestCache</span>
+  <span class="d-arrow">v</span>
+<span class="d-client">Browser: 302 &rarr; /events (with JSESSIONID cookie)</span></div>
+  </div>
+</div>
+
+<!-- SLIDE 10: SecurityContext -->
+<div class="slide">
+  <div class="content">
+    <h2>SecurityContext & SecurityContextHolder</h2>
+    <p class="subtitle">Where the authenticated user lives</p>
+    <div class="two-col" style="margin-top:20px;">
+      <div>
+        <div class="diagram"><span class="d-filter">SecurityContextHolder</span> <span class="d-label">(ThreadLocal)</span>
+  <span class="d-arrow">|</span>
+  <span class="d-arrow">v</span>
+<span class="d-filter">SecurityContext</span>
+  <span class="d-arrow">|</span>
+  <span class="d-arrow">v</span>
+<span class="d-filter">Authentication</span>
+  <span class="d-arrow">+--</span> <span class="d-data">principal</span>      <span class="d-label">(UserDetails)</span>
+  <span class="d-arrow">+--</span> <span class="d-data">credentials</span>    <span class="d-label">(erased after login)</span>
+  <span class="d-arrow">+--</span> <span class="d-data">authorities</span>    <span class="d-label">(roles/permissions)</span>
+  <span class="d-arrow">+--</span> <span class="d-data">authenticated</span>  <span class="d-label">(true/false)</span></div>
+        <div class="highlight-box" style="margin-top:12px;"><strong>ThreadLocal</strong> = each request thread has its own copy. Accessible anywhere without passing it.</div>
+      </div>
+      <div>
+<pre><span class="cm">// Access current user ANYWHERE:</span>
+
+<span class="cm">// Option 1: Static</span>
+Authentication auth = SecurityContextHolder
+  .<span class="fn">getContext</span>().<span class="fn">getAuthentication</span>();
+String user = auth.<span class="fn">getName</span>();
+
+<span class="cm">// Option 2: @AuthenticationPrincipal</span>
+<span class="ann">@GetMapping</span>(<span class="str">"/profile"</span>)
+<span class="kw">public</span> String <span class="fn">profile</span>(
+    <span class="ann">@AuthenticationPrincipal</span>
+    UserDetails user) {
+  <span class="kw">return</span> user.<span class="fn">getUsername</span>();
+}
+
+<span class="cm">// Option 3: Principal</span>
+<span class="ann">@GetMapping</span>(<span class="str">"/me"</span>)
+<span class="kw">public</span> String <span class="fn">me</span>(Principal p) {
+  <span class="kw">return</span> p.<span class="fn">getName</span>();
+}</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 11: ExceptionTranslationFilter -->
+<div class="slide">
+  <div class="content">
+    <h2>ExceptionTranslationFilter</h2>
+    <p class="subtitle">Converts security exceptions to HTTP responses</p>
+    <div class="two-col" style="margin-top:16px;">
+      <div>
+<pre><span class="cm">// Pseudo-code:</span>
+<span class="kw">try</span> {
+  filterChain.<span class="fn">doFilter</span>(req, res);
+}
+<span class="kw">catch</span> (AccessDeniedException ex) {
+  <span class="kw">if</span> (<span class="fn">isAnonymous</span>(auth)) {
+    <span class="cm">// Not logged in</span>
+    requestCache.<span class="fn">saveRequest</span>(req);
+    entryPoint.<span class="fn">commence</span>(req, res);
+    <span class="cm">// &rarr; Redirect to /login</span>
+  } <span class="kw">else</span> {
+    <span class="cm">// Logged in, wrong role</span>
+    accessDeniedHandler
+      .<span class="fn">handle</span>(req, res, ex);
+    <span class="cm">// &rarr; 403 Forbidden</span>
+  }
+}</pre>
+      </div>
+      <div>
+        <div class="card card-green" style="margin-bottom:14px;"><h3>Not Authenticated</h3><ul class="list-green"><li>Save original URL to session</li><li>Redirect to <code>/login</code></li><li>After login, replay original URL</li></ul></div>
+        <div class="card card-pink"><h3>Authenticated but Forbidden</h3><ul class="list-pink"><li>User IS logged in</li><li>Lacks required role</li><li>Returns <strong>403 Forbidden</strong></li></ul></div>
+        <div class="highlight-box" style="margin-top:10px;">This is why you land on the page you originally tried to visit after login!</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 12: Multiple Chains -->
+<div class="slide">
+  <div class="content">
+    <h2>Multiple SecurityFilterChains</h2>
+    <p class="subtitle">Different security for different URL patterns</p>
+<pre style="margin-top:16px;">
+<span class="ann">@Configuration</span>
+<span class="kw">public class</span> <span class="fn">SecurityConfig</span> {
+
+  <span class="ann">@Bean</span> <span class="ann">@Order(1)</span>  <span class="cm">// First match wins!</span>
+  <span class="kw">public</span> SecurityFilterChain <span class="fn">apiChain</span>(HttpSecurity http) <span class="kw">throws</span> Exception {
+    http.<span class="fn">securityMatcher</span>(<span class="str">"/api/**"</span>)           <span class="cm">// Only /api/**</span>
+      .<span class="fn">authorizeHttpRequests</span>(a -> a.<span class="fn">anyRequest</span>().<span class="fn">authenticated</span>())
+      .<span class="fn">httpBasic</span>(withDefaults())              <span class="cm">// API = HTTP Basic</span>
+      .<span class="fn">csrf</span>(c -> c.<span class="fn">disable</span>());                <span class="cm">// No CSRF for APIs</span>
+    <span class="kw">return</span> http.<span class="fn">build</span>();
+  }
+
+  <span class="ann">@Bean</span> <span class="ann">@Order(2)</span>
+  <span class="kw">public</span> SecurityFilterChain <span class="fn">webChain</span>(HttpSecurity http) <span class="kw">throws</span> Exception {
+    http.<span class="fn">authorizeHttpRequests</span>(a -> a.<span class="fn">anyRequest</span>().<span class="fn">authenticated</span>())
+      .<span class="fn">formLogin</span>(withDefaults());              <span class="cm">// Web = Form login</span>
+    <span class="kw">return</span> http.<span class="fn">build</span>();
+  }
+}
+</pre>
+    <div class="highlight-box" style="text-align:center;"><code>@Order</code> = priority. <code>securityMatcher()</code> = URL scope. First match wins.</div>
+  </div>
+</div>
+
+<!-- SLIDE 13: Debug Logging -->
+<div class="slide">
+  <div class="content">
+    <h2>See It In Action</h2>
+    <p class="subtitle">Debug logging is ON in this step</p>
+    <div class="two-col" style="margin-top:16px;">
+      <div>
+        <h3>Startup Console</h3>
+<pre style="font-size:0.82em;"><span class="d-data">SPRING SECURITY FILTER CHAIN</span>
+<span class="d-label">Chain #1: DefaultSecurityFilterChain</span>
+ <span class="d-filter">[ 1] DisableEncodeUrlFilter</span>
+ <span class="d-filter">[ 2] WebAsyncManagerIntegrationFilter</span>
+ <span class="d-filter">[ 3] SecurityContextHolderFilter</span>
+ <span class="d-filter">[ 4] HeaderWriterFilter</span>
+ <span class="d-filter">[ 5] CsrfFilter</span>
+ <span class="d-filter">[ 6] LogoutFilter</span>
+ <span class="d-filter">[ 7] UsernamePasswordAuthFilter</span>
+ <span class="d-filter">[ 8] DefaultLoginPageGeneratingFilter</span>
+ <span class="d-filter">[ 9] DefaultLogoutPageGeneratingFilter</span>
+ <span class="d-filter">[10] BasicAuthenticationFilter</span>
+ <span class="d-filter">[11] RequestCacheAwareFilter</span>
+ <span class="d-filter">[12] SecurityContextHolderAwareFilter</span>
+ <span class="d-filter">[13] AnonymousAuthenticationFilter</span>
+ <span class="d-filter">[14] ExceptionTranslationFilter</span>
+ <span class="d-filter">[15] AuthorizationFilter</span></pre>
+      </div>
+      <div>
+        <h3>Request Debug Log</h3>
+<pre style="font-size:0.82em;"><span class="cm">// GET /events (unauthenticated):</span>
+
+<span class="d-label">DEBUG</span> <span class="d-filter">FilterChainProxy</span>
+  Securing <span class="str">GET /events/</span>
+
+<span class="d-label">DEBUG</span> <span class="d-filter">AuthorizationFilter</span>
+  <span class="tag">Failed to authorize</span>
+  AnonymousAuthenticationToken
+
+<span class="d-label">DEBUG</span> <span class="d-filter">ExceptionTranslationFilter</span>
+  Sending to authentication
+  entry point (access denied)
+
+<span class="d-label">DEBUG</span> <span class="d-filter">HttpSessionRequestCache</span>
+  Saved request to session
+
+<span class="d-label">DEBUG</span> <span class="d-filter">DefaultRedirectStrategy</span>
+  Redirecting to <span class="str">/login</span></pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 14: Summary -->
+<div class="slide">
+  <div class="content">
+    <h2>Architecture Summary</h2>
+    <div class="grid grid-3" style="margin-top:20px;">
+      <div class="card card-blue"><h3>Layer 1: Bridge</h3><p><strong>DelegatingFilterProxy</strong><br>Servlet &rarr; Spring<br>Auto-registered by Boot</p></div>
+      <div class="card card-purple"><h3>Layer 2: Router</h3><p><strong>FilterChainProxy</strong><br>Routes to right chain<br>Bean: <code>springSecurityFilterChain</code></p></div>
+      <div class="card card-green"><h3>Layer 3: Chain</h3><p><strong>SecurityFilterChain</strong><br>15+ filters in sequence<br>Configured via <code>HttpSecurity</code></p></div>
+    </div>
+    <div class="highlight-box" style="margin-top:16px;text-align:center;"><strong>Key insight:</strong> Each <code>http.formLogin()</code>, <code>http.csrf()</code> adds a specific filter. The DSL builds the chain.</div>
+  </div>
+</div>
+
+<!-- SLIDE 15: Takeaways -->
+<div class="slide">
+  <div class="content">
+    <h2>Key Takeaways</h2>
+    <div class="grid grid-2" style="margin-top:20px;">
+      <div class="card card-green"><h3>Remember</h3><ul class="list-green"><li>Spring Security = Servlet Filter chain</li><li>DelegatingFilterProxy bridges Tomcat &rarr; Spring</li><li>FilterChainProxy routes to right chain</li><li>SecurityFilterChain = what you configure</li><li>SecurityContextHolder = current user (ThreadLocal)</li><li>ExceptionTranslationFilter handles auth failures</li></ul></div>
+      <div class="card card-orange"><h3>Common Mistakes</h3><ul class="list-orange"><li>Forgetting filter order matters</li><li>Not using debug logging when stuck</li><li>Thinking <code>formLogin()</code> IS the filter</li><li>Not understanding <code>@Order</code></li><li>Placing custom filters at wrong position</li></ul></div>
+    </div>
+    <div style="text-align:center;margin-top:30px;"><h3 style="color:var(--accent3);">Next: Step 03 &mdash; SecurityFilterChain Bean</h3><p style="color:var(--muted);">Writing your first custom security configuration</p></div>
+  </div>
+</div>
+
+<div class="nav">
+  <button onclick="prev()">&larr; Prev</button>
+  <span class="counter" id="counter">1 / 15</span>
+  <button onclick="next()">Next &rarr;</button>
+</div>
+
+<script>
+  let c=0;const s=document.querySelectorAll('.slide'),t=s.length;
+  function show(n){s[c].classList.remove('active');c=(n+t)%t;s[c].classList.add('active');document.getElementById('counter').textContent=`${c+1} / ${t}`;document.getElementById('progress').style.width=`${((c+1)/t)*100}%`;}
+  function next(){show(c+1);}function prev(){show(c-1);}
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();next();}if(e.key==='ArrowLeft'){e.preventDefault();prev();}});
+  let tx=0;document.addEventListener('touchstart',e=>tx=e.touches[0].clientX);document.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>50)d>0?next():prev();});
+  show(0);
+</script>
+</body>
+</html>

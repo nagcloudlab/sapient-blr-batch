@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>All Events</title>
+    <!--/*/ <th:block th:insert="~{fragments/headerinc :: head}"></th:block> /*/-->
+</head>
+<body>
+<div class="container">
+    <!--/*/ <th:block th:insert="~{fragments/header :: header}"></th:block> /*/-->
+
+    <h3>All Events</h3>
+    <p class="text-muted">This shows all events for all users. Once secured, only administrators should see this.</p>
+
+    <div class="text-end mb-3">
+        <a class="btn btn-primary" th:href="@{/events/form}">Create Event</a>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+        <tr>
+            <th>Date/Time</th>
+            <th>Owner</th>
+            <th>Attendee</th>
+            <th>Summary</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${events.empty}">
+            <td colspan="4" class="text-center text-muted">No events.</td>
+        </tr>
+        <tr th:each="event : ${events}">
+            <td th:text="${#calendars.format(event.dateWhen, 'yyyy-MM-dd HH:mm')}"></td>
+            <td th:text="${event.owner.name}"></td>
+            <td th:text="${event.attendee.name}"></td>
+            <td><a th:href="@{'/events/{id}'(id=${event.id})}" th:text="${event.summary}"></a></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!--/*/ <th:block th:insert="~{fragments/footer :: foot}"></th:block> /*/-->
+</div>
+</body>
+</html>
