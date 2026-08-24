@@ -1,0 +1,89 @@
+# FoodExpress API Gateway Configuration
+#
+# CONTAINS BUGS - Find and fix them!
+#
+# BUG 1: Wrong route prefix - /restaurants should be /api/restaurants
+# BUG 2: Missing rate limiting - no protection against abuse
+# BUG 3: No JWT validation - endpoints are unprotected
+
+server:
+  port: 8000
+
+spring:
+  application:
+    name: foodexpress-gateway
+  cloud:
+    gateway:
+      routes:
+        # Restaurant Service
+        # BUG 1: Route prefix is wrong - clients call /api/restaurants
+        # but this routes /restaurants to the backend
+        # Frontend sends requests to /api/restaurants, so this route
+        # will never match, returning 404 to clients
+        - id: restaurant-service
+          uri: http://restaurant-service:8081
+          predicates:
+            - Path=/restaurants/**
+          filters:
+            - StripPrefix=1
+
+        # Order Service
+        # BUG 1: Same wrong prefix issue
+        - id: order-service
+          uri: http://order-service:8082
+          predicates:
+            - Path=/orders/**
+          filters:
+            - StripPrefix=1
+
+        # Delivery Service
+        - id: delivery-service
+          uri: http://delivery-service:8083
+          predicates:
+            - Path=/deliveries/**
+          filters:
+            - StripPrefix=1
+
+        # Payment Service
+        - id: payment-service
+          uri: http://payment-service:8084
+          predicates:
+            - Path=/payments/**
+          filters:
+            - StripPrefix=1
+
+      # BUG 2: No rate limiting configuration!
+      # Without rate limiting, a single client could flood the API
+      # with requests, causing denial of service for other users.
+      # Should add RequestRateLimiter filter.
+
+      # BUG 3: No JWT/authentication filter!
+      # All endpoints are publicly accessible without authentication.
+      # Should add a JWT validation filter to protect sensitive endpoints
+      # like /api/orders and /api/payments.
+
+      # Default filters (applied to all routes)
+      default-filters:
+        - name: Retry
+          args:
+            retries: 3
+            statuses: BAD_GATEWAY
+
+# CORS configuration
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
+
+# Logging
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty: INFO

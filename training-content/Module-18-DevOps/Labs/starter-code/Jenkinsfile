@@ -1,0 +1,86 @@
+/**
+ * FoodExpress CI/CD Pipeline - Jenkinsfile
+ *
+ * CONTAINS BUGS - Find and fix them!
+ *
+ * BUG 1: Missing 'Test' stage - pipeline goes straight from Build to Deploy
+ * BUG 2: Wrong branch name - uses 'main' but repo uses 'master'
+ * BUG 3: No cleanup step - workspace is never cleaned, artifacts accumulate
+ */
+
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME    = 'foodexpress'
+        DOCKER_REG  = 'registry.foodexpress.local'
+        // BUG 2: Wrong branch name - the repository uses 'master', not 'main'
+        DEPLOY_BRANCH = 'main'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "Checking out source code..."
+                // BUG 2: References wrong branch name from environment variable
+                git branch: "${DEPLOY_BRANCH}",
+                    url: 'https://github.com/foodexpress/app.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "Building ${APP_NAME}..."
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        // BUG 1: Test stage is completely MISSING!
+        // Pipeline goes directly from Build to Deploy without running tests.
+        // There should be a stage here that runs: mvn test
+        // This means untested code could be deployed to production.
+
+        stage('Docker Build') {
+            steps {
+                echo "Building Docker image..."
+                sh """
+                    docker build -t ${DOCKER_REG}/${APP_NAME}:${BUILD_NUMBER} .
+                    docker tag ${DOCKER_REG}/${APP_NAME}:${BUILD_NUMBER} \
+                               ${DOCKER_REG}/${APP_NAME}:latest
+                """
+            }
+        }
+
+        stage('Deploy to Staging') {
+            steps {
+                echo "Deploying to staging environment..."
+                sh """
+                    docker push ${DOCKER_REG}/${APP_NAME}:${BUILD_NUMBER}
+                    kubectl set image deployment/${APP_NAME} \
+                        ${APP_NAME}=${DOCKER_REG}/${APP_NAME}:${BUILD_NUMBER} \
+                        --namespace=staging
+                """
+            }
+        }
+
+        stage('Deploy to Production') {
+            when {
+                branch "${DEPLOY_BRANCH}"
+            }
+            steps {
+                input message: 'Deploy to production?', ok: 'Deploy'
+                echo "Deploying to production..."
+                sh """
+                    kubectl set image deployment/${APP_NAME} \
+                        ${APP_NAME}=${DOCKER_REG}/${APP_NAME}:${BUILD_NUMBER} \
+                        --namespace=production
+                """
+            }
+        }
+    }
+
+    // BUG 3: No post block with cleanup!
+    // Without 'post { always { cleanWs() } }', the workspace is never cleaned.
+    // Old build artifacts, test reports, and Docker layers accumulate on the
+    // Jenkins agent, eventually filling up disk space.
+}

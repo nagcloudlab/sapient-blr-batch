@@ -1,0 +1,107 @@
+/**
+ * FoodExpress CI/CD Pipeline - Jenkinsfile (FIXED)
+ *
+ * ALL BUGS FIXED:
+ * FIX 1: Added 'Test' stage between Build and Docker Build
+ * FIX 2: Corrected branch name from 'main' to 'master'
+ * FIX 3: Added post block with cleanup step
+ */
+
+pipeline {
+    agent any
+
+    environment {
+        APP_NAME    = 'foodexpress'
+        DOCKER_REG  = 'registry.foodexpress.local'
+        // FIX 2: Corrected branch name to match repository
+        DEPLOY_BRANCH = 'master'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                echo "Checking out source code..."
+                // FIX 2: Now references correct branch 'master'
+                git branch: "${DEPLOY_BRANCH}",
+                    url: 'https://github.com/foodexpress/app.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "Building ${APP_NAME}..."
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        // FIX 1: Added Test stage - runs unit and integration tests
+        stage('Test') {
+            steps {
+                echo "Running tests for ${APP_NAME}..."
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+                failure {
+                    echo "Tests failed! Pipeline will not proceed to deployment."
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                echo "Building Docker image..."
+                sh """
+                    docker build -t ${DOCKER_REG}/${APP_NAME}:${BUILD_NUMBER} .
+                    docker tag ${DOCKER_REG}/${APP_NAME}:${BUILD_NUMBER} \
+                               ${DOCKER_REG}/${APP_NAME}:latest
+                """
+            }
+        }
+
+        stage('Deploy to Staging') {
+            steps {
+                echo "Deploying to staging environment..."
+                sh """
+                    docker push ${DOCKER_REG}/${APP_NAME}:${BUILD_NUMBER}
+                    kubectl set image deployment/${APP_NAME} \
+                        ${APP_NAME}=${DOCKER_REG}/${APP_NAME}:${BUILD_NUMBER} \
+                        --namespace=staging
+                """
+            }
+        }
+
+        stage('Deploy to Production') {
+            when {
+                branch "${DEPLOY_BRANCH}"
+            }
+            steps {
+                input message: 'Deploy to production?', ok: 'Deploy'
+                echo "Deploying to production..."
+                sh """
+                    kubectl set image deployment/${APP_NAME} \
+                        ${APP_NAME}=${DOCKER_REG}/${APP_NAME}:${BUILD_NUMBER} \
+                        --namespace=production
+                """
+            }
+        }
+    }
+
+    // FIX 3: Added post block with cleanup
+    post {
+        always {
+            echo "Cleaning up workspace..."
+            cleanWs()
+        }
+        success {
+            echo "Pipeline completed successfully!"
+            // Optionally notify team via Slack or email
+        }
+        failure {
+            echo "Pipeline failed! Check logs for details."
+            // Optionally notify team of failure
+        }
+    }
+}

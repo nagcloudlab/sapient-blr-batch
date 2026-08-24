@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DevOps Fundamentals</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 18</div>
+    <div class="t-main">DevOps Fundamentals</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>Why DevOps? The Problem It Solves</td></tr><tr><td>02</td><td>DevOps Mindset & Culture</td></tr><tr><td>03</td><td>The 7 C's of DevOps</td></tr><tr><td>04</td><td>SCM & Version Control Concepts</td></tr><tr><td>05</td><td>CI/CD Pipeline Overview</td></tr><tr><td>06</td><td>Automation in DevOps</td></tr><tr><td>07</td><td>DevOps Pipeline Deep Dive</td></tr><tr><td>08</td><td>WSDL & Web Services in DevOps Context</td></tr><tr><td>09</td><td>DevOps Tools Ecosystem</td></tr><tr><td>10</td><td>Lab & Wrap-up</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">The World Before DevOps</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The "Wall of Confusion"</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8</div><div class="cb-cd"> Development Team          |  WALL  |         Operations Team
+                           |        |
+ "Here's the code,         |   OF   |    "It doesn't work
+  it works on my           |        |     in production!"
+  machine!"                |CONFUSN |
+                           |        |
+ Focus: Features           |        |    Focus: Stability
+ Speed of delivery         |        |    Uptime &amp; reliability</div></div></div>
+<ul class="bl"><li>Dev and Ops had <strong>conflicting goals</strong></li><li>Deployments were manual, risky, and infrequent</li><li>Feedback loops were weeks or months long</li></ul></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">The Cost of Silos</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Traditional Software Delivery</div>
+<table class="tbl"><thead><tr><th>Problem</th><th>Impact</th></tr></thead><tbody><tr><td>Manual deployments</td><td>Hours of downtime per release</td></tr><tr><td>No shared ownership</td><td>"Not my problem" culture</td></tr><tr><td>Infrequent releases</td><td>Big-bang deployments with high risk</td></tr><tr><td>Late testing</td><td>Bugs found in production</td></tr><tr><td>No monitoring feedback</td><td>Slow incident response</td></tr></tbody></table>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>FoodExpress example:</strong> Before DevOps, FoodExpress deployed once a month. Each deployment took 8 hours and caused 30 minutes of downtime. Customer complaints spiked after every release.</p></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">What Is DevOps?</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Definition</div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>DevOps</strong> is a set of practices, tools, and cultural philosophies that automate and integrate the processes between software development and IT operations teams.</div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Key Principles</div>
+<ul class="bl"><li><strong>Collaboration</strong> over silos</li><li><strong>Automation</strong> over manual processes</li><li><strong>Continuous improvement</strong> over big-bang changes</li><li><strong>Measurement</strong> over guesswork</li><li><strong>Sharing</strong> knowledge across teams</li></ul></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">DevOps Is NOT Just Tools</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">                DevOps = Culture + Practices + Tools
+                ┌─────────────────────────────────┐
+                │           CULTURE                │
+                │    Collaboration, Trust,          │
+                │    Shared Responsibility          │
+                │  ┌───────────────────────────┐   │
+                │  │       PRACTICES            │   │
+                │  │  CI/CD, IaC, Monitoring    │   │
+                │  │  ┌─────────────────────┐   │   │
+                │  │  │      TOOLS           │   │   │
+                │  │  │ Jenkins, Docker, K8s │   │   │
+                │  │  └─────────────────────┘   │   │
+                │  └───────────────────────────┘   │
+                └─────────────────────────────────┘</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Tools without culture change = expensive shelfware</p></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Why DevOps? Business Value</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Metric</th><th>Without DevOps</th><th>With DevOps</th></tr></thead><tbody><tr><td>Deployment frequency</td><td>Monthly</td><td>Multiple/day</td></tr><tr><td>Lead time for changes</td><td>Months</td><td>Hours</td></tr><tr><td>Change failure rate</td><td>30-50%</td><td>0-15%</td></tr><tr><td>Mean time to recovery</td><td>Days</td><td>Minutes</td></tr><tr><td>Customer satisfaction</td><td>Low</td><td>High</td></tr></tbody></table>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><em>Source: DORA State of DevOps Reports</em></p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>FoodExpress after DevOps:</strong> Deploys 10x daily, MTTR dropped from 4 hours to 15 minutes, customer complaints reduced by 60%.</p></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">DevOps Mindset</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Cultural Shift Required</div>
+<table class="tbl"><thead><tr><th>Traditional Mindset</th><th>DevOps Mindset</th></tr></thead><tbody><tr><td>"That's not my job"</td><td>"We own this together"</td></tr><tr><td>"Don't change it, it works"</td><td>"Continuously improve"</td></tr><tr><td>"We'll test later"</td><td>"Shift left, test early"</td></tr><tr><td>"Deploy on Friday night"</td><td>"Deploy anytime with confidence"</td></tr><tr><td>"Hide failures"</td><td>"Fail fast, learn faster"</td></tr><tr><td>"Manual is fine"</td><td>"Automate everything repeatable"</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">The Three Ways of DevOps</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Principles from "The Phoenix Project"</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">Way 1: Flow (Left to Right)
+Dev ──────────────────────────────&gt; Ops ──────&gt; Customer
+     Fast flow of work from dev to production
+
+Way 2: Feedback (Right to Left)
+Dev &lt;────────────────────────────── Ops &lt;────── Customer
+     Fast and constant feedback at all stages
+
+Way 3: Continuous Learning
+     ┌──────────────────────────────┐
+     │  Experimentation &amp; Learning  │
+     │  Risk-taking &amp; Repetition    │
+     └──────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct">FRAMEWORKS</span></div>
+    <div class="tt">CALMS Framework</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Letter</th><th>Meaning</th><th>Description</th></tr></thead><tbody><tr><td><strong>C</strong></td><td>Culture</td><td>Shared responsibility, no blame</td></tr><tr><td><strong>A</strong></td><td>Automation</td><td>Automate builds, tests, deploys</td></tr><tr><td><strong>L</strong></td><td>Lean</td><td>Eliminate waste, small batches</td></tr><tr><td><strong>M</strong></td><td>Measurement</td><td>Metrics-driven decisions</td></tr><tr><td><strong>S</strong></td><td>Sharing</td><td>Knowledge sharing across teams</td></tr></tbody></table>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>FoodExpress example:</strong> The team shares post-incident reviews openly. Every outage becomes a learning opportunity, not a blame session.</p></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">The 7 C's of DevOps</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13</div><div class="cb-cd">┌────────────────────────────────────────────────────────────┐
+│                                                            │
+│  1. Continuous    2. Continuous    3. Continuous            │
+│     Development      Integration     Testing               │
+│        │                │               │                   │
+│        ▼                ▼               ▼                   │
+│  4. Continuous    5. Continuous    6. Continuous            │
+│     Deployment       Monitoring      Feedback              │
+│        │                │               │                   │
+│        ▼                ▼               ▼                   │
+│              7. Continuous Operations                       │
+│                                                            │
+└────────────────────────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">7 C's: Continuous Development</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Plan & Code</div>
+<ul class="bl"><li>Agile planning: user stories, sprint planning</li><li>Version control: Git for all code and config</li><li>IDE integration: linting, formatting, pre-commit hooks</li></ul>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">FoodExpress Example:
+├── Jira board with sprint backlog
+├── Feature branches per user story
+├── Code standards enforced by ESLint/Checkstyle
+└── Pre-commit hooks run tests before push</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Tools:</strong> Jira, Git, VS Code, IntelliJ IDEA</p></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">7 C's: Continuous Integration (CI)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Build & Merge Frequently</div>
+<ul class="bl"><li>Developers merge code to main branch <strong>multiple times per day</strong></li><li>Each merge triggers an automated build</li><li>Automated tests run on every build</li><li>Broken builds are fixed <strong>immediately</strong></li></ul>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">Developer commits ──&gt; Build triggered ──&gt; Tests run ──&gt; Results
+     │                     │                  │            │
+     │                     │                  │          Pass ✓
+     │                     │                  │          Fail ✗
+     │                     │                  │            │
+     └─────────────────────┴──────────────────┴── Feedback</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>FoodExpress:</strong> Every push to <code>main</code> triggers Jenkins build + 500 unit tests in 3 minutes.</p></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">7 C's: Continuous Testing</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Test at Every Stage</div>
+<table class="tbl"><thead><tr><th>Test Type</th><th>When</th><th>Duration</th><th>Scope</th></tr></thead><tbody><tr><td>Unit tests</td><td>Every commit</td><td>Seconds</td><td>Functions</td></tr><tr><td>Integration tests</td><td>Every build</td><td>Minutes</td><td>Components</td></tr><tr><td>API tests</td><td>Every build</td><td>Minutes</td><td>Endpoints</td></tr><tr><td>UI tests</td><td>Nightly</td><td>Hours</td><td>Full flows</td></tr><tr><td>Performance tests</td><td>Weekly</td><td>Hours</td><td>Load/stress</td></tr><tr><td>Security tests</td><td>Weekly</td><td>Hours</td><td>Vulnerabilities</td></tr></tbody></table>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Shift Left:</strong> Find bugs earlier when they are cheaper to fix.</p></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">7 C's: Continuous Deployment</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Automated Release to Production</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3</div><div class="cb-cd">Code ──&gt; Build ──&gt; Test ──&gt; Stage ──&gt; Approve ──&gt; Production
+  │        │        │        │          │            │
+  Auto     Auto     Auto     Auto    Manual/Auto    Auto</div></div></div>
+<ul class="bl"><li><strong>Continuous Delivery:</strong> Automated up to staging, manual approval for production</li><li><strong>Continuous Deployment:</strong> Fully automated, every passing build goes to production</li></ul>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>FoodExpress:</strong> Uses Continuous Delivery with manual approval gate for production. Feature flags control rollout.</p></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">7 C's: Continuous Monitoring</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Observe Everything in Production</div>
+<ul class="bl"><li><strong>Infrastructure:</strong> CPU, memory, disk, network</li><li><strong>Application:</strong> Response time, error rate, throughput</li><li><strong>Business:</strong> Orders/hour, cart abandonment, revenue</li><li><strong>User experience:</strong> Page load time, bounce rate</li></ul>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">FoodExpress Monitoring Dashboard:
+┌──────────────────────────────────────┐
+│ Orders/min: 245  │  Errors: 0.1%    │
+│ Avg response: 120ms │ CPU: 45%      │
+│ Active users: 1,200 │ Memory: 62%   │
+└──────────────────────────────────────┘</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Tools:</strong> Prometheus, Grafana, ELK Stack, Datadog</p></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">7 C's: Continuous Feedback</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Close the Loop</div>
+<ul class="bl"><li>Monitoring alerts feed back to development</li><li>Customer feedback drives feature priorities</li><li>Post-incident reviews improve processes</li><li>Metrics inform architecture decisions</li></ul>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5</div><div class="cb-cd">Production Alert ──&gt; On-Call Engineer ──&gt; Incident Channel
+       │                    │                    │
+       │              Investigate            Collaborate
+       │                    │                    │
+       └──&gt; Root Cause ──&gt; Fix ──&gt; Deploy ──&gt; Verify</div></div></div></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">7 C's: Continuous Operations</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Zero Downtime, Always Available</div>
+<ul class="bl"><li>Blue-green deployments</li><li>Rolling updates</li><li>Canary releases</li><li>Feature flags</li><li>Automated scaling</li></ul>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>FoodExpress:</strong> Uses rolling updates in Kubernetes. New versions are deployed to 10% of pods first, monitored for 15 minutes, then rolled to 100%.</p></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">SCM: Software Configuration Management</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What Is SCM?</div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">Managing and tracking changes to software code, configurations, and documentation throughout the development lifecycle.</div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">SCM Components</div>
+<table class="tbl"><thead><tr><th>Component</th><th>Purpose</th><th>Example</th></tr></thead><tbody><tr><td>Version Control</td><td>Track code changes</td><td>Git</td></tr><tr><td>Build Management</td><td>Compile and package</td><td>Maven, npm</td></tr><tr><td>Environment Config</td><td>Manage env-specific settings</td><td>.env files, ConfigMaps</td></tr><tr><td>Release Management</td><td>Track what's deployed where</td><td>Tags, release notes</td></tr><tr><td>Change Management</td><td>Control and approve changes</td><td>PRs, JIRA workflow</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Version Control: Why It Matters</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Without Version Control</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">project/
+├── app_v1.js
+├── app_v2.js
+├── app_v2_final.js
+├── app_v2_final_REAL.js
+├── app_v2_final_REAL_fixed.js
+└── app_v2_final_REAL_fixed_FINAL.js   ← Which one is in production?</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">With Version Control (Git)</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4</div><div class="cb-cd">commit a1b2c3d  Fix: Price display NaN bug (FE-001)
+commit d4e5f6a  Feature: Add combo meal support
+commit g7h8i9j  Refactor: Extract price formatter utility
+commit k0l1m2n  Initial commit</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">Every change tracked, reversible, and attributable.</p></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">CI/CD Pipeline: The Assembly Line</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">End-to-End Pipeline</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐
+│  CODE   │──&gt;│  BUILD  │──&gt;│  TEST   │──&gt;│  STAGE  │──&gt;│ DEPLOY  │
+│         │   │         │   │         │   │         │   │         │
+│ Git     │   │ Maven   │   │ JUnit   │   │ Docker  │   │ K8s     │
+│ Branch  │   │ npm     │   │ Jest    │   │ Compose │   │ Helm    │
+└─────────┘   └─────────┘   └─────────┘   └─────────┘   └─────────┘
+     │              │             │              │             │
+     └──────────────┴─────────────┴──────────────┴─────────────┘
+                        Jenkins / GitHub Actions</div></div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">CI/CD Pipeline Example: FoodExpress</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.gro</span><span class="cb-lg">GROOVY</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31</div><div class="cb-cd">// Jenkinsfile for FoodExpress Order Service
+pipeline {
+    agent any
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/foodexpress/order-service'
+            }
+        }
+        stage('Build') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t foodexpress/order-service:${BUILD_NUMBER} .'
+            }
+        }
+        stage('Deploy to Staging') {
+            steps {
+                sh 'kubectl apply -f k8s/staging/'
+            }
+        }
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Automation in DevOps</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What to Automate</div>
+<table class="tbl"><thead><tr><th>Category</th><th>What</th><th>Tool</th></tr></thead><tbody><tr><td>Code quality</td><td>Linting, formatting</td><td>ESLint, Checkstyle</td></tr><tr><td>Build</td><td>Compile, package</td><td>Maven, npm, Gradle</td></tr><tr><td>Testing</td><td>Unit, integration, E2E</td><td>JUnit, Jest, Selenium</td></tr><tr><td>Security</td><td>Vulnerability scanning</td><td>SonarQube, Snyk</td></tr><tr><td>Infrastructure</td><td>Server provisioning</td><td>Terraform, Ansible</td></tr><tr><td>Deployment</td><td>Release to production</td><td>Jenkins, ArgoCD</td></tr><tr><td>Monitoring</td><td>Alerts and dashboards</td><td>Prometheus, Grafana</td></tr><tr><td>Incident</td><td>Auto-scaling, self-healing</td><td>Kubernetes</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Automation: The ROI Calculation</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Should You Automate It?</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">Time saved per occurrence x Frequency = Total time saved
+
+Example: FoodExpress deployment
+- Manual deployment time: 2 hours
+- Frequency: 10 deployments/week
+- Manual cost: 20 hours/week
+
+Automated deployment:
+- Pipeline setup: 40 hours (one-time)
+- Automated deployment time: 15 minutes
+- Automated cost: 2.5 hours/week
+
+Break-even: 40 / (20 - 2.5) = 2.3 weeks
+Annual savings: 17.5 hours/week x 50 weeks = 875 hours</div></div></div></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Infrastructure as Code (IaC)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Treat Infrastructure Like Application Code</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.yam</span><span class="cb-lg">YAML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18</div><div class="cb-cd"># Terraform: FoodExpress infrastructure
+resource "aws_instance" "order_service" {
+  ami           = "ami-0123456789abcdef0"
+  instance_type = "t3.medium"
+
+  tags = {
+    Name        = "foodexpress-order-service"
+    Environment = "production"
+    Team        = "sustain-engineering"
+  }
+}
+
+resource "aws_db_instance" "foodexpress_db" {
+  engine         = "mysql"
+  engine_version = "8.0"
+  instance_class = "db.t3.medium"
+  allocated_storage = 100
+}</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Benefits:</strong> Version controlled, repeatable, reviewable, auditable</p></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">DevOps Pipeline Deep Dive</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Pipeline Stages in Detail</div>
+<table class="tbl"><thead><tr><th>Stage</th><th>Actions</th><th>Failure Action</th></tr></thead><tbody><tr><td><strong>Source</strong></td><td>Pull code from Git, resolve dependencies</td><td>Alert developer</td></tr><tr><td><strong>Build</strong></td><td>Compile, resolve dependencies, create artifact</td><td>Fail pipeline, notify team</td></tr><tr><td><strong>Unit Test</strong></td><td>Run unit tests, code coverage check</td><td>Fail pipeline, show report</td></tr><tr><td><strong>Static Analysis</strong></td><td>SonarQube scan, security check</td><td>Warn or fail based on severity</td></tr><tr><td><strong>Package</strong></td><td>Create Docker image, push to registry</td><td>Fail pipeline</td></tr><tr><td><strong>Deploy Staging</strong></td><td>Deploy to staging environment</td><td>Rollback, notify team</td></tr><tr><td><strong>Integration Test</strong></td><td>Run E2E tests against staging</td><td>Fail pipeline</td></tr><tr><td><strong>Approval Gate</strong></td><td>Manual or automated approval</td><td>Hold until approved</td></tr><tr><td><strong>Deploy Production</strong></td><td>Rolling update to production</td><td>Auto-rollback</td></tr><tr><td><strong>Smoke Test</strong></td><td>Verify critical paths in production</td><td>Auto-rollback</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Deployment Strategies</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Blue-Green Deployment</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">              Load Balancer
+                   │
+          ┌────────┴────────┐
+          │                 │
+    ┌─────▼─────┐   ┌──────▼────┐
+    │   BLUE    │   │   GREEN   │
+    │ (Current) │   │  (New)    │
+    │  v1.0     │   │  v1.1     │
+    └───────────┘   └───────────┘
+
+Step 1: Deploy v1.1 to Green
+Step 2: Test Green
+Step 3: Switch traffic to Green
+Step 4: Blue becomes standby</div></div></div></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="28">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">Deployment Strategies</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Canary Release</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14</div><div class="cb-cd">              Load Balancer
+                   │
+          ┌────────┴────────┐
+          │ 90%             │ 10%
+    ┌─────▼─────┐   ┌──────▼────┐
+    │  Stable   │   │  Canary   │
+    │  v1.0     │   │  v1.1     │
+    │ (90%)     │   │ (10%)     │
+    └───────────┘   └───────────┘
+
+Step 1: Deploy v1.1 to 10% of instances
+Step 2: Monitor error rate, latency
+Step 3: Gradually increase to 100%
+Step 4: Rollback if metrics degrade</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>FoodExpress:</strong> Uses canary for payment service changes (high risk).</p></div>
+    <div class="ft"><span class="fr">28</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="29">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">WSDL & Web Services</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Web Services Description Language</div>
+<ul class="bl"><li>XML-based language for describing web service interfaces</li><li>Defines <strong>operations</strong>, <strong>messages</strong>, and <strong>bindings</strong></li><li>Used primarily with SOAP-based web services</li><li>Being replaced by REST + OpenAPI in modern systems</li></ul>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.xml</span><span class="cb-lg">XML</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21</div><div class="cb-cd">&lt;!-- WSDL Example: FoodExpress Order Service --&gt;
+&lt;definitions name="OrderService"
+  targetNamespace="http://foodexpress.com/orders"&gt;
+
+  &lt;message name="CreateOrderRequest"&gt;
+    &lt;part name="customerId" type="xsd:long"/&gt;
+    &lt;part name="items" type="tns:ItemList"/&gt;
+  &lt;/message&gt;
+
+  &lt;message name="CreateOrderResponse"&gt;
+    &lt;part name="orderId" type="xsd:long"/&gt;
+    &lt;part name="status" type="xsd:string"/&gt;
+  &lt;/message&gt;
+
+  &lt;portType name="OrderPortType"&gt;
+    &lt;operation name="createOrder"&gt;
+      &lt;input message="tns:CreateOrderRequest"/&gt;
+      &lt;output message="tns:CreateOrderResponse"/&gt;
+    &lt;/operation&gt;
+  &lt;/portType&gt;
+&lt;/definitions&gt;</div></div></div></div>
+    <div class="ft"><span class="fr">29</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="30">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">WSDL vs REST/OpenAPI</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Feature</th><th>WSDL/SOAP</th><th>REST/OpenAPI</th></tr></thead><tbody><tr><td>Protocol</td><td>SOAP (XML)</td><td>HTTP (JSON)</td></tr><tr><td>Description</td><td>WSDL (XML)</td><td>OpenAPI (YAML/JSON)</td></tr><tr><td>Complexity</td><td>High</td><td>Low</td></tr><tr><td>Performance</td><td>Slower (XML parsing)</td><td>Faster (JSON)</td></tr><tr><td>Error handling</td><td>SOAP Faults</td><td>HTTP status codes</td></tr><tr><td>Tooling</td><td>Heavy (generated clients)</td><td>Light (curl, Postman)</td></tr><tr><td>Use case</td><td>Enterprise, legacy</td><td>Modern APIs, microservices</td></tr></tbody></table>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>FoodExpress context:</strong> Legacy payment gateway uses SOAP/WSDL. New services use REST. Sustain engineers must handle both.</p></div>
+    <div class="ft"><span class="fr">30</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="31">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">DevOps Tools Ecosystem</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Categorized Tool Landscape</div>
+<table class="tbl"><thead><tr><th>Category</th><th>Tools</th></tr></thead><tbody><tr><td><strong>Source Control</strong></td><td>Git, GitHub, GitLab, Bitbucket</td></tr><tr><td><strong>CI/CD</strong></td><td>Jenkins, GitHub Actions, GitLab CI, CircleCI</td></tr><tr><td><strong>Containerization</strong></td><td>Docker, Podman</td></tr><tr><td><strong>Orchestration</strong></td><td>Kubernetes, Docker Swarm</td></tr><tr><td><strong>Config Management</strong></td><td>Ansible, Chef, Puppet</td></tr><tr><td><strong>IaC</strong></td><td>Terraform, CloudFormation, Pulumi</td></tr><tr><td><strong>Monitoring</strong></td><td>Prometheus, Grafana, Datadog, New Relic</td></tr><tr><td><strong>Logging</strong></td><td>ELK Stack, Splunk, Loki</td></tr><tr><td><strong>Security</strong></td><td>SonarQube, Snyk, Trivy</td></tr><tr><td><strong>Collaboration</strong></td><td>Slack, Teams, PagerDuty</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">31</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="32">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">DevOps in Sustain Engineering</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Why DevOps Matters for Sustain Teams</div>
+<table class="tbl"><thead><tr><th>Sustain Activity</th><th>DevOps Practice</th></tr></thead><tbody><tr><td>Bug fixes</td><td>CI/CD for rapid, safe deployment</td></tr><tr><td>Production incidents</td><td>Monitoring + alerting + runbooks</td></tr><tr><td>Performance issues</td><td>Observability + auto-scaling</td></tr><tr><td>Security patches</td><td>Automated vulnerability scanning</td></tr><tr><td>Configuration changes</td><td>IaC + version control</td></tr><tr><td>Knowledge transfer</td><td>Documentation as code</td></tr></tbody></table>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>FoodExpress sustain team uses:</strong> Jenkins for CI/CD, Docker for containers, Kubernetes for orchestration, Prometheus/Grafana for monitoring.</p></div>
+    <div class="ft"><span class="fr">32</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="33">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">DevOps Maturity Model</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Level</th><th>Description</th><th>FoodExpress Status</th></tr></thead><tbody><tr><td><strong>Level 1: Initial</strong></td><td>Manual processes, no CI/CD</td><td>Was here 2 years ago</td></tr><tr><td><strong>Level 2: Managed</strong></td><td>Basic CI, some automation</td><td>Passed this stage</td></tr><tr><td><strong>Level 3: Defined</strong></td><td>CI/CD pipeline, IaC, monitoring</td><td>Currently here</td></tr><tr><td><strong>Level 4: Measured</strong></td><td>Metrics-driven, SLOs, error budgets</td><td>Working toward</td></tr><tr><td><strong>Level 5: Optimized</strong></td><td>Self-healing, chaos engineering</td><td>Future goal</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">33</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="34">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 18 - DEVOPS FUNDAMENTALS</span><span class="ct"></span></div>
+    <div class="tt">DevOps Anti-Patterns</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Anti-Pattern</th><th>Description</th><th>Fix</th></tr></thead><tbody><tr><td>"DevOps Team"</td><td>Creating a separate DevOps silo</td><td>Embed practices in all teams</td></tr><tr><td>Tool obsession</td><td>Buying tools without culture change</td><td>Start with culture, then tools</td></tr><tr><td>Automation theater</td><td>Automating bad processes</td><td>Fix the process first</td></tr><tr><td>Metric gaming</td><td>Optimizing metrics, not outcomes</td><td>Align metrics with business goals</td></tr><tr><td>"Works on my machine"</td><td>No environment parity</td><td>Use containers + IaC</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">34</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="35">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 18 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>Topic</th><th>Key Point</th></tr></thead><tbody><tr><td>Why DevOps</td><td>Breaks down silos, enables fast, reliable delivery</td></tr><tr><td>DevOps Mindset</td><td>Culture of collaboration, shared ownership, continuous improvement</td></tr><tr><td>7 C's</td><td>Continuous Development, Integration, Testing, Deployment, Monitoring, Feedback, Operations</td></tr><tr><td>CI/CD</td><td>Automated pipeline from code to production</td></tr><tr><td>Automation</td><td>Automate everything repeatable; calculate ROI</td></tr><tr><td>IaC</td><td>Infrastructure as version-controlled code</td></tr><tr><td>WSDL</td><td>Legacy web service description; modern = REST + OpenAPI</td></tr><tr><td>Sustain relevance</td><td>DevOps practices enable rapid, safe production changes</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 19 -- Git & GitHub</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 19 -- Git & GitHub</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 35</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

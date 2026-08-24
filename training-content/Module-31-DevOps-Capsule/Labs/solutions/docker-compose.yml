@@ -1,0 +1,75 @@
+# FoodExpress Local Development Environment (Fixed)
+# FIX: Updated to version 3.8
+version: '3.8'
+
+services:
+  order-service:
+    build:
+      context: ./order-service
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/foodexpress_orders
+      # FIX: Use environment file or Docker secrets instead of hardcoded password
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-devpassword}
+    # FIX: Added depends_on with health check condition
+    depends_on:
+      mysql:
+        condition: service_healthy
+    # FIX: Added healthcheck
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    networks:
+      - foodexpress-net
+
+  menu-service:
+    build:
+      context: ./menu-service
+      dockerfile: Dockerfile
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/foodexpress_menu
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-devpassword}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 40s
+    networks:
+      - foodexpress-net
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD:-devpassword}
+      - MYSQL_DATABASE=foodexpress_orders
+    ports:
+      - "3306:3306"
+    # FIX: Added volume for data persistence
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - foodexpress-net
+
+# FIX: Added named volume and network
+volumes:
+  mysql-data:
+
+networks:
+  foodexpress-net:
+    driver: bridge

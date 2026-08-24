@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CI/CD with Jenkins</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;
+  font-size:clamp(10px,1.15vw,18px)}
+/* Scale all inline-styled visuals proportionally */
+.bd>*{max-width:100%}
+.slide.active{display:flex}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B}
+
+/* Chrome */
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+
+/* Title slide */
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-rcard{position:absolute;right:5%;top:11%;width:26%;background:#fff;border-radius:.6em;padding:1.4em 1.6em}
+.t-rcard .rl{margin-bottom:.4em}
+.t-rcard .r1{font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--blue)}
+.t-rcard .r2{font-size:clamp(11px,1.05em,17px);font-weight:700;color:var(--ink)}
+.t-rcard .r3{font-size:clamp(10px,.9em,15px);font-weight:700;color:var(--green)}
+.t-badges{position:absolute;right:5.2%;top:44%;display:flex;gap:.5em;align-items:center}
+.t-badges span{font-size:clamp(16px,1.7em,28px);font-weight:700;color:#fff;padding:.5em 1em}
+.t-badges .plus{color:var(--dark-badge)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:45%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+
+/* End slide */
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}
+.s-end .bl li::before{background:var(--cyan)}
+.s-end p{color:#C9D6E0 !important}
+.s-end strong{color:#fff}
+.s-end code{background:#1D2A35;color:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-pls{display:flex;margin-top:2%}
+.e-pl{flex:1}
+.e-pl-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan);letter-spacing:.5px}
+.e-pl-l.g{color:var(--green)}
+.e-pl-v{font-size:clamp(14px,1.6em,26px);font-weight:700;color:#fff;margin-top:.5em}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+
+/* Bullets */
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}
+.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.bl li.e{padding:.1em 0}.bl li.e::before{display:none}
+
+/* Callout boxes */
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+
+/* Tables */
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+
+/* Code blocks */
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+
+/* Slide counter (top-right, non-intrusive) */
+.slide-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<div class="slide s-title active" data-n="1">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 28</div>
+    <div class="t-main">CI/CD with Jenkins</div>
+    <div class="t-sub"></div>
+    <div class="t-dur"><span>1 day</span></div>
+    <div class="t-ft">Sustain Engineering Training | July 2026</div>
+  </div>
+</div>
+
+<div class="slide" data-n="2">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Agenda -- Day 31</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>#</th><th>Topic</th></tr></thead><tbody><tr><td>01</td><td>CI/CD Concepts & Why They Matter</td></tr><tr><td>02</td><td>Continuous Integration Deep Dive</td></tr><tr><td>03</td><td>Continuous Delivery vs Continuous Deployment</td></tr><tr><td>04</td><td>Jenkins Architecture & Components</td></tr><tr><td>05</td><td>Jenkins Installation & Configuration</td></tr><tr><td>06</td><td>Jenkins Plugins Ecosystem</td></tr><tr><td>07</td><td>Declarative Pipeline Syntax</td></tr><tr><td>08</td><td>Pipeline Stages: Build, Test, Deploy</td></tr><tr><td>09</td><td>GitHub Webhooks & Triggers</td></tr><tr><td>10</td><td>Lab: Fix the FoodExpress Jenkinsfile</td></tr><tr><td>11</td><td>Day Wrap-up & Key Takeaways</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="3">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">What is CI/CD?</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Problem Without CI/CD</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11</div><div class="cb-cd">Traditional Development:
+Day 1-20:  Developers code in isolation
+Day 21:    "Integration Day" -- merge everything
+           ├── Merge conflicts everywhere
+           ├── Broken builds
+           ├── "It worked on my branch!"
+           └── 3 days to stabilize
+Day 24:    Manual testing begins
+Day 28:    Manual deployment to staging
+Day 30:    Manual deployment to production
+           └── Deployment at 2 AM, fingers crossed</div></div></div>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>FoodExpress:</strong> Before CI/CD, deployments took 6 hours and failed 40% of the time. After CI/CD: 15 minutes, 98% success rate.</div></div></div>
+    <div class="ft"><span class="fr">03</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="4">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">CI/CD Pipeline Overview</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10</div><div class="cb-cd">┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐   ┌──────────┐
+│  Source   │──▶│  Build   │──▶│  Test    │──▶│  Deploy  │──▶│ Monitor  │
+│          │   │          │   │          │   │  Staging │   │          │
+│ Git Push │   │ Compile  │   │ Unit     │   │          │   │ Health   │
+│ PR Merge │   │ Package  │   │ Integr.  │   │  Prod    │   │ Alerts   │
+│          │   │ Lint     │   │ Security │   │          │   │ Metrics  │
+└──────────┘   └──────────┘   └──────────┘   └──────────┘   └──────────┘
+     │              │              │              │              │
+     └──────────────┴──────────────┴──────────────┴──────────────┘
+                    Automated, Repeatable, Fast</div></div></div></div>
+    <div class="ft"><span class="fr">04</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="5">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">Continuous Integration (CI)</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Merge and validate code frequently</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><div class="cb-cd">Developer A ──push──▶ ┌─────────────────────────┐
+                      │     CI Server             │
+Developer B ──push──▶ │                           │
+                      │  1. Pull latest code      │
+Developer C ──push──▶ │  2. Build application     │
+                      │  3. Run unit tests        │
+                      │  4. Run linting/SAST      │
+                      │  5. Report results        │
+                      │                           │
+                      │  ✓ Pass → Ready to merge  │
+                      │  ✗ Fail → Fix immediately │
+                      └─────────────────────────┘</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">CI Best Practices</div>
+<table class="tbl"><thead><tr><th>Practice</th><th>Why</th></tr></thead><tbody><tr><td>Commit frequently (daily minimum)</td><td>Smaller changes, easier to debug</td></tr><tr><td>Automated tests run on every push</td><td>Catch regressions immediately</td></tr><tr><td>Fix broken builds immediately</td><td>Team rule: broken build = top priority</td></tr><tr><td>Keep build fast (< 10 minutes)</td><td>Slow builds = developers skip them</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">05</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="6">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">Continuous Delivery vs Continuous Deployment</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12</div><div class="cb-cd">Continuous Integration    Continuous Delivery      Continuous Deployment
+┌────────────┐           ┌────────────┐           ┌────────────┐
+│ Build      │           │ Build      │           │ Build      │
+│ Unit Test  │           │ Unit Test  │           │ Unit Test  │
+│ Lint       │           │ Lint       │           │ Lint       │
+└─────┬──────┘           │ Int. Test  │           │ Int. Test  │
+      │                  │ Stage Deploy│           │ Stage Deploy│
+   STOP here             │ Approval   │           │ Prod Deploy │
+                         └─────┬──────┘           └────────────┘
+                               │                       │
+                         Manual button             Fully automatic
+                         to deploy                 No human gate</div></div></div>
+<table class="tbl"><thead><tr><th>Aspect</th><th>Continuous Delivery</th><th>Continuous Deployment</th></tr></thead><tbody><tr><td>Production deploy</td><td>Manual approval</td><td>Automatic</td></tr><tr><td>Risk</td><td>Lower (human gate)</td><td>Higher (must trust tests)</td></tr><tr><td>Speed</td><td>Slower (wait for approval)</td><td>Fastest</td></tr><tr><td>Maturity</td><td>Most companies</td><td>Netflix, Etsy, Facebook</td></tr><tr><td>FoodExpress</td><td>Current state</td><td>Future goal</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">06</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="7">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">Jenkins -- What Is It?</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">The Most Popular CI/CD Server</div>
+<ul class="bl"><li>Open source (MIT license), started in 2004 as "Hudson"</li><li>Written in Java, runs on any JVM</li><li>1,800+ plugins for every tool and platform</li><li>Used by 50%+ of organizations for CI/CD</li><li>Highly customizable pipeline engine</li></ul>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">┌──────────────────────────────────────────────┐
+│                 Jenkins Server                 │
+│                                                │
+│  ┌────────────────────────────────────────┐   │
+│  │  Controller (Master)                    │   │
+│  │  ├── Web UI (port 8080)                │   │
+│  │  ├── Job scheduling                    │   │
+│  │  ├── Plugin management                 │   │
+│  │  └── Build history &amp; artifacts         │   │
+│  └────────────────────────────────────────┘   │
+│                    │                           │
+│         ┌─────────┼─────────┐                 │
+│         ▼         ▼         ▼                 │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐      │
+│  │ Agent 1  │ │ Agent 2  │ │ Agent 3  │      │
+│  │ (Linux)  │ │ (Linux)  │ │ (Docker) │      │
+│  │ Java     │ │ Node.js  │ │ Both     │      │
+│  └──────────┘ └──────────┘ └──────────┘      │
+└──────────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">07</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="8">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">Jenkins Architecture</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Controller-Agent Model</div>
+<table class="tbl"><thead><tr><th>Component</th><th>Role</th><th>Details</th></tr></thead><tbody><tr><td>Controller (Master)</td><td>Orchestrates pipelines</td><td>Schedules builds, serves UI, stores configs</td></tr><tr><td>Agent (Node)</td><td>Executes builds</td><td>Runs on separate machines, labeled by capability</td></tr><tr><td>Executor</td><td>Thread within an agent</td><td>Each agent can have multiple executors</td></tr><tr><td>Workspace</td><td>Build directory</td><td>Where source code is checked out and built</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">Controller schedules build
+        │
+        ├──▶ Finds agent with matching label
+        │
+        ├──▶ Agent clones repo into workspace
+        │
+        ├──▶ Agent runs pipeline stages
+        │
+        └──▶ Agent reports results to Controller</div></div></div></div>
+    <div class="ft"><span class="fr">08</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="9">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">Jenkins Plugins</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Essential Plugins for FoodExpress</div>
+<table class="tbl"><thead><tr><th>Plugin</th><th>Purpose</th></tr></thead><tbody><tr><td>Pipeline</td><td>Declarative & Scripted pipeline support</td></tr><tr><td>Git</td><td>Git SCM integration</td></tr><tr><td>GitHub Integration</td><td>Webhooks, PR status checks</td></tr><tr><td>Docker Pipeline</td><td>Build/push Docker images</td></tr><tr><td>Credentials</td><td>Secure secret storage</td></tr><tr><td>JUnit</td><td>Test result reporting</td></tr><tr><td>SonarQube</td><td>Code quality analysis</td></tr><tr><td>Slack Notification</td><td>Build notifications</td></tr><tr><td>Blue Ocean</td><td>Modern pipeline visualization</td></tr><tr><td>NodeJS</td><td>Node.js build tool support</td></tr></tbody></table>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.bas</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3</div><div class="cb-cd"># Install plugins via CLI
+java -jar jenkins-cli.jar -s http://localhost:8080/ \
+  install-plugin docker-workflow git pipeline-utility-steps</div></div></div></div>
+    <div class="ft"><span class="fr">09</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="10">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">Jenkins Pipeline Types</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Declarative vs Scripted</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.gro</span><span class="cb-lg">GROOVY</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26</div><div class="cb-cd">// DECLARATIVE (Recommended -- structured, readable)
+pipeline {
+    agent any
+    stages {
+        stage('Build') {
+            steps {
+                sh 'mvn clean package'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+        }
+    }
+}
+
+// SCRIPTED (Flexible -- full Groovy power)
+node {
+    stage('Build') {
+        sh 'mvn clean package'
+    }
+    stage('Test') {
+        sh 'mvn test'
+    }
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Feature</th><th>Declarative</th><th>Scripted</th></tr></thead><tbody><tr><td>Syntax</td><td>Structured, opinionated</td><td>Free-form Groovy</td></tr><tr><td>Learning curve</td><td>Easier</td><td>Steeper</td></tr><tr><td>Validation</td><td>Pipeline syntax check</td><td>Runtime errors</td></tr><tr><td>Recommended</td><td>Yes (for most cases)</td><td>For complex logic</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">10</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="11">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">Declarative Pipeline Structure</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.gro</span><span class="cb-lg">GROOVY</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">pipeline {
+    agent any                        // Where to run
+
+    environment {                    // Environment variables
+        DOCKER_REGISTRY = 'ecr.aws/foodexpress'
+        APP_NAME = 'order-service'
+    }
+
+    options {                        // Pipeline options
+        timeout(time: 30, unit: 'MINUTES')
+        buildDiscarder(logRotator(numToKeepStr: '10'))
+    }
+
+    stages {                         // Build stages
+        stage('Checkout') { ... }
+        stage('Build') { ... }
+        stage('Test') { ... }
+        stage('Docker') { ... }
+        stage('Deploy') { ... }
+    }
+
+    post {                           // Post-build actions
+        success { ... }
+        failure { ... }
+        always { ... }
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">11</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="12">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress Order Service -- Jenkinsfile</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.gro</span><span class="cb-lg">GROOVY</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45<br>46<br>47<br>48<br>49<br>50<br>51<br>52<br>53<br>54<br>55<br>56<br>57<br>58<br>59<br>60<br>61<br>62<br>63<br>64<br>65<br>66<br>67<br>68<br>69<br>70<br>71<br>72<br>73<br>74<br>75<br>76<br>77<br>78<br>79<br>80<br>81<br>82</div><div class="cb-cd">pipeline {
+    agent any
+
+    tools {
+        maven 'Maven-3.9'
+        jdk 'JDK-17'
+    }
+
+    environment {
+        DOCKER_REGISTRY = credentials('docker-registry-url')
+        APP_NAME = 'order-service'
+        APP_VERSION = "${env.BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/foodexpress/order-service.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Unit Tests') {
+            steps {
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Code Quality') {
+            steps {
+                sh 'mvn sonar:sonar'
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t ${DOCKER_REGISTRY}/${APP_NAME}:${APP_VERSION} ."
+            }
+        }
+
+        stage('Docker Push') {
+            steps {
+                sh "docker push ${DOCKER_REGISTRY}/${APP_NAME}:${APP_VERSION}"
+            }
+        }
+
+        stage('Deploy to Staging') {
+            steps {
+                sh """
+                    ssh deploy@staging 'docker pull ${DOCKER_REGISTRY}/${APP_NAME}:${APP_VERSION}'
+                    ssh deploy@staging 'docker compose -f /opt/foodexpress/docker-compose.yml up -d order-service'
+                """
+            }
+        }
+    }
+
+    post {
+        success {
+            slackSend channel: '#deployments',
+                      message: "Order Service ${APP_VERSION} deployed to staging"
+        }
+        failure {
+            slackSend channel: '#deployments',
+                      color: 'danger',
+                      message: "Order Service build FAILED: ${env.BUILD_URL}"
+        }
+        always {
+            cleanWs()
+        }
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">12</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="13">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct">HTML</span></div>
+    <div class="tt">Pipeline Stages Explained</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">Checkout ──▶ Build ──▶ Test ──▶ Quality ──▶ Docker ──▶ Deploy
+
+│ Clone     │ Compile  │ Run     │ SonarQube │ Build   │ Pull &amp;
+│ repo      │ code     │ unit    │ analysis  │ image   │ restart
+│ from Git  │ into JAR │ tests   │           │ Push to │ on
+│           │          │ Report  │           │ registry│ staging
+│           │          │ results │           │         │</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Stage Dependencies</div>
+<ul class="bl"><li>Build must pass before Test</li><li>Test must pass before Docker Build</li><li>Each stage can have its own <code>post</code> actions</li><li>Pipeline fails fast on first stage failure</li></ul></div>
+    <div class="ft"><span class="fr">13</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="14">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">Credentials Management</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Storing Secrets Safely in Jenkins</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.gro</span><span class="cb-lg">GROOVY</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16</div><div class="cb-cd">pipeline {
+    environment {
+        // Bind Jenkins credentials to env variables
+        DOCKER_CREDS = credentials('docker-hub-credentials')  // username:password
+        DB_PASSWORD = credentials('production-db-password')     // secret text
+        SSH_KEY = credentials('staging-ssh-key')                // SSH key file
+    }
+
+    stages {
+        stage('Docker Login') {
+            steps {
+                sh 'echo $DOCKER_CREDS_PSW | docker login -u $DOCKER_CREDS_USR --password-stdin'
+            }
+        }
+    }
+}</div></div></div>
+<table class="tbl"><thead><tr><th>Credential Type</th><th>Jenkins Kind</th><th>Usage</th></tr></thead><tbody><tr><td>Username/Password</td><td><code>usernamePassword</code></td><td>Docker Hub, Git HTTPS</td></tr><tr><td>Secret Text</td><td><code>string</code></td><td>API keys, tokens</td></tr><tr><td>SSH Key</td><td><code>sshUserPrivateKey</code></td><td>Git SSH, server access</td></tr><tr><td>Certificate</td><td><code>certificate</code></td><td>TLS/SSL</td></tr><tr><td>File</td><td><code>secretFile</code></td><td>Config files, keystores</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">14</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="15">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">GitHub Webhooks</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Automatic Build Trigger on Push</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">Developer pushes code
+        │
+        ▼
+┌──────────────┐    webhook     ┌──────────────┐
+│   GitHub     │ ──────────────▶│   Jenkins    │
+│              │  POST /github  │              │
+│ repository   │  -webhook/     │  Triggers    │
+│ push event   │                │  pipeline    │
+└──────────────┘                └──────────────┘</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Jenkins Configuration</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.gro</span><span class="cb-lg">GROOVY</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9</div><div class="cb-cd">pipeline {
+    triggers {
+        // Poll SCM every 5 minutes (fallback)
+        pollSCM('H/5 * * * *')
+
+        // OR: GitHub webhook (preferred -- instant)
+        githubPush()
+    }
+}</div></div></div>
+<div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">GitHub Webhook Setup</div>
+<ul class="bl"><li>1. Go to repo Settings > Webhooks</li><li>2. URL: <code>https://jenkins.foodexpress.in/github-webhook/</code></li><li>3. Content type: <code>application/json</code></li><li>4. Events: Push, Pull Request</li></ul></div>
+    <div class="ft"><span class="fr">15</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="16">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">Build Triggers</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Trigger</th><th>When</th><th>Use Case</th></tr></thead><tbody><tr><td><code>githubPush()</code></td><td>On Git push (webhook)</td><td>Main build trigger</td></tr><tr><td><code>pollSCM('H/5 <em> </em> <em> </em>')</code></td><td>Check Git every 5 min</td><td>Fallback when webhook fails</td></tr><tr><td><code>cron('0 2 <em> </em> *')</code></td><td>Scheduled (daily 2 AM)</td><td>Nightly builds, security scans</td></tr><tr><td><code>upstream('other-job')</code></td><td>After another job</td><td>Dependency chains</td></tr><tr><td>Manual</td><td>Click "Build Now"</td><td>Emergency deployments</td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">16</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="17">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">Artifacts & Test Reports</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.gro</span><span class="cb-lg">GROOVY</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27</div><div class="cb-cd">stage('Build') {
+    steps {
+        sh 'mvn clean package -DskipTests'
+    }
+    post {
+        success {
+            // Archive the JAR for download
+            archiveArtifacts artifacts: 'target/*.jar',
+                             fingerprint: true
+        }
+    }
+}
+
+stage('Test') {
+    steps {
+        sh 'mvn test'
+    }
+    post {
+        always {
+            // Publish test results
+            junit '**/target/surefire-reports/*.xml'
+
+            // Publish code coverage
+            jacoco execPattern: 'target/jacoco.exec'
+        }
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="18">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">Pipeline Best Practices</div>
+    <div class="dv"></div>
+    <div class="bd"><table class="tbl"><thead><tr><th>Practice</th><th>Why</th><th>How</th></tr></thead><tbody><tr><td>Keep pipelines fast</td><td>Slow = developers skip</td><td>Parallelize stages, cache dependencies</td></tr><tr><td>Fail fast</td><td>Don't wait for Docker build if tests fail</td><td>Stage order matters</td></tr><tr><td>Archive artifacts</td><td>Download builds without rebuilding</td><td><code>archiveArtifacts</code></td></tr><tr><td>Clean workspace</td><td>Prevent stale files</td><td><code>cleanWs()</code> in post/always</td></tr><tr><td>Use credentials plugin</td><td>Never hardcode secrets</td><td><code>credentials()</code> function</td></tr><tr><td>Test reports</td><td>Track test health over time</td><td><code>junit</code> step</td></tr><tr><td>Notifications</td><td>Team awareness</td><td>Slack, email on failure</td></tr><tr><td>Timeout</td><td>Prevent stuck builds</td><td><code>timeout(time: 30, unit: 'MINUTES')</code></td></tr></tbody></table></div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="19">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct">HTML</span></div>
+    <div class="tt">Parallel Stages</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">Run Tests in Parallel for Speed</div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.gro</span><span class="cb-lg">GROOVY</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19</div><div class="cb-cd">stage('Tests') {
+    parallel {
+        stage('Unit Tests') {
+            steps {
+                sh 'mvn test -pl order-service'
+            }
+        }
+        stage('Integration Tests') {
+            steps {
+                sh 'mvn verify -pl order-service -Pintegration'
+            }
+        }
+        stage('Security Scan') {
+            steps {
+                sh 'trivy fs --severity HIGH,CRITICAL .'
+            }
+        }
+    }
+}</div></div></div>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7</div><div class="cb-cd">                    ┌── Unit Tests ──────────┐
+                    │                        │
+Tests ──parallel──▶ ├── Integration Tests ───┤──▶ Next Stage
+                    │                        │
+                    └── Security Scan ───────┘
+
+Serial: 15 min     Parallel: 5 min (only as slow as slowest)</div></div></div></div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="20">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">FoodExpress CI/CD Architecture</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.txt</span><span class="cb-lg">CODE</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26</div><div class="cb-cd">┌─────────────────────────────────────────────────────────┐
+│  FoodExpress CI/CD Pipeline                              │
+│                                                          │
+│  GitHub ──webhook──▶ Jenkins Controller                  │
+│                           │                              │
+│                     ┌─────┼─────┐                       │
+│                     ▼     ▼     ▼                       │
+│               ┌──────┐ ┌──────┐ ┌──────┐                │
+│               │Build │ │Build │ │Build │                │
+│               │Agent │ │Agent │ │Agent │                │
+│               │Java  │ │Node  │ │Docker│                │
+│               └──┬───┘ └──┬───┘ └──┬───┘                │
+│                  │        │        │                     │
+│                  ▼        ▼        ▼                     │
+│             ┌──────────────────────────┐                │
+│             │     AWS ECR (Registry)    │                │
+│             └────────────┬─────────────┘                │
+│                          │                              │
+│               ┌──────────┼──────────┐                   │
+│               ▼                     ▼                   │
+│          ┌──────────┐         ┌──────────┐              │
+│          │ Staging  │         │Production│              │
+│          │ Auto     │         │ Manual   │              │
+│          │ Deploy   │         │ Approval │              │
+│          └──────────┘         └──────────┘              │
+└─────────────────────────────────────────────────────────┘</div></div></div></div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="21">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct"></span></div>
+    <div class="tt">Jenkinsfile for Node.js (Restaurant Service)</div>
+    <div class="dv"></div>
+    <div class="bd"><div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.gro</span><span class="cb-lg">GROOVY</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17<br>18<br>19<br>20<br>21<br>22<br>23<br>24<br>25<br>26<br>27<br>28<br>29<br>30<br>31<br>32<br>33<br>34<br>35<br>36<br>37<br>38<br>39<br>40<br>41<br>42<br>43<br>44<br>45</div><div class="cb-cd">pipeline {
+    agent {
+        docker {
+            image 'node:18-alpine'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+
+    stages {
+        stage('Install') {
+            steps {
+                sh 'npm ci'
+            }
+        }
+
+        stage('Lint') {
+            steps {
+                sh 'npm run lint'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'npm test -- --coverage'
+            }
+            post {
+                always {
+                    junit 'test-results/*.xml'
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t foodexpress/restaurant-service:${BUILD_NUMBER} ."
+            }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+    }
+}</div></div></div></div>
+    <div class="ft"><span class="fr">21</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="22">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 1</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> What is the main difference between Continuous Delivery and Continuous Deployment?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) Delivery uses Jenkins; Deployment uses GitHub Actions</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) Delivery requires manual approval for production; Deployment is fully automatic</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) Delivery only builds; Deployment also tests</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) They are the same thing</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- Continuous Delivery automates everything up to production but requires a manual approval gate. Continuous Deployment automatically deploys to production after all tests pass.</div></div></div>
+    <div class="ft"><span class="fr">22</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="23">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 2</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> In a Declarative Jenkins Pipeline, what does <code>agent any</code> mean?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) The pipeline won't run</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) The pipeline runs on any available Jenkins agent</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) The pipeline runs on the controller only</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) The pipeline requires a Docker agent</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- <code>agent any</code> means Jenkins will schedule the pipeline on whichever agent (node) has an available executor.</div></div></div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="24">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 3</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> You have this in your Jenkinsfile:</p>
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">example.gro</span><span class="cb-lg">GROOVY</span></div><div class="cb-body"><div class="cb-ln">1<br>2<br>3<br>4<br>5<br>6</div><div class="cb-cd">post {
+    always {
+        junit '**/surefire-reports/*.xml'
+        cleanWs()
+    }
+}</div></div></div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">When does this block execute?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) Only when the build succeeds</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) Only when the build fails</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) Every time, regardless of success or failure</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) Only on the first build</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> C -- The <code>always</code> block in <code>post</code> runs on every build, whether it succeeds, fails, or is unstable. This ensures test reports are published and workspace is cleaned.</div></div></div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="25">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 4</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> Why should you use <code>credentials('my-secret')</code> instead of hardcoding secrets in the Jenkinsfile?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) It's faster</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) Jenkinsfiles are stored in Git -- secrets would be exposed in version control</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) Jenkins can't read hardcoded strings</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) Credentials are easier to type</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> B -- Jenkinsfiles are code stored in your Git repository. Hardcoded secrets would be visible to anyone with repo access. The credentials plugin stores secrets encrypted in Jenkins.</div></div></div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="26">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct">MCQ</span></div>
+    <div class="tt">MCQ -- Quick Check 5</div>
+    <div class="dv"></div>
+    <div class="bd"><p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0"><strong>Question:</strong> A build is triggered but the workspace contains files from the previous build. What should you add?</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">A) <code>deleteDir()</code> at the start</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">B) <code>cleanWs()</code> in the <code>post { always }</code> block</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">C) <code>git clean -fdx</code> in the checkout stage</p>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">D) Any of the above would work</p>
+<div class="ib"><div class="ib-t" style="font-size:1.28em"><strong>Answer:</strong> D -- All three approaches clean the workspace. <code>cleanWs()</code> in <code>post { always }</code> is the most common pattern as it runs after every build, including failures.</div></div></div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<div class="slide" data-n="27">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 28 - CI/CD WITH JENKINS</span><span class="ct">LAB</span></div>
+    <div class="tt">Lab Preview: Fix the FoodExpress Jenkinsfile</div>
+    <div class="dv"></div>
+    <div class="bd"><div style="font-size:1.5em;font-weight:700;color:var(--ink);margin:1em 0 .5em">What You'll Fix</div>
+<p style="font-size:1.35em;color:var(--ink);line-height:1.5;margin:.4em 0">The Order Service Jenkinsfile has <strong>8 bugs</strong> that prevent the CI/CD pipeline from working correctly:</p>
+<ul class="bl"><li>1. Missing test stage -- builds but never tests</li><li>2. Wrong Git branch -- builds from wrong branch</li><li>3. No workspace cleanup -- stale files cause failures</li><li>4. Artifacts not archived -- builds can't be downloaded</li><li>5. No timeout -- builds hang forever</li><li>6. Hardcoded credentials -- secrets in Git</li><li>7. Missing post-failure notification</li><li>8. Docker image not tagged properly</li></ul>
+<div class="ib"><div class="ib-t" style="font-size:1.28em">File: <code>Labs/starter-code/Jenkinsfile</code></div></div></div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<div class="slide s-end" data-n="28">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 28 - COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px"><table class="tbl"><thead><tr><th>#</th><th>Takeaway</th></tr></thead><tbody><tr><td>1</td><td>CI/CD automates build, test, and deploy -- reducing manual errors and deployment time</td></tr><tr><td>2</td><td>Continuous Integration = merge frequently + automated tests on every push</td></tr><tr><td>3</td><td>Continuous Delivery = automated pipeline + manual production approval gate</td></tr><tr><td>4</td><td>Jenkins uses Controller-Agent architecture with 1,800+ plugins</td></tr><tr><td>5</td><td>Declarative Pipeline is preferred: structured, readable, validated</td></tr><tr><td>6</td><td>Always include test stage, artifact archiving, workspace cleanup, and notifications</td></tr><tr><td>7</td><td>Use Jenkins credentials plugin -- never hardcode secrets in Jenkinsfiles</td></tr><tr><td>8</td><td>GitHub webhooks trigger builds instantly on push</td></tr></tbody></table>
+<div class="db" style="margin-top:16px"><span class="db-l">NEXT</span><span class="db-t" style="font-size:22px"><strong>Next: Module 29 -- Kubernetes (Container Orchestration)</strong></span></div></div>
+    <div class="e-ban"><span><strong>Next: Module 29 -- Kubernetes (Container Orchestration)</strong></span></div>
+  </div>
+</div>
+
+</div>
+<div class="slide-counter" id="sc">1 / 28</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

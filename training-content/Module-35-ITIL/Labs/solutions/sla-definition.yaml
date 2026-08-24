@@ -1,0 +1,58 @@
+# FoodExpress SLA Definition -- FIXED VERSION
+
+sla:
+  name: "FoodExpress Order Platform SLA"
+  version: "2.0"
+  effective_date: "2026-07-01"
+  service: "Order Platform"
+  service_hours: "24x7x365"
+
+  # Fix 1: Availability target is 99.9%
+  availability:
+    target: 99.9%
+    measurement_method: "Uptime monitoring via Prometheus, measured as (agreed_time - downtime) / agreed_time"
+
+  incident_response:
+    P1:
+      response_time: "15 minutes"
+      # Fix 2: Resolution time is 4 hours
+      resolution_time: "4 hours"
+    P2:
+      response_time: "30 minutes"
+      resolution_time: "8 hours"
+    P3:
+      response_time: "2 hours"
+      resolution_time: "24 hours"
+
+  # Fix 3: Monthly measurement period
+  reporting:
+    measurement_period: "Monthly"
+    # Fix 6: Reports generated monthly
+    report_frequency: "Monthly (by 5th business day of following month)"
+    report_contents:
+      - "Availability percentage"
+      - "P95 latency by endpoint"
+      - "Incident count by priority"
+      - "SLA compliance percentage"
+      - "Trend analysis"
+
+  # Fix 4: Financial penalties for SLA breach
+  penalties:
+    breach_consequence: "Service credits applied to next billing cycle"
+    service_credits:
+      - condition: "Availability below 99.9% but above 99.5%"
+        credit: "5% of monthly service fee"
+      - condition: "Availability below 99.5% but above 99.0%"
+        credit: "10% of monthly service fee"
+      - condition: "Availability below 99.0%"
+        credit: "20% of monthly service fee"
+
+  # Fix 5: 24x7 service -- weekends are NOT excluded
+  exclusions:
+    - "Planned maintenance windows (max 4 hours/month, announced 48 hours in advance)"
+    - "Force majeure events (natural disasters, government actions)"
+
+  stakeholders:
+    service_owner: "Platform Team"
+    customer_representative: "Operations Director"
+    review_frequency: "Quarterly"

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  namespace: foodexpress-prod
+  labels:
+    app: payment-service
+    tier: backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payment-service
+  template:
+    metadata:
+      labels:
+        app: payment-service
+    spec:
+      containers:
+        - name: payment-service
+          # BUG 1: Using 'latest' tag with imagePullPolicy 'Never'
+          # In a cluster without the local image, this causes ImagePullBackOff
+          # Also 'latest' is non-deterministic -- which version is "latest"?
+          image: foodexpress/payment-service:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            # BUG 3: Database password hardcoded in plain text instead of Secret reference
+            - name: DB_PASSWORD
+              value: "Pr0d_P@ssw0rd_2026!"
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: foodexpress-config
+                  key: DATABASE_HOST
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          # BUG 2: Readiness probe is missing entirely
+          # Without it, pods receive traffic before they are ready

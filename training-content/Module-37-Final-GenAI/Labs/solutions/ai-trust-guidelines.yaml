@@ -1,0 +1,61 @@
+# FoodExpress AI Trust and Usage Guidelines -- FIXED VERSION
+
+ai_trust_levels:
+
+  # Fix 1: Security code is LOW trust -- must be expert-reviewed
+  security_code:
+    trust_level: "Low"
+    review_required: true
+    description: "AI-generated security code MUST be reviewed by a security engineer before use. Never use directly."
+
+  # Fix 2: Test generation is HIGH trust -- safe to generate, easy to verify
+  test_generation:
+    trust_level: "High"
+    review_required: false
+    description: "AI-generated tests are safe. Review for edge case coverage, then add to test suite."
+
+  boilerplate_code:
+    trust_level: "High"
+    review_required: false
+    description: "CRUD endpoints, models, DTOs -- safe to use after quick review"
+
+  business_logic:
+    trust_level: "Medium"
+    review_required: true
+    description: "Always verify business rules against requirements documentation"
+
+  documentation:
+    trust_level: "High"
+    review_required: false
+    description: "API docs, README files, comments -- generally safe. Verify technical accuracy."
+
+# Fix 3: AI code REQUIRES code review before production deployment
+deployment_policy:
+  ai_generated_code:
+    production_deploy_without_review: false
+    staging_deploy_without_review: true
+    description: "AI-generated code can be deployed to staging for testing, but MUST pass code review before production deployment. Follow standard change management process."
+    review_checklist:
+      - "Security vulnerabilities checked"
+      - "Business logic verified against requirements"
+      - "Edge cases tested"
+      - "Coding standards compliance"
+      - "No hardcoded secrets"
+
+# Fix 4: Strict data sharing policy -- no PII or secrets
+data_sharing_policy:
+  allowed_data: "Only non-sensitive, non-PII data may be shared with external AI models"
+  pii_handling: "NEVER include customer names, phone numbers, addresses, payment info, or any PII in AI prompts. Redact or anonymize before sending."
+  api_keys: "NEVER include API keys, passwords, tokens, or any credentials in AI prompts."
+  restricted_data:
+    - "Customer personal information (name, phone, email, address)"
+    - "Payment card numbers, UPI IDs, bank details"
+    - "API keys, passwords, tokens, secrets"
+    - "Internal business metrics and revenue data"
+    - "Employee HR information"
+
+# Fix 5: Hallucination policy requires verification
+hallucination_policy:
+  detection: "Always cross-reference AI output against known facts, documentation, and actual system behavior. Be especially skeptical of specific numbers, dates, and technical claims."
+  verification: "Required for all AI outputs used in production decisions. Verify commands against documentation. Test queries against staging database."
+  action_on_doubt: "If AI output seems plausible but you cannot verify it, treat it as UNTRUSTED. Consult documentation, ask a senior engineer, or test in a safe environment. Never proceed on assumption."

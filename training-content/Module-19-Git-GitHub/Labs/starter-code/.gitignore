@@ -1,0 +1,40 @@
+# FoodExpress .gitignore
+#
+# CONTAINS BUGS - Find and fix them!
+#
+# BUG 1: Missing node_modules/ - will commit all npm packages (huge!)
+# BUG 2: Missing .env - will expose secrets (DB passwords, API keys)
+# BUG 3: Missing *.log - will commit log files that change constantly
+
+# Java
+*.class
+*.jar
+target/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# BUG 1: node_modules/ is NOT listed!
+# All 500+ MB of npm packages will be committed to the repository.
+# This makes the repo huge and slow to clone.
+
+# BUG 2: .env is NOT listed!
+# Files like .env contain database passwords, API keys, and secrets.
+# Committing .env exposes sensitive credentials in version control.
+
+# BUG 3: *.log is NOT listed!
+# Log files change with every run and add noise to commits.
+# They should be excluded from version control.
+
+# Build output
+dist/
+build/
+
+# Docker
+docker-compose.override.yml

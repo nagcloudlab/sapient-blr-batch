@@ -1,0 +1,43 @@
+# FoodExpress Problem Record Template
+# THIS FILE CONTAINS 6 BUGS -- Find and fix them all!
+
+problem:
+  number: PRB-2026-0025
+  title: "Recurring payment timeout errors every Tuesday evening"
+  description: "Payment service returns timeout errors between 18:00-19:00 every Tuesday"
+
+  # Bug 1: Status is "Closed" but root cause is not documented
+  status: "Closed"
+
+  # Bug 2: Should list related incidents (there are 5)
+  related_incidents: []
+
+  # Bug 3: 5 Whys analysis is incomplete and lazy
+  root_cause_analysis:
+    method: "5 Whys"
+    analysis:
+      why_1: "Payment service times out"
+      why_2: "Because it broke"
+    root_cause: "Unknown"
+
+  # Bug 4: Workaround should be actionable, not "Ignore the issue"
+  known_error:
+    status: "Documented"
+    workaround: "Ignore the issue"
+    workaround_effectiveness: "Not tested"
+
+  # Bug 5: Permanent fix should be defined
+  permanent_fix:
+    description: ""
+    change_request: ""
+    target_date: ""
+
+  # Bug 6: Trend says "First occurrence" but 5 incidents have occurred
+  trend_data:
+    first_detected: "2026-08-15"
+    occurrence_pattern: "First occurrence"
+    related_incident_count: 0
+
+  category: "Application > Payment > Gateway"
+  priority: P2
+  owner: "Platform Engineering"

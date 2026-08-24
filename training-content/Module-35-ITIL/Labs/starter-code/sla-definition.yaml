@@ -1,0 +1,48 @@
+# FoodExpress SLA Definition
+# THIS FILE CONTAINS 6 BUGS -- Find and fix them all!
+
+sla:
+  name: "FoodExpress Order Platform SLA"
+  version: "1.0"
+  effective_date: "2026-07-01"
+  service: "Order Platform"
+  service_hours: "24x7x365"
+
+  # Bug 1: Availability target should be 99.9%, not 50%
+  availability:
+    target: 50%
+    measurement_method: "Uptime monitoring via Prometheus"
+
+  incident_response:
+    P1:
+      response_time: "15 minutes"
+      # Bug 2: Resolution time should be 4 hours, not 30 days
+      resolution_time: "30 days"
+    P2:
+      response_time: "30 minutes"
+      resolution_time: "8 hours"
+    P3:
+      response_time: "2 hours"
+      resolution_time: "24 hours"
+
+  # Bug 3: Measurement period should be "Monthly" not "Yearly"
+  reporting:
+    measurement_period: "Yearly"
+    # Bug 6: Reports should be generated monthly, not "On request only"
+    report_frequency: "On request only"
+
+  # Bug 4: Penalties should have financial consequences
+  penalties:
+    breach_consequence: "Written apology"
+    service_credits: []
+
+  # Bug 5: 24x7 service should not exclude weekends
+  exclusions:
+    - "Planned maintenance windows (max 4 hours/month, 48h notice)"
+    - "All weekends and public holidays"
+    - "Force majeure events"
+
+  stakeholders:
+    service_owner: "Platform Team"
+    customer_representative: "Operations Director"
+    review_frequency: "Annually"

@@ -1,0 +1,68 @@
+# FoodExpress Prometheus Alerting Rules
+# THIS FILE CONTAINS 8 BUGS -- Find and fix them all!
+
+groups:
+  - name: foodexpress-alerts
+    rules:
+
+      # Bug 1: Division by zero when no requests
+      # Bug 2: for duration is 0s (fires on transient spikes)
+      - alert: HighErrorRate
+        expr: |
+          rate(foodexpress_http_requests_total{status=~"5.."}[5m])
+          / rate(foodexpress_http_requests_total[5m]) > 0.01
+        for: 0s
+        labels:
+          severity: info          # Bug 6: Should be critical
+          team: sustain-engineering
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Error rate is {{ $value | humanizePercentage }}"
+          runbook: "http://localhost:3000/runbooks/high-error-rate"  # Bug 8
+
+      # Bug 3: Wrong metric name (should be "up" not "service_up")
+      - alert: PaymentServiceDown
+        expr: service_up{job="payment-service"} == 0
+        for: 1m
+        labels:
+          severity: info          # Bug 6: Should be critical
+        annotations:
+          summary: "Payment service is DOWN"
+          runbook: "http://localhost:3000/runbooks/payment-down"     # Bug 8
+
+      # Bug 4: Threshold is 0.001s (1ms) -- way too low, should be 2s
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95,
+            rate(foodexpress_order_duration_seconds_bucket[5m])
+          ) > 0.001
+        for: 3m
+        labels:
+          severity: info          # Bug 6: Should be warning
+        annotations:
+          summary: "Order P95 latency exceeds threshold"
+          runbook: "http://localhost:3000/runbooks/high-latency"     # Bug 8
+
+      # Bug 5: Alert fires when disk > 20% free (inverted logic)
+      # Should alert when disk usage > 80% (i.e., free < 20%)
+      - alert: DiskSpaceLow
+        expr: |
+          (node_filesystem_avail_bytes / node_filesystem_size_bytes) > 0.20
+        for: 10m
+        labels:
+          severity: info          # Bug 6: Should be warning
+        annotations:
+          summary: "Disk space low on {{ $labels.instance }}"
+          runbook: "http://localhost:3000/runbooks/disk-space"       # Bug 8
+
+      # Bug 7: Missing container filter -- matches kube-system containers
+      - alert: HighMemoryUsage
+        expr: |
+          container_memory_usage_bytes
+          / container_spec_memory_limit_bytes > 0.85
+        for: 5m
+        labels:
+          severity: info          # Bug 6: Should be warning
+        annotations:
+          summary: "High memory usage in {{ $labels.pod }}"
+          runbook: "http://localhost:3000/runbooks/high-memory"      # Bug 8

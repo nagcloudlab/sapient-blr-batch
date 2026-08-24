@@ -1,0 +1,79 @@
+# FoodExpress Prometheus Alerting Rules -- FIXED VERSION
+
+groups:
+  - name: foodexpress-alerts
+    rules:
+
+      # Fix 1: Added > 0 guard to prevent division by zero
+      # Fix 2: Changed for: 0s to for: 5m
+      # Fix 6: Changed severity to critical
+      # Fix 8: Changed runbook URL to production wiki
+      - alert: HighErrorRate
+        expr: |
+          (
+            rate(foodexpress_http_requests_total{status=~"5.."}[5m])
+            / rate(foodexpress_http_requests_total[5m])
+          ) > 0.01
+          and rate(foodexpress_http_requests_total[5m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+          team: sustain-engineering
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Error rate is {{ $value | humanizePercentage }}"
+          runbook: "https://wiki.foodexpress.in/runbooks/high-error-rate"
+
+      # Fix 3: Changed service_up to up (correct Prometheus metric)
+      # Fix 6: Changed severity to critical
+      # Fix 8: Production runbook URL
+      - alert: PaymentServiceDown
+        expr: up{job="payment-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Payment service is DOWN"
+          runbook: "https://wiki.foodexpress.in/runbooks/payment-down"
+
+      # Fix 4: Changed threshold from 0.001 to 2 (seconds)
+      # Fix 6: Changed severity to warning
+      # Fix 8: Production runbook URL
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95,
+            rate(foodexpress_order_duration_seconds_bucket[5m])
+          ) > 2
+        for: 3m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Order P95 latency exceeds 2s"
+          runbook: "https://wiki.foodexpress.in/runbooks/high-latency"
+
+      # Fix 5: Changed > to < (alert when free space is LESS than 20%)
+      # Fix 6: Changed severity to warning
+      # Fix 8: Production runbook URL
+      - alert: DiskSpaceLow
+        expr: |
+          (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 0.20
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Disk space low on {{ $labels.instance }}"
+          runbook: "https://wiki.foodexpress.in/runbooks/disk-space"
+
+      # Fix 7: Added namespace filter to exclude kube-system containers
+      # Fix 6: Changed severity to warning
+      # Fix 8: Production runbook URL
+      - alert: HighMemoryUsage
+        expr: |
+          container_memory_usage_bytes{namespace="foodexpress"}
+          / container_spec_memory_limit_bytes{namespace="foodexpress"} > 0.85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage in {{ $labels.pod }}"
+          runbook: "https://wiki.foodexpress.in/runbooks/high-memory"

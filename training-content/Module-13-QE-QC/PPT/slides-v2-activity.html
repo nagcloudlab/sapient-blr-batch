@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quality Engineering &amp; Quality Control</title>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#1a1a2e;color:#101820;overflow:hidden}
+.deck{position:relative;width:100vw;height:100vh}
+.slide{position:absolute;inset:0;width:100%;height:100%;display:none !important;flex-direction:column;background:#fff;overflow-y:auto;overflow-x:hidden;font-size:clamp(10px,1.15vw,18px)}
+.bd>*{max-width:100%}
+.slide.active{display:flex !important}
+code{font-family:Consolas,'Courier New',monospace;background:#F2F5F7;padding:.05em .35em;border-radius:3px;font-size:0.92em}
+:root{--blue:#3D8DFF;--ink:#101820;--body:#5D6874;--green:#2BAA76;--cyan:#6DCBF4;--panel:#F2F5F7;--blue-tint:#EAF4FF;--green-tint:#EAF6F1;--red-tint:#FFEDED;--dark:#101820;--dark-badge:#1D2A35;--code-bg:#0B1220;--code-tab:#172235;--code-text:#EAF6FF;--code-line:#587087;--dot-red:#FF6B6B;--dot-yellow:#F5C451;--dot-green:#38C987;--subtitle-light:#C9D6E0;--footer-light:#91A2B0;--high-red:#D85B5B;--orange:#E8873D;--orange-tint:#FFF4EB;--red:#D85B5B;--purple:#8B5CF6}
+.sc{padding:0;display:flex;flex-direction:column;height:100%}
+.ch{display:flex;justify-content:space-between;align-items:center;padding:1.8% 3.6% 0}
+.cm{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--blue);letter-spacing:.5px}
+.ct{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--body);letter-spacing:.5px}
+.tt{font-size:clamp(22px,2.9em,48px);font-weight:700;color:var(--ink);padding:.6% 3.6% 0;line-height:1.2}
+.dv{height:1px;background:#E0E4E8;margin:.9% 3.6% 0}
+.bd{flex:1;padding:1.2% 3.6% 3%;overflow-y:auto;overflow-x:hidden}
+.ft{display:flex;justify-content:space-between;align-items:center;padding:0 3.6% .8%;min-height:2.5%}
+.fl{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--body)}
+.fr{font-size:clamp(9px,.85em,14px);font-weight:700;color:var(--body)}
+.s-title{background:var(--dark);position:relative}
+.t-rpanel{position:absolute;right:0;top:0;bottom:0;width:37%;background:var(--blue)}
+.t-cnt{position:relative;z-index:2;padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.t-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan);margin-top:1.5%}
+.t-main{font-size:clamp(28px,4.5em,72px);font-weight:700;color:#fff;line-height:1.15;margin-top:2%}
+.t-sub{font-size:clamp(14px,1.85em,30px);color:var(--subtitle-light);margin-top:2%;max-width:55%;line-height:1.4}
+.t-dur{background:var(--dark-badge);border-radius:.4em;padding:.9em 1.3em;margin-top:auto;margin-bottom:6%;display:inline-block;max-width:50%}
+.t-dur span{font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff}
+.t-ft{position:absolute;bottom:1.2%;left:4%;font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--footer-light)}
+.s-end{background:var(--dark)}
+.s-end .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}
+.s-end .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.s-end .tbl tr:nth-child(even) td{background:#141E2A}
+.s-end .tbl td:first-child{color:var(--cyan);font-weight:700}
+.s-end .bl li{color:#C9D6E0}.s-end .bl li::before{background:var(--cyan)}
+.e-cnt{padding:3.5% 4% 4%;height:100%;display:flex;flex-direction:column}
+.e-mod{font-size:clamp(11px,1em,16px);font-weight:700;color:var(--cyan)}
+.e-ttl{font-size:clamp(24px,3.9em,62px);font-weight:700;color:#fff;line-height:1.2;margin-top:3%}
+.e-dv{height:1px;background:#303C4A;margin-top:4%}
+.e-ban{background:var(--blue);border-radius:.5em;padding:1.2em 1.6em;margin-top:auto;margin-bottom:1.5%}
+.e-ban span{font-size:clamp(13px,1.55em,25px);font-weight:700;color:#fff}
+.bl{list-style:none;padding:0}
+.bl li{font-size:clamp(13px,1.4em,22px);color:var(--ink);line-height:1.55;padding:.25em 0 .25em 1.6em;position:relative}
+.bl li::before{content:'';position:absolute;left:0;top:.65em;width:.5em;height:.5em;border-radius:50%;background:var(--blue)}
+.bl li.s{font-size:clamp(12px,1.28em,20px);color:var(--body);padding-left:3.2em}.bl li.s::before{left:1.6em;width:.4em;height:.4em}
+.ib{background:var(--blue-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ib-l{font-size:clamp(10px,1em,16px);font-weight:700;color:var(--blue)}
+.ib-t{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin-top:.25em}
+.eb{background:var(--green-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.eb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)}
+.db{background:var(--ink);border-radius:.5em;padding:1em 1.3em;margin-top:1em;display:flex;align-items:center;gap:1em}
+.db-l{font-size:clamp(10px,.95em,15px);font-weight:700;color:var(--cyan)}
+.db-t{font-size:clamp(14px,1.8em,29px);font-weight:700;color:#fff}
+.wb{background:var(--red-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.wb-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--red)}
+.ob{background:var(--orange-tint);border-radius:.5em;padding:.9em 1.3em;margin-top:1em}
+.ob-t{font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--orange)}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:clamp(11px,1.15em,18px);margin-top:.6em}
+.tbl th{text-align:left;font-size:clamp(9px,.88em,14px);font-weight:700;color:var(--body);padding:.5em .8em;border-bottom:2px solid #E0E4E8}
+.tbl td{padding:.5em .8em;border-bottom:1px solid #F0F0F0;color:var(--ink);vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--panel)}
+.tbl td:first-child{font-weight:700}
+.cb{background:var(--code-bg);border-radius:.65em;overflow:hidden;font-family:Consolas,'Courier New',monospace;margin:.5em 0}
+.cb-bar{background:var(--code-tab);padding:.65em 1em;display:flex;align-items:center;gap:.5em;border-bottom:.2em solid var(--code-tab)}
+.dot{width:.8em;height:.8em;border-radius:50%}.dot.r{background:var(--dot-red)}.dot.y{background:var(--dot-yellow)}.dot.g{background:var(--dot-green)}
+.cb-fn{font-size:clamp(9px,.88em,14px);font-weight:700;color:#B9C8D8;margin-left:.65em}
+.cb-lg{font-size:clamp(8px,.8em,13px);font-weight:700;color:var(--cyan);margin-left:auto}
+.cb-body{display:flex;padding:.9em 0}
+.cb-ln{color:var(--code-line);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 .4em 0 .9em;text-align:right;user-select:none;border-right:1px solid #2A3A4E;min-width:2.2em}
+.cb-cd{color:var(--code-text);font-size:clamp(11px,1.08em,17px);line-height:1.55;padding:0 1.3em;white-space:pre;flex:1;overflow-x:auto}
+.cb-cd .hl{color:#FF6B6B;font-weight:700}
+.cb-cd .fix{color:#38C987;font-weight:700}
+.cb-cd .dim{color:#587087}
+.sh{font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--ink);margin:1em 0 .5em}
+
+/* Dark slide helpers */
+.dk{background:var(--dark)}.dk .tt{color:#fff}.dk .sh{color:#fff}
+.dk .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}.dk .tbl td{color:#C9D6E0;border-bottom-color:#1D2A35}
+.dk .tbl tr:nth-child(even) td{background:#141E2A}.dk .tbl td:first-child{color:var(--cyan)}
+.dk .bl li{color:#C9D6E0}.dk .bl li::before{background:var(--cyan)}
+.dk code{background:#1D2A35;color:var(--cyan)}
+
+/* Activity slides */
+.s-act{background:#1A1410;position:relative}
+.s-act::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--orange),#F5C451)}
+.a-badge{display:inline-block;background:var(--orange);color:#fff;font-size:clamp(10px,.95em,15px);font-weight:700;padding:.4em 1em;border-radius:.3em;letter-spacing:1px;margin-top:3%}
+.a-ttl{font-size:clamp(24px,3.6em,58px);font-weight:700;color:#fff;line-height:1.2;margin-top:1.5%}
+.a-sub{font-size:clamp(14px,1.6em,26px);color:#C9B89A;margin-top:1%;line-height:1.4}
+.a-time{font-size:clamp(12px,1.2em,19px);color:var(--orange);font-weight:700;margin-top:1.5%}
+.a-bd{flex:1;padding:0 4% 3%;overflow-y:auto}
+.a-bd .tbl th{color:#8899AA;border-bottom-color:#2A3A4E}.a-bd .tbl td{color:#C9D6E0;border-bottom-color:#2A3A4E}
+.a-bd .tbl tr:nth-child(even) td{background:#1E1A14}.a-bd .tbl td:first-child{color:var(--orange)}
+.a-bd .bl li{color:#C9D6E0}.a-bd .bl li::before{background:var(--orange)}
+.a-bd code{background:#2A2218;color:var(--orange)}
+
+/* Demo slides */
+.s-demo{background:#0A1A14;position:relative}
+.s-demo::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--green),var(--cyan))}
+.d-badge{display:inline-block;background:var(--green);color:#fff;font-size:clamp(10px,.95em,15px);font-weight:700;padding:.4em 1em;border-radius:.3em;letter-spacing:1px;margin-top:3%}
+.d-ttl{font-size:clamp(24px,3.6em,58px);font-weight:700;color:#fff;line-height:1.2;margin-top:1.5%}
+.d-sub{font-size:clamp(14px,1.6em,26px);color:#8CC9B0;margin-top:1%;line-height:1.4}
+.d-bd{flex:1;padding:0 4% 3%;overflow-y:auto}
+.d-bd .bl li{color:#C9D6E0}.d-bd .bl li::before{background:var(--green)}
+
+/* Scenario slides */
+.s-scene{background:#1A0A0A;position:relative}
+.s-scene::before{content:'';position:absolute;top:0;left:0;right:0;height:6px;background:linear-gradient(90deg,var(--red),var(--orange))}
+.sc-badge{display:inline-block;background:var(--red);color:#fff;font-size:clamp(10px,.95em,15px);font-weight:700;padding:.4em 1em;border-radius:.3em;letter-spacing:1px;margin-top:3%;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.sc-ttl{font-size:clamp(24px,3.6em,58px);font-weight:700;color:#fff;line-height:1.2;margin-top:1.5%}
+.sc-sub{font-size:clamp(14px,1.6em,26px);color:#C9A0A0;margin-top:1%;line-height:1.4}
+.sc-bd{flex:1;padding:0 4% 3%;overflow-y:auto}
+.sc-bd .tbl th{color:#8899AA;border-bottom-color:#2A2020}.sc-bd .tbl td{color:#C9D6E0;border-bottom-color:#2A2020}
+.sc-bd .tbl tr:nth-child(even) td{background:#1E1414}.sc-bd .tbl td:first-child{color:var(--red)}
+.sc-bd .bl li{color:#C9D6E0}.sc-bd .bl li::before{background:var(--red)}
+
+/* Section divider */
+.slide.s-div.active{background:var(--blue);flex-direction:column;justify-content:center;align-items:flex-start;padding:6%}
+.sd-num{font-size:clamp(14px,1.6em,26px);font-weight:700;color:rgba(255,255,255,.5);letter-spacing:2px}
+.sd-ttl{font-size:clamp(30px,5em,80px);font-weight:700;color:#fff;line-height:1.15;margin-top:1%}
+.sd-sub{font-size:clamp(14px,1.8em,29px);color:rgba(255,255,255,.7);margin-top:1.5%;line-height:1.4}
+
+.sc-counter{position:fixed;top:8px;right:12px;background:rgba(16,24,32,.7);color:#aaa;font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px;z-index:100;pointer-events:none;font-family:Arial,sans-serif}
+/* Two-panel layout helper */
+.two{display:flex;gap:1.5em;margin-top:1em}
+.two>div{flex:1;border-radius:.5em;padding:1em}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- S1: TITLE -->
+<div class="slide s-title active">
+  <div class="t-rpanel"></div>
+  <div class="t-cnt">
+    <div class="t-mod">MODULE 13</div>
+    <div class="t-main">Quality Engineering<br>&amp; Quality Control</div>
+    <div class="t-sub">Find bugs. Triage them. Write tests. Defend your decisions.</div>
+    <div class="t-dur"><span>1 day | Activities + Demos + Assessment + Role Play</span></div>
+    <div class="t-ft">Sustain Engineering Training | August 2026</div>
+  </div>
+</div>
+
+<!-- S2: AGENDA -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">AGENDA</span></div>
+    <div class="tt">Today's Plan</div><div class="dv"></div>
+    <div class="bd">
+      <table class="tbl">
+        <thead><tr><th>Part</th><th>What You DO</th><th>What You LEARN</th></tr></thead>
+        <tbody>
+          <tr><td>Part 1</td><td>Run buggy tests, hunt 6 bugs</td><td>Testing types, test isolation, regressions</td></tr>
+          <tr><td>Part 2</td><td>Triage 8 production bugs</td><td>Severity vs Priority, defect lifecycle</td></tr>
+          <tr><td>Part 3</td><td>Write 15 test cases</td><td>QA vs QC vs QE, quality mindset</td></tr>
+          <tr><td>Part 4</td><td>Fix bugs + write new Jest tests</td><td>Automation pyramid, tools, shift-left</td></tr>
+          <tr><td>Part 5</td><td>Assessment + Role Play</td><td>Communication, triage under pressure</td></tr>
+        </tbody>
+      </table>
+      <div class="ib"><div class="ib-t">Every concept is introduced through an activity first, then labelled with theory after.</div></div>
+    </div>
+    <div class="ft"><span class="fr">02</span></div>
+  </div>
+</div>
+
+<!-- S3: SCENARIO -->
+<div class="slide s-scene">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="sc-badge">PRODUCTION INCIDENT</div>
+    <div class="sc-ttl">FoodExpress is Down</div>
+    <div class="sc-sub">Last night, 11:47 PM -- support tickets started flooding in</div>
+    <div class="sc-bd">
+      <table class="tbl" style="margin-top:1.5em">
+        <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>Double-charged customers</td><td style="color:var(--red);font-weight:700">340</td></tr>
+          <tr><td>Revenue lost</td><td style="color:var(--red);font-weight:700">Rs 68,000</td></tr>
+          <tr><td>Time to detect</td><td>6 hours (from customer complaints)</td></tr>
+          <tr><td>Current test coverage</td><td style="color:var(--red);font-weight:700">0%</td></tr>
+          <tr><td>Test plan</td><td style="color:var(--red);font-weight:700">Does not exist</td></tr>
+        </tbody>
+      </table>
+      <div style="background:#2A1414;border-radius:.5em;padding:1em 1.3em;margin-top:1.5em;border-left:4px solid var(--red)">
+        <div style="font-size:clamp(16px,1.8em,29px);font-weight:700;color:#fff">Your mission today: Find what's broken. Fix it. Make sure it never happens again.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S4: SECTION DIVIDER -->
+<div class="slide s-div">
+  <div class="sd-num">PART 1</div>
+  <div class="sd-ttl">Find the Bugs</div>
+  <div class="sd-sub">Run real tests. Watch them fail. Discover why.</div>
+</div>
+
+<!-- S5: DEMO -- RUN JEST -->
+<div class="slide s-demo">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="d-badge">LIVE DEMO</div>
+    <div class="d-ttl">Run the Test Suite</div>
+    <div class="d-sub">What happens when we run npx jest?</div>
+    <div class="d-bd">
+      <div class="cb" style="margin-top:1em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">Terminal</span><span class="cb-lg">BASH</span></div><div class="cb-body"><div class="cb-cd"><span class="dim">$</span> cd Module-13-QE-QC/Labs/starter-code
+<span class="dim">$</span> npm install
+<span class="dim">$</span> npx jest</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S6: DEMO -- JEST OUTPUT -->
+<div class="slide s-demo">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="d-badge">LIVE DEMO</div>
+    <div class="d-ttl">The Test Results</div>
+    <div class="d-bd">
+      <div class="cb" style="margin-top:1em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">Jest Output</span><span class="cb-lg">RESULT</span></div><div class="cb-body"><div class="cb-cd"><span class="hl">FAIL</span>  test/cart.test.js
+  Cart
+    <span class="fix">PASS</span>  adds an item to the cart
+    <span class="fix">PASS</span>  increases quantity when same item added
+    <span class="fix">PASS</span>  removes an item from the cart
+    <span class="fix">PASS</span>  calculates total correctly
+    <span class="hl">FAIL</span>  returns cart summary
+    <span class="hl">FAIL</span>  fetches delivery fee           <span class="hl">Received: {}</span>
+    <span class="hl">FAIL</span>  applies 10% discount           <span class="hl">Expected 675, got 742.5</span>
+
+<span class="fix">PASS</span>  test/order.test.js
+
+Tests: <span class="hl">3 failed</span>, 10 passed, 13 total</div></div></div>
+      <div style="background:#1A2A20;border-radius:.5em;padding:1em;margin-top:1em;border-left:4px solid var(--green)">
+        <div style="font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--green)">3 tests visibly fail. But there are 3 MORE hidden bugs.</div>
+        <div style="font-size:clamp(12px,1.15em,18px);color:#C9D6E0;margin-top:.3em">order.test.js passes... but does every test actually run?</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S7: BUG 1 -->
+<div class="slide s-demo">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="d-badge">BUG 1 OF 6</div>
+    <div class="d-ttl">Shared State -- No Test Isolation</div>
+    <div class="d-bd">
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">cart.test.js (line 61)</span><span class="cb-lg">BUGGY</span></div><div class="cb-body"><div class="cb-ln">58<br>59<br>60<br>61<br>62<br>63</div><div class="cb-cd"><span class="dim">// Cart is created ONCE and shared across ALL tests</span>
+<span class="dim">// If one test adds items, the next test sees them!</span>
+
+<span class="hl">const cart = new Cart();</span>
+
+describe('Cart', () =&gt; {</div></div></div>
+      <div style="background:#2A1414;border-radius:.5em;padding:1em;margin-top:1em;border-left:4px solid var(--red)">
+        <div style="font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--red)">Why is this dangerous?</div>
+        <div style="font-size:clamp(12px,1.2em,19px);color:#C9A0A0;margin-top:.3em">Tests depend on execution order. They pass alone but fail together. This is the #1 beginner testing mistake.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S8: BUG 1 FIX -->
+<div class="slide s-demo">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="d-badge">BUG 1 -- FIX</div>
+    <div class="d-ttl">Use beforeEach for Fresh State</div>
+    <div class="d-bd">
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">cart.test.js</span><span class="cb-lg">FIXED</span></div><div class="cb-body"><div class="cb-ln">54<br>55<br>56<br>57<br>58<br>59<br>60</div><div class="cb-cd">describe('Cart', () =&gt; {
+  <span class="fix">let cart;</span>
+
+  <span class="fix">beforeEach(() =&gt; {</span>
+    <span class="fix">cart = new Cart();</span>   <span class="dim">// Fresh cart for EVERY test</span>
+  <span class="fix">});</span></div></div></div>
+      <div style="background:#0A1A14;border-radius:.5em;padding:1em;margin-top:1em;border-left:4px solid var(--green)">
+        <div style="font-size:clamp(16px,1.7em,27px);font-weight:700;color:var(--green)">Lesson: Test Isolation</div>
+        <div style="font-size:clamp(13px,1.3em,21px);color:#8CC9B0;margin-top:.3em">Each test must start with a clean state. Never share mutable data between tests.</div>
+        <div style="font-size:clamp(12px,1.15em,18px);color:#8CC9B0;margin-top:.3em">In Java/JUnit: <code style="background:#1A3A20;color:var(--green)">@BeforeEach</code>. In Jest: <code style="background:#1A3A20;color:var(--green)">beforeEach()</code></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S9: BUG 2 -->
+<div class="slide s-demo">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="d-badge">BUG 2 OF 6</div>
+    <div class="d-ttl">toBe vs toEqual</div>
+    <div class="d-bd">
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">cart.test.js (line 92)</span><span class="cb-lg">BUGGY</span></div><div class="cb-body"><div class="cb-ln">91<br>92</div><div class="cb-cd">const summary = cart.toSummary();
+expect(summary)<span class="hl">.toBe(</span>{ itemCount: 1, total: 750 }<span class="hl">)</span>;   <span class="hl">// FAILS!</span></div></div></div>
+      <div class="two">
+        <div style="background:#2A1414">
+          <div style="font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--red)">toBe() = Object.is()</div>
+          <div style="font-size:clamp(12px,1.15em,18px);color:#C9D6E0;margin-top:.3em">Compares by <strong style="color:#fff">reference</strong></div>
+          <div style="font-size:clamp(12px,1.15em,18px);color:#C9D6E0"><code style="background:#3A2020;color:var(--red)">{a:1} === {a:1}</code> is <strong style="color:var(--red)">false</strong></div>
+        </div>
+        <div style="background:#0A2A14">
+          <div style="font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--green)">toEqual() = deep compare</div>
+          <div style="font-size:clamp(12px,1.15em,18px);color:#C9D6E0;margin-top:.3em">Compares by <strong style="color:#fff">structure</strong></div>
+          <div style="font-size:clamp(12px,1.15em,18px);color:#C9D6E0"><code style="background:#1A3A20;color:var(--green)">toEqual({a:1})</code> is <strong style="color:var(--green)">true</strong></div>
+        </div>
+      </div>
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">cart.test.js</span><span class="cb-lg">FIXED</span></div><div class="cb-body"><div class="cb-ln">93</div><div class="cb-cd">expect(summary)<span class="fix">.toEqual(</span>{ itemCount: 1, total: 750 }<span class="fix">)</span>;</div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S10: BUG 3 -->
+<div class="slide s-demo">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="d-badge">BUG 3 OF 6</div>
+    <div class="d-ttl">Missing await</div>
+    <div class="d-sub">The most confusing error message you'll ever see</div>
+    <div class="d-bd">
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">cart.test.js (line 97-99)</span><span class="cb-lg">BUGGY</span></div><div class="cb-body"><div class="cb-ln">97<br>98<br>99</div><div class="cb-cd">test('fetches delivery fee', () =&gt; {
+  const fee = cart.fetchDeliveryFee('560001');   <span class="dim">// Returns a Promise!</span>
+  expect(fee).toBe(30);   <span class="hl">// Comparing Promise to 30</span></div></div></div>
+      <div style="background:#2A1414;border-radius:.5em;padding:1em;margin-top:1em;border-left:4px solid var(--red)">
+        <div style="font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--red)">Jest says: Expected 30, Received: {}</div>
+        <div style="font-size:clamp(12px,1.2em,19px);color:#C9A0A0;margin-top:.3em">The <code style="background:#3A2020;color:var(--red)">{}</code> is a Promise object. The real value (30) is trapped inside it.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S11: BUG 3 FIX -->
+<div class="slide s-demo">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="d-badge">BUG 3 -- FIX</div>
+    <div class="d-ttl">Add async / await</div>
+    <div class="d-bd">
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">cart.test.js</span><span class="cb-lg">FIXED</span></div><div class="cb-body"><div class="cb-ln">105<br>106<br>107</div><div class="cb-cd">test('fetches delivery fee', <span class="fix">async</span> () =&gt; {
+  const fee = <span class="fix">await</span> cart.fetchDeliveryFee('560001');
+  expect(fee).toBe(30);   <span class="fix">// Now tests the actual resolved value</span></div></div></div>
+      <div style="background:#0A1A14;border-radius:.5em;padding:1em;margin-top:1em;border-left:4px solid var(--green)">
+        <div style="font-size:clamp(16px,1.7em,27px);font-weight:700;color:var(--green)">Lesson: Async Tests Need async/await</div>
+        <div style="font-size:clamp(13px,1.3em,21px);color:#8CC9B0;margin-top:.3em">In older Jest versions, this would <strong style="color:#fff">silently pass</strong> -- a false positive. The most dangerous kind of test bug.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S12: BUG 4 -->
+<div class="slide s-demo">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="d-badge">BUG 4 OF 6</div>
+    <div class="d-ttl">Regression -- Discount Broken</div>
+    <div class="d-sub">A feature that used to work, but broke after a code change</div>
+    <div class="d-bd">
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">Cart class -- applyDiscount()</span><span class="cb-lg">BUGGY</span></div><div class="cb-body"><div class="cb-ln">33<br>34</div><div class="cb-cd">applyDiscount(percent) {
+  const factor = 1 - percent / <span class="hl">1000</span>;   <span class="hl">// Should be 100!</span></div></div></div>
+      <div class="two">
+        <div style="background:#2A1414">
+          <div style="font-size:clamp(11px,1.05em,16px);font-weight:700;color:var(--red)">WITH BUG (/ 1000)</div>
+          <div style="font-size:clamp(14px,1.5em,24px);color:#C9D6E0;margin-top:.5em">10% discount on Rs 750:</div>
+          <div style="font-size:clamp(18px,2em,32px);font-weight:700;color:var(--red);margin-top:.3em">Rs 742.50</div>
+          <div style="font-size:clamp(11px,1.05em,16px);color:#C9A0A0">Only 1% off!</div>
+        </div>
+        <div style="background:#0A2A14">
+          <div style="font-size:clamp(11px,1.05em,16px);font-weight:700;color:var(--green)">CORRECT (/ 100)</div>
+          <div style="font-size:clamp(14px,1.5em,24px);color:#C9D6E0;margin-top:.5em">10% discount on Rs 750:</div>
+          <div style="font-size:clamp(18px,2em,32px);font-weight:700;color:var(--green);margin-top:.3em">Rs 675.00</div>
+          <div style="font-size:clamp(11px,1.05em,16px);color:#8CC9B0">Correct!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S13: BUG 4 IMPACT -->
+<div class="slide s-scene">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="sc-badge">BUSINESS IMPACT</div>
+    <div class="sc-ttl">Rs 67.50 Lost Per Order</div>
+    <div class="sc-sub">This is the bug that caused the Rs 68,000 incident</div>
+    <div class="sc-bd">
+      <table class="tbl" style="margin-top:1.5em">
+        <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr><td>Orders per day</td><td>500</td></tr>
+          <tr><td>% using discounts</td><td>20%</td></tr>
+          <tr><td>Avg undercharge per order</td><td>Rs 67.50</td></tr>
+          <tr><td>Daily revenue loss</td><td style="color:var(--red);font-weight:700">Rs 6,750</td></tr>
+          <tr><td>10 days undetected</td><td style="color:var(--red);font-weight:700">Rs 67,500</td></tr>
+        </tbody>
+      </table>
+      <div style="background:#2A1414;border-radius:.5em;padding:1em;margin-top:1em;border-left:4px solid var(--red)">
+        <div style="font-size:clamp(14px,1.5em,24px);font-weight:700;color:#fff">This is called a REGRESSION</div>
+        <div style="font-size:clamp(12px,1.2em,19px);color:#C9A0A0;margin-top:.3em">A working feature broke after a code change. This is exactly what regression tests are supposed to catch.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S14: BUG 5 -->
+<div class="slide s-demo">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="d-badge">BUG 5 OF 6</div>
+    <div class="d-ttl">Ghost Test -- Never Runs</div>
+    <div class="d-sub">order.test.js -- this function looks like a test but Jest ignores it</div>
+    <div class="d-bd">
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">order.test.js (line 78)</span><span class="cb-lg">BUGGY</span></div><div class="cb-body"><div class="cb-ln">78<br>79<br>80<br>81</div><div class="cb-cd"><span class="hl">function testCancelDeliveredOrderThrows()</span> {
+  order.status = 'delivered';
+  expect(() =&gt; order.cancel()).toThrow('Cannot cancel a delivered order');
+}</div></div></div>
+      <div style="background:#2A1414;border-radius:.5em;padding:1em;margin-top:1em;border-left:4px solid var(--red)">
+        <div style="font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--red)">This test was WRITTEN. But it NEVER RUNS.</div>
+        <div style="font-size:clamp(12px,1.2em,19px);color:#C9A0A0;margin-top:.3em">It's a plain <code style="background:#3A2020;color:var(--red)">function</code>, not wrapped in <code style="background:#3A2020;color:var(--red)">test()</code>. Jest doesn't know it exists. The code coverage tool shows 0% for that path. But the file looks complete.</div>
+      </div>
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">order.test.js</span><span class="cb-lg">FIXED</span></div><div class="cb-body"><div class="cb-ln">73<br>74<br>75<br>76</div><div class="cb-cd"><span class="fix">test('throws when cancelling a delivered order', () =&gt; {</span>
+  order.status = 'delivered';
+  expect(() =&gt; order.cancel()).toThrow('Cannot cancel a delivered order');
+<span class="fix">});</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S15: BUG 6 -->
+<div class="slide s-demo">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="d-badge">BUG 6 OF 6</div>
+    <div class="d-ttl">Arguments Swapped</div>
+    <div class="d-sub">order.test.js -- passes by coincidence, confusing on failure</div>
+    <div class="d-bd">
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">order.test.js (line 72)</span><span class="cb-lg">BUGGY</span></div><div class="cb-body"><div class="cb-ln">71<br>72</div><div class="cb-cd">test('calculates total with delivery fee', () =&gt; {
+  expect(<span class="hl">450</span>).toBe(<span class="hl">order.getTotal()</span>);   <span class="dim">// Backwards!</span></div></div></div>
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">order.test.js</span><span class="cb-lg">FIXED</span></div><div class="cb-body"><div class="cb-ln">64<br>65</div><div class="cb-cd">test('calculates total with delivery fee', () =&gt; {
+  expect(<span class="fix">order.getTotal()</span>).toBe(<span class="fix">450</span>);   <span class="dim">// actual.toBe(expected)</span></div></div></div>
+      <div style="background:#0A1A14;border-radius:.5em;padding:1em;margin-top:1em;border-left:4px solid var(--green)">
+        <div style="font-size:clamp(14px,1.5em,24px);font-weight:700;color:var(--green)">Jest convention: expect(actual).toBe(expected)</div>
+        <div style="font-size:clamp(12px,1.2em,19px);color:#8CC9B0;margin-top:.3em">The swapped version passes by coincidence (450 === 450), but if it fails the error message is backwards and misleading.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S16: ACTIVITY 1 -->
+<div class="slide s-act">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="a-badge">ACTIVITY 1</div>
+    <div class="a-ttl">Bug Hunt Challenge</div>
+    <div class="a-time">25 minutes | Work in pairs</div>
+    <div class="a-bd">
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">Terminal</span><span class="cb-lg">START HERE</span></div><div class="cb-body"><div class="cb-cd">cd Module-13-QE-QC/Labs/starter-code
+npm install
+npx jest</div></div></div>
+      <table class="tbl" style="margin-top:.8em">
+        <thead><tr><th>Task</th><th>Details</th></tr></thead>
+        <tbody>
+          <tr><td>Find</td><td>6 bugs across 2 files (4 in cart.test.js + 2 in order.test.js)</td></tr>
+          <tr><td>For each bug</td><td>What's wrong? Why is it dangerous? How to fix?</td></tr>
+          <tr><td>Watch out</td><td>3 tests visibly FAIL. 3 more bugs are hidden in passing tests.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- S17: THEORY -- What is Testing -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">CONCEPTS</span></div>
+    <div class="tt">What Is Testing?</div><div class="dv"></div>
+    <div class="bd">
+      <ul class="bl" style="margin-top:1em">
+        <li>Process of finding differences between <strong>expected</strong> and <strong>actual</strong> behavior</li>
+        <li>Testing proves the <strong>presence</strong> of bugs, not their <strong>absence</strong></li>
+        <li>Testing is a <strong>risk reduction</strong> activity, not a guarantee</li>
+      </ul>
+      <div class="ib"><div class="ib-l">YOU JUST EXPERIENCED THIS</div><div class="ib-t">Running npx jest found 3 failures. But 3 more bugs were hidden in passing tests. Testing is not just "run and see green."</div></div>
+    </div>
+    <div class="ft"><span class="fr">17</span></div>
+  </div>
+</div>
+
+<!-- S18: THEORY -- Testing Types Functional -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">TESTING TYPES</span></div>
+    <div class="tt">Functional Testing Types</div><div class="dv"></div>
+    <div class="bd">
+      <table class="tbl">
+        <thead><tr><th>Type</th><th>What It Tests</th><th>FoodExpress Example</th></tr></thead>
+        <tbody>
+          <tr><td>Unit</td><td>One function in isolation</td><td><code>calculateTotal()</code></td></tr>
+          <tr><td>Integration</td><td>Components together</td><td>Order API + Database</td></tr>
+          <tr><td>System / E2E</td><td>Full user flow</td><td>Place order &rarr; confirm &rarr; deliver</td></tr>
+          <tr><td>Smoke</td><td>Does the app even start?</td><td>Can users log in?</td></tr>
+          <tr><td>Sanity</td><td>Does my specific fix work?</td><td>Tax calculation fix verified</td></tr>
+          <tr><td>Regression</td><td>Did I break old features?</td><td>Bug 4: discount broke!</td></tr>
+          <tr><td>UAT</td><td>Business requirements met?</td><td>Product owner verifies flow</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ft"><span class="fr">18</span></div>
+  </div>
+</div>
+
+<!-- S19: THEORY -- Non-Functional -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">TESTING TYPES</span></div>
+    <div class="tt">Non-Functional Testing Types</div><div class="dv"></div>
+    <div class="bd">
+      <table class="tbl">
+        <thead><tr><th>Type</th><th>What It Tests</th><th>FoodExpress Example</th></tr></thead>
+        <tbody>
+          <tr><td>Performance</td><td>Speed, throughput</td><td>API responds in &lt; 200ms</td></tr>
+          <tr><td>Load</td><td>Expected user volume</td><td>1000 concurrent users</td></tr>
+          <tr><td>Stress</td><td>Beyond capacity</td><td>10,000 concurrent orders</td></tr>
+          <tr><td>Security</td><td>Vulnerabilities</td><td>SQL injection, auth bypass</td></tr>
+          <tr><td>Usability</td><td>User experience</td><td>Order in 3 clicks?</td></tr>
+          <tr><td>Compatibility</td><td>Cross-platform</td><td>Chrome, Safari, mobile</td></tr>
+          <tr><td>Reliability</td><td>Uptime, recovery</td><td>Service restarts after crash</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ft"><span class="fr">19</span></div>
+  </div>
+</div>
+
+<!-- S20: THEORY -- Testing Sequence -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">PROCESS</span></div>
+    <div class="tt">After a Deployment -- Test in This Order</div><div class="dv"></div>
+    <div class="bd">
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">test-sequence.txt</span><span class="cb-lg">FLOW</span></div><div class="cb-body"><div class="cb-cd">Deploy
+  |
+  v
+Smoke Test      "Does the app even start?"
+  |
+  v
+Sanity Test     "Does my specific fix work?"
+  |
+  v
+Regression Test "Did I break anything else?"
+  |
+  v
+UAT             "Does business accept this?"</div></div></div>
+      <div class="ib"><div class="ib-t">Smoke vs Sanity: Smoke checks the whole system starts. Sanity checks your specific change works. Always do both.</div></div>
+    </div>
+    <div class="ft"><span class="fr">20</span></div>
+  </div>
+</div>
+
+<!-- S21: SECTION DIVIDER -->
+<div class="slide s-div">
+  <div class="sd-num">PART 2</div>
+  <div class="sd-ttl">Triage the Damage</div>
+  <div class="sd-sub">8 production bugs. Capacity to fix 4. Which ones?</div>
+</div>
+
+<!-- S22: ACTIVITY 2 -->
+<div class="slide s-act">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="a-badge">ACTIVITY 2</div>
+    <div class="a-ttl">You Are the QA Lead</div>
+    <div class="a-time">40 minutes | Solo &rarr; Pair &rarr; Class vote</div>
+    <div class="a-bd">
+      <table class="tbl" style="margin-top:.5em;font-size:clamp(10px,1.05em,16px)">
+        <thead><tr><th>#</th><th>Bug</th><th>Frequency</th><th>Impact</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>Double charge on credit card</td><td>2% of orders</td><td>12 customers</td></tr>
+          <tr><td>2</td><td>Search returns closed restaurants</td><td>Always</td><td>3 customers</td></tr>
+          <tr><td>3</td><td>Delivery tracking wrong location</td><td>Intermittent</td><td>8 customers</td></tr>
+          <tr><td>4</td><td>Push notifications broken Android 14</td><td>All Android 14</td><td>5 customers</td></tr>
+          <tr><td>5</td><td>Order history takes 12 seconds</td><td>All 50+ orders</td><td>20 customers</td></tr>
+          <tr><td>6</td><td>Promo WELCOME50 gives 50% off not Rs 50</td><td>100%</td><td>Financial loss</td></tr>
+          <tr><td>7</td><td>Rating shows 0.0 after first review</td><td>First review</td><td>2 customers</td></tr>
+          <tr><td>8</td><td>Logo stretched on tablet</td><td>iPad landscape</td><td>1 customer</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:clamp(12px,1.2em,19px);color:var(--orange);font-weight:700;margin-top:.8em">For each bug: Severity? Priority? Fix this sprint (Yes/No)?</div>
+    </div>
+  </div>
+</div>
+
+<!-- S23: THEORY -- Severity -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">KEY CONCEPT</span></div>
+    <div class="tt">Severity = How Bad Is the Damage?</div><div class="dv"></div>
+    <div class="bd">
+      <table class="tbl" style="margin-top:1em">
+        <thead><tr><th>Level</th><th>Definition</th><th>FoodExpress Example</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--red)">Critical</td><td>System crash, data loss, financial impact</td><td>Payment charged twice</td></tr>
+          <tr><td style="color:var(--orange)">Major</td><td>Feature broken, no workaround</td><td>Search returns 500 error</td></tr>
+          <tr><td style="color:var(--blue)">Minor</td><td>Feature works, cosmetic/low impact</td><td>Wrong timezone on order history</td></tr>
+          <tr><td style="color:var(--body)">Trivial</td><td>No functional impact</td><td>Wrong font on admin page</td></tr>
+        </tbody>
+      </table>
+      <div class="ib"><div class="ib-t">Severity is about technical impact. It doesn't change based on who reports it.</div></div>
+    </div>
+    <div class="ft"><span class="fr">23</span></div>
+  </div>
+</div>
+
+<!-- S24: THEORY -- Priority -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">KEY CONCEPT</span></div>
+    <div class="tt">Priority = How Soon Must We Fix It?</div><div class="dv"></div>
+    <div class="bd">
+      <table class="tbl" style="margin-top:1em">
+        <thead><tr><th>Level</th><th>Definition</th><th>FoodExpress Example</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--red)">P1 -- Urgent</td><td>Fix immediately, drop everything</td><td>Payment double-charge</td></tr>
+          <tr><td style="color:var(--orange)">P2 -- High</td><td>Fix this sprint</td><td>Search shows closed restaurants</td></tr>
+          <tr><td style="color:var(--blue)">P3 -- Medium</td><td>Fix next sprint</td><td>Order history slow for power users</td></tr>
+          <tr><td style="color:var(--body)">P4 -- Low</td><td>Fix when time permits</td><td>Logo stretched on one tablet</td></tr>
+        </tbody>
+      </table>
+      <div class="ib"><div class="ib-t">Priority is about business urgency. It CAN differ from severity.</div></div>
+    </div>
+    <div class="ft"><span class="fr">24</span></div>
+  </div>
+</div>
+
+<!-- S25: THEORY -- Severity vs Priority Matrix -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">KEY CONCEPT</span></div>
+    <div class="tt">When Severity and Priority Differ</div><div class="dv"></div>
+    <div class="bd">
+      <table class="tbl" style="margin-top:1em">
+        <thead><tr><th></th><th>High Priority</th><th>Low Priority</th></tr></thead>
+        <tbody>
+          <tr><td>High Severity</td><td style="background:var(--red-tint);color:var(--red);font-weight:700">Payment fails for all users<br>(fix NOW)</td><td>PDF export crashes<br>(workaround: use CSV)</td></tr>
+          <tr><td>Low Severity</td><td style="background:var(--orange-tint);color:var(--orange)">Typo on homepage<br>(CEO noticed it)</td><td>Color mismatch on admin page</td></tr>
+        </tbody>
+      </table>
+      <div class="wb" style="margin-top:1em"><div class="wb-t">The CEO's Photo Bug: Trivial severity (no functional impact) but P1 priority (CEO escalated). This is where they SPLIT.</div></div>
+      <div class="eb" style="margin-top:.5em"><div class="eb-t">From your triage: Bug #1 (double charge) = Critical/P1. Bug #6 (promo code) = Critical/P1. Bug #8 (logo) = Trivial/P4. Did you get these right?</div></div>
+    </div>
+    <div class="ft"><span class="fr">25</span></div>
+  </div>
+</div>
+
+<!-- S26: THEORY -- Defect Lifecycle -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">PROCESS</span></div>
+    <div class="tt">Defect Lifecycle</div><div class="dv"></div>
+    <div class="bd">
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">defect-states.txt</span><span class="cb-lg">FLOW</span></div><div class="cb-body"><div class="cb-cd">+--------+    +----------+    +--------+    +----------+
+|  New   | -&gt; | Assigned | -&gt; | Fixed  | -&gt; | Verified |
++--------+    +----------+    +--------+    +----------+
+    |              |                              |
+    v              v                              v
++--------+    +----------+                  +--------+
+|Rejected|    |Deferred  |                  | Closed |
++--------+    +----------+                  +--------+
+                                                |
+                                                v
+                                          +----------+
+                                          | Reopened |
+                                          +----------+</div></div></div>
+      <div class="ib"><div class="ib-t">A bug moves through these states. "Deferred" means "we know about it but won't fix it now." "Reopened" means the fix didn't work.</div></div>
+    </div>
+    <div class="ft"><span class="fr">26</span></div>
+  </div>
+</div>
+
+<!-- S27: THEORY -- Bug Report Template -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">TEMPLATE</span></div>
+    <div class="tt">Writing a Bug Report</div><div class="dv"></div>
+    <div class="bd">
+      <table class="tbl">
+        <thead><tr><th>Field</th><th>Example (Bug #1 from your triage)</th></tr></thead>
+        <tbody>
+          <tr><td>Title</td><td>Payment charged twice for orders above Rs 2000</td></tr>
+          <tr><td>Severity</td><td style="color:var(--red)">Critical</td></tr>
+          <tr><td>Priority</td><td style="color:var(--red)">P1</td></tr>
+          <tr><td>Steps to Reproduce</td><td>1. Add items totaling Rs 2500  2. Select Credit Card  3. Click "Place Order"</td></tr>
+          <tr><td>Expected</td><td>Single charge of Rs 2500</td></tr>
+          <tr><td>Actual</td><td style="color:var(--red)">Two charges of Rs 2500 each</td></tr>
+          <tr><td>Environment</td><td>Production, all payment gateways</td></tr>
+          <tr><td>Impact</td><td>340 customers, Rs 68,000 revenue loss</td></tr>
+        </tbody>
+      </table>
+      <div class="eb"><div class="eb-t">Good bug reports have specific steps, clear expected vs actual, and quantified impact. "It doesn't work" is not a bug report.</div></div>
+    </div>
+    <div class="ft"><span class="fr">27</span></div>
+  </div>
+</div>
+
+<!-- S28: SECTION DIVIDER -->
+<div class="slide s-div">
+  <div class="sd-num">PART 3</div>
+  <div class="sd-ttl">Plan &amp; Protect</div>
+  <div class="sd-sub">Write test cases. Understand QA vs QC vs QE.</div>
+</div>
+
+<!-- S29: ACTIVITY 3 -->
+<div class="slide s-act">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="a-badge">ACTIVITY 3</div>
+    <div class="a-ttl">Write 15 Test Cases</div>
+    <div class="a-time">45 minutes | Individual &rarr; Peer review</div>
+    <div class="a-bd">
+      <div style="background:#2A2218;border-radius:.5em;padding:.8em 1em;margin-top:.5em;border-left:4px solid var(--orange)">
+        <div style="font-size:clamp(12px,1.2em,19px);font-weight:700;color:var(--orange)">Feature: FoodExpress Order Placement</div>
+        <ul class="bl" style="margin-top:.3em">
+          <li style="font-size:clamp(11px,1.1em,17px)">Minimum order: <strong style="color:#fff">Rs 99</strong> | Maximum items: <strong style="color:#fff">20</strong></li>
+          <li style="font-size:clamp(11px,1.1em,17px)">Delivery: <strong style="color:#fff">Rs 30</strong> under Rs 500, <strong style="color:#fff">free</strong> at Rs 500+</li>
+          <li style="font-size:clamp(11px,1.1em,17px)">Payment: COD, Credit Card, UPI</li>
+        </ul>
+      </div>
+      <table class="tbl" style="margin-top:.5em">
+        <thead><tr><th>Must Include</th><th>Key Values to Test</th></tr></thead>
+        <tbody>
+          <tr><td>3+ happy path</td><td>Valid orders with each payment method</td></tr>
+          <tr><td>4+ boundary</td><td>Rs 98/99/100, Rs 499/500/501, 19/20/21 items</td></tr>
+          <tr><td>3+ negative</td><td>Empty cart, closed restaurant, invalid payment</td></tr>
+          <tr><td>2+ edge</td><td>Concurrent orders, midnight boundary, unicode</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:clamp(11px,1.1em,17px);color:var(--orange);margin-top:.8em">Format: TC-ID | Category | Scenario | Steps | Expected Result | Priority</div>
+    </div>
+  </div>
+</div>
+
+<!-- S30: THEORY -- QA -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">FRAMEWORK</span></div>
+    <div class="tt">QA -- Quality Assurance</div><div class="dv"></div>
+    <div class="bd">
+      <div class="two">
+        <div style="background:var(--blue-tint)">
+          <div style="font-size:clamp(18px,2em,32px);font-weight:700;color:var(--blue)">Process</div>
+          <div style="font-size:clamp(14px,1.5em,24px);color:var(--ink);margin-top:.5em">Preventive</div>
+        </div>
+        <div style="background:var(--panel)">
+          <div style="font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--ink)">Goal: Prevent defects from happening</div>
+        </div>
+      </div>
+      <ul class="bl" style="margin-top:1em">
+        <li>Code review guidelines and checklists</li>
+        <li>Branching strategy and standards</li>
+        <li>CI/CD gates that block bad code</li>
+        <li>Test plans and test strategies</li>
+      </ul>
+      <div class="ib"><div class="ib-l">WHAT YOU DID</div><div class="ib-t">Writing 15 test cases (Activity 3) is QA -- you are creating a process to prevent defects.</div></div>
+    </div>
+    <div class="ft"><span class="fr">30</span></div>
+  </div>
+</div>
+
+<!-- S31: THEORY -- QC -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">FRAMEWORK</span></div>
+    <div class="tt">QC -- Quality Control</div><div class="dv"></div>
+    <div class="bd">
+      <div class="two">
+        <div style="background:var(--green-tint)">
+          <div style="font-size:clamp(18px,2em,32px);font-weight:700;color:var(--green)">Product</div>
+          <div style="font-size:clamp(14px,1.5em,24px);color:var(--ink);margin-top:.5em">Detective</div>
+        </div>
+        <div style="background:var(--panel)">
+          <div style="font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--ink)">Goal: Find defects in the product</div>
+        </div>
+      </div>
+      <ul class="bl" style="margin-top:1em">
+        <li>Running test cases and reporting results</li>
+        <li>Verifying bug fixes in staging</li>
+        <li>Regression testing after each release</li>
+        <li>Exploratory testing to find edge cases</li>
+      </ul>
+      <div class="ib"><div class="ib-l">WHAT YOU DID</div><div class="ib-t">Running buggy tests and finding 6 bugs (Activity 1) is QC -- you found defects in the product.</div></div>
+    </div>
+    <div class="ft"><span class="fr">31</span></div>
+  </div>
+</div>
+
+<!-- S32: THEORY -- QE -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">FRAMEWORK</span></div>
+    <div class="tt">QE -- Quality Engineering</div><div class="dv"></div>
+    <div class="bd">
+      <div class="two">
+        <div style="background:#EAE4FF">
+          <div style="font-size:clamp(18px,2em,32px);font-weight:700;color:var(--purple)">System</div>
+          <div style="font-size:clamp(14px,1.5em,24px);color:var(--ink);margin-top:.5em">Proactive</div>
+        </div>
+        <div style="background:var(--panel)">
+          <div style="font-size:clamp(14px,1.4em,22px);font-weight:700;color:var(--ink)">Goal: Build quality into the system</div>
+        </div>
+      </div>
+      <ul class="bl" style="margin-top:1em">
+        <li>Automated test pipelines that run on every PR</li>
+        <li>Performance benchmarks and SLO monitoring</li>
+        <li>Observability: logs, metrics, alerts</li>
+        <li>Chaos engineering and resilience testing</li>
+      </ul>
+      <div class="ib"><div class="ib-l">WHAT YOU'LL DO NEXT</div><div class="ib-t">Fixing buggy tests and writing new automated tests (Activity 4) is QE -- you're engineering quality into the system.</div></div>
+    </div>
+    <div class="ft"><span class="fr">32</span></div>
+  </div>
+</div>
+
+<!-- S33: THEORY -- QA/QC/QE Comparison -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">COMPARISON</span></div>
+    <div class="tt">QA vs QC vs QE at a Glance</div><div class="dv"></div>
+    <div class="bd">
+      <table class="tbl" style="margin-top:1em">
+        <thead><tr><th>Aspect</th><th>QA</th><th>QC</th><th>QE</th></tr></thead>
+        <tbody>
+          <tr><td>Focus</td><td>Process</td><td>Product</td><td>System</td></tr>
+          <tr><td>Nature</td><td>Preventive</td><td>Detective</td><td>Proactive</td></tr>
+          <tr><td>Activities</td><td>Reviews, standards</td><td>Test execution</td><td>Automation, monitoring</td></tr>
+          <tr><td>Analogy</td><td>Recipe &amp; hygiene rules</td><td>Taste-testing dishes</td><td>Automated temp sensors</td></tr>
+        </tbody>
+      </table>
+      <div class="sh">Quick Check -- QA, QC, or QE?</div>
+      <ul class="bl">
+        <li>"Setting up a linting rule that blocks console.log" -- <strong>QA</strong></li>
+        <li>"Running 50 test cases on checkout" -- <strong>QC</strong></li>
+        <li>"Building CI pipeline that runs tests on every PR" -- <strong>QE</strong></li>
+      </ul>
+    </div>
+    <div class="ft"><span class="fr">33</span></div>
+  </div>
+</div>
+
+<!-- S34: THEORY -- Cost of Defects -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">MINDSET</span></div>
+    <div class="tt">The Cost of Finding Bugs Late</div><div class="dv"></div>
+    <div class="bd">
+      <table class="tbl" style="margin-top:1em">
+        <thead><tr><th>Stage Found</th><th>Cost</th><th>FoodExpress Example</th></tr></thead>
+        <tbody>
+          <tr><td style="color:var(--green)">Requirements</td><td>$1</td><td>Catch missing validation in the spec</td></tr>
+          <tr><td style="color:var(--blue)">Development</td><td>$10</td><td>Fix during code review</td></tr>
+          <tr><td style="color:var(--orange)">Testing</td><td>$100</td><td>Bug found by QA in staging</td></tr>
+          <tr><td style="color:var(--red)">Production</td><td>$1,000+</td><td style="color:var(--red);font-weight:700">340 double charges, Rs 68K lost</td></tr>
+        </tbody>
+      </table>
+      <div class="db" style="margin-top:1.5em"><div class="db-l">1000x</div><div class="db-t">A production bug costs 1000x more than catching it in requirements</div></div>
+    </div>
+    <div class="ft"><span class="fr">34</span></div>
+  </div>
+</div>
+
+<!-- S35: THEORY -- Quality Principles -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">MINDSET</span></div>
+    <div class="tt">Quality Principles for Sustain Engineers</div><div class="dv"></div>
+    <div class="bd">
+      <ul class="bl" style="margin-top:1em">
+        <li><strong>Prevention over detection</strong> -- catch defects early, not in production</li>
+        <li><strong>Shift left</strong> -- test at requirements, design, code, not just at the end</li>
+        <li><strong>Everyone owns quality</strong> -- not just the QA team</li>
+        <li><strong>Every bug fix gets a test</strong> -- so it never comes back</li>
+        <li><strong>Ask "How was this missed?"</strong> -- improve the process, not just the code</li>
+      </ul>
+      <div class="wb" style="margin-top:1em"><div class="wb-t">You are sustain engineers. You inherit code with technical debt. Your job is to make it better, not perfect. Start with the highest-risk areas.</div></div>
+    </div>
+    <div class="ft"><span class="fr">35</span></div>
+  </div>
+</div>
+
+<!-- S36: SECTION DIVIDER -->
+<div class="slide s-div">
+  <div class="sd-num">PART 4</div>
+  <div class="sd-ttl">Fix, Write, Automate</div>
+  <div class="sd-sub">Fix the buggy tests. Write new ones. Decide what to automate.</div>
+</div>
+
+<!-- S37: ACTIVITY 4 -- Fix -->
+<div class="slide s-act">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="a-badge">ACTIVITY 4 -- STEP 1</div>
+    <div class="a-ttl">Fix All 6 Bugs</div>
+    <div class="a-time">15 minutes | Hands-on coding</div>
+    <div class="a-bd">
+      <table class="tbl" style="margin-top:.5em">
+        <thead><tr><th>File</th><th>Bug</th><th>Fix</th></tr></thead>
+        <tbody>
+          <tr><td>cart.test.js</td><td>Shared state</td><td>Add <code>beforeEach</code> with new Cart()</td></tr>
+          <tr><td>cart.test.js</td><td>toBe on object</td><td>Change to <code>toEqual</code></td></tr>
+          <tr><td>cart.test.js</td><td>Missing await</td><td>Add <code>async/await</code></td></tr>
+          <tr><td>Cart class</td><td>percent/1000</td><td>Change to <code>percent/100</code></td></tr>
+          <tr><td>order.test.js</td><td>Ghost function</td><td>Wrap in <code>test()</code></td></tr>
+          <tr><td>order.test.js</td><td>Args swapped</td><td><code>expect(order.getTotal()).toBe(450)</code></td></tr>
+        </tbody>
+      </table>
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">Terminal</span><span class="cb-lg">VERIFY</span></div><div class="cb-body"><div class="cb-cd"><span class="dim">$</span> npx jest --verbose    <span class="dim"># ALL tests should now PASS</span></div></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- S38: ACTIVITY 4 -- Write New -->
+<div class="slide s-act">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="a-badge">ACTIVITY 4 -- STEP 2</div>
+    <div class="a-ttl">Write 3 New Tests</div>
+    <div class="a-time">20 minutes | Hands-on coding</div>
+    <div class="a-bd">
+      <div style="font-size:clamp(12px,1.2em,19px);color:var(--orange);font-weight:700;margin-top:.5em">Add to cart.test.js -- pick any 3:</div>
+      <table class="tbl" style="margin-top:.5em">
+        <tbody>
+          <tr><td>a</td><td><code>getTotal()</code> with empty cart &rarr; should return 0</td></tr>
+          <tr><td>b</td><td><code>addItem()</code> with quantity 0 &rarr; what should happen?</td></tr>
+          <tr><td>c</td><td><code>removeItem()</code> for non-existent ID &rarr; should not crash</td></tr>
+          <tr><td>d</td><td><code>applyDiscount(0)</code> &rarr; should return original total</td></tr>
+          <tr><td>e</td><td><code>applyDiscount(100)</code> &rarr; should return 0</td></tr>
+          <tr><td>f</td><td><code>fetchDeliveryFee('400001')</code> &rarr; non-Bangalore = Rs 50</td></tr>
+        </tbody>
+      </table>
+      <div class="cb" style="margin-top:.8em"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">Terminal</span><span class="cb-lg">VERIFY</span></div><div class="cb-body"><div class="cb-cd"><span class="dim">$</span> npx jest --verbose    <span class="dim"># Your new tests should PASS too</span></div></div></div>
+      <div style="background:#2A2218;border-radius:.5em;padding:.6em 1em;margin-top:.5em;border-left:4px solid var(--orange)">
+        <div style="font-size:clamp(11px,1.1em,17px);color:var(--orange);font-weight:700">BONUS: Write a test that FAILS first. Then fix the code to make it pass. That's TDD.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- S39: THEORY -- Automation Pyramid -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">STRATEGY</span></div>
+    <div class="tt">Test Automation Pyramid</div><div class="dv"></div>
+    <div class="bd">
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">pyramid.txt</span><span class="cb-lg">ARCHITECTURE</span></div><div class="cb-body"><div class="cb-cd">              /\
+             /  \         <span class="hl">UI/E2E Tests (10%)</span>
+            /    \        Slow, expensive, brittle
+           /------\
+          /        \      <span class="dim">Integration Tests (20%)</span>
+         /          \     API tests, service tests
+        /--------------\
+       /                \ <span class="fix">Unit Tests (70%)</span>
+      /                  \Fast, cheap, reliable
+     /____________________\    <span class="fix">&lt;-- YOU WERE HERE TODAY</span></div></div></div>
+      <div class="ib"><div class="ib-t">70% unit tests (fast, cheap) | 20% integration tests (moderate) | 10% UI tests (slow, expensive)</div></div>
+    </div>
+    <div class="ft"><span class="fr">39</span></div>
+  </div>
+</div>
+
+<!-- S40: THEORY -- Manual vs Automation -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">STRATEGY</span></div>
+    <div class="tt">Manual vs Automation -- When to Use Each</div><div class="dv"></div>
+    <div class="bd">
+      <table class="tbl" style="margin-top:1em">
+        <thead><tr><th>Keep Manual</th><th>Automate</th></tr></thead>
+        <tbody>
+          <tr><td>Exploratory testing</td><td>Regression testing</td></tr>
+          <tr><td>Usability testing</td><td>Smoke / sanity after deploy</td></tr>
+          <tr><td>One-time validations</td><td>Repetitive execution</td></tr>
+          <tr><td>Visual validation</td><td>Data-driven testing</td></tr>
+          <tr><td>Ad-hoc bug investigation</td><td>CI/CD pipeline gates</td></tr>
+        </tbody>
+      </table>
+      <div class="ib"><div class="ib-t">Automation doesn't replace manual testing. It replaces REPETITIVE manual testing.</div></div>
+    </div>
+    <div class="ft"><span class="fr">40</span></div>
+  </div>
+</div>
+
+<!-- S41: THEORY -- Tools -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">TOOLS</span></div>
+    <div class="tt">Testing Tools You'll Use</div><div class="dv"></div>
+    <div class="bd">
+      <table class="tbl" style="margin-top:1em">
+        <thead><tr><th>Category</th><th>Tools</th><th>Used In</th></tr></thead>
+        <tbody>
+          <tr><td>Unit (JS)</td><td>Jest, Mocha</td><td style="color:var(--green);font-weight:700">Today + Modules 9-10</td></tr>
+          <tr><td>Unit (Java)</td><td>JUnit 5</td><td>Modules 5-7</td></tr>
+          <tr><td>API</td><td>Postman, Supertest</td><td>Module 10</td></tr>
+          <tr><td>UI</td><td>Selenium, Cypress</td><td>Capstone project</td></tr>
+          <tr><td>Performance</td><td>JMeter, k6</td><td>Conceptual today</td></tr>
+          <tr><td>Security</td><td>OWASP ZAP, SonarQube</td><td>Module 27</td></tr>
+          <tr><td>CI</td><td>Jenkins, GitHub Actions</td><td>Module 28</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ft"><span class="fr">41</span></div>
+  </div>
+</div>
+
+<!-- S42: THEORY -- CI/CD Quality Gates -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">PIPELINE</span></div>
+    <div class="tt">Quality Gates in CI/CD</div><div class="dv"></div>
+    <div class="bd">
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">pipeline.txt</span><span class="cb-lg">CI/CD</span></div><div class="cb-body"><div class="cb-cd">Code Commit
+    |
+    v
+Lint + Static Analysis
+    |
+    v
+Unit Tests (&lt; 2 min)
+    |
+    v
+Integration Tests (&lt; 10 min)
+    |
+    v
+Security Scan
+    |
+    v
+Deploy to Staging --&gt; Smoke Tests
+    |
+    v
+Deploy to Production</div></div></div>
+      <div class="ib"><div class="ib-t">Quality gates are automated QA. If any stage fails, code doesn't deploy. Period.</div></div>
+    </div>
+    <div class="ft"><span class="fr">42</span></div>
+  </div>
+</div>
+
+<!-- S43: THEORY -- Risk-Based Testing -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">STRATEGY</span></div>
+    <div class="tt">Risk-Based Testing</div><div class="dv"></div>
+    <div class="bd">
+      <div class="sh">Risk = Probability x Impact</div>
+      <table class="tbl">
+        <thead><tr><th>Feature</th><th>Probability</th><th>Impact</th><th>Risk</th><th>Effort</th></tr></thead>
+        <tbody>
+          <tr><td>Payment</td><td>Medium</td><td style="color:var(--red)">Critical</td><td style="color:var(--red);font-weight:700">HIGH</td><td>Extensive</td></tr>
+          <tr><td>Order placement</td><td>High</td><td style="color:var(--red)">Critical</td><td style="color:var(--red);font-weight:700">HIGH</td><td>Extensive</td></tr>
+          <tr><td>Restaurant search</td><td>Low</td><td>Major</td><td style="color:var(--orange)">MEDIUM</td><td>Moderate</td></tr>
+          <tr><td>User profile</td><td>Low</td><td>Minor</td><td style="color:var(--green)">LOW</td><td>Minimal</td></tr>
+        </tbody>
+      </table>
+      <div class="ib"><div class="ib-t">Sustain teams have limited time. Test the highest-risk areas first. You can't test everything -- prioritize.</div></div>
+    </div>
+    <div class="ft"><span class="fr">43</span></div>
+  </div>
+</div>
+
+<!-- S44: THEORY -- Test Metrics -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">METRICS</span></div>
+    <div class="tt">Metrics Your Manager Will Ask About</div><div class="dv"></div>
+    <div class="bd">
+      <table class="tbl" style="margin-top:1em">
+        <thead><tr><th>Metric</th><th>Formula</th><th>Target</th></tr></thead>
+        <tbody>
+          <tr><td>Test Coverage</td><td>Lines covered / Total lines</td><td>&gt; 80%</td></tr>
+          <tr><td>Defect Leakage</td><td>Prod bugs / Total bugs found</td><td>&lt; 10%</td></tr>
+          <tr><td>Test Pass Rate</td><td>Passed / Total executed</td><td>&gt; 95%</td></tr>
+          <tr><td>MTTR (P1)</td><td>Mean time to resolve</td><td>&lt; 4 hours</td></tr>
+          <tr><td>Automation Rate</td><td>Automated / Total test cases</td><td>&gt; 60%</td></tr>
+          <tr><td>Defect Density</td><td>Defects / KLOC</td><td>&lt; 5 per KLOC</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ft"><span class="fr">44</span></div>
+  </div>
+</div>
+
+<!-- S45: THEORY -- Shift Left -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">STRATEGY</span></div>
+    <div class="tt">Shift-Left Testing</div><div class="dv"></div>
+    <div class="bd">
+<div class="cb"><div class="cb-bar"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div><span class="cb-fn">shift-left.txt</span><span class="cb-lg">COMPARISON</span></div><div class="cb-body"><div class="cb-cd"><span class="hl">Traditional:</span>
+Requirements -&gt; Design -&gt; Code -&gt; <span class="hl">Test</span> -&gt; Deploy
+                                  <span class="hl">^^^^</span>
+                          Testing happens LATE
+
+<span class="fix">Shift-Left:</span>
+<span class="fix">Requirements</span> -&gt; <span class="fix">Design</span> -&gt; <span class="fix">Code</span> -&gt; <span class="fix">Test</span> -&gt; <span class="fix">Deploy</span>
+<span class="fix">^^^^^^^^^^^^    ^^^^^^    ^^^^    ^^^^    ^^^^^^</span>
+Testing at EVERY stage</div></div></div>
+      <table class="tbl" style="margin-top:1em">
+        <thead><tr><th>Stage</th><th>Testing Activity</th></tr></thead>
+        <tbody>
+          <tr><td>Requirements</td><td>Review for testability, ambiguity</td></tr>
+          <tr><td>Design</td><td>Review for test hooks, observability</td></tr>
+          <tr><td>Code</td><td>Unit tests (TDD), code review, static analysis</td></tr>
+          <tr><td>Build</td><td>Automated tests in CI pipeline</td></tr>
+          <tr><td>Production</td><td>Monitoring, alerting, chaos testing</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ft"><span class="fr">45</span></div>
+  </div>
+</div>
+
+<!-- S46: ACTIVITY 5 -->
+<div class="slide s-act">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="a-badge">ACTIVITY 5</div>
+    <div class="a-ttl">Which 80 of 200 Tests to Automate?</div>
+    <div class="a-time">20 minutes | Score each category</div>
+    <div class="a-bd">
+      <table class="tbl" style="margin-top:.5em;font-size:clamp(10px,1.05em,16px)">
+        <thead><tr><th>Category</th><th>Count</th><th>Run Freq</th><th>Stability</th><th>Score?</th></tr></thead>
+        <tbody>
+          <tr><td>Login/Auth</td><td>15</td><td>Every release</td><td>High</td><td></td></tr>
+          <tr><td>Restaurant Search</td><td>25</td><td>Every release</td><td>High</td><td></td></tr>
+          <tr><td>Order Placement</td><td>40</td><td>Every release</td><td>Medium</td><td></td></tr>
+          <tr><td>Payment</td><td>20</td><td>Every release</td><td>Medium</td><td></td></tr>
+          <tr><td>User Profile</td><td>15</td><td>Monthly</td><td>High</td><td></td></tr>
+          <tr><td>Delivery Tracking</td><td>20</td><td>Every release</td><td style="color:var(--red)">Low (GPS)</td><td></td></tr>
+          <tr><td>Notifications</td><td>15</td><td>Every release</td><td style="color:var(--red)">Low (device)</td><td></td></tr>
+          <tr><td>Admin Dashboard</td><td>25</td><td>Quarterly</td><td>High</td><td></td></tr>
+          <tr><td>Reports</td><td>25</td><td>Monthly</td><td>Medium</td><td></td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:clamp(11px,1.1em,17px);color:var(--orange);font-weight:700;margin-top:.8em">Score 1-3 for: Frequency + Stability + Business Impact. Pick top categories totaling ~80.</div>
+    </div>
+  </div>
+</div>
+
+<!-- S47: SECTION DIVIDER -->
+<div class="slide s-div">
+  <div class="sd-num">PART 5</div>
+  <div class="sd-ttl">Assess &amp; Role Play</div>
+  <div class="sd-sub">Assessment 5 (30 min) + QE/QC Role Play (60 min)</div>
+</div>
+
+<!-- S48: ROLE PLAY ROUND 1 -->
+<div class="slide s-act">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="a-badge">ROLE PLAY -- ROUND 1</div>
+    <div class="a-ttl">Test Plan Defense</div>
+    <div class="a-time">15 min role play + 10 min debrief</div>
+    <div class="a-bd">
+      <div style="background:#2A2218;border-radius:.5em;padding:.8em 1em;margin-top:.5em;border-left:4px solid var(--orange)">
+        <div style="font-size:clamp(13px,1.3em,21px);font-weight:700;color:#fff">"FoodExpress is launching Loyalty Rewards. 1 point per Rs 100 spent. At 500 points, Rs 200 off. Ready for testing."</div>
+      </div>
+      <table class="tbl" style="margin-top:.8em">
+        <thead><tr><th>Role</th><th>Your Agenda</th></tr></thead>
+        <tbody>
+          <tr><td>QE Lead</td><td>Present &amp; defend the 5-day test plan</td></tr>
+          <tr><td>Developer</td><td>"My unit tests are enough. Why 5 days?"</td></tr>
+          <tr><td>Product Owner</td><td>"Competitor ships next week. Can we do 3 days?"</td></tr>
+          <tr><td>Ops Lead</td><td>"Last time a points bug gave 10x rewards."</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- S49: ROLE PLAY ROUND 1 -- TEST PLAN -->
+<div class="slide s-act">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="a-badge">QE LEAD REFERENCE</div>
+    <div class="a-ttl">Test Plan Summary</div>
+    <div class="a-bd">
+      <table class="tbl" style="margin-top:.8em">
+        <thead><tr><th>Phase</th><th>Days</th><th>What</th></tr></thead>
+        <tbody>
+          <tr><td>Functional</td><td>2</td><td>Points earn, calculation, redemption, expiry, merge</td></tr>
+          <tr><td>Regression</td><td>1</td><td>Checkout, order history, user profile</td></tr>
+          <tr><td>Performance</td><td>1</td><td>5000 concurrent orders, redemption response time</td></tr>
+          <tr><td>Edge Cases</td><td>1</td><td>Cancel after points, partial redemption, fraud</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:clamp(12px,1.2em,19px);color:var(--orange);font-weight:700;margin-top:1em">Debrief Questions:</div>
+      <ul class="bl" style="margin-top:.3em">
+        <li style="font-size:clamp(11px,1.1em,17px)">Did the group get sign-off?</li>
+        <li style="font-size:clamp(11px,1.1em,17px)">When Developer said "unit tests are enough", how did QE Lead respond?</li>
+        <li style="font-size:clamp(11px,1.1em,17px)">Could testing be cut to 3 days? What would you descope?</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- S50: ROLE PLAY ROUND 2 -->
+<div class="slide s-scene">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="sc-badge">ROLE PLAY -- ROUND 2</div>
+    <div class="sc-ttl">Production Bug Triage</div>
+    <div class="sc-sub">Friday 4:30 PM. 8 bugs. Fix 4 by Sunday. 16 hours capacity.</div>
+    <div class="sc-bd">
+      <table class="tbl" style="margin-top:.5em;font-size:clamp(10px,1.05em,16px)">
+        <thead><tr><th>#</th><th>Bug</th><th>Impact</th><th>Effort</th></tr></thead>
+        <tbody>
+          <tr><td>B1</td><td>Payment failure &gt; Rs 2000</td><td style="color:var(--red)">340 failures, Rs 68K lost</td><td>3 hrs</td></tr>
+          <tr><td>B2</td><td>ETA always shows 15 min</td><td>100% of orders</td><td>4 hrs</td></tr>
+          <tr><td>B3</td><td>Menu images broken (404)</td><td>23 restaurants</td><td>1 hr</td></tr>
+          <tr><td>B4</td><td>Search results 40 min stale</td><td>2 show open when closed</td><td>5 hrs</td></tr>
+          <tr><td>B5</td><td>Cart +/- broken (mobile)</td><td>Workaround exists</td><td>6 hrs</td></tr>
+          <tr><td>B6</td><td>Email confirmation delayed</td><td>Users calling support</td><td>2 hrs</td></tr>
+          <tr><td>B7</td><td>Rating not saving</td><td>Silent failure</td><td>3 hrs</td></tr>
+          <tr><td>B8</td><td>Wrong restaurant name</td><td>~60 users</td><td>2 hrs</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- S51: ROLE PLAY ROUND 2 ROLES -->
+<div class="slide s-scene">
+  <div style="padding:0 4%;display:flex;flex-direction:column;height:100%">
+    <div class="sc-badge">ROUND 2 ROLES</div>
+    <div class="sc-ttl">Your Role in the Triage</div>
+    <div class="sc-bd">
+      <table class="tbl" style="margin-top:1em">
+        <thead><tr><th>Role</th><th>Your Focus</th></tr></thead>
+        <tbody>
+          <tr><td>QE Lead</td><td>Facilitate triage. Drive to a decision in 15 min.</td></tr>
+          <tr><td>Dev Lead</td><td>Estimate effort. Push back on overcommitting.</td></tr>
+          <tr><td>Product Owner</td><td>Revenue impact. Food critic reviewing app this weekend.</td></tr>
+          <tr><td>Ops Lead</td><td>Real-time monitoring data. Which bugs are active RIGHT NOW?</td></tr>
+        </tbody>
+      </table>
+      <div style="font-size:clamp(12px,1.2em,19px);color:var(--red);font-weight:700;margin-top:1.5em">Decide: Which 4 bugs? Total effort must fit in 16 hours. Justify your choices.</div>
+    </div>
+  </div>
+</div>
+
+<!-- S52: ROLE PLAY EVAL -->
+<div class="slide">
+  <div class="sc">
+    <div class="ch"><span class="cm">MODULE 13</span><span class="ct">EVALUATION</span></div>
+    <div class="tt">Role Play Evaluation Criteria</div><div class="dv"></div>
+    <div class="bd">
+      <table class="tbl" style="margin-top:1em">
+        <thead><tr><th>Criteria</th><th>Weight</th><th>What We Look For</th></tr></thead>
+        <tbody>
+          <tr><td>Test case quality</td><td>25%</td><td>Coverage, edge cases, clear expected results</td></tr>
+          <tr><td>Prioritization logic</td><td>25%</td><td>Risk-based, data-driven, justified</td></tr>
+          <tr><td>Communication</td><td>20%</td><td>Clear explanations, active listening</td></tr>
+          <tr><td>Role adherence</td><td>15%</td><td>Staying in character</td></tr>
+          <tr><td>Time management</td><td>15%</td><td>Completing within time box</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="ft"><span class="fr">52</span></div>
+  </div>
+</div>
+
+<!-- S53: KEY TAKEAWAYS -->
+<div class="slide s-end">
+  <div class="e-cnt">
+    <div class="e-mod">MODULE 13 -- COMPLETE</div>
+    <div class="e-ttl">Key Takeaways</div>
+    <div class="e-dv"></div>
+    <div style="flex:1;overflow:auto;margin-top:20px">
+      <table class="tbl">
+        <thead><tr><th>Concept</th><th>Remember This</th></tr></thead>
+        <tbody>
+          <tr><td>Quality Mindset</td><td>Prevention is 1000x cheaper than production fixes</td></tr>
+          <tr><td>QA vs QC vs QE</td><td>QA = prevent, QC = detect, QE = engineer</td></tr>
+          <tr><td>Severity vs Priority</td><td>Severity = how bad. Priority = how soon. They can differ.</td></tr>
+          <tr><td>Automation Pyramid</td><td>70% unit, 20% integration, 10% UI</td></tr>
+          <tr><td>False Positives</td><td>A test that always passes is broken, not perfect</td></tr>
+          <tr><td>Risk-Based Testing</td><td>Test where probability x impact is highest</td></tr>
+          <tr><td>Shift Left</td><td>Test at every stage, not just at the end</td></tr>
+          <tr><td>Sustain Quality</td><td>Every bug fix needs a test. Ask "why was this missed?"</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="e-ban"><span>Next: Module 14 -- Infrastructure Fundamentals</span></div>
+  </div>
+</div>
+
+</div>
+<div class="sc-counter" id="sc">1 / 53</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+function go(d){show(c+d)}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(1)}if(e.key==='ArrowLeft'){e.preventDefault();go(-1)}if(e.key==='Home'){e.preventDefault();show(0)}if(e.key==='End'){e.preventDefault();show(S.length-1)}});
+show(0);
+</script>
+</body></html>

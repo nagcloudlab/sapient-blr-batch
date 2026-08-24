@@ -1,0 +1,52 @@
+groups:
+  - name: foodexpress-alerts
+    rules:
+      - alert: HighErrorRate
+        # FIX 1: Threshold corrected from 0.001 (0.1%) to 0.01 (1%)
+        # Normal error rate is ~0.2%, so 1% is a meaningful alert
+        expr: >
+          rate(http_requests_total{status=~"5.."}[5m])
+          / rate(http_requests_total[5m]) > 0.01
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "High error rate on {{ $labels.service }}"
+          description: "Error rate is {{ $value | humanizePercentage }} (threshold: 1%)"
+
+      - alert: HighLatency
+        expr: >
+          histogram_quantile(0.99,
+            rate(http_request_duration_seconds_bucket[5m])
+          ) > 1.0
+        # FIX 2: Changed 'for' from 0m to 5m to buffer transient spikes
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High p99 latency on {{ $labels.service }}"
+          description: "p99 latency is {{ $value }}s (threshold: 1s)"
+
+      - alert: HighCPU
+        # FIX 3: Threshold corrected from 50% to 90%
+        # 60-70% CPU is normal under peak load; 90% indicates real saturation
+        expr: >
+          100 - (avg by(instance)
+            (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100
+          ) > 90
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value }}% (threshold: 90%)"
+
+      - alert: PodCrashLooping
+        expr: >
+          rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Pod {{ $labels.pod }} is crash looping"
+          description: "Pod has restarted {{ $value }} times in the last 15 minutes"

@@ -1,0 +1,68 @@
+// FoodExpress CI/CD Pipeline (Fixed)
+pipeline {
+    // FIX: Added agent declaration
+    agent any
+
+    environment {
+        DOCKER_REGISTRY = 'registry.foodexpress.in'
+        // FIX: Use build number for image tag instead of 'latest'
+        IMAGE_TAG = "${env.BUILD_NUMBER}"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: 'https://github.com/foodexpress/app.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                sh "docker build -t ${DOCKER_REGISTRY}/order-service:${IMAGE_TAG} ./order-service"
+                sh "docker build -t ${DOCKER_REGISTRY}/menu-service:${IMAGE_TAG} ./menu-service"
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                // FIX: Check cluster connectivity before deploying
+                sh 'kubectl cluster-info'
+                sh "kubectl set image deployment/order-service order-service=${DOCKER_REGISTRY}/order-service:${IMAGE_TAG} -n foodexpress-prod"
+                sh "kubectl set image deployment/menu-service menu-service=${DOCKER_REGISTRY}/menu-service:${IMAGE_TAG} -n foodexpress-prod"
+                sh 'kubectl rollout status deployment/order-service -n foodexpress-prod --timeout=120s'
+                sh 'kubectl rollout status deployment/menu-service -n foodexpress-prod --timeout=120s'
+            }
+        }
+    }
+
+    // FIX: Added post block for notifications
+    post {
+        failure {
+            echo 'Pipeline failed! Sending notification...'
+            // mail to: 'devops@foodexpress.in', subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}"
+        }
+        success {
+            echo "Pipeline succeeded! Deployed build #${env.BUILD_NUMBER}"
+        }
+        always {
+            cleanWs()
+        }
+    }
+}

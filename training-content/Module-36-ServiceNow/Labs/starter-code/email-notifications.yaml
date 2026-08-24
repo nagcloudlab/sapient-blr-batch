@@ -1,0 +1,90 @@
+# FoodExpress ServiceNow Email Notification Configuration
+# THIS FILE CONTAINS 6 BUGS -- Find and fix them all!
+
+notifications:
+
+  # Bug 1: Subject line is blank
+  # Bug 2: Variables use wrong syntax ({} instead of ${})
+  # Bug 3: Recipients list is empty
+  - name: "P1 Incident Created"
+    table: incident
+    event: incident.created
+    condition: "priority = 1"
+    subject: ""
+    body: |
+      A Priority 1 incident has been created.
+
+      Number: {number}
+      Description: {short_description}
+      Affected Service: {cmdb_ci}
+      Assignment Group: {assignment_group}
+      Created: {sys_created_on}
+
+      Please investigate immediately.
+
+      [View Incident: {instance_url}/incident.do?sys_id={sys_id}]
+    recipients:
+      users: []
+      groups: []
+      additional_emails: []
+
+  # Bug 4: Condition checks priority = 5 (should fire for all priorities)
+  - name: "SLA Breach Warning"
+    table: incident
+    event: sla.breached
+    condition: "priority = 5"
+    subject: "[SLA BREACH] ${number}: ${short_description}"
+    body: |
+      SLA has been breached for the following incident:
+
+      Number: ${number}
+      Priority: ${priority}
+      SLA Elapsed: ${sla_elapsed}
+      Assignment Group: ${assignment_group}
+
+      Immediate action required.
+    recipients:
+      users: []
+      groups:
+        - "assignment_group"
+        - "management"
+
+  # Bug 5: Sent to requester instead of approver
+  - name: "Change Approval Required"
+    table: change_request
+    event: change.approval.requested
+    condition: "type = Normal"
+    subject: "[APPROVAL] ${number}: ${short_description}"
+    body: |
+      A change request requires your approval.
+
+      Number: ${number}
+      Description: ${short_description}
+      Risk: ${risk}
+      Implementation Date: ${start_date}
+      Requested By: ${requested_by}
+
+      [Approve] [Reject]
+    recipients:
+      users:
+        - "${requested_by}"
+      groups: []
+
+  # Bug 6: Reply action deletes the incident
+  - name: "Incident Update Notification"
+    table: incident
+    event: incident.updated
+    condition: "state changes"
+    subject: "[UPDATE] ${number}: ${short_description}"
+    body: |
+      Incident ${number} has been updated.
+
+      New State: ${state}
+      Work Notes: ${work_notes}
+      Updated By: ${sys_updated_by}
+    recipients:
+      users:
+        - "${caller_id}"
+      groups:
+        - "${assignment_group}"
+    reply_action: "Delete incident"
