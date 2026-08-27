@@ -1,0 +1,7 @@
+com/ftgo/notification/NotificationController.class
+com/ftgo/notification/OrderEventConsumer.class
+com/ftgo/notification/NotificationRepository.class
+com/ftgo/notification/Notification.class
+com/ftgo/notification/OrderCreatedEvent.class
+com/ftgo/notification/NotificationServiceApplication.class
+com/ftgo/notification/NotificationType.class
