@@ -1,0 +1,83 @@
+version: '3.8'
+
+# Observability stack for microservices-patterns-deep
+# Services (Eureka, Gateway, Order, Inventory) run on the HOST machine.
+# This compose file runs Prometheus, Grafana, Loki, Promtail, and Tempo in Docker.
+
+services:
+
+  # ─── METRICS: Prometheus ───
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  # ─── TRACES: Tempo ───
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    ports:
+      - "3200:3200"   # Tempo HTTP API
+      - "9411:9411"   # Zipkin receiver (Spring Boot sends traces here)
+    volumes:
+      - ./observability/tempo/tempo-config.yaml:/etc/tempo/config.yaml
+      - tempo-data:/var/tempo
+    command: ["-config.file=/etc/tempo/config.yaml"]
+    restart: unless-stopped
+
+  # ─── LOGS: Loki ───
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./observability/loki/loki-config.yaml:/etc/loki/config.yaml
+      - loki-data:/loki
+    command: ["-config.file=/etc/loki/config.yaml"]
+    restart: unless-stopped
+
+  # ─── LOGS: Promtail (collects logs and ships to Loki) ───
+  promtail:
+    image: grafana/promtail:latest
+    container_name: promtail
+    volumes:
+      - ./observability/promtail/promtail-config.yaml:/etc/promtail/config.yaml
+      - ./logs:/var/log/spring
+    command: ["-config.file=/etc/promtail/config.yaml"]
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+  # ─── DASHBOARDS: Grafana ───
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+    restart: unless-stopped
+
+volumes:
+  prometheus-data:
+  tempo-data:
+  loki-data:
+  grafana-data:

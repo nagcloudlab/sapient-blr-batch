@@ -1,0 +1,21 @@
+server:
+  http_listen_port: 3200
+
+distributor:
+  receivers:
+    zipkin:
+      endpoint: "0.0.0.0:9411"
+
+storage:
+  trace:
+    backend: local
+    local:
+      path: /var/tempo/traces
+    wal:
+      path: /var/tempo/wal
+
+metrics_generator:
+  storage:
+    path: /var/tempo/metrics
+  traces_storage:
+    path: /var/tempo/traces
