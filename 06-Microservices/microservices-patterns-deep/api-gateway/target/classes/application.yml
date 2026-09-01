@@ -1,0 +1,82 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      # Enable gateway metrics
+      metrics:
+        enabled: true
+
+      # Default filters applied to all routes
+      default-filters:
+        - name: RequestSize
+          args:
+            maxSize: 5MB
+
+      # Discovery-based route locator
+      discovery:
+        locator:
+          enabled: false  # We define routes explicitly
+
+# Eureka
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+# JWT
+jwt:
+  secret: MyDemoSecretKeyForJWTTokenGeneration2024!
+
+# Resilience4j Circuit Breaker configuration
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 10000
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowType: COUNT_BASED
+    instances:
+      orderServiceCB:
+        baseConfig: default
+  timelimiter:
+    configs:
+      default:
+        timeoutDuration: 3s
+
+# Actuator - expose everything for monitoring demo
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+# Distributed Tracing - export to Tempo via Zipkin protocol
+  tracing:
+    sampling:
+      probability: 1.0
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+
+# Logging
+logging:
+  level:
+    com.example.gateway: DEBUG
+    org.springframework.cloud.gateway: INFO
+  pattern:
+    correlation: "[${spring.application.name},traceId=%mdc{traceId:-},spanId=%mdc{spanId:-}]"

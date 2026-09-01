@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: app-config-file
-  namespace: demo
-data:
-  application-k8s.properties: |
-    greeting.message=Hello from mounted ConfigMap file!
-    logging.level.com.demo=DEBUG

@@ -1,0 +1,10 @@
+/Users/nag/sapient-blr-batch/06-Microservices/microservices-patterns-deep/api-gateway/src/main/java/com/example/gateway/ApiGatewayApplication.java
+/Users/nag/sapient-blr-batch/06-Microservices/microservices-patterns-deep/api-gateway/src/main/java/com/example/gateway/config/AuthController.java
+/Users/nag/sapient-blr-batch/06-Microservices/microservices-patterns-deep/api-gateway/src/main/java/com/example/gateway/config/DynamicRouteConfig.java
+/Users/nag/sapient-blr-batch/06-Microservices/microservices-patterns-deep/api-gateway/src/main/java/com/example/gateway/config/FallbackController.java
+/Users/nag/sapient-blr-batch/06-Microservices/microservices-patterns-deep/api-gateway/src/main/java/com/example/gateway/config/GatewayMetricsConfig.java
+/Users/nag/sapient-blr-batch/06-Microservices/microservices-patterns-deep/api-gateway/src/main/java/com/example/gateway/config/GatewayStatsController.java
+/Users/nag/sapient-blr-batch/06-Microservices/microservices-patterns-deep/api-gateway/src/main/java/com/example/gateway/filter/JwtAuthenticationFilter.java
+/Users/nag/sapient-blr-batch/06-Microservices/microservices-patterns-deep/api-gateway/src/main/java/com/example/gateway/filter/LoggingGlobalFilter.java
+/Users/nag/sapient-blr-batch/06-Microservices/microservices-patterns-deep/api-gateway/src/main/java/com/example/gateway/filter/RateLimitingFilter.java
+/Users/nag/sapient-blr-batch/06-Microservices/microservices-patterns-deep/api-gateway/src/main/java/com/example/gateway/filter/SecurityHeadersFilter.java

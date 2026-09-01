@@ -1,0 +1,15 @@
+{
+  "name": "quickticket",
+  "version": "1.0.0",
+  "description": "QuickTicket Event Booking Platform",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "payment": "node payment-service.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1"
+  }
+}
