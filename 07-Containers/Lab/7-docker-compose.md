@@ -194,15 +194,21 @@ Key things to notice:
 - Navigate to the lab directory and start the stack:
 
 ```bash
-cd /path/to/07-Containers/Lab/7-docker-voting-app
+cd /path/to/07-Containers/Lab
+
+# Set an alias so you don't have to type -f every time
+export COMPOSE_FILE=docker-compose-voting.yaml
+
 docker compose up -d
 ```
 
+- The `COMPOSE_FILE` environment variable tells Compose which file to use for all subsequent commands in this terminal session
+- Alternatively, you can pass `-f docker-compose-voting.yaml` to every command instead
 - The `-d` flag runs all containers in detached mode (in the background)
 - Without `-d`, the logs from all five containers would stream directly to your terminal and you would not get your prompt back
 
 What Compose does when you run this command:
-1. Reads `docker-compose.yaml` in the current directory
+1. Reads `docker-compose-voting.yaml`
 2. Creates the `app-network` bridge network
 3. Creates the `db-data` named volume
 4. Pulls any images that are not already on your machine
@@ -212,13 +218,13 @@ You will see output like:
 
 ```
 [+] Running 6/6
- - Network 7-docker-voting-app_app-network  Created
- - Volume "7-docker-voting-app_db-data"     Created
- - Container 7-docker-voting-app-db-1       Started
- - Container 7-docker-voting-app-redis-1    Started
- - Container 7-docker-voting-app-worker-1   Started
- - Container 7-docker-voting-app-vote-1     Started
- - Container 7-docker-voting-app-result-1   Started
+ - Network lab_app-network  Created
+ - Volume "lab_db-data"     Created
+ - Container lab-db-1       Started
+ - Container lab-redis-1    Started
+ - Container lab-worker-1   Started
+ - Container lab-vote-1     Started
+ - Container lab-result-1   Started
 ```
 
 - Notice the naming pattern: Compose prefixes every resource with the project name (the directory name)
@@ -250,11 +256,11 @@ Expected output for `docker compose ps`:
 
 ```
 NAME                             IMAGE                                COMMAND   SERVICE   CREATED   STATUS    PORTS
-7-docker-voting-app-db-1         postgres:15                          ...       db        ...       Up        5432/tcp
-7-docker-voting-app-redis-1      redis:alpine                         ...       redis     ...       Up        6379/tcp
-7-docker-voting-app-result-1     docker/example-voting-app-result     ...       result    ...       Up        0.0.0.0:5001->80/tcp
-7-docker-voting-app-vote-1       docker/example-voting-app-vote       ...       vote      ...       Up        0.0.0.0:5000->80/tcp
-7-docker-voting-app-worker-1     docker/example-voting-app-worker     ...       worker    ...       Up
+lab-db-1         postgres:15                          ...       db        ...       Up        5432/tcp
+lab-redis-1      redis:alpine                         ...       redis     ...       Up        6379/tcp
+lab-result-1     docker/example-voting-app-result     ...       result    ...       Up        0.0.0.0:5001->80/tcp
+lab-vote-1       docker/example-voting-app-vote       ...       vote      ...       Up        0.0.0.0:5000->80/tcp
+lab-worker-1     docker/example-voting-app-worker     ...       worker    ...       Up
 ```
 
 - If any service shows "Exit" or "Restarting", check its logs:
@@ -314,10 +320,10 @@ docker compose ps
 docker stats
 
 # Inspect the network -- see all containers connected to it and their IP addresses
-docker network inspect 7-docker-voting-app_app-network
+docker network inspect lab_app-network
 
 # Inspect the volume -- see where Docker stores the data on your host
-docker volume inspect 7-docker-voting-app_db-data
+docker volume inspect lab_db-data
 
 # Run a command inside the db container to query the votes table
 docker compose exec db psql -U postgres -c "SELECT * FROM votes;"
@@ -472,6 +478,40 @@ Why this works:
 - This is why every service is declared under the same `networks: - app-network`
 - If a service is not on the same network, it cannot be reached by name (or at all)
 
+### Healthchecks
+
+- A healthcheck lets Compose know when a container's application is actually ready, not just started
+- Without a healthcheck, `depends_on` only waits for the container process to launch
+- With a healthcheck, Compose can wait until the application inside responds correctly
+
+```yaml
+db:
+  image: postgres:15
+  healthcheck:
+    test: ["CMD", "pg_isready", "-U", "postgres"]   # Command to test readiness
+    interval: 5s      # Run the check every 5 seconds
+    timeout: 3s       # Consider it failed if no response in 3 seconds
+    retries: 5        # Mark unhealthy after 5 consecutive failures
+    start_period: 10s  # Grace period before checks start counting
+```
+
+| Field | Purpose |
+|-------|---------|
+| `test` | The command to run. Exit code 0 = healthy, non-zero = unhealthy |
+| `interval` | How often to run the check |
+| `timeout` | How long to wait for the check to complete |
+| `retries` | How many consecutive failures before marking as unhealthy |
+| `start_period` | Grace time for slow-starting containers (failures during this period don't count) |
+
+To make `depends_on` wait for the healthcheck:
+
+```yaml
+worker:
+  depends_on:
+    db:
+      condition: service_healthy
+```
+
 ### depends_on
 
 - The `depends_on` key tells Compose to start services in a particular order
@@ -536,6 +576,48 @@ docker compose ps -a        # Should show nothing
 docker volume ls            # db-data volume should be gone
 docker network ls           # app-network should be gone
 ```
+
+---
+
+## Using a .env File for Configuration
+
+- Instead of hardcoding passwords and config values in `docker-compose.yaml`, use a `.env` file
+- Compose automatically reads `.env` from the same directory as your Compose file
+
+Create a `.env` file:
+
+```bash
+# .env (in the same directory as docker-compose.yaml)
+POSTGRES_PASSWORD=supersecret
+POSTGRES_DB=myapp
+```
+
+Reference variables in `docker-compose.yaml`:
+
+```yaml
+db:
+  image: postgres:15
+  environment:
+    POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    POSTGRES_DB: ${POSTGRES_DB}
+```
+
+- This keeps secrets out of version control (add `.env` to `.gitignore`)
+- Different environments (dev, staging, prod) can use different `.env` files
+
+---
+
+## Troubleshooting
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| `docker compose up` fails: "image not found" | Image not pulled or built yet | Run `docker compose pull` first, or use `build:` instead of `image:` |
+| "port already in use" error | Another container or process using that port | Run `docker ps` to find the conflict, or change the host port in the Compose file |
+| Worker keeps restarting | Database not ready when worker starts | Add a `healthcheck` to `db` and use `depends_on: condition: service_healthy` |
+| `docker compose ps` shows "Exit 1" | Application crash inside the container | Check logs: `docker compose logs <service>` |
+| Changes to `docker-compose.yaml` not applied | Need to recreate containers | Run `docker compose up -d` — Compose detects changes and recreates only affected services |
+| Scaling fails with port conflict | Fixed host port in `ports:` mapping | Use `- 80` (no host port) instead of `- 5000:80` when scaling |
+| Data lost after `docker compose down` | Used `down -v` which deletes volumes | Use `docker compose down` (without `-v`) to preserve volume data |
 
 ---
 
@@ -637,7 +719,7 @@ services:
       - backend
 
   spring-api:
-    image: spring-boot-app:v1    # or any Spring Boot image you built in Lab 2
+    image: java-web-service:v1    # or any Spring Boot image you built in Lab 2
     ports:
       - "8080:8080"
     environment:
@@ -651,7 +733,7 @@ services:
       - frontend
 
   express-frontend:
-    image: express-web-service:v1  # or any Express image you built in Lab 2
+    image: node-web-service:v1  # or any Express image you built in Lab 2
     ports:
       - "3000:3000"
     environment:

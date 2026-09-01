@@ -94,11 +94,59 @@ docker run -it ubuntu:20.04 /bin/sh
 - Passing `/bin/sh` at the end of `docker run` replaces that default with your own command
 - This is useful when the default command is a server process and you want a shell instead for debugging
 
-**CMD vs ENTRYPOINT (brief):**
+**CMD vs ENTRYPOINT:**
 
-- `CMD` sets the default command and can be fully replaced from the command line
-- `ENTRYPOINT` sets the main executable; command-line arguments are appended to it rather than replacing it
-- You will explore this in the Dockerfile labs
+| | CMD | ENTRYPOINT |
+|---|---|---|
+| Purpose | Default command (can be fully replaced) | Main executable (arguments are appended) |
+| Override at runtime | `docker run <image> <new_command>` | `docker run --entrypoint <cmd> <image>` |
+| Best for | General-purpose images (ubuntu, alpine) | Single-purpose images (redis, nginx, your app) |
+
+**ENTRYPOINT + CMD combo pattern:**
+
+```dockerfile
+# ENTRYPOINT defines the executable, CMD provides default arguments
+ENTRYPOINT ["node"]
+CMD ["server.js"]
+```
+
+- `docker run myapp` → runs `node server.js`
+- `docker run myapp test.js` → runs `node test.js` (CMD is replaced, ENTRYPOINT stays)
+
+**Shell form vs exec form — this matters:**
+
+```dockerfile
+# Exec form (CORRECT for production) — runs as PID 1 directly
+CMD ["node", "server.js"]
+
+# Shell form (AVOID) — runs as a child of /bin/sh
+CMD node server.js
+```
+
+- Shell form wraps your command in `/bin/sh -c "node server.js"`
+- This means `sh` is PID 1, not your application
+- When Docker sends SIGTERM (on `docker stop`), `sh` receives it but does NOT forward it to your app
+- Your app never gets a chance to shut down gracefully — Docker waits 10 seconds then SIGKILL
+
+**The PID 1 problem and `--init`:**
+
+- If your app must run in shell form (e.g., needs variable expansion), use `--init`:
+
+```bash
+docker run --init -d myapp
+```
+
+- `--init` injects a tiny init process (`tini`) as PID 1 that properly forwards signals to your app
+- This is a quick fix; the proper fix is using exec form in your Dockerfile
+
+**Overriding ENTRYPOINT at runtime:**
+
+```bash
+# Get a shell inside an image that normally runs a server
+docker run --entrypoint /bin/sh -it redis
+```
+
+- Useful for debugging images that have ENTRYPOINT set to a server process
 
 ---
 
@@ -325,10 +373,10 @@ docker rm my-ubuntu
 
 ```bash
 # Spring Boot — switch profile via env var
-docker run -d -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod spring-boot-app:v1
+docker run -d -p 8080:8080 -e SPRING_PROFILES_ACTIVE=prod java-web-service:v1
 
 # Express.js — switch config via env var
-docker run -d -p 3000:3000 -e NODE_ENV=production -e PORT=3000 express-app:v1
+docker run -d -p 3000:3000 -e NODE_ENV=production -e PORT=3000 node-web-service:v1
 ```
 
 - Spring Boot reads `SPRING_PROFILES_ACTIVE` to load the right `application-{profile}.yml`
@@ -370,7 +418,153 @@ docker container ls -a
 
 ---
 
-## Part 11: Resource Limits
+## Part 11: Container Logs
+
+- Every container captures the stdout and stderr output of its main process
+- `docker logs` is your first tool when something goes wrong
+
+```bash
+# Run a container that generates output
+docker run -d --name web nginx
+
+# View all logs
+docker logs web
+
+# Follow logs in real-time (like tail -f) — press Ctrl+C to stop
+docker logs -f web
+
+# Show only the last 20 lines
+docker logs --tail 20 web
+
+# Show logs with timestamps
+docker logs -t web
+
+# Show logs since a specific time
+docker logs --since 5m web
+```
+
+### Log drivers
+
+- By default Docker uses the `json-file` log driver — it writes logs as JSON to disk
+- You can change the driver per container or globally
+
+```bash
+# Check which log driver a container uses
+docker inspect --format '{{.HostConfig.LogConfig.Type}}' web
+
+# Run a container with a specific log driver
+docker run -d --log-driver json-file --log-opt max-size=10m --log-opt max-file=3 --name web2 nginx
+```
+
+| Option | Purpose |
+|--------|---------|
+| `--log-opt max-size=10m` | Rotate log files when they reach 10 MB |
+| `--log-opt max-file=3` | Keep at most 3 rotated log files |
+
+- Without log rotation, container logs can fill up your disk over time
+- Always set `max-size` and `max-file` in production
+
+**Cleanup:**
+
+```bash
+docker rm -f web web2
+```
+
+---
+
+## Part 12: Restart Policies
+
+- By default, a container stays stopped when it exits or when the Docker daemon restarts
+- Restart policies tell Docker to automatically restart containers under certain conditions
+
+```bash
+# Always restart (survives daemon restarts too)
+docker run -d --restart always --name always-web nginx
+
+# Restart only on failure (non-zero exit code), up to 3 times
+docker run -d --restart on-failure:3 --name retry-web nginx
+
+# Restart unless you manually stopped it
+docker run -d --restart unless-stopped --name auto-web nginx
+```
+
+| Policy | When it restarts |
+|--------|-----------------|
+| `no` | Never (default) |
+| `on-failure[:max]` | Only when the container exits with a non-zero code. Optional retry limit. |
+| `always` | Always — including after daemon restart. Even if you `docker stop` it, it comes back after daemon restart. |
+| `unless-stopped` | Like `always`, but does NOT restart after daemon restart if you manually stopped it. |
+
+- Use `always` or `unless-stopped` for production services (web servers, databases)
+- Use `on-failure` for batch jobs that should retry on error
+- `--rm` and `--restart` are mutually exclusive — you cannot use both
+
+**Verification:**
+
+```bash
+# Kill the container — it should restart automatically
+docker kill always-web
+docker ps   # always-web should be "Up" again within seconds
+
+# Cleanup
+docker rm -f always-web retry-web auto-web
+```
+
+---
+
+## Part 13: Debugging a Container
+
+- When a container won't start or behaves unexpectedly, follow this workflow:
+
+### Step 1 — Check logs
+
+```bash
+docker logs <container_name>
+```
+
+- Look for error messages, stack traces, or "connection refused" lines
+
+### Step 2 — Inspect the container
+
+```bash
+docker inspect <container_name>
+```
+
+- Check `State.ExitCode`, `State.OOMKilled`, `State.Error`
+- Check `NetworkSettings.IPAddress` for connectivity issues
+- Check `Mounts` to verify volumes are attached correctly
+
+### Step 3 — Get a shell inside
+
+```bash
+docker exec -it <container_name> /bin/bash
+# or /bin/sh for Alpine-based images
+```
+
+- Investigate files, environment variables, processes, and network from inside
+
+### Step 4 — Copy files out for inspection
+
+```bash
+# Copy a file from the container to your host
+docker cp <container_name>:/app/logs/error.log ./error.log
+
+# Copy a file into the container
+docker cp ./fix.conf <container_name>:/etc/app/config.conf
+```
+
+### Step 5 — See filesystem changes
+
+```bash
+docker diff <container_name>
+```
+
+- Shows files that were Added (A), Changed (C), or Deleted (D) compared to the image
+- Useful for understanding what a running container has modified
+
+---
+
+## Part 14: Resource Limits
 
 - By default a container can use all available CPU and memory on the host
 - This can cause a "noisy neighbor" problem: one misbehaving container starves others or crashes the host
@@ -450,13 +644,13 @@ docker run --name my-limited-pids --pids-limit=100 -it ubuntu:20.04
 
 ```bash
 # Run Spring Boot with memory limits (JVM needs more memory)
-docker run -d --name spring-app -m 512m --cpus="1.0" -p 8080:8080 spring-boot-app:v1
+docker run -d --name spring-app -m 512m --cpus="1.0" -p 8080:8080 java-web-service:v1
 
 # Run Express.js with tighter limits (Node.js is lighter)
-docker run -d --name express-app -m 256m --cpus="0.5" -p 3000:3000 express-app:v1
+docker run -d --name node-app -m 256m --cpus="0.5" -p 3000:3000 node-web-service:v1
 
 # Watch both
-docker stats spring-app express-app
+docker stats spring-app node-app
 ```
 
 - Spring Boot / JVM apps typically need 256MB-512MB minimum
@@ -502,7 +696,7 @@ docker stats my-limited-container
 
 ---
 
-## Part 12: Container Security Basics
+## Part 15: Container Security Basics
 
 - Running containers securely is as important as running them correctly
 - The default Docker configuration is permissive for convenience, but production workloads need hardening
@@ -557,6 +751,49 @@ docker run --security-opt=no-new-privileges -it ubuntu:20.04
 - Regularly scan images for known CVEs using `docker scout` or tools like Trivy
 - Use Docker Content Trust (DCT) to verify image signatures: `export DOCKER_CONTENT_TRUST=1`
 - Never store secrets (passwords, API keys) in environment variables for production; use Docker secrets or a vault
+
+---
+
+## Understanding Exit Codes
+
+When a container stops, it reports an exit code. Check it with:
+
+```bash
+docker inspect --format '{{.State.ExitCode}}' <container_name>
+```
+
+| Exit Code | Meaning |
+|-----------|---------|
+| `0` | Clean, successful exit |
+| `1` | Application error (unhandled exception, startup failure) |
+| `137` | Killed by SIGKILL — either `docker kill`, `docker stop` timeout, or **OOMKilled** (out of memory) |
+| `139` | Segmentation fault (SIGSEGV) — usually a bug in native code |
+| `143` | Killed by SIGTERM — normal `docker stop` graceful shutdown |
+
+### What is OOMKilled?
+
+- When a container exceeds its memory limit (`-m`), the Linux kernel's OOM (Out Of Memory) killer terminates it
+- The container exits with code `137` and the `OOMKilled` field is set to `true`
+
+```bash
+# Check if a container was OOMKilled
+docker inspect --format '{{.State.OOMKilled}}' <container_name>
+```
+
+- If you see frequent OOMKills, either increase the memory limit or investigate memory leaks in your application
+
+---
+
+## Troubleshooting
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| Container exits immediately | Main process (PID 1) exits; no `-it` for interactive shells | Use `-it` for shells, or check logs: `docker logs <name>` |
+| `docker exec` fails: "container is not running" | Container has stopped | Start it first: `docker start <name>` |
+| Container stuck on `docker stop` | App not handling SIGTERM | Fix signal handling in app, or use `docker kill` as last resort |
+| Exit code 137 | OOMKilled or external SIGKILL | Check `docker inspect` for OOMKilled; increase `-m` limit if true |
+| Exit code 1 | Application error at startup | Check logs: `docker logs <name>` for stack trace / error message |
+| `--read-only` causes app failures | App tries to write to filesystem | Add writable tmpfs: `--tmpfs /tmp` or mount a volume for writable paths |
 
 ---
 

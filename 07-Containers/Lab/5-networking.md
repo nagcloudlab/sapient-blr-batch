@@ -92,6 +92,9 @@ Use cases:
 docker rm -f isolated_container
 
 docker run --network none --name isolated_container -it nicolaka/netshoot /bin/bash
+# nicolaka/netshoot is a lightweight image packed with networking tools
+# (ping, curl, nslookup, traceroute, tcpdump, etc.)
+# It is purpose-built for debugging Docker networking
 ```
 
 Inside the container, run:
@@ -540,10 +543,10 @@ docker rm -f web web-local web-random
 docker network create app-net
 
 # Start Express.js backend
-docker run -d --name express-api --network app-net -p 3000:3000 express-web-service:v1
+docker run -d --name express-api --network app-net -p 3000:3000 node-web-service:v1
 
 # Start Spring Boot backend
-docker run -d --name spring-api --network app-net -p 8080:8080 spring-boot-app:v1
+docker run -d --name spring-api --network app-net -p 8080:8080 java-web-service:v1
 
 # Test DNS resolution from a debug container
 docker run -it --rm --network app-net nicolaka/netshoot /bin/bash
@@ -666,6 +669,29 @@ docker rm -f isolated_container host_container bridge_container1 bridge_containe
 docker network rm my_bridge_network1 my_bridge_network2 \
   my_macvlan_network my_ipvlan_network
 ```
+
+---
+
+## A Note on Overlay Networks
+
+- This lab covers single-host networking (bridge, host, none, macvlan, ipvlan)
+- In production with Docker Swarm or Kubernetes, you will also encounter **overlay networks**
+- Overlay networks span multiple Docker hosts, allowing containers on different machines to communicate as if they were on the same network
+- They use VXLAN tunneling under the hood
+- You do not need overlay networks for this lab, but be aware they exist for multi-host deployments
+
+---
+
+## Troubleshooting
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| Containers can't ping each other by name | Using the default `bridge` network (no DNS) | Create a user-defined bridge: `docker network create mynet` |
+| `curl` to container fails from host | No port mapping (`-p`) configured | Add `-p host_port:container_port` to the `docker run` command |
+| Port mapping conflicts: "port already in use" | Another container or host process uses that port | Use `docker ps` to find the conflict, or choose a different host port |
+| Container can't reach the internet | Network driver is `none`, or DNS misconfigured | Check `docker inspect` for network type; try `docker run --dns 8.8.8.8` |
+| Macvlan network creation fails | Promiscuous mode not supported (common on cloud VMs) | Use ipvlan instead, or enable promiscuous mode: `sudo ip link set eth0 promisc on` |
+| DNS resolution slow or failing inside container | Docker's internal DNS (127.0.0.11) issue | Restart Docker daemon: `sudo systemctl restart docker` |
 
 ---
 

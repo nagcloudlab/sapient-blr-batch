@@ -49,7 +49,7 @@
 | Object    | What it is                                                  | Takes up disk space? |
 |-----------|-------------------------------------------------------------|----------------------|
 | Image     | A read-only template used to create containers              | Yes                  |
-| Container | A running (or stopped) instance created from an image       | Yes (thin layer)     |
+| Container | A running (or stopped) instance created from an image       | Yes (thin writable layer on top of the image) |
 | Volume    | A named storage area managed by Docker, outside the container filesystem | Yes     |
 | Network   | A virtual network that lets containers communicate          | Minimal              |
 
@@ -144,6 +144,12 @@ docker container prune
 
 - This removes only STOPPED containers, not running ones
 - It is safer for production environments where some containers should keep running
+
+> **Tip — the `--filter` flag**: Most prune commands accept `--filter` to target specific objects. For example, remove only containers stopped more than 24 hours ago:
+> ```bash
+> docker container prune --filter "until=24h"
+> ```
+> This works on `docker image prune`, `docker volume prune`, and `docker network prune` as well. Useful when you want to keep recent objects and only clean up old ones.
 
 ---
 
@@ -353,6 +359,47 @@ docker ps -a --filter "name=test" -q | xargs docker rm
 ```bash
 docker volume prune
 ```
+
+---
+
+## Before & After: What Cleanup Looks Like
+
+Here is a typical `docker system df` comparison showing the impact of cleanup:
+
+```
+BEFORE CLEANUP:
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          12        2         3.45GB    2.80GB (81%)
+Containers      9         2         250MB     230MB (92%)
+Local Volumes   6         1         1.20GB    800MB (66%)
+Build Cache     18        0         650MB     650MB (100%)
+                                    ------
+                          Total:    5.55GB reclaimable
+
+AFTER docker system prune -a --volumes:
+TYPE            TOTAL     ACTIVE    SIZE      RECLAIMABLE
+Images          2         2         450MB     0B (0%)
+Containers      2         2         20MB      0B (0%)
+Local Volumes   1         1         400MB     0B (0%)
+Build Cache     0         0         0B        0B
+                                    ------
+                          Total:    0B reclaimable
+```
+
+- In this example, cleanup reclaimed ~5.1 GB of disk space
+- Only running containers, their images, and their volumes survived
+
+---
+
+## Troubleshooting
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| `Error: container is running` when trying to remove | Container is still active | Stop it first: `docker stop <id>`, then remove |
+| `Error: image is referenced in multiple repositories` | Image has multiple tags | Use `-f` flag or remove all tags first |
+| `Error: volume is in use` | A container (even stopped) still references it | Remove the container first, then the volume |
+| `docker system prune` did not free much space | Running containers and their deps are preserved | This is expected — prune only touches unused objects |
+| Disk still full after prune | Build cache or overlay2 data | Try `docker builder prune` to clear build cache |
 
 ---
 

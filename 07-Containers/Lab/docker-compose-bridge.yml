@@ -1,0 +1,32 @@
+---
+services:
+  myapp1:
+    build:
+      context: .
+      dockerfile: Dockerfile.nhttpd
+    ports:
+      - 8081:80
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - my-bridge-net
+
+  myapp2:
+    build:
+      context: .
+      dockerfile: Dockerfile.nhttpd
+    ports:
+      - 8082:80
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - my-bridge-net
+
+networks:
+  my-bridge-net:
+    driver: bridge
+    # Optionally, match the previous example
+    # ipam:
+    #   config:
+    #     - subnet: "10.0.0.0/19"
+    #       gateway: "10.0.0.1"

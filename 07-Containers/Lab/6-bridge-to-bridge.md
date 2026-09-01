@@ -100,12 +100,21 @@ RUN apt-get install -y curl telnet dnsutils vim
 
 ### Step 2.1 — Build the custom image
 
+Make sure you are in the `Lab` directory where the Dockerfile is located:
+
 ```bash
-docker build . -t nhttpd
+cd /path/to/07-Containers/Lab
+ls Dockerfile.nhttpd   # Verify the Dockerfile exists here
 ```
 
-- This reads the Dockerfile in the current directory
-- It builds a new image called `nhttpd`
+Now build the image:
+
+```bash
+docker build -f Dockerfile.nhttpd . -t nhttpd
+```
+
+- `-f Dockerfile.nhttpd` tells Docker which Dockerfile to use (since it's not named `Dockerfile`)
+- `-t nhttpd` tags the resulting image as `nhttpd`
 - The build may take a minute the first time as it downloads packages
 
 Verify the image was created:
@@ -445,6 +454,18 @@ docker network ls   # frontend, backend should not appear
 
 ---
 
+## Troubleshooting
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| `ip route add` fails with "Operation not permitted" | Container missing NET_ADMIN capability | Recreate with `--cap-add=NET_ADMIN` |
+| Ping says "Network is unreachable" | Missing route to destination subnet | Add route: `ip route add <subnet> via <gateway_ip>` |
+| Ping sends but gets no reply | Route exists one-way only (asymmetric) | Add the return route on the destination container |
+| `docker build` fails | Not in the correct directory or wrong Dockerfile name | `cd` to the `Lab` directory and use `-f Dockerfile.nhttpd` |
+| Gateway can't forward packets | IP forwarding disabled in container | Run `docker exec gw sysctl net.ipv4.ip_forward` — should show `1` (Docker enables this by default) |
+
+---
+
 ## Challenges
 
 **Challenge 1 — Add a third network**
@@ -471,6 +492,8 @@ docker network ls   # frontend, backend should not appear
 - Which direction still works and which does not?
 - Explain WHY the result is asymmetric
 - Think about what happens to the reply packet when the route is missing
+
+> **Hint — how ping works**: Ping is a request-reply protocol. s2 sends an ICMP Echo Request to s1. s1 must then send an ICMP Echo Reply BACK to s2. For the reply to reach s2, s1 needs a route to s2's network. If s1's route to 10.0.1.0/24 is removed, it can still *receive* the request (the gateway forwards it), but it has no way to send the *reply* back. This same principle applies to TCP — a connection requires packets flowing in BOTH directions (SYN → SYN-ACK → ACK).
 
 **Challenge 4 — Direct connection vs gateway pattern**
 

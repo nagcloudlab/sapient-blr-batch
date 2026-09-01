@@ -331,7 +331,7 @@ docker rm -f dev-nginx
 # Mount source code into the container for live development
 docker run -d --name dev-express \
   -p 3000:3000 \
-  -v $(pwd)/express-app:/app \
+  -v $(pwd)/node-app:/app \
   -w /app \
   node:18-alpine \
   sh -c "npm install && node server.js"
@@ -340,7 +340,7 @@ docker run -d --name dev-express \
 # Or use nodemon for auto-restart:
 docker run -d --name dev-express \
   -p 3000:3000 \
-  -v $(pwd)/express-app:/app \
+  -v $(pwd)/node-app:/app \
   -w /app \
   node:18-alpine \
   sh -c "npm install && npx nodemon server.js"
@@ -353,7 +353,7 @@ docker run -d --name dev-express \
 docker run -d --name dev-spring \
   -p 8080:8080 \
   -v $(pwd)/config/application.yml:/app/config/application.yml \
-  spring-boot-app:v1
+  java-web-service:v1
 ```
 
 - Express.js: mount the entire source directory for live code editing
@@ -491,6 +491,21 @@ exit
 ```bash
 docker rm -f ro-nginx
 ```
+
+---
+
+## Troubleshooting
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| `Permission denied` when container writes to bind mount | UID mismatch between container process and host directory | Match UIDs: `chown -R <container_uid> /host/path` or run container with `--user $(id -u):$(id -g)` |
+| Volume data not visible inside container | Wrong mount target path | Check `docker inspect <container>` — look at the `Mounts` section for the correct `Destination` |
+| `docker volume rm` fails: "volume is in use" | A container (even stopped) still references it | Remove the container first: `docker rm <container>`, then remove the volume |
+| Bind mount shows empty directory in container | Host path doesn't exist or was misspelled | Docker creates missing host dirs as empty — verify the path exists and has content |
+| `$(pwd)` doesn't work | On Windows, `$(pwd)` syntax differs | Use `${PWD}` in PowerShell or `%cd%` in cmd. On Linux/macOS `$(pwd)` works in bash/zsh |
+| NFS volume mount fails | NFS server not reachable or `nfs-common` not installed | Install `sudo apt install nfs-common`, verify NFS server is accessible: `showmount -e <nfs_ip>` |
+
+> **Note on `--volumes-from`**: You can clone all volume mounts from one container into another using `docker run --volumes-from <source_container> <image>`. This is useful for backup sidecars or log collectors that need access to the same volumes.
 
 ---
 

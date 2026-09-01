@@ -241,28 +241,53 @@ CMD ["node", "server.js"]    # Default command when the container starts
 - By copying `package*.json` first, Docker only re-runs `npm install` when your dependencies actually change
 - This can save minutes on every build
 
+### Create a .dockerignore file
+
+Before building, always create a `.dockerignore` file in the same directory as your Dockerfile. This prevents unnecessary files from being sent to the Docker daemon during build:
+
+```
+node_modules
+.git
+.gitignore
+*.log
+.DS_Store
+README.md
+```
+
+- Without `.dockerignore`, Docker sends everything in the current directory (the "build context") to the daemon
+- This can include `node_modules` (hundreds of MB) or `.git` history, slowing every build
+- Think of it as `.gitignore` but for Docker builds
+
 ### Build and run the Express.js image
 
-Create a new directory and add the following files:
+The project files are already provided in `Lab/services/node-web-service/`. Navigate there:
 
-Create `server.js`:
+```bash
+cd /path/to/07-Containers/Lab/services/node-web-service
+ls
+# You should see: server.js  package.json  .dockerignore
+```
+
+Here is what each file contains:
+
+`server.js`:
 
 ```javascript
 const express = require('express');
 const app = express();
 
 app.get('/api/info', (req, res) => {
-  res.json({ service: 'express-web-service', version: '1.0.0' });
+  res.json({ service: 'node-web-service', version: '1.0.0' });
 });
 
 app.listen(8080, () => console.log('Listening on port 8080'));
 ```
 
-Create `package.json`:
+`package.json`:
 
 ```json
 {
-  "name": "express-web-service",
+  "name": "node-web-service",
   "version": "1.0.0",
   "main": "server.js",
   "dependencies": {
@@ -271,12 +296,12 @@ Create `package.json`:
 }
 ```
 
-Build and run:
+Now write a `Dockerfile` in this directory (the lab teaches you the instructions above) and build:
 
 ```bash
-docker build -t express-web-service:v1 .
+docker build -t node-web-service:v1 .
 docker image ls
-docker run -d -p 8080:8080 express-web-service:v1
+docker run -d -p 8080:8080 node-web-service:v1
 ```
 
 Verification:
@@ -288,7 +313,7 @@ curl http://localhost:8080/api/info
 Expected output:
 
 ```json
-{"service":"express-web-service","version":"1.0.0"}
+{"service":"node-web-service","version":"1.0.0"}
 ```
 
 ---
@@ -328,8 +353,12 @@ CMD ["java", "-jar", "app.jar"]
 
 ### Run the Spring Boot image
 
+The project files are already provided in `Lab/services/java-web-service/`. Navigate there and write a `Dockerfile` using the multi-stage pattern above:
+
 ```bash
-cd services/java-web-service
+cd /path/to/07-Containers/Lab/services/java-web-service
+ls
+# You should see: pom.xml  src/  .dockerignore
 docker build -t java-web-service:v1 .
 docker image ls
 docker run -d -p 8080:8080 -e SPRING_PROFILES_ACTIVE=stage java-web-service:v1
@@ -366,12 +395,35 @@ Host Machine                       Container
 
 ## Part 7: Build Arguments (ARG vs ENV)
 
+- Build arguments let you pass values into the Docker build process without hardcoding them in the Dockerfile
+- This is useful for changing the build behaviour without editing the Dockerfile
+
+Example Dockerfile using `ARG`:
+
+```dockerfile
+FROM node:18-alpine
+ARG APP_PORT=8080
+ENV PORT=${APP_PORT}
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE ${APP_PORT}
+CMD ["node", "server.js"]
+```
+
+Build and run with a custom port:
+
 ```bash
-cd services/python-web-service
-docker build --build-arg FILE_NAME=app.py -t python-web-service:v1 .
-docker image ls
-docker run -d -p 8080:8080 python-web-service:v1
-curl http://localhost:8080/api/info
+cd /path/to/07-Containers/Lab/services/node-web-service
+
+# Build with default port (8080)
+docker build -t node-web-service:v1 .
+
+# Build with a custom port passed at build time
+docker build --build-arg APP_PORT=3000 -t node-web-service:v2 .
+docker run -d -p 3000:3000 node-web-service:v2
+curl http://localhost:3000/api/info
 ```
 
 ### ARG vs ENV — what is the difference?
@@ -391,6 +443,23 @@ curl http://localhost:8080/api/info
 ---
 
 ## Part 8: Multi-Architecture Builds
+
+### Prerequisites — enable buildx
+
+`docker buildx` is included with Docker Engine 19.03+ but needs a builder instance for multi-platform builds:
+
+```bash
+# Check if buildx is available
+docker buildx version
+
+# Create and use a new builder that supports multi-platform
+docker buildx create --name multiarch --use
+docker buildx inspect --bootstrap
+```
+
+- The default builder only supports your host architecture
+- The `multiarch` builder uses QEMU emulation to build for other architectures
+- You only need to do this setup once
 
 ### Build for multiple CPU architectures
 
@@ -634,6 +703,94 @@ Time 1 — You change server.js
 
 ---
 
+## Part 11: HEALTHCHECK in Dockerfiles
+
+- A `HEALTHCHECK` instruction tells Docker how to test whether your container's application is actually working
+- Without it, Docker only knows if the process is running — not if it's responding to requests
+
+### Express.js Dockerfile with healthcheck
+
+```dockerfile
+FROM node:18-alpine
+WORKDIR /app
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 8080
+HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8080/api/health || exit 1
+CMD ["node", "server.js"]
+```
+
+### Spring Boot Dockerfile with healthcheck
+
+```dockerfile
+FROM eclipse-temurin:21-jre-alpine
+WORKDIR /app
+COPY --from=builder /build/target/*.jar app.jar
+EXPOSE 8080
+HEALTHCHECK --interval=10s --timeout=3s --start-period=30s --retries=3 \
+  CMD wget --spider -q http://localhost:8080/actuator/health || exit 1
+CMD ["java", "-jar", "app.jar"]
+```
+
+- `--start-period=30s` gives Spring Boot time to start before checks begin counting
+- Spring Boot Actuator provides `/actuator/health` out of the box
+
+### Check container health status
+
+```bash
+docker ps
+# HEALTH column shows: starting, healthy, or unhealthy
+
+docker inspect --format '{{.State.Health.Status}}' <container_name>
+```
+
+---
+
+## Part 12: Registry Authentication
+
+- Lab Part 9 showed a local registry without authentication
+- In production you will push/pull from authenticated registries
+
+### Docker Hub
+
+```bash
+docker login
+# Enter your Docker Hub username and password
+# Credentials are stored in ~/.docker/config.json
+
+docker push yourusername/myimage:v1
+docker logout
+```
+
+### Cloud registries (overview)
+
+| Cloud Provider | Registry | Login Command |
+|---------------|----------|---------------|
+| AWS | ECR | `aws ecr get-login-password | docker login --username AWS --password-stdin <account>.dkr.ecr.<region>.amazonaws.com` |
+| Google Cloud | GCR/Artifact Registry | `gcloud auth configure-docker` |
+| Azure | ACR | `az acr login --name <registry_name>` |
+
+- The pattern is always: authenticate first, then `docker push`/`docker pull` as normal
+- CI/CD pipelines use service accounts or tokens instead of interactive login
+
+---
+
+## Troubleshooting
+
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| `COPY failed: file not found` | File path is wrong or file is excluded by `.dockerignore` | Check the file exists in the build context directory and is not in `.dockerignore` |
+| `npm install` fails with network errors | Build environment has no internet access | Check DNS and network; use `--network=host` during build if needed |
+| Image is unexpectedly large (500MB+) | Dev dependencies included, or no multi-stage build | Use `npm ci --only=production`, add multi-stage build, check with `docker history` |
+| `WORKDIR` directory does not exist | Not an error — `WORKDIR` creates it automatically | This is expected behaviour |
+| Layer cache not working | Changed a file in an earlier COPY step | Reorder Dockerfile: copy dependency files first, source code last |
+| `exec format error` when running container | Image built for wrong architecture | Rebuild with `--platform linux/amd64` or use `docker buildx` |
+| `denied: requested access to the resource is denied` | Not logged in or wrong registry prefix | Run `docker login` and ensure the image tag includes the correct registry/namespace |
+
+---
+
 ## Challenges
 
 These exercises are optional but strongly recommended. Each one reinforces a concept from this lab.
@@ -647,7 +804,7 @@ These exercises are optional but strongly recommended. Each one reinforces a con
 
 **Challenge 2 — Find the largest layer**
 
-- Run `docker history express-web-service:v1` (or any image you built)
+- Run `docker history node-web-service:v1` (or any image you built)
 - Identify which layer contributes the most to the image size
 - Think about what that layer does and whether there is a way to reduce it
 
