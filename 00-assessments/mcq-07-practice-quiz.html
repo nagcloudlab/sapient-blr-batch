@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MCQ Practice - Linux, Apache, Microservices &amp; API</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: #1a1a2e; line-height: 1.6; }
+
+  .header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); color: #fff; padding: 24px 0; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+  .header h1 { font-size: 1.5rem; font-weight: 600; }
+  .header .subtitle { font-size: 0.85rem; opacity: 0.8; margin-top: 4px; }
+
+  .stats-bar { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 12px 24px; display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; position: sticky; top: 76px; z-index: 99; }
+  .stat { text-align: center; }
+  .stat-value { font-size: 1.4rem; font-weight: 700; }
+  .stat-label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value.correct { color: #2e7d32; }
+  .stat-value.wrong { color: #c62828; }
+  .stat-value.pending { color: #1565c0; }
+
+  .progress-bar { height: 4px; background: #e0e0e0; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #2e7d32, #43a047); transition: width 0.4s ease; }
+
+  .container { max-width: 800px; margin: 24px auto; padding: 0 16px; }
+
+  .filters { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+  .filters select, .filters button { padding: 8px 16px; border-radius: 8px; border: 1px solid #ccc; font-size: 0.85rem; background: #fff; cursor: pointer; }
+  .filters button { background: #1a1a2e; color: #fff; border: none; font-weight: 600; }
+  .filters button:hover { background: #16213e; }
+  .filters button.outline { background: #fff; color: #1a1a2e; border: 1px solid #1a1a2e; }
+  .filters button.outline:hover { background: #f5f5f5; }
+
+  .question-card { background: #fff; border-radius: 12px; padding: 24px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); transition: box-shadow 0.2s; }
+  .question-card.answered-correct { border-left: 4px solid #2e7d32; }
+  .question-card.answered-wrong { border-left: 4px solid #c62828; }
+
+  .q-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+  .q-number { font-weight: 700; color: #1a1a2e; font-size: 0.9rem; min-width: 32px; }
+  .q-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
+  .badge-topic { background: #e3f2fd; color: #1565c0; }
+  .badge-level { background: #f3e5f5; color: #7b1fa2; }
+
+  .q-text { font-size: 1rem; font-weight: 500; margin-bottom: 16px; line-height: 1.5; }
+
+  .options { display: flex; flex-direction: column; gap: 8px; }
+  .option { display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px; border: 2px solid #e8e8e8; border-radius: 8px; cursor: pointer; transition: all 0.2s; user-select: none; }
+  .option:hover:not(.disabled) { border-color: #90caf9; background: #e3f2fd; }
+  .option.disabled { cursor: default; }
+
+  .option .radio { width: 20px; height: 20px; border-radius: 50%; border: 2px solid #bbb; flex-shrink: 0; display: flex; align-items: center; justify-content: center; margin-top: 1px; transition: all 0.2s; }
+
+  .option.selected .radio { border-color: #1565c0; background: #1565c0; }
+  .option.selected .radio::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+
+  .option.correct-answer { border-color: #2e7d32; background: #e8f5e9; }
+  .option.correct-answer .radio { border-color: #2e7d32; background: #2e7d32; }
+  .option.correct-answer .radio::after { content: '\2713'; color: #fff; font-size: 12px; font-weight: 700; }
+
+  .option.wrong-answer { border-color: #c62828; background: #ffebee; }
+  .option.wrong-answer .radio { border-color: #c62828; background: #c62828; }
+  .option.wrong-answer .radio::after { content: '\2717'; color: #fff; font-size: 12px; font-weight: 700; }
+
+  .option .label { font-weight: 600; color: #555; min-width: 20px; }
+  .option .text { flex: 1; }
+
+  .result-icon { font-size: 1.2rem; margin-left: auto; flex-shrink: 0; }
+
+  .footer { text-align: center; padding: 32px 16px; color: #999; font-size: 0.8rem; }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 1.2rem; }
+    .stats-bar { gap: 16px; padding: 10px 16px; }
+    .question-card { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Linux, Apache, Microservices &amp; API</h1>
+  <div class="subtitle">MCQ Practice -- 30 Questions</div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="stat-value pending" id="stat-remaining">30</div><div class="stat-label">Remaining</div></div>
+  <div class="stat"><div class="stat-value correct" id="stat-correct">0</div><div class="stat-label">Correct</div></div>
+  <div class="stat"><div class="stat-value wrong" id="stat-wrong">0</div><div class="stat-label">Wrong</div></div>
+  <div class="stat"><div class="stat-value" id="stat-score">0%</div><div class="stat-label">Score</div></div>
+</div>
+
+<div class="progress-bar"><div class="progress-fill" id="progress" style="width:0%"></div></div>
+
+<div class="container">
+  <div class="filters">
+    <select id="filter-topic"><option value="all">All Topics</option></select>
+    <select id="filter-status">
+      <option value="all">All</option>
+      <option value="unanswered">Unanswered</option>
+      <option value="correct">Correct</option>
+      <option value="wrong">Wrong</option>
+    </select>
+    <button class="outline" onclick="shuffleQuestions()">Shuffle</button>
+    <button class="outline" onclick="resetAll()">Reset</button>
+  </div>
+  <div id="quiz-container"></div>
+</div>
+
+<div class="footer">Sustain Engineering Training -- Practice Quiz</div>
+
+<script>
+const questions = [{"question": "A shell variable is set in a parent session but a child script cannot see it. What is the root cause?", "topic": "Environment variables", "level": "L1", "options": ["Linux variables are always process-local by default", "The variable was never marked for export to child processes", "Child scripts automatically inherit all parent shell variables", "The child must source the parent script to get variables"], "correct": 1}, {"question": "A team wants to migrate the FoodExpress monolith to microservices incrementally without a big-bang rewrite. Which pattern should they use?", "topic": "Migration patterns", "level": "L1", "options": ["Strangler Fig", "Saga", "Bulkhead", "Backend for Frontend"], "correct": 0}, {"question": "A sustain engineer notices that a failure in the notification service is causing the order service to slow down due to synchronous calls. What is the best architectural fix?", "topic": "Resilience   async communication", "level": "L1", "options": ["Increase the timeout on the order service", "Enable sticky sessions on the load balancer", "Add more instances of the notification service", "Move notification dispatch to an asynchronous message queue"], "correct": 3}, {"question": "Which grep flag performs case-insensitive matching?", "topic": "grep", "level": "L1", "options": ["-v", "-n", "-i", "-r"], "correct": 2}, {"question": "Which ServerTokens setting minimises the Apache version information disclosed in response headers?", "topic": "Security hardening", "level": "L1", "options": ["ServerTokens Full", "ServerTokens Prod", "ServerTokens OS", "ServerTokens Min"], "correct": 1}, {"question": "The order service needs to guarantee that an event is published to the broker even if the service crashes after writing to its own database but before sending the event. Which pattern solves this?", "topic": "Reliability patterns", "level": "L1", "options": ["Transactional outbox pattern", "Saga orchestration", "Circuit breaker", "Bulkhead"], "correct": 0}, {"question": "After editing httpd.conf, which command verifies there are no syntax errors before reloading?", "topic": "Apache operations", "level": "L1", "options": ["apache2 --check", "systemctl verify apache2", "apachectl status", "httpd -t"], "correct": 3}, {"question": "The FoodExpress search service maintains a local copy of menu data updated via events. A user sees stale prices. What is this a natural consequence of?", "topic": "Eventual consistency", "level": "L1", "options": ["A circuit breaker opening", "A broken service registry entry", "Eventual consistency \u2014 the local read model has not yet received or processed the latest update event", "A misconfigured API gateway route"], "correct": 2}, {"question": "Which two modules must both be enabled for Apache to act as a reverse proxy to a backend web server?", "topic": "mod proxy", "level": "L1", "options": ["mod_ssl and mod_rewrite", "mod_proxy and mod_proxy_http", "mod_alias and mod_proxy", "mod_proxy and mod_deflate"], "correct": 1}, {"question": "A sustain engineer needs to delete stale temporary files that are more than 7 days old. Which find flag targets files by modification age?", "topic": "find", "level": "L1", "options": ["-mtime +7", "-age +7d", "-newer 7", "-days 7"], "correct": 0}, {"question": "A FoodExpress API spec is written in OpenAPI 3.0. A new engineer asks what the \"paths\" section describes. What is the correct answer?", "topic": "OpenAPI Swagger", "level": "L1", "options": ["The list of servers the API is deployed on", "The data models used across the API", "The authentication schemes supported by the API", "The available API endpoints and their supported HTTP methods, parameters, and response schemas"], "correct": 3}, {"question": "The delivery service and the restaurant service both need to know when an order is placed. Which communication approach best decouples them from the order service?", "topic": "Asynchronous communication", "level": "L1", "options": ["The order service calls each downstream service synchronously in sequence", "The order service writes to a shared database table that others poll", "The order service publishes an OrderPlaced event to a message broker; each service subscribes independently", "The API gateway fans out the call to all services simultaneously"], "correct": 2}, {"question": "Which deployment strategy releases a new service version to a small subset of users first, then gradually increases traffic?", "topic": "Deployment strategies", "level": "L1", "options": ["Blue-green deployment", "Canary release", "Rolling restart", "Feature flag"], "correct": 1}, {"question": "A new developer asks why the order service cannot directly query the delivery service database to join data for a report. What is the correct explanation?", "topic": "Data ownership", "level": "L1", "options": ["Each service owns its data exclusively; direct database access violates encapsulation and creates tight coupling", "Cross-database queries are technically impossible in microservices", "The delivery database is in a different cloud region", "SQL joins are not supported across microservice boundaries"], "correct": 0}, {"question": "A service registry shows the payment service has three healthy instances. The order service always hits the same instance. Which component is likely missing or misconfigured?", "topic": "Service discovery   load balancing", "level": "L1", "options": ["Circuit breaker", "API gateway authentication", "Message broker", "Client-side or server-side load balancer"], "correct": 3}, {"question": "A POST to /api/v1/orders returns 201. What should the response body and headers ideally include?", "topic": "REST conventions", "level": "L1", "options": ["Only an empty body", "A redirect to the order list endpoint", "The created order resource and a Location header pointing to the new resource URL", "The full list of all orders"], "correct": 2}, {"question": "A script fails with `bad interpreter: No such file or directory`. What is the most likely cause?", "topic": "Shell scripting", "level": "L1", "options": ["The script has a syntax error", "The shebang line points to a non-existent interpreter path", "The file has no read permission", "The PATH variable is unset"], "correct": 1}, {"question": "The FoodExpress mobile app needs a different API shape than the web dashboard. Which pattern addresses this without changing the underlying services?", "topic": "API design", "level": "L1", "options": ["Backend for Frontend (BFF)", "Circuit breaker", "Sidecar", "Service mesh"], "correct": 0}, {"question": "You need to extract the third field from a colon-separated system file using awk. Which flag sets the delimiter?", "topic": "awk", "level": "L1", "options": ["-d colon", "-t colon", "-s colon", "-F colon"], "correct": 3}, {"question": "During a postmortem, the team finds that a slow database query in the user service caused cascading timeouts across four other services. Which pattern would have contained the blast radius?", "topic": "Bulkhead", "level": "L1", "options": ["CQRS", "Saga", "Bulkhead", "Service mesh"], "correct": 2}, {"question": "Which metric is most useful for detecting that a downstream service is causing latency in the calling service?", "topic": "Observability", "level": "L1", "options": ["CPU usage of the downstream host", "P99 response time of the downstream service measured at the caller", "Number of containers running the downstream service", "Disk I/O on the downstream host"], "correct": 1}, {"question": "A sustain engineer runs ps aux and sees the Node.js app is missing. What is the best next step?", "topic": "Process management", "level": "L1", "options": ["Check systemctl status for the node service", "Reboot the server", "Run apt upgrade node", "Delete the process lock file"], "correct": 0}, {"question": "The FoodExpress public API begins returning 429 responses to a partner integration. What should the partner do first?", "topic": "Rate limiting", "level": "L1", "options": ["Retry immediately in a tight loop", "Increase the request payload size", "Switch to a different HTTP method", "Check the Retry-After or X-RateLimit-Reset header and back off accordingly"], "correct": 3}, {"question": "A reverse proxy setup returns garbled redirect URLs containing the backend hostname. Which directive fixes this?", "topic": "Reverse proxy", "level": "L1", "options": ["ProxyPass", "RewriteRule with [P]", "ProxyPassReverse", "ProxyPreserveHost"], "correct": 2}, {"question": "A team discovers that two microservices have independently evolved the concept of a \"customer\" with different fields and validation rules. What foundational principle was violated?", "topic": "Bounded context", "level": "L1", "options": ["Single Responsibility Principle", "Bounded context \u2014 each service should have a clearly defined and consistent model within its boundary", "DRY principle \u2014 the model should be defined once and shared", "Open/Closed Principle"], "correct": 1}, {"question": "Which OAuth 2.0 grant type is most appropriate for a server-to-server API integration where no user is involved?", "topic": "OAuth", "level": "L1", "options": ["Client Credentials", "Implicit", "Authorization Code", "Resource Owner Password"], "correct": 0}, {"question": "A service is marked unhealthy by Kubernetes and removed from the load balancer. After fixing the bug and redeploying, traffic resumes. Which Kubernetes probe type caused the service to be removed from rotation?", "topic": "Health checks", "level": "L1", "options": ["Startup probe", "Dependency probe", "Liveness probe", "Readiness probe"], "correct": 3}, {"question": "A FoodExpress API consumer sends Accept: application/xml but the API only supports application/json. Which status code should the API return?", "topic": "Content negotiation", "level": "L1", "options": ["400", "404", "406", "415"], "correct": 2}, {"question": "The FoodExpress team wants to track how a single customer request flows through five services. Which observability practice enables this?", "topic": "Distributed tracing", "level": "L1", "options": ["Centralised logging with grep", "Distributed tracing with a correlation ID propagated across service calls", "Health check endpoints on each service", "CPU and memory metrics from each host"], "correct": 1}, {"question": "An .htaccess file containing RewriteRules has no effect. What is the most likely configuration issue?", "topic": "htaccess", "level": "L1", "options": ["The Directory block for that path has AllowOverride None", "mod_rewrite is not installed on the OS", "The VirtualHost is missing ServerAlias", "The ErrorLog path is incorrect"], "correct": 0}];
+
+let answered = {};
+
+function getTopics() {
+  const topics = [...new Set(questions.map(q => q.topic))];
+  return topics.sort();
+}
+
+function init() {
+  const topicSelect = document.getElementById('filter-topic');
+  getTopics().forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t;
+    opt.textContent = t;
+    topicSelect.appendChild(opt);
+  });
+  topicSelect.addEventListener('change', render);
+  document.getElementById('filter-status').addEventListener('change', render);
+  render();
+}
+
+function render() {
+  const topic = document.getElementById('filter-topic').value;
+  const status = document.getElementById('filter-status').value;
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+
+  const filtered = questions.filter((q, i) => {
+    if (topic !== 'all' && q.topic !== topic) return false;
+    if (status === 'unanswered' && answered[i] !== undefined) return false;
+    if (status === 'correct' && answered[i] !== q.correct) return false;
+    if (status === 'wrong' && (answered[i] === undefined || answered[i] === q.correct)) return false;
+    return true;
+  });
+
+  filtered.forEach((q, idx) => {
+    const qIdx = questions.indexOf(q);
+    container.appendChild(createCard(q, qIdx));
+  });
+
+  updateStats();
+}
+
+function createCard(q, qIdx) {
+  const card = document.createElement('div');
+  card.className = 'question-card';
+  card.id = 'q-' + qIdx;
+
+  if (answered[qIdx] !== undefined) {
+    card.classList.add(answered[qIdx] === q.correct ? 'answered-correct' : 'answered-wrong');
+  }
+
+  const labels = ['A', 'B', 'C', 'D'];
+
+  let optionsHtml = q.options.map((opt, oi) => {
+    let cls = 'option';
+    let icon = '';
+    if (answered[qIdx] !== undefined) {
+      cls += ' disabled';
+      if (oi === q.correct) {
+        cls += ' correct-answer';
+        icon = '<span class="result-icon">&#10004;</span>';
+      } else if (oi === answered[qIdx] && oi !== q.correct) {
+        cls += ' wrong-answer';
+        icon = '<span class="result-icon">&#10008;</span>';
+      }
+    }
+    return '<div class="' + cls + '" data-q="' + qIdx + '" data-o="' + oi + '">' +
+      '<div class="radio"></div>' +
+      '<span class="label">' + labels[oi] + '.</span>' +
+      '<span class="text">' + escHtml(opt) + '</span>' +
+      icon +
+      '</div>';
+  }).join('');
+
+  card.innerHTML =
+    '<div class="q-header">' +
+      '<span class="q-number">Q' + (qIdx + 1) + '</span>' +
+      '<div class="q-badges">' +
+        '<span class="badge badge-topic">' + escHtml(q.topic) + '</span>' +
+        '<span class="badge badge-level">' + q.level + '</span>' +
+      '</div>' +
+    '</div>' +
+    '<div class="q-text">' + escHtml(q.question) + '</div>' +
+    '<div class="options">' + optionsHtml + '</div>';
+
+  if (answered[qIdx] === undefined) {
+    card.querySelectorAll('.option').forEach(el => {
+      el.addEventListener('click', () => selectAnswer(qIdx, parseInt(el.dataset.o)));
+    });
+  }
+
+  return card;
+}
+
+function selectAnswer(qIdx, optIdx) {
+  if (answered[qIdx] !== undefined) return;
+  answered[qIdx] = optIdx;
+
+  const card = document.getElementById('q-' + qIdx);
+  const q = questions[qIdx];
+  const isCorrect = optIdx === q.correct;
+
+  card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+
+  const options = card.querySelectorAll('.option');
+  options.forEach(el => {
+    const oi = parseInt(el.dataset.o);
+    el.classList.add('disabled');
+
+    if (oi === q.correct) {
+      el.classList.add('correct-answer');
+      el.innerHTML += '<span class="result-icon">&#10004;</span>';
+    } else if (oi === optIdx && !isCorrect) {
+      el.classList.add('wrong-answer');
+      el.innerHTML += '<span class="result-icon">&#10008;</span>';
+    }
+
+    el.replaceWith(el.cloneNode(true));
+  });
+
+  updateStats();
+}
+
+function updateStats() {
+  let correct = 0, wrong = 0;
+  Object.keys(answered).forEach(k => {
+    if (answered[k] === questions[k].correct) correct++;
+    else wrong++;
+  });
+  const total = Object.keys(answered).length;
+  const remaining = questions.length - total;
+  const score = total > 0 ? Math.round((correct / total) * 100) : 0;
+
+  document.getElementById('stat-correct').textContent = correct;
+  document.getElementById('stat-wrong').textContent = wrong;
+  document.getElementById('stat-remaining').textContent = remaining;
+  document.getElementById('stat-score').textContent = score + '%';
+  document.getElementById('progress').style.width = ((total / questions.length) * 100) + '%';
+}
+
+function shuffleQuestions() {
+  for (let i = questions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    // Swap answer tracking too
+    const tmpA = answered[i];
+    answered[i] = answered[j];
+    answered[j] = tmpA;
+    if (answered[i] === undefined) delete answered[i];
+    if (answered[j] === undefined) delete answered[j];
+    [questions[i], questions[j]] = [questions[j], questions[i]];
+  }
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetAll() {
+  if (!confirm('Reset all answers?')) return;
+  answered = {};
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+init();
+</script>
+</body>
+</html>
