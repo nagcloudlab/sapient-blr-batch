@@ -1,0 +1,714 @@
+# Lab 5: Docker Networking
+
+## Objectives
+
+By the end of this lab you will be able to:
+
+- Explain the different Docker network drivers and when to use each one
+- Create and inspect custom Docker networks
+- Connect containers to networks and verify communication between them
+- Map host ports to container ports
+- Use Docker's built-in DNS for container name resolution
+- Connect a single container to multiple networks
+
+---
+
+## Why Does Networking Matter?
+
+- When you run multiple containers (a frontend, a backend, a database), they need to talk to each other
+- At the same time, some containers should be publicly reachable while others should stay hidden
+- Docker networking is how you control all of that
+
+Three core needs:
+
+- Containers need to talk to each other (frontend to backend, app to database)
+- Containers need to be accessible from outside (users accessing your web app)
+- Containers need isolation (the database should NOT be publicly accessible)
+
+The Big Picture:
+
+```
+                        Internet
+                            |
+                   [Host Machine - Port 80]
+                            |
+                    [Docker Network(s)]
+                            |
+              +-------------+-------------+
+              |             |             |
+              v             v             v
+         [Frontend]    [Backend]     [Database]
+          (public)     (internal)    (internal)
+```
+
+---
+
+## Docker Networking Model
+
+Before diving into commands, understand these three core ideas:
+
+**1. Each container gets its own network namespace**
+- This means each container has its own isolated network stack
+- It has its own IP address, routing table, and ports
+- Two containers can both listen on port 8080 without conflicting — they are in separate namespaces
+
+**2. Docker provides built-in DNS on user-defined networks**
+- When containers are on the same user-defined network, they can reach each other by container name instead of IP address
+- Docker runs an embedded DNS server at `127.0.0.11` inside each container
+
+**3. Port mapping bridges the gap between the host and a container**
+- The flag `-p 8080:80` means: forward traffic arriving at port 8080 on the host into port 80 inside the container
+- Without port mapping, a container's ports are not reachable from outside Docker
+
+---
+
+## Part 1: None Network (Complete Isolation)
+
+- The `none` driver gives a container no network interfaces at all — not even a connection to the host
+- The only interface present is the loopback (`lo`), which lets the container talk to itself internally
+- Nothing can reach this container from outside, and it cannot reach anything outside
+
+Use cases:
+- Security-sensitive batch jobs that must have zero network access
+- Data processing tasks that read only from mounted volumes
+- Testing that your application handles a missing network gracefully
+
+```
++--------------------+
+|   Container        |
+|   [lo only]        |
+|   127.0.0.1        |
+|   No external      |
+|   connectivity     |
++--------------------+
+         X
+    (no outside
+     connection)
+```
+
+### Commands
+
+```bash
+docker rm -f isolated_container
+
+docker run --network none --name isolated_container -it nicolaka/netshoot /bin/bash
+```
+
+Inside the container, run:
+
+```bash
+ifconfig
+```
+
+### Verification
+
+- You should see only the `lo` (loopback) interface with IP `127.0.0.1`
+- There is no `eth0`, no external IP
+
+Try pinging an external address:
+
+```bash
+ping -c 3 8.8.8.8
+```
+
+- Expected result: the ping fails
+- The container has no route to the outside world
+
+Type `exit` to leave the container.
+
+---
+
+## Part 2: Host Network (No Isolation)
+
+- The `host` driver removes network isolation between the container and the host machine
+- The container does not get its own network namespace — it uses the host's network stack directly
+- The container shares the host's IP address and all its network interfaces
+
+Use cases:
+- High-performance applications where network overhead matters
+- Monitoring tools that need to see host-level network traffic
+
+```
++-------------------------------+
+|  Host Machine                 |
+|  eth0: 10.0.0.5               |
+|                               |
+|  +-------------------------+  |
+|  |  Container              |  |
+|  |  (uses host's eth0)     |  |
+|  |  Same IP: 10.0.0.5      |  |
+|  +-------------------------+  |
++-------------------------------+
+```
+
+### Commands — Inspect host networking
+
+```bash
+docker rm -f host_container
+
+docker run --network host --name host_container -it nicolaka/netshoot /bin/bash
+```
+
+Inside the container, run:
+
+```bash
+ifconfig
+```
+
+- You will see the same interfaces as your host machine (`eth0`, `wlan0`, etc.) with the same IP addresses
+- Type `exit`
+
+### Commands — Run nginx on host network
+
+```bash
+docker rm -f host_container
+
+docker run --network host --name host_container -d nginx
+```
+
+Test from your host:
+
+```bash
+curl localhost
+```
+
+### Verification
+
+- The curl succeeds without any `-p` port mapping flag
+- This works because the container IS on the host network — nginx is listening on port 80 of the host directly
+
+WARNING — port conflicts:
+- Because the container shares the host network, two containers cannot both listen on the same port
+- Try running a second nginx on the host network — Docker will start the container, but nginx inside it will fail to bind port 80 (already in use)
+
+---
+
+## Part 3: Bridge Network (The Default)
+
+- Bridge is the most commonly used network driver
+- Docker creates a virtual switch (a bridge) on the host
+- Containers connected to the same bridge can communicate with each other
+- They are isolated from containers on other bridges and from the host network (unless you use port mapping)
+
+```
++---------------------------------------------+
+|  Docker Host                                 |
+|                                              |
+|  +------------------------------------------+
+|  |  my_bridge_network1 (172.18.0.0/16)      |
+|  |                                           |
+|  |  +-----------------+  +-----------------+ |
+|  |  | bridge_container|  | bridge_container| |
+|  |  |       1         |  |       2         | |
+|  |  | 172.18.0.2      |  | 172.18.0.3      | |
+|  |  +-----------------+  +-----------------+ |
+|  |          |                    |            |
+|  |  --------+--------------------+--------    |
+|  |          Docker Bridge (br-xxxx)           |
+|  +------------------------------------------+
+|               |
+|          [Host eth0] --> Internet
++---------------------------------------------+
+```
+
+### Default bridge vs user-defined bridge
+
+This distinction trips up many beginners:
+
+- **Default bridge** (called `bridge`): Docker creates this automatically. Containers on the default bridge can ONLY reach each other by IP address. There is no DNS — container names do not resolve.
+- **User-defined bridge** (one you create with `docker network create`): Docker's embedded DNS is active. Containers can reach each other by container name. This is almost always what you want.
+
+Rule of thumb:
+- Always create a user-defined bridge for your applications
+- Never rely on the default bridge for multi-container apps
+
+---
+
+### 3a: User-Defined Bridge Network
+
+#### Step 1 — Create the network
+
+```bash
+docker network create my_bridge_network1
+docker network ls
+```
+
+- You should see `my_bridge_network1` listed with driver `bridge`
+
+#### Step 2 — Start the first container
+
+Open a first terminal:
+
+```bash
+docker rm -f bridge_container1
+
+docker run --network my_bridge_network1 --name bridge_container1 -it nicolaka/netshoot /bin/bash
+```
+
+Inside the container:
+
+```bash
+ifconfig
+```
+
+- Note the IP address assigned to `eth0` (it will be something like `172.18.0.2`)
+- Keep this terminal open
+
+#### Step 3 — Start the second container
+
+Open a second terminal:
+
+```bash
+docker rm -f bridge_container2
+
+docker run --network my_bridge_network1 --name bridge_container2 -it nicolaka/netshoot /bin/bash
+```
+
+Inside the container:
+
+```bash
+ifconfig
+```
+
+- Note this container's IP (something like `172.18.0.3`)
+- Keep this terminal open
+
+#### Step 4 — Ping by container name (DNS resolution)
+
+From inside `bridge_container2`, ping the first container by NAME:
+
+```bash
+ping -c 3 bridge_container1
+```
+
+- This works because both containers are on the same user-defined bridge
+- Docker's DNS resolves `bridge_container1` to its IP automatically
+- You did not need to know or type any IP address
+
+#### Step 5 — Ping by IP
+
+From inside `bridge_container2`, ping the first container by IP (substitute the actual IP you noted):
+
+```bash
+ping -c 3 172.18.0.2
+```
+
+### Verification
+
+Both pings succeed. This confirms:
+- Containers on the same user-defined bridge can communicate
+- Docker DNS resolves container names to IPs
+
+Type `exit` in both terminals when done.
+
+---
+
+### 3b: Bridge with Custom Subnet and Static IPs
+
+- Sometimes you need control over the IP range — for example, to avoid conflicts with your existing network
+- Static IPs are useful for databases or caches that other containers reference by IP
+- You can define the exact subnet and assign specific IPs to specific containers
+
+#### Step 1 — Create network with custom subnet
+
+```bash
+docker network create \
+  --driver bridge \
+  --subnet 192.168.100.0/24 \
+  --gateway 192.168.100.1 \
+  my_bridge_network2
+
+docker network inspect my_bridge_network2
+```
+
+- The inspect output shows the subnet and gateway you configured
+
+#### Step 2 — Run containers with static IPs
+
+Terminal 1:
+
+```bash
+docker rm -f static_container1
+
+docker run --network my_bridge_network2 \
+  --name static_container1 \
+  --ip 192.168.100.10 \
+  -it nicolaka/netshoot /bin/bash
+```
+
+Inside the container:
+
+```bash
+ifconfig
+```
+
+Terminal 2:
+
+```bash
+docker rm -f static_container2
+
+docker run --network my_bridge_network2 \
+  --name static_container2 \
+  --ip 192.168.100.11 \
+  -it nicolaka/netshoot /bin/bash
+```
+
+Inside the container:
+
+```bash
+ifconfig
+```
+
+### Verification
+
+- The `ifconfig` output for `static_container1` shows `inet 192.168.100.10` — exactly the IP you requested
+- Ping between the two containers by IP to confirm connectivity:
+
+```bash
+ping -c 3 192.168.100.10
+```
+
+Type `exit` in both terminals when done.
+
+---
+
+## Part 4: Macvlan Network
+
+- Macvlan makes each container appear as a separate physical device on your local network
+- Docker assigns each container its own unique MAC address
+- From the perspective of a router or switch on the LAN, these containers look like actual machines plugged in
+
+Use case:
+- Legacy applications that expect to be directly on the LAN and do not work well behind NAT
+- Situations where your router needs to assign IPs via DHCP directly to containers
+
+```
+Physical Network (192.168.1.0/24)
++----------------------------------------------------+
+|  Router / Switch                                   |
+|                                                    |
+|  Host: 192.168.1.5   (MAC: aa:bb:cc:dd:ee:01)     |
+|  Container1: 192.168.1.10 (MAC: aa:bb:cc:dd:ee:02)|
+|  Container2: 192.168.1.11 (MAC: aa:bb:cc:dd:ee:03)|
+|                                                    |
+|  All three appear as separate devices on the LAN   |
++----------------------------------------------------+
+```
+
+### Commands
+
+```bash
+docker network create -d macvlan \
+  --subnet=192.168.1.0/24 \
+  --gateway=192.168.1.1 \
+  -o parent=eth0 \
+  my_macvlan_network
+
+docker rm -f macvlan_container1
+docker run --network my_macvlan_network --name macvlan_container1 -it nicolaka/netshoot /bin/bash
+ifconfig
+
+docker rm -f macvlan_container2
+docker run --network my_macvlan_network --name macvlan_container2 -it nicolaka/netshoot /bin/bash
+ifconfig
+
+docker network inspect my_macvlan_network
+```
+
+### Verification
+
+- Run `ifconfig` inside each container and look at the `ether` field — each container has a different MAC address
+- This is the defining feature of macvlan
+- Compare the MAC addresses of `macvlan_container1` and `macvlan_container2` — they are different from each other and from the host
+
+Note:
+- Macvlan requires promiscuous mode on the parent interface (`eth0`)
+- On many cloud VMs and some laptops, this is not available
+- If the network creation fails, that is likely the reason
+
+---
+
+## Part 5: Ipvlan Network
+
+- Ipvlan is similar to macvlan but with one key difference: all containers share the host's MAC address
+- Each container gets its own IP address, but at layer 2 (Ethernet) they all look like the same device
+- This matters in environments where the network switch enforces a limit on MAC addresses per port (common in cloud and enterprise networks)
+
+Quick comparison:
+
+| Feature          | Macvlan          | Ipvlan           |
+|------------------|------------------|------------------|
+| MAC addresses    | Unique per container | Shared with host |
+| IP addresses     | Unique per container | Unique per container |
+| Switch compatibility | Needs promiscuous mode | Works without it |
+| Use case         | Full LAN presence | MAC-restricted networks |
+
+### Commands
+
+```bash
+docker network create -d ipvlan \
+  --subnet=192.168.2.0/24 \
+  --gateway=192.168.2.1 \
+  -o parent=eth0 \
+  my_ipvlan_network
+
+docker rm -f ipvlan_container1
+docker run --network my_ipvlan_network --name ipvlan_container1 -it nicolaka/netshoot /bin/bash
+
+docker rm -f ipvlan_container2
+docker run --network my_ipvlan_network --name ipvlan_container2 -it nicolaka/netshoot /bin/bash
+
+docker network inspect my_ipvlan_network
+```
+
+- Run `ifconfig` inside both containers
+- You will see different IPs but the same MAC address as the host — confirming ipvlan behaviour
+
+---
+
+## Part 6: Port Mapping Deep Dive
+
+- Port mapping is how you make a container accessible from outside the Docker network
+- The syntax is `-p <host_port>:<container_port>`
+- Traffic arriving at the host port is forwarded into the container port
+- Without this, the container's service is invisible to the outside world
+
+```
+External Traffic --> Host:8080 --> Container:80
+
++------------------+        +------------------+
+|  Host Machine    |        |  Container       |
+|                  |        |                  |
+|  0.0.0.0:8080 --+------->+--- :80 (nginx)   |
+|                  |        |                  |
++------------------+        +------------------+
+```
+
+### Common port mapping patterns
+
+```bash
+# Map host port 8080 to container port 80
+docker run -d -p 8080:80 --name web nginx
+
+# Map only on the loopback interface (not reachable from other machines)
+docker run -d -p 127.0.0.1:8081:80 --name web-local nginx
+
+# Let Docker choose a random available host port
+docker run -d -p 80 --name web-random nginx
+
+# Find out which host port Docker chose
+docker port web-random
+```
+
+### Commands — try it
+
+```bash
+docker rm -f web
+
+docker run -d -p 8080:80 --name web nginx
+
+# Verify the mapping
+docker port web
+
+# Access the container from the host
+curl http://localhost:8080
+```
+
+### Verification
+
+- `docker port web` outputs something like `80/tcp -> 0.0.0.0:8080`, confirming the mapping
+- The `curl` command returns the nginx welcome page HTML
+
+Cleanup:
+
+```bash
+docker rm -f web web-local web-random
+```
+
+---
+
+## Part 7: Docker DNS and Service Discovery
+
+- Docker's embedded DNS server runs at `127.0.0.11` inside each container
+- On any user-defined network, containers can resolve each other by container name
+- This means your application code can use `http://express-api:3000` or `http://spring-api:8080` instead of a hard-coded IP address
+- This is the foundation of how microservices communicate — database connection strings use the container name, API URLs use the service name, etc.
+
+### Commands
+
+```bash
+docker network create app-net
+
+# Start Express.js backend
+docker run -d --name express-api --network app-net -p 3000:3000 express-web-service:v1
+
+# Start Spring Boot backend
+docker run -d --name spring-api --network app-net -p 8080:8080 spring-boot-app:v1
+
+# Test DNS resolution from a debug container
+docker run -it --rm --network app-net nicolaka/netshoot /bin/bash
+```
+
+Inside the netshoot container, run each of these:
+
+```bash
+# Both services are reachable by name
+nslookup express-api
+nslookup spring-api
+curl http://express-api:3000/api/info
+curl http://spring-api:8080/api/info
+```
+
+### Verification
+
+- Docker DNS resolves `express-api` and `spring-api` to their container IPs
+- No hardcoded IPs needed — services discover each other by name
+- This is how microservices communicate: Spring Boot calls Express.js (or vice versa) using the container name as hostname
+- `nslookup express-api` returns an IP in the Docker subnet (e.g. `172.19.0.2`)
+- `nslookup spring-api` returns a different IP in the same subnet (e.g. `172.19.0.3`)
+
+Now try to resolve a container that does NOT exist:
+
+```bash
+nslookup doesnotexist
+```
+
+- You will get a "server can't find doesnotexist" error
+- DNS only works for containers actually on the same network
+
+Type `exit` to leave the container.
+
+Cleanup:
+
+```bash
+docker rm -f express-api spring-api
+docker network rm app-net
+```
+
+---
+
+## Part 8: Connecting a Container to Multiple Networks
+
+- A container can be a member of more than one Docker network at the same time
+- This is how you build layered architectures
+- An API server might need to accept requests from the frontend network AND query a database on a separate backend network
+- Containers on different networks cannot reach each other — this provides network-level isolation with no firewall rules needed
+
+### 3-tier architecture example
+
+```
++-------------------+     +-------------------+
+|  frontend-net     |     | backend-net       |
+|                   |     |                   |
+| [express-frontend]|     |  [postgres-db]    |
+|       |           |     |        |          |
++-------+-----------+     +--------+----------+
+        |                          |
+        +----[spring-api]----------+
+            (on both networks)
+```
+
+- `express-frontend` can reach `spring-api` (same frontend-net)
+- `spring-api` can reach `postgres-db` (same backend-net)
+- `express-frontend` CANNOT reach `postgres-db` directly (different networks)
+- This is network-level security — no firewall rules needed
+
+### Commands
+
+```bash
+docker network create frontend
+docker network create backend-net
+
+# Start the API container on the frontend network
+docker run -d --name api --network frontend nginx
+
+# Connect the same container to the backend network
+docker network connect backend-net api
+
+# Inspect to confirm it now has two networks
+docker inspect api
+```
+
+- Look at the `Networks` section of the `docker inspect` output
+- You will see both `frontend` and `backend-net` listed
+- Each network has its own IP address assigned to the `api` container
+
+### Verification
+
+```bash
+# Start a frontend container and verify it can reach api
+docker run --rm --network frontend nicolaka/netshoot ping -c 3 api
+
+# Start a backend container and verify it can also reach api
+docker run --rm --network backend-net nicolaka/netshoot ping -c 3 api
+```
+
+- Both pings succeed
+- The `api` container is reachable from both networks simultaneously
+- A container on only `frontend` cannot ping a container on only `backend-net` — they are isolated from each other
+
+Cleanup:
+
+```bash
+docker rm -f api
+docker network rm frontend backend-net
+```
+
+---
+
+## Cleanup — Remove All Lab Resources
+
+```bash
+docker rm -f isolated_container host_container bridge_container1 bridge_container2 \
+  static_container1 static_container2 macvlan_container1 macvlan_container2 \
+  ipvlan_container1 ipvlan_container2
+
+docker network rm my_bridge_network1 my_bridge_network2 \
+  my_macvlan_network my_ipvlan_network
+```
+
+---
+
+## Challenges
+
+Work through these to solidify your understanding. Each one requires combining concepts from multiple parts of this lab.
+
+**Challenge 1 — Default bridge vs user-defined bridge DNS**
+
+- Create two containers on the default bridge network (no `--network` flag — Docker puts them on the default `bridge`)
+- Try to ping one from the other by container name
+- Now create a custom bridge and repeat the test
+- Document what is different and explain why
+
+**Challenge 2 — Host network port conflict**
+
+- Run nginx on a host network
+- Verify you can access it with `curl localhost` without any `-p` flag
+- Now try to run a second nginx container also on the host network
+- What happens? Check the second container's logs with `docker logs` to understand why
+
+**Challenge 3 -- 3-tier network architecture**
+
+- Create two networks: `tier-frontend` and `tier-backend`
+- Run a container named `gateway` attached to `tier-frontend`
+- Use `docker network connect` to also attach `gateway` to `tier-backend`
+- Run a container named `database` on `tier-backend` only
+- Verify that `gateway` can reach `database`, but a container on `tier-frontend` alone cannot reach `database`
+
+**Challenge 4 -- Port mapping from host and from a container**
+
+- Run nginx with `-p 8080:80`
+- From your host terminal, run `curl http://localhost:8080`
+- Now run a second container on a bridge network and try to reach the nginx container
+- What address and port do you use from inside the container vs from the host?
+- Hint: inside the container, localhost is the container itself, not the host
+
+**Challenge 5 -- Network inspection**
+
+- Use `docker network inspect <network_name>` to list all containers on a specific network along with their IP addresses
+- Create a network, attach three containers to it, then use `docker network inspect` to extract only the container names and their IPs
+- Try formatting the output with:
+
+```bash
+docker network inspect --format '{{range .Containers}}{{.Name}}: {{.IPv4Address}}{{"\n"}}{{end}}' <network_name>
+```
