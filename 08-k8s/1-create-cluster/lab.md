@@ -34,3 +34,41 @@ kubectl get nodes -o wide
 ```bash
 kind delete cluster --name psi-k8s-cluster
 ```
+
+
+
+### list k8s api versions
+
+```bash
+kubectl api-versions
+kubectl api-resources
+```
+
+### list namespaces
+
+```bash
+kubectl get namespaces
+```
+
+### create namespace
+
+```bash
+kubectl create namespace psi-tng
+```
+
+### configure kubectl to use the namespace
+
+```bash
+kubectl config set-context --current --namespace=psi-tng
+```
+
+### delete namespace
+```bash
+kubectl delete namespace psi-tng
+```
+
+### list all the resources in the current namespace
+
+```bash
+kubectl get all
+```
