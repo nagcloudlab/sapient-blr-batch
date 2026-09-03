@@ -1,0 +1,50 @@
+
+
+How to setup k8s cluster?
+
+-> dev/test Envi
+
+    - Minikube
+    - KinD (Kubernetes in Docker)
+    - k3s
+
+-> prod Envi
+
+    - Kubeadm or Rancher
+    - Managed Kubernetes services (EKS, GKE, AKS)
+    - OpenShift from Red Hat
+    
+
+----------------------------------------------------
+
+how to learn k8s? learning-path?
+
+--> learning k8s-apis and it's resources 
+
+    task -> to create container
+
+            api --> v1
+            resource --> Pod
+
+   i.e  create / read / update / delete (CRUD) resources in k8s
+
+----------------------------------------------------
+
+how to define resource in k8s? 
+
+    - using YAML or JSON manifest files
+
+    ------------------------
+    |apiVersion: v1
+    |kind: Pod
+    |
+    |metadata:
+    |  name: my-pod
+    |  labels:
+    |    app: my-app
+    |
+    |spec:
+    |  containers:
+    |  - name: my-container
+    |    image: my-image
+    ------------------------

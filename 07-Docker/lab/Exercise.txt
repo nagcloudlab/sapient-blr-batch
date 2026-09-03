@@ -1,0 +1,13 @@
+https://nagcloudlab.notion.site/Exercise-3d05bab9bf8780949612e856befef8c0?source=copy_link
+
+
+voting-app
+--------------
+
+docker volume create voting-app-data
+docker network create voting-app-net --driver bridge
+docker run -d --name vote --network voting-app-net -p 5000:80 docker/example-voting-app-vote
+docker run -d --name result --network voting-app-net -p 5001:80 docker/example-voting-app-result
+docker run -d --name worker --network voting-app-net docker/example-voting-app-worker
+docker run -d --name redis --network voting-app-net redis
+docker run -d --name db --network voting-app-net -e POSTGRES_PASSWORD=postrges -e POSTGRES_HOST_AUTH_METHOD=trust -v voting-app-data:/var/lib/postgresql/data postgres:15
