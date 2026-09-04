@@ -3,7 +3,7 @@ kind: Pod
 metadata:
   name: hostpath-demo
 spec:
-  nodeName: my-cluster-worker3
+  nodeName: psi-k8s-cluster-worker
   containers:
   - name: logger
     image: busybox

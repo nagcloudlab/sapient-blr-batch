@@ -1,7 +1,6 @@
 
 
 
-
 ### Volume: EmptyDir
 
 ```bash
@@ -28,25 +27,30 @@ kubectl delete pod hostpath-demo
 
 ```
 
+
+
+### NFS 
+
+```bash
+kubectl apply -f volume-nfs.yaml
+kubectl exec -it nfs-demo -- cat /mnt/logs/app.log
+
+kubectl delete pod nfs-demo
+```
+
 ### Persistent Volume and Persistent Volume Claim (PV and PVC)
 
 ```bash
 kubectl apply -f pv.yaml
 kubectl apply -f pvc.yaml
 kubectl apply -f pvc-pod.yaml
-
 kubectl exec -it pvc-pod -- cat /data/test.txt
-
 kubectl delete pod pvc-pod
 kubectl apply -f pvc-pod.yaml
-
 kubectl exec -it pvc-pod -- cat /data/test.txt
-
 kubectl delete pvc my-pvc
 kubectl get pv
-
 kubectl delete pv my-pv
-
 ```
 
 
