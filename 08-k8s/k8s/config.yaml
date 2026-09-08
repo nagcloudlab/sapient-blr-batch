@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  POSTGRES_DB: tododb
+  SPRING_PROFILES_ACTIVE: production
+
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+type: Opaque
+data:
+  POSTGRES_USER: cG9zdGdyZXM=
+  POSTGRES_PASSWORD: cG9zdGdyZXM=

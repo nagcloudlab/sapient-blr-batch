@@ -34,9 +34,39 @@ spec:
     spec:
       containers:
       - name: todos-service-container
-        image: nagabhushanamn/todos-service:8
+        image: nagabhushanamn/todos-service:9
         ports:
         - containerPort: 8080
+        resources:
+          requests:
+            cpu: 200m
+          limits:
+            cpu: 500m
         env:
         - name: SPRING_PROFILES_ACTIVE
-          value: production
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: SPRING_PROFILES_ACTIVE
+        - name: POSTGRES_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_USER
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_PASSWORD
+        livenessProbe:
+          httpGet:
+            path: /actuator/health/liveness
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /actuator/health/readiness
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 5
