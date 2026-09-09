@@ -8,7 +8,7 @@
   become: yes
 
   vars:
-    backend_host: "<VM2_IP>"        # !!! REPLACE with VM2 external IP (gcloud compute instances list)
+    backend_host: "136.112.94.245"        # !!! REPLACE with VM2 external IP (gcloud compute instances list)
     backend_port: 8080
     server_name: "_"
     max_body_size: "10M"
@@ -27,7 +27,8 @@
         src: templates/nginx-proxy.conf.j2
         dest: /etc/nginx/sites-available/default
         mode: "0644"
-        validate: "nginx -t -c /dev/stdin < %s"
+        # Note: validate with nginx -t doesn't work for site snippets (only full nginx.conf)
+        # NGINX syntax is verified by the handler when it restarts
       notify: Restart NGINX
 
     - name: Ensure NGINX is running
