@@ -6,7 +6,7 @@ app_dir: /opt/springboot
 app_port: 8080
 app_name: hello-api
 jar_file: "hello-api-1.0.0.jar"
-local_jar: "../../lab-06-springboot-playbook/app/target/hello-api-1.0.0.jar"
+local_jar: "../lab-06-springboot-playbook/app/target/hello-api-1.0.0.jar"
 java_xms: 256m
 java_xmx: 512m
 log_level: INFO

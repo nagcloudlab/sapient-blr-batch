@@ -1,0 +1,36 @@
+---
+# ============================================
+# Custom Module Demo: hello
+# ============================================
+# Run: ansible-playbook playbook-hello.yml
+
+- name: Demo custom hello module
+  hosts: all
+  gather_facts: no
+
+  tasks:
+    - name: Say hello with default name
+      hello:
+      register: result
+
+    - name: Show result
+      debug:
+        var: result.message
+
+    - name: Say hello to a specific name
+      hello:
+        name: "DevOps Team"
+      register: result2
+
+    - name: Show result
+      debug:
+        var: result2.message
+
+    - name: Say hello to each server by hostname
+      hello:
+        name: "{{ inventory_hostname }}"
+      register: result3
+
+    - name: Show personalized greeting
+      debug:
+        var: result3.message

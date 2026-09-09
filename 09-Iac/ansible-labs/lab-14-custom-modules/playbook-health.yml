@@ -1,0 +1,54 @@
+---
+# ============================================
+# Custom Module Demo: app_health
+# ============================================
+# Run: ansible-playbook playbook-health.yml
+# Requires: Lab 05 (NGINX) and Lab 06 (Spring Boot) running
+
+- name: Health check NGINX
+  hosts: webservers
+
+  tasks:
+    - name: Check NGINX health
+      app_health:
+        url: "http://localhost/health"
+        timeout: 5
+      register: nginx_health
+      ignore_errors: yes
+
+    - name: NGINX health result
+      debug:
+        msg: |
+          Healthy: {{ nginx_health.healthy | default(false) }}
+          Status: {{ nginx_health.status_code | default('N/A') }}
+          Response Time: {{ nginx_health.response_time_ms | default('N/A') }}ms
+
+- name: Health check Spring Boot
+  hosts: appservers
+
+  tasks:
+    - name: Check Spring Boot health
+      app_health:
+        url: "http://localhost:8080/actuator/health"
+        timeout: 10
+      register: sb_health
+      ignore_errors: yes
+
+    - name: Spring Boot health result
+      debug:
+        msg: |
+          Healthy: {{ sb_health.healthy | default(false) }}
+          Status: {{ sb_health.status_code | default('N/A') }}
+          Response Time: {{ sb_health.response_time_ms | default('N/A') }}ms
+          Body: {{ sb_health.body | default('N/A') }}
+
+    - name: Check a non-existent endpoint (will fail gracefully)
+      app_health:
+        url: "http://localhost:9999/nope"
+        timeout: 2
+      register: bad_health
+      ignore_errors: yes
+
+    - name: Show failure result
+      debug:
+        msg: "Expected failure: {{ bad_health.msg }}"

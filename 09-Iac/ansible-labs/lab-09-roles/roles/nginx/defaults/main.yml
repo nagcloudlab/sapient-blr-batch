@@ -1,7 +1,7 @@
 ---
 # NGINX defaults (override in group_vars or host_vars)
 nginx_listen_port: 80
-backend_host: "<VM2_IP>"    # !!! REPLACE with VM2 external IP (gcloud compute instances list)
+backend_host: "136.112.94.245"    # !!! REPLACE with VM2 external IP (gcloud compute instances list)
 backend_port: 8080
 max_body_size: "10M"
 proxy_timeout: 60

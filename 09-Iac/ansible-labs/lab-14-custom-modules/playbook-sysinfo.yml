@@ -1,0 +1,57 @@
+---
+# ============================================
+# Custom Module Demo: system_info
+# ============================================
+# Run: ansible-playbook playbook-sysinfo.yml
+
+- name: Collect system info using custom module
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Collect system info with service checks
+      system_info:
+        top_n: 3
+        check_services:
+          - nginx
+          - springboot
+          - ssh
+      register: info
+
+    - name: Show summary
+      debug:
+        var: info.msg
+
+    - name: Show disk usage
+      debug:
+        msg: "{{ item.mount }}: {{ item.percent_used }} used ({{ item.available }} free)"
+      loop: "{{ info.system_info.disk_usage }}"
+      loop_control:
+        label: "{{ item.mount }}"
+
+    - name: Show load average
+      debug:
+        var: info.system_info.load_average
+
+    - name: Show top processes
+      debug:
+        msg: "PID {{ item.pid }} | CPU {{ item.cpu_percent }}% | {{ item.command }}"
+      loop: "{{ info.system_info.top_processes }}"
+      loop_control:
+        label: "PID {{ item.pid }}"
+
+    - name: Show service status
+      debug:
+        msg: "{{ item.key }}: {{ 'RUNNING' if item.value.running else 'STOPPED' }}"
+      loop: "{{ info.system_info.services | dict2items }}"
+      loop_control:
+        label: "{{ item.key }}"
+
+    # ---- Use the data for decisions ----
+    - name: Alert if disk usage is high
+      debug:
+        msg: "WARNING: {{ item.mount }} is {{ item.percent_used }} full!"
+      loop: "{{ info.system_info.disk_usage }}"
+      loop_control:
+        label: "{{ item.mount }}"
+      when: item.percent_used | replace('%','') | int > 80
