@@ -1,0 +1,6 @@
+# Never commit vault password files
+.vault_pass
+*.vault_pass
+
+# Never commit decrypted secret files
+*-decrypted.yml

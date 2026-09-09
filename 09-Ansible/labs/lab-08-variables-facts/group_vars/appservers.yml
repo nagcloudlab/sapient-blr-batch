@@ -1,0 +1,5 @@
+---
+# Variables for appservers group
+app_port: 8080
+custom_message: "I am an app server running Spring Boot"
+java_heap_size: 512m

@@ -1,0 +1,27 @@
+# ============================================
+# Ansible Inventory - YAML Format (preferred)
+# ============================================
+#
+# !!! SETUP REQUIRED — Replace these before running ANY lab !!!
+#
+#   <VM1_IP>            → VM1 external IP  (run: gcloud compute instances list)
+#   <VM2_IP>            → VM2 external IP
+#   <YOUR_GCP_USERNAME> → Your GCP username (run: gcloud config get-value account, take part before @)
+#
+
+all:
+  vars:
+    ansible_user: <YOUR_GCP_USERNAME>
+    ansible_ssh_private_key_file: ~/.ssh/google_compute_engine
+    ansible_python_interpreter: /usr/bin/python3
+
+  children:
+    webservers:
+      hosts:
+        vm1-nginx:
+          ansible_host: <VM1_IP>
+
+    appservers:
+      hosts:
+        vm2-springboot:
+          ansible_host: <VM2_IP>

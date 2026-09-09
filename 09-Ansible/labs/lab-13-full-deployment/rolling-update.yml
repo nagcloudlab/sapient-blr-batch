@@ -1,0 +1,58 @@
+---
+# ============================================
+# Rolling Update Demo
+# ============================================
+# Demonstrates serial execution and controlled rollout
+
+- name: Rolling update of Spring Boot
+  hosts: appservers
+  become: yes
+  serial: 1                          # One host at a time
+  max_fail_percentage: 0             # Abort if any fails
+
+  vars:
+    app_port: 8080
+
+  tasks:
+    - name: "Step 1: Take out of load balancer (drain)"
+      debug:
+        msg: "Draining {{ inventory_hostname }} from load balancer..."
+      # In real scenario: remove from NGINX upstream or LB
+
+    - name: "Step 2: Stop application gracefully"
+      service:
+        name: springboot
+        state: stopped
+
+    - name: "Step 3: Deploy new version"
+      debug:
+        msg: "Deploying new JAR to {{ inventory_hostname }}..."
+      # In real scenario: download new JAR, update configs
+
+    - name: "Step 4: Start application"
+      service:
+        name: springboot
+        state: started
+
+    - name: "Step 5: Wait for app to be ready"
+      wait_for:
+        port: "{{ app_port }}"
+        delay: 5
+        timeout: 60
+
+    - name: "Step 6: Health check"
+      uri:
+        url: "http://localhost:{{ app_port }}"
+        status_code: 200
+      register: health
+      retries: 5
+      delay: 5
+      until: health.status == 200
+
+    - name: "Step 7: Add back to load balancer"
+      debug:
+        msg: "{{ inventory_hostname }} is healthy — adding back to LB"
+
+    - name: "Complete"
+      debug:
+        msg: "{{ inventory_hostname }} updated successfully!"

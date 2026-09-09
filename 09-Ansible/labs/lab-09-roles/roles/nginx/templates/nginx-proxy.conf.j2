@@ -1,0 +1,36 @@
+# Managed by Ansible — DO NOT EDIT MANUALLY
+upstream springboot {
+    server {{ backend_host }}:{{ backend_port }};
+}
+
+server {
+    listen {{ nginx_listen_port }} default_server;
+    server_name _;
+    client_max_body_size {{ max_body_size }};
+
+    location / {
+        root /var/www/html;
+        index index.html;
+        try_files $uri $uri/ @backend;
+    }
+
+    location /api {
+        proxy_pass http://springboot;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_connect_timeout {{ proxy_timeout }};
+        proxy_read_timeout {{ proxy_timeout }};
+    }
+
+    location @backend {
+        proxy_pass http://springboot;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    location /health {
+        return 200 'OK';
+        add_header Content-Type text/plain;
+    }
+}

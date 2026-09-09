@@ -1,0 +1,5 @@
+---
+# Variables for ALL hosts
+env: staging
+monitoring_enabled: true
+ntp_server: time.google.com

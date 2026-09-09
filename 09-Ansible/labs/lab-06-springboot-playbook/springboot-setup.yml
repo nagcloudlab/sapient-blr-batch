@@ -1,0 +1,115 @@
+---
+# ============================================
+# Spring Boot Setup Playbook
+# ============================================
+# Pre-requisite: Build the JAR first
+#   cd app && mvn clean package -DskipTests
+# Then run:
+#   ansible-playbook springboot-setup.yml
+
+- name: Deploy Spring Boot application on appservers
+  hosts: appservers
+  become: yes
+
+  vars:
+    java_package: openjdk-17-jdk
+    app_name: hello-api
+    app_user: springboot
+    app_dir: /opt/springboot
+    app_port: 8080
+    jar_file: "hello-api-1.0.0.jar"
+    local_jar: "app/target/hello-api-1.0.0.jar"
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install Java JDK 17
+      apt:
+        name: "{{ java_package }}"
+        state: present
+
+    - name: Verify Java installation
+      command: java -version
+      register: java_version
+      changed_when: false
+
+    - name: Display Java version
+      debug:
+        msg: "{{ java_version.stderr }}"
+
+    - name: Create application user
+      user:
+        name: "{{ app_user }}"
+        system: yes
+        shell: /usr/sbin/nologin
+        create_home: no
+
+    - name: Create application directory
+      file:
+        path: "{{ app_dir }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0755"
+
+    - name: Copy Spring Boot JAR to server
+      copy:
+        src: "{{ local_jar }}"
+        dest: "{{ app_dir }}/{{ jar_file }}"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0644"
+      notify: Restart Spring Boot
+
+    - name: Copy application configuration
+      copy:
+        src: files/application.yml
+        dest: "{{ app_dir }}/application.yml"
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: "0644"
+      notify: Restart Spring Boot
+
+    - name: Copy systemd service file
+      copy:
+        src: files/springboot.service
+        dest: /etc/systemd/system/springboot.service
+        mode: "0644"
+      notify:
+        - Reload systemd
+        - Restart Spring Boot
+
+    - name: Enable and start Spring Boot service
+      service:
+        name: springboot
+        state: started
+        enabled: yes
+
+    - name: Wait for application to start
+      wait_for:
+        port: "{{ app_port }}"
+        delay: 5
+        timeout: 60
+
+    - name: Health check
+      uri:
+        url: "http://localhost:{{ app_port }}/actuator/health"
+        return_content: yes
+      register: health_check
+
+    - name: Show health status
+      debug:
+        msg: "{{ health_check.json }}"
+
+  handlers:
+    - name: Reload systemd
+      systemd:
+        daemon_reload: yes
+
+    - name: Restart Spring Boot
+      service:
+        name: springboot
+        state: restarted

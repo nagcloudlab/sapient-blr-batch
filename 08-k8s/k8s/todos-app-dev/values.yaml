@@ -1,0 +1,33 @@
+todos-app:
+  app:
+    replicaCount: 1
+    image:
+      repository: nagabhushanamn/todos-service
+      tag: "latest"
+    service:
+      type: NodePort
+      port: 8080
+      nodePort: 30080
+    resources:
+      requests:
+        cpu: 100m
+      limits:
+        cpu: 250m
+    springProfile: dev
+    livenessProbe:
+      initialDelaySeconds: 60
+      periodSeconds: 15
+    readinessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+
+  postgres:
+    database: tododb_dev
+    user: postgres
+    password: devpass123
+    storage:
+      size: 512Mi
+      hostPath: /data/postgres-dev
+
+  hpa:
+    enabled: false

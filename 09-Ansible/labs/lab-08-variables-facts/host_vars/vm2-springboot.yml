@@ -1,0 +1,4 @@
+---
+# Variables specific to VM2
+custom_message: "I am VM2 — the Spring Boot backend"
+java_opts: "-Xms256m -Xmx512m"

@@ -1,0 +1,48 @@
+---
+# ============================================
+# NGINX Setup Playbook
+# ============================================
+
+- name: Install and configure NGINX on webservers
+  hosts: webservers
+  become: yes
+
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install NGINX
+      apt:
+        name: nginx
+        state: present
+
+    - name: Copy custom NGINX config
+      copy:
+        src: files/nginx.conf
+        dest: /etc/nginx/sites-available/default
+        mode: "0644"
+        backup: yes
+      notify: Restart NGINX
+
+    - name: Deploy custom HTML page
+      copy:
+        src: files/index.html
+        dest: /var/www/html/index.html
+        mode: "0644"
+      notify: Restart NGINX
+
+    - name: Ensure NGINX is started and enabled
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+  # ---- HANDLERS ----
+  # These run ONLY when notified by a task above
+  handlers:
+    - name: Restart NGINX
+      service:
+        name: nginx
+        state: restarted

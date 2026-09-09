@@ -1,0 +1,18 @@
+# Managed by Ansible — DO NOT EDIT MANUALLY
+[Unit]
+Description=Spring Boot Application - {{ app_name }}
+After=network.target
+
+[Service]
+Type=simple
+User={{ app_user }}
+Group={{ app_user }}
+WorkingDirectory={{ app_dir }}
+ExecStart=/usr/bin/java -Xms{{ java_xms }} -Xmx{{ java_xmx }} -jar {{ app_dir }}/{{ jar_file }} --spring.config.location={{ app_dir }}/application.yml
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

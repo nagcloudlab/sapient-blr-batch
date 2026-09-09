@@ -1,0 +1,70 @@
+---
+# ============================================
+# Error Handling Demo — block/rescue/always
+# ============================================
+
+- name: Error handling patterns
+  hosts: all
+  become: yes
+
+  tasks:
+    # ---- block/rescue/always (try/catch/finally) ----
+    - name: Deploy with error handling
+      block:
+        - name: Try to download application
+          get_url:
+            url: "https://example.com/nonexistent-app.jar"
+            dest: /tmp/app.jar
+          register: download_result
+
+        - name: This won't run if download fails
+          debug:
+            msg: "Download succeeded!"
+
+      rescue:
+        - name: Handle the failure
+          debug:
+            msg: "Download FAILED! Falling back to cached version."
+
+        - name: Use cached version instead
+          copy:
+            content: "placeholder"
+            dest: /tmp/app.jar
+            mode: "0644"
+
+      always:
+        - name: This always runs (cleanup)
+          debug:
+            msg: "Deployment attempt completed (success or failure)"
+
+    # ---- ignore_errors ----
+    - name: This might fail but we don't care
+      command: cat /tmp/nonexistent-file
+      ignore_errors: yes
+      register: cat_result
+
+    - name: Show what happened
+      debug:
+        msg: "The command {{ 'failed' if cat_result is failed else 'succeeded' }}"
+
+    # ---- failed_when (custom failure condition) ----
+    - name: Check disk space
+      command: df -h /
+      register: disk_check
+      changed_when: false
+      failed_when: "'100%' in disk_check.stdout"
+
+    # ---- changed_when (custom change detection) ----
+    - name: Check current date
+      command: date
+      register: date_result
+      changed_when: false    # This command never changes anything
+
+    - name: Show date
+      debug:
+        var: date_result.stdout
+
+    # ---- any_errors_fatal (stop ALL hosts on first failure) ----
+    - name: Critical check that must pass everywhere
+      command: echo "critical check passed"
+      any_errors_fatal: true

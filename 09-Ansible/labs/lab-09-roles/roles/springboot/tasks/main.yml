@@ -1,0 +1,62 @@
+---
+# Spring Boot role tasks
+
+- name: Install Java JDK
+  apt:
+    name: "{{ java_package }}"
+    state: present
+    update_cache: yes
+  tags: install
+
+- name: Create application user
+  user:
+    name: "{{ app_user }}"
+    system: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+  tags: install
+
+- name: Create application directory
+  file:
+    path: "{{ app_dir }}"
+    state: directory
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0755"
+  tags: install
+
+- name: Copy Spring Boot JAR to server
+  copy:
+    src: "{{ local_jar }}"
+    dest: "{{ app_dir }}/{{ jar_file }}"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+    mode: "0644"
+  notify: Restart Spring Boot
+  tags: deploy
+
+- name: Deploy application config
+  template:
+    src: application.yml.j2
+    dest: "{{ app_dir }}/application.yml"
+    owner: "{{ app_user }}"
+    group: "{{ app_user }}"
+  notify: Restart Spring Boot
+  tags: config
+
+- name: Deploy systemd service file
+  template:
+    src: springboot.service.j2
+    dest: /etc/systemd/system/springboot.service
+    mode: "0644"
+  notify:
+    - Reload systemd
+    - Restart Spring Boot
+  tags: config
+
+- name: Enable and start service
+  service:
+    name: springboot
+    state: started
+    enabled: yes
+  tags: install

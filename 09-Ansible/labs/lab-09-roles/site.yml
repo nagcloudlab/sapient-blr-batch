@@ -1,0 +1,25 @@
+---
+# ============================================
+# Master Site Playbook — Uses Roles
+# ============================================
+
+# Play 1: Common setup on all servers
+- name: Apply common configuration
+  hosts: all
+  become: yes
+  roles:
+    - common
+
+# Play 2: NGINX on web servers
+- name: Setup NGINX reverse proxy
+  hosts: webservers
+  become: yes
+  roles:
+    - nginx
+
+# Play 3: Spring Boot on app servers
+- name: Deploy Spring Boot application
+  hosts: appservers
+  become: yes
+  roles:
+    - springboot

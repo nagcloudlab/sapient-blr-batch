@@ -1,0 +1,93 @@
+---
+# ============================================
+# Loops Demo
+# ============================================
+
+- name: Loop patterns
+  hosts: all
+  become: yes
+
+  vars:
+    packages:
+      - curl
+      - wget
+      - vim
+
+    users:
+      - name: alice
+        role: developer
+        shell: /bin/bash
+      - name: bob
+        role: ops
+        shell: /bin/bash
+      - name: charlie
+        role: developer
+        shell: /bin/zsh
+
+    services:
+      nginx: started
+      ssh: started
+
+  tasks:
+    # ---- Simple list loop ----
+    - name: Install packages using loop
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ packages }}"
+
+    # ---- Loop over list of dicts ----
+    - name: Create users
+      user:
+        name: "{{ item.name }}"
+        shell: "{{ item.shell }}"
+        state: present
+      loop: "{{ users }}"
+
+    - name: Show user details
+      debug:
+        msg: "User {{ item.name }} is a {{ item.role }}"
+      loop: "{{ users }}"
+
+    # ---- Conditional inside loop ----
+    - name: Show only developers
+      debug:
+        msg: "{{ item.name }} is a developer"
+      loop: "{{ users }}"
+      when: item.role == "developer"
+
+    # ---- Loop with index ----
+    - name: Show items with index
+      debug:
+        msg: "Item {{ idx }}: {{ item }}"
+      loop: "{{ packages }}"
+      loop_control:
+        index_var: idx
+
+    # ---- Loop with label (cleaner output) ----
+    - name: Create users (clean output)
+      debug:
+        msg: "Creating {{ item.name }}"
+      loop: "{{ users }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    # ---- Dict loop ----
+    - name: Ensure services are in desired state
+      debug:
+        msg: "Service {{ item.key }} should be {{ item.value }}"
+      loop: "{{ services | dict2items }}"
+
+    # ---- Loop with range ----
+    - name: Create numbered directories
+      file:
+        path: "/tmp/dir-{{ item }}"
+        state: directory
+      loop: "{{ range(1, 4) | list }}"
+
+    # ---- Cleanup ----
+    - name: Remove test users
+      user:
+        name: "{{ item.name }}"
+        state: absent
+      loop: "{{ users }}"

@@ -1,0 +1,36 @@
+todos-app:
+  app:
+    replicaCount: 3
+    image:
+      repository: nagabhushanamn/todos-service
+      tag: "9"
+    service:
+      type: LoadBalancer
+      port: 8080
+      nodePort: 30080
+    resources:
+      requests:
+        cpu: 500m
+      limits:
+        cpu: 1000m
+    springProfile: production
+    livenessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      initialDelaySeconds: 15
+      periodSeconds: 5
+
+  postgres:
+    database: tododb
+    user: postgres
+    password: prodpass!secure456
+    storage:
+      size: 5Gi
+      hostPath: /data/postgres-prod
+
+  hpa:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    cpuUtilization: 50

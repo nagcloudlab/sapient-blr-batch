@@ -1,0 +1,38 @@
+---
+# ============================================
+# Playbook using Dynamic Inventory
+# ============================================
+# Run: ansible-playbook -i gcp-inventory.gcp.yml site.yml
+
+- name: Show dynamically discovered hosts
+  hosts: all
+
+  tasks:
+    - name: Display host info
+      debug:
+        msg: |
+          Host: {{ inventory_hostname }}
+          IP: {{ ansible_host }}
+          Groups: {{ group_names }}
+
+- name: Configure web servers (discovered by label)
+  hosts: role_webserver
+  become: yes
+
+  tasks:
+    - name: Ensure NGINX is installed
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+- name: Configure app servers (discovered by label)
+  hosts: role_appserver
+  become: yes
+
+  tasks:
+    - name: Ensure Java is installed
+      apt:
+        name: openjdk-17-jdk
+        state: present
+        update_cache: yes

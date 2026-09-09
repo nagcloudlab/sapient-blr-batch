@@ -1,0 +1,36 @@
+todos-app:
+  app:
+    replicaCount: 2
+    image:
+      repository: nagabhushanamn/todos-service
+      tag: "9"
+    service:
+      type: NodePort
+      port: 8080
+      nodePort: 31080
+    resources:
+      requests:
+        cpu: 200m
+      limits:
+        cpu: 500m
+    springProfile: staging
+    livenessProbe:
+      initialDelaySeconds: 30
+      periodSeconds: 10
+    readinessProbe:
+      initialDelaySeconds: 15
+      periodSeconds: 5
+
+  postgres:
+    database: tododb_staging
+    user: postgres
+    password: stagingpass123
+    storage:
+      size: 1Gi
+      hostPath: /data/postgres-staging
+
+  hpa:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 4
+    cpuUtilization: 60

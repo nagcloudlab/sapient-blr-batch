@@ -1,0 +1,6 @@
+---
+# Shared variables for full deployment
+env: staging
+app_port: 8080
+nginx_port: 80
+monitoring_enabled: true

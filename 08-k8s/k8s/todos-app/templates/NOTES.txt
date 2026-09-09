@@ -1,0 +1,15 @@
+Todos App has been deployed!
+
+Release: {{ .Release.Name }}
+Namespace: {{ .Release.Namespace }}
+
+Access the application:
+{{- if eq .Values.app.service.type "NodePort" }}
+  export NODE_IP=$(kubectl get nodes -o jsonpath='{.items[0].status.addresses[0].address}')
+  echo http://$NODE_IP:{{ .Values.app.service.nodePort }}
+{{- else }}
+  kubectl port-forward svc/{{ .Release.Name }}-todos-service {{ .Values.app.service.port }}:{{ .Values.app.service.port }}
+{{- end }}
+
+PostgreSQL:
+  kubectl port-forward svc/{{ .Release.Name }}-db {{ .Values.postgres.service.port }}:{{ .Values.postgres.service.port }}

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ inventory_hostname }} — Ansible Managed</title>
+    <style>
+        body { font-family: Arial; text-align: center; padding: 50px; background: #1a1a2e; color: #eee; }
+        h1 { color: #e94560; }
+        .info { background: #16213e; padding: 20px; border-radius: 10px; margin: 20px auto; max-width: 500px; }
+    </style>
+</head>
+<body>
+    <h1>{{ inventory_hostname }}</h1>
+    <div class="info">
+        <p>Deployed by Ansible Role: <strong>nginx</strong></p>
+        <p>Backend: {{ backend_host }}:{{ backend_port }}</p>
+        <p>OS: {{ ansible_distribution }} {{ ansible_distribution_version }}</p>
+    </div>
+</body>
+</html>

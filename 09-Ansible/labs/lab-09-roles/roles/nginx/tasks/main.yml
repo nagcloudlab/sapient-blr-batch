@@ -1,0 +1,31 @@
+---
+# NGINX role tasks
+
+- name: Install NGINX
+  apt:
+    name: nginx
+    state: present
+    update_cache: yes
+  tags: install
+
+- name: Deploy NGINX reverse proxy config
+  template:
+    src: nginx-proxy.conf.j2
+    dest: /etc/nginx/sites-available/default
+    mode: "0644"
+  notify: Restart NGINX
+  tags: config
+
+- name: Deploy custom HTML page
+  template:
+    src: index.html.j2
+    dest: /var/www/html/index.html
+    mode: "0644"
+  tags: config
+
+- name: Ensure NGINX is started and enabled
+  service:
+    name: nginx
+    state: started
+    enabled: yes
+  tags: install

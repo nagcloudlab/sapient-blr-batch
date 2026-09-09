@@ -1,0 +1,4 @@
+---
+# Variables specific to VM1
+custom_message: "I am VM1 — the NGINX reverse proxy"
+ssl_enabled: false

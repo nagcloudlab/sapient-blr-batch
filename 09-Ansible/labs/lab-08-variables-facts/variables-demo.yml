@@ -1,0 +1,77 @@
+---
+# ============================================
+# Variables Demo Playbook
+# ============================================
+
+- name: Demonstrate different variable types
+  hosts: all
+  become: yes
+
+  # ---- Playbook-level variables ----
+  vars:
+    env: staging
+    app_port: 8080
+    allowed_ports:
+      - 22
+      - 80
+      - 443
+      - 8080
+
+  tasks:
+    # ---- Using playbook vars ----
+    - name: Show playbook variables
+      debug:
+        msg: "Environment: {{ env }}, Port: {{ app_port }}"
+
+    # ---- Using Ansible facts ----
+    - name: Show system facts
+      debug:
+        msg: |
+          Hostname: {{ ansible_hostname }}
+          OS: {{ ansible_distribution }} {{ ansible_distribution_version }}
+          IP: {{ ansible_default_ipv4.address }}
+          CPUs: {{ ansible_processor_vcpus }}
+          RAM: {{ ansible_memtotal_mb }} MB
+          Architecture: {{ ansible_architecture }}
+
+    # ---- Register: capture output into a variable ----
+    - name: Get disk usage
+      command: df -h /
+      register: disk_output
+      changed_when: false
+
+    - name: Show registered variable
+      debug:
+        var: disk_output.stdout_lines
+
+    # ---- Conditionals with variables ----
+    - name: Show message for staging only
+      debug:
+        msg: "This is a STAGING environment — debug mode ON"
+      when: env == "staging"
+
+    - name: Show message for production only
+      debug:
+        msg: "This is PRODUCTION — be careful!"
+      when: env == "production"
+
+    # ---- Looping over a list variable ----
+    - name: Display allowed ports
+      debug:
+        msg: "Allowed port: {{ item }}"
+      loop: "{{ allowed_ports }}"
+
+    # ---- Dictionary variable ----
+    - name: Define and use a dictionary
+      vars:
+        app_config:
+          name: myapp
+          version: "2.1.0"
+          debug: true
+      debug:
+        msg: "App: {{ app_config.name }} v{{ app_config.version }}"
+
+    # ---- Default values (fallback) ----
+    - name: Use default value if variable is not defined
+      debug:
+        msg: "Region is {{ region | default('us-central1') }}"

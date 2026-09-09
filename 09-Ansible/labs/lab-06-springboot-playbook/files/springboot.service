@@ -1,0 +1,17 @@
+[Unit]
+Description=Hello API - Spring Boot Application
+After=network.target
+
+[Service]
+Type=simple
+User=springboot
+Group=springboot
+WorkingDirectory=/opt/springboot
+ExecStart=/usr/bin/java -Xms256m -Xmx512m -jar /opt/springboot/hello-api-1.0.0.jar --spring.config.location=/opt/springboot/application.yml
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

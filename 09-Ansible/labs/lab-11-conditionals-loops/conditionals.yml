@@ -1,0 +1,91 @@
+---
+# ============================================
+# Conditionals Demo
+# ============================================
+
+- name: Conditionals with when
+  hosts: all
+  become: yes
+
+  vars:
+    env: staging
+    install_monitoring: true
+    min_memory_mb: 512
+
+  tasks:
+    # ---- Basic when ----
+    - name: Only run on Ubuntu
+      debug:
+        msg: "This is Ubuntu!"
+      when: ansible_distribution == "Ubuntu"
+
+    - name: Only run on CentOS
+      debug:
+        msg: "This is CentOS!"
+      when: ansible_distribution == "CentOS"
+
+    # ---- when with variables ----
+    - name: Production-only task
+      debug:
+        msg: "PRODUCTION MODE — extra security enabled"
+      when: env == "production"
+
+    - name: Staging-only task
+      debug:
+        msg: "STAGING MODE — debug enabled"
+      when: env == "staging"
+
+    # ---- when with facts ----
+    - name: Check if server has enough memory
+      debug:
+        msg: "Server has {{ ansible_memtotal_mb }}MB RAM — sufficient"
+      when: ansible_memtotal_mb >= min_memory_mb
+
+    - name: Warning if low memory
+      debug:
+        msg: "WARNING: Only {{ ansible_memtotal_mb }}MB RAM!"
+      when: ansible_memtotal_mb < min_memory_mb
+
+    # ---- when with boolean ----
+    - name: Install monitoring agent
+      debug:
+        msg: "Installing monitoring agent..."
+      when: install_monitoring | bool
+
+    # ---- when with registered variable ----
+    - name: Check if NGINX is installed
+      command: which nginx
+      register: nginx_check
+      ignore_errors: yes
+      changed_when: false
+
+    - name: NGINX is available
+      debug:
+        msg: "NGINX found at {{ nginx_check.stdout }}"
+      when: nginx_check.rc == 0
+
+    - name: NGINX is NOT installed
+      debug:
+        msg: "NGINX is not installed on this host"
+      when: nginx_check.rc != 0
+
+    # ---- Multiple conditions (AND) ----
+    - name: Only on Ubuntu staging with enough RAM
+      debug:
+        msg: "All conditions met!"
+      when:
+        - ansible_distribution == "Ubuntu"
+        - env == "staging"
+        - ansible_memtotal_mb >= min_memory_mb
+
+    # ---- OR condition ----
+    - name: Run on either Ubuntu or Debian
+      debug:
+        msg: "Debian-family OS detected"
+      when: ansible_distribution == "Ubuntu" or ansible_distribution == "Debian"
+
+    # ---- is defined / is not defined ----
+    - name: Check if optional variable exists
+      debug:
+        msg: "Optional var 'extra_config' is not set"
+      when: extra_config is not defined

@@ -1,0 +1,2 @@
+Hello from Ansible!
+This file was copied using an ad-hoc command.

@@ -1,0 +1,69 @@
+---
+# ============================================
+# NGINX Reverse Proxy with Templates
+# ============================================
+
+- name: Configure NGINX as reverse proxy to Spring Boot
+  hosts: webservers
+  become: yes
+
+  vars:
+    backend_host: "<VM2_IP>"        # !!! REPLACE with VM2 external IP (gcloud compute instances list)
+    backend_port: 8080
+    server_name: "_"
+    max_body_size: "10M"
+    worker_connections: 1024
+    proxy_timeout: 60
+
+  tasks:
+    - name: Install NGINX
+      apt:
+        name: nginx
+        state: present
+        update_cache: yes
+
+    - name: Deploy NGINX reverse proxy config from template
+      template:
+        src: templates/nginx-proxy.conf.j2
+        dest: /etc/nginx/sites-available/default
+        mode: "0644"
+        validate: "nginx -t -c /dev/stdin < %s"
+      notify: Restart NGINX
+
+    - name: Ensure NGINX is running
+      service:
+        name: nginx
+        state: started
+        enabled: yes
+
+  handlers:
+    - name: Restart NGINX
+      service:
+        name: nginx
+        state: restarted
+
+# ---- Also update Spring Boot config via template ----
+- name: Update Spring Boot config via template
+  hosts: appservers
+  become: yes
+
+  vars:
+    app_port: 8080
+    app_name: hello-api
+    log_level: INFO
+
+  tasks:
+    - name: Deploy Spring Boot application.yml from template
+      template:
+        src: templates/app-config.j2
+        dest: /opt/springboot/application.yml
+        owner: springboot
+        group: springboot
+        mode: "0644"
+      notify: Restart Spring Boot
+
+  handlers:
+    - name: Restart Spring Boot
+      service:
+        name: springboot
+        state: restarted

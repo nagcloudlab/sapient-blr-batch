@@ -1,0 +1,11 @@
+apiVersion: v2
+name: todos-app-staging
+description: Todos App - Staging Environment
+type: application
+version: 0.1.0
+appVersion: "9"
+
+dependencies:
+  - name: todos-app
+    version: "0.1.0"
+    repository: "file://../todos-app"

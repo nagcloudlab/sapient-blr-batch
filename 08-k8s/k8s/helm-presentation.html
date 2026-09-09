@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Helm - The Kubernetes Package Manager</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #ffffff; color: #1f2328; overflow: hidden; }
+
+  /* Slide Container */
+  .slide-container { width: 100vw; height: 100vh; position: relative; }
+  .slide {
+    display: none; width: 100%; height: 100%;
+    flex-direction: column; justify-content: center; align-items: center;
+    padding: 60px 80px; position: absolute; top: 0; left: 0;
+    animation: fadeIn 0.4s ease-in;
+  }
+  .slide.active { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Typography */
+  h1 { font-size: 3.2em; color: #0550ae; margin-bottom: 20px; text-align: center; }
+  h2 { font-size: 2.4em; color: #0550ae; margin-bottom: 30px; border-bottom: 3px solid #0969da; padding-bottom: 10px; width: 100%; }
+  h3 { font-size: 1.6em; color: #0969da; margin: 15px 0 10px; }
+  p, li { font-size: 1.25em; line-height: 1.8; color: #1f2328; }
+  .subtitle { font-size: 1.5em; color: #656d76; margin-bottom: 30px; text-align: center; }
+  .highlight { color: #cf222e; font-weight: bold; }
+  .cmd { color: #116329; }
+
+  /* Content Layout */
+  .content { width: 100%; max-width: 1100px; }
+  .content ul { list-style: none; padding-left: 0; }
+  .content ul li { padding: 8px 0 8px 30px; position: relative; }
+  .content ul li::before { content: '\25B6'; color: #0969da; position: absolute; left: 0; font-size: 0.8em; top: 12px; }
+
+  /* Code Block */
+  .code-block {
+    background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 8px;
+    padding: 20px 25px; margin: 15px 0; font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 1.05em; line-height: 1.7; overflow-x: auto; width: 100%;
+    color: #1f2328; white-space: pre;
+  }
+  .code-block .comment { color: #6e7781; }
+  .code-block .keyword { color: #cf222e; }
+  .code-block .string { color: #0550ae; }
+  .code-block .cmd-prompt { color: #116329; }
+
+  /* Two Column */
+  .two-col { display: flex; gap: 40px; width: 100%; }
+  .two-col .col { flex: 1; }
+
+  /* Comparison Table */
+  table { width: 100%; border-collapse: collapse; margin: 15px 0; }
+  th, td { padding: 14px 20px; text-align: left; border: 1px solid #d0d7de; font-size: 1.1em; }
+  th { background: #0969da; color: white; font-size: 1.15em; }
+  tr:nth-child(even) { background: #f6f8fa; }
+  tr:nth-child(odd) { background: #ffffff; }
+
+  /* Diagram boxes */
+  .diagram { display: flex; justify-content: center; align-items: center; gap: 20px; margin: 25px 0; flex-wrap: wrap; }
+  .diagram .box {
+    background: #f6f8fa; border: 2px solid #0969da; border-radius: 10px;
+    padding: 20px 28px; text-align: center; font-size: 1.15em; min-width: 140px;
+  }
+  .diagram .arrow { font-size: 2em; color: #0969da; }
+  .diagram .box.green { border-color: #1a7f37; }
+  .diagram .box.orange { border-color: #bf8700; }
+  .diagram .box.purple { border-color: #8250df; }
+
+  /* Flow diagram */
+  .flow { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 20px 0; }
+  .flow .arrow-down { font-size: 1.5em; color: #0969da; }
+
+  /* Navigation */
+  .nav {
+    position: fixed; bottom: 30px; right: 40px; display: flex; gap: 12px; z-index: 100;
+  }
+  .nav button {
+    background: #0969da; color: white; border: none; padding: 12px 24px;
+    border-radius: 8px; font-size: 1em; cursor: pointer; transition: background 0.3s;
+  }
+  .nav button:hover { background: #218bff; }
+  .nav button:disabled { background: #d0d7de; color: #8c959f; cursor: not-allowed; }
+
+  /* Progress */
+  .progress { position: fixed; top: 0; left: 0; height: 4px; background: #0969da; transition: width 0.3s; z-index: 100; }
+  .slide-num { position: fixed; bottom: 35px; left: 40px; color: #656d76; font-size: 0.95em; }
+
+  /* Badge */
+  .badge {
+    display: inline-block; background: #0969da; color: white; padding: 4px 14px;
+    border-radius: 20px; font-size: 0.85em; margin: 3px 2px;
+  }
+  .badge.green { background: #1a7f37; }
+  .badge.orange { background: #bf8700; }
+  .badge.red { background: #cf222e; }
+
+  /* Icon */
+  .icon { font-size: 3em; margin-bottom: 15px; }
+
+  /* Card grid */
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
+  .card {
+    background: #f6f8fa; border: 1px solid #d0d7de; border-radius: 10px;
+    padding: 22px; border-left: 4px solid #0969da;
+  }
+  .card h3 { margin-top: 0; }
+  .card.green { border-left-color: #1a7f37; }
+  .card.orange { border-left-color: #bf8700; }
+  .card.purple { border-left-color: #8250df; }
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<div class="slide-num" id="slideNum"></div>
+
+<div class="slide-container" id="slideContainer">
+
+<!-- Slide 1: Title -->
+<div class="slide active">
+  <div class="icon">&#9781;</div>
+  <h1>Helm</h1>
+  <p class="subtitle">The Package Manager for Kubernetes</p>
+  <div class="diagram">
+    <span class="badge">Templating</span>
+    <span class="badge green">Packaging</span>
+    <span class="badge orange">Versioning</span>
+    <span class="badge">Release Management</span>
+  </div>
+  <p style="margin-top:30px; color:#656d76; font-size:1.1em;">Navigate: Arrow Keys or Buttons</p>
+</div>
+
+<!-- Slide 2: The Problem -->
+<div class="slide">
+  <div class="content">
+    <h2>The Problem: Without Helm</h2>
+    <div class="two-col">
+      <div class="col">
+        <h3>Pain Points</h3>
+        <ul>
+          <li>Multiple YAML files per app (Deployment, Service, ConfigMap, Secret, PV, PVC, HPA...)</li>
+          <li>Hardcoded values duplicated across files</li>
+          <li>No versioning of deployments</li>
+          <li>Manual rollback is error-prone</li>
+          <li>Environment-specific configs require separate files</li>
+        </ul>
+      </div>
+      <div class="col">
+        <h3>Our Current Setup</h3>
+        <div class="code-block"><span class="comment"># We already manage these separately:</span>
+k8s/
+  config.yaml       <span class="comment"># ConfigMap + Secret</span>
+  postgres.yaml     <span class="comment"># PV + PVC + Service + STS</span>
+  todos-service.yaml<span class="comment"> # Service + Deployment</span>
+  hpa.yaml          <span class="comment"># HPA</span>
+
+<span class="comment"># Deploy command is getting long...</span>
+<span class="cmd-prompt">$</span> kubectl apply -f config.yaml \
+    -f postgres.yaml \
+    -f todos-service.yaml \
+    -f hpa.yaml</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 3: What is Helm -->
+<div class="slide">
+  <div class="content">
+    <h2>What is Helm?</h2>
+    <p style="font-size:1.3em; margin-bottom:25px;">Helm is a <span class="highlight">package manager</span> for Kubernetes &mdash; think <span class="cmd">apt</span>, <span class="cmd">yum</span>, or <span class="cmd">npm</span> but for K8s.</p>
+    <div class="card-grid">
+      <div class="card">
+        <h3>Templating Engine</h3>
+        <p>Use Go templates to parameterize YAML manifests. One chart, many environments.</p>
+      </div>
+      <div class="card green">
+        <h3>Package Management</h3>
+        <p>Bundle all K8s resources into a single deployable unit called a <span class="highlight">Chart</span>.</p>
+      </div>
+      <div class="card orange">
+        <h3>Release Management</h3>
+        <p>Track deployments as <span class="highlight">Releases</span> with history, upgrade, and rollback support.</p>
+      </div>
+      <div class="card purple">
+        <h3>Dependency Management</h3>
+        <p>Charts can depend on other charts (e.g., your app chart depends on a PostgreSQL chart).</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 4: Core Concepts -->
+<div class="slide">
+  <div class="content">
+    <h2>Core Concepts</h2>
+    <div class="diagram">
+      <div class="box"><strong>Chart</strong><br><small>Package / Blueprint</small></div>
+      <div class="arrow">&#8594;</div>
+      <div class="box green"><strong>Config</strong><br><small>values.yaml</small></div>
+      <div class="arrow">&#8594;</div>
+      <div class="box orange"><strong>Release</strong><br><small>Running Instance</small></div>
+    </div>
+    <table>
+      <tr><th>Concept</th><th>Description</th><th>Analogy</th></tr>
+      <tr><td><span class="highlight">Chart</span></td><td>A collection of templates + default values</td><td>Like a Docker image</td></tr>
+      <tr><td><span class="highlight">values.yaml</span></td><td>Configuration values injected into templates</td><td>Like environment variables</td></tr>
+      <tr><td><span class="highlight">Release</span></td><td>A deployed instance of a chart</td><td>Like a running container</td></tr>
+      <tr><td><span class="highlight">Repository</span></td><td>A place to store and share charts</td><td>Like Docker Hub</td></tr>
+      <tr><td><span class="highlight">Revision</span></td><td>A versioned snapshot of a release</td><td>Like a git commit</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Slide 5: Helm Architecture -->
+<div class="slide">
+  <div class="content">
+    <h2>Helm 3 Architecture</h2>
+    <div class="two-col">
+      <div class="col">
+        <div class="flow">
+          <div class="box" style="border:2px solid #0969da; border-radius:10px; padding:18px 30px;">
+            <strong>Helm CLI</strong><br><small>Client-side only</small>
+          </div>
+          <div class="arrow-down">&#8595;</div>
+          <div class="box green" style="border:2px solid #1a7f37; border-radius:10px; padding:18px 30px;">
+            <strong>Kubernetes API</strong><br><small>Direct communication</small>
+          </div>
+          <div class="arrow-down">&#8595;</div>
+          <div class="box orange" style="border:2px solid #bf8700; border-radius:10px; padding:18px 30px;">
+            <strong>K8s Cluster</strong><br><small>Resources deployed</small>
+          </div>
+        </div>
+      </div>
+      <div class="col">
+        <h3>Key Points (Helm 3)</h3>
+        <ul>
+          <li><span class="highlight">No Tiller</span> &mdash; removed the server-side component (was in Helm 2)</li>
+          <li>Uses <span class="cmd">kubeconfig</span> for auth (same as kubectl)</li>
+          <li>Release info stored as <span class="highlight">Secrets</span> in the target namespace</li>
+          <li>Three-way strategic merge for upgrades</li>
+          <li>Improved security &mdash; no cluster-admin needed</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 6: Chart Structure -->
+<div class="slide">
+  <div class="content">
+    <h2>Chart Directory Structure</h2>
+    <div class="two-col">
+      <div class="col">
+        <div class="code-block"><span class="cmd-prompt">$</span> helm create todos-app
+
+todos-app/
+  <span class="keyword">Chart.yaml</span>        <span class="comment"># Chart metadata</span>
+  <span class="keyword">values.yaml</span>       <span class="comment"># Default config values</span>
+  <span class="keyword">charts/</span>           <span class="comment"># Sub-chart dependencies</span>
+  <span class="keyword">templates/</span>        <span class="comment"># K8s manifest templates</span>
+    deployment.yaml
+    service.yaml
+    configmap.yaml
+    secret.yaml
+    hpa.yaml
+    _helpers.tpl     <span class="comment"># Template helpers</span>
+    NOTES.txt        <span class="comment"># Post-install notes</span></div>
+      </div>
+      <div class="col">
+        <h3>Chart.yaml</h3>
+        <div class="code-block"><span class="keyword">apiVersion</span>: <span class="string">v2</span>
+<span class="keyword">name</span>: <span class="string">todos-app</span>
+<span class="keyword">description</span>: <span class="string">A Helm chart for Todos App</span>
+<span class="keyword">type</span>: <span class="string">application</span>
+<span class="keyword">version</span>: <span class="string">0.1.0</span>        <span class="comment"># Chart version</span>
+<span class="keyword">appVersion</span>: <span class="string">"9"</span>      <span class="comment"># App version</span>
+
+<span class="keyword">dependencies</span>:
+  - <span class="keyword">name</span>: <span class="string">postgresql</span>
+    <span class="keyword">version</span>: <span class="string">"12.x.x"</span>
+    <span class="keyword">repository</span>: <span class="string">https://charts.bitnami.com/bitnami</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 7: Templating -->
+<div class="slide">
+  <div class="content">
+    <h2>Helm Templating</h2>
+    <div class="two-col">
+      <div class="col">
+        <h3>values.yaml</h3>
+        <div class="code-block"><span class="keyword">replicaCount</span>: <span class="string">1</span>
+
+<span class="keyword">image</span>:
+  <span class="keyword">repository</span>: <span class="string">nagabhushanamn/todos-service</span>
+  <span class="keyword">tag</span>: <span class="string">"9"</span>
+
+<span class="keyword">service</span>:
+  <span class="keyword">type</span>: <span class="string">NodePort</span>
+  <span class="keyword">port</span>: <span class="string">8080</span>
+  <span class="keyword">nodePort</span>: <span class="string">30080</span>
+
+<span class="keyword">postgres</span>:
+  <span class="keyword">database</span>: <span class="string">tododb</span>
+  <span class="keyword">user</span>: <span class="string">postgres</span>
+  <span class="keyword">password</span>: <span class="string">postgres</span>
+
+<span class="keyword">hpa</span>:
+  <span class="keyword">enabled</span>: <span class="string">true</span>
+  <span class="keyword">minReplicas</span>: <span class="string">1</span>
+  <span class="keyword">maxReplicas</span>: <span class="string">5</span>
+  <span class="keyword">cpuUtilization</span>: <span class="string">50</span></div>
+      </div>
+      <div class="col">
+        <h3>templates/deployment.yaml</h3>
+        <div class="code-block"><span class="keyword">apiVersion</span>: apps/v1
+<span class="keyword">kind</span>: Deployment
+<span class="keyword">metadata</span>:
+  <span class="keyword">name</span>: {{ .Release.Name }}-app
+<span class="keyword">spec</span>:
+  <span class="keyword">replicas</span>: {{ .Values.replicaCount }}
+  <span class="keyword">template</span>:
+    <span class="keyword">spec</span>:
+      <span class="keyword">containers</span>:
+      - <span class="keyword">name</span>: {{ .Chart.Name }}
+        <span class="keyword">image</span>: "<span class="string">{{ .Values.image.repository }}:{{ .Values.image.tag }}</span>"
+        <span class="keyword">ports</span>:
+        - <span class="keyword">containerPort</span>: {{ .Values.service.port }}
+        {{- if .Values.hpa.enabled }}
+        <span class="keyword">resources</span>:
+          <span class="keyword">requests</span>:
+            <span class="keyword">cpu</span>: 200m
+        {{- end }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 8: Template Functions & Flow Control -->
+<div class="slide">
+  <div class="content">
+    <h2>Template Functions &amp; Flow Control</h2>
+    <div class="two-col">
+      <div class="col">
+        <h3>Built-in Objects</h3>
+        <div class="code-block"><span class="comment"># Release info</span>
+{{ .Release.Name }}
+{{ .Release.Namespace }}
+{{ .Release.Revision }}
+
+<span class="comment"># Chart info</span>
+{{ .Chart.Name }}
+{{ .Chart.Version }}
+
+<span class="comment"># Values from values.yaml</span>
+{{ .Values.image.repository }}</div>
+        <h3>Common Functions</h3>
+        <div class="code-block"><span class="comment"># Default value</span>
+{{ .Values.env | default "production" }}
+
+<span class="comment"># Quote strings</span>
+{{ .Values.name | quote }}
+
+<span class="comment"># Base64 encode (for Secrets)</span>
+{{ .Values.password | b64enc }}
+
+<span class="comment"># Indent for YAML nesting</span>
+{{ toYaml .Values.resources | indent 8 }}</div>
+      </div>
+      <div class="col">
+        <h3>Conditionals</h3>
+        <div class="code-block">{{- if .Values.hpa.enabled }}
+<span class="keyword">apiVersion</span>: autoscaling/v2
+<span class="keyword">kind</span>: HorizontalPodAutoscaler
+<span class="comment">...</span>
+{{- end }}</div>
+        <h3>Loops</h3>
+        <div class="code-block"><span class="keyword">env</span>:
+{{- range $key, $val := .Values.env }}
+  - <span class="keyword">name</span>: {{ $key }}
+    <span class="keyword">value</span>: {{ $val | quote }}
+{{- end }}</div>
+        <h3>Named Templates (_helpers.tpl)</h3>
+        <div class="code-block"><span class="comment"># Define</span>
+{{- define "app.fullname" -}}
+{{ .Release.Name }}-{{ .Chart.Name }}
+{{- end }}
+
+<span class="comment"># Use</span>
+<span class="keyword">name</span>: {{ include "app.fullname" . }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 9: Essential Commands -->
+<div class="slide">
+  <div class="content">
+    <h2>Essential Helm Commands</h2>
+    <table>
+      <tr><th>Command</th><th>Description</th></tr>
+      <tr><td><span class="cmd">helm create &lt;name&gt;</span></td><td>Scaffold a new chart</td></tr>
+      <tr><td><span class="cmd">helm install &lt;release&gt; &lt;chart&gt;</span></td><td>Install a chart as a release</td></tr>
+      <tr><td><span class="cmd">helm upgrade &lt;release&gt; &lt;chart&gt;</span></td><td>Upgrade a release to a new version</td></tr>
+      <tr><td><span class="cmd">helm rollback &lt;release&gt; &lt;rev&gt;</span></td><td>Rollback to a previous revision</td></tr>
+      <tr><td><span class="cmd">helm uninstall &lt;release&gt;</span></td><td>Remove a release</td></tr>
+      <tr><td><span class="cmd">helm list</span></td><td>List all releases</td></tr>
+      <tr><td><span class="cmd">helm history &lt;release&gt;</span></td><td>View release revision history</td></tr>
+      <tr><td><span class="cmd">helm template &lt;chart&gt;</span></td><td>Render templates locally (dry run)</td></tr>
+      <tr><td><span class="cmd">helm lint &lt;chart&gt;</span></td><td>Validate chart for errors</td></tr>
+      <tr><td><span class="cmd">helm repo add &lt;name&gt; &lt;url&gt;</span></td><td>Add a chart repository</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Slide 10: Demo - Install & Upgrade -->
+<div class="slide">
+  <div class="content">
+    <h2>Demo: Install, Upgrade &amp; Rollback</h2>
+    <div class="code-block"><span class="comment"># 1. Create chart</span>
+<span class="cmd-prompt">$</span> helm create todos-app
+
+<span class="comment"># 2. Lint and dry-run</span>
+<span class="cmd-prompt">$</span> helm lint ./todos-app
+<span class="cmd-prompt">$</span> helm template my-release ./todos-app
+
+<span class="comment"># 3. Install the release</span>
+<span class="cmd-prompt">$</span> helm install my-release ./todos-app
+
+<span class="comment"># 4. Check status</span>
+<span class="cmd-prompt">$</span> helm list
+<span class="cmd-prompt">$</span> helm status my-release
+
+<span class="comment"># 5. Upgrade with new image tag</span>
+<span class="cmd-prompt">$</span> helm upgrade my-release ./todos-app --set image.tag="10"
+
+<span class="comment"># 6. View history</span>
+<span class="cmd-prompt">$</span> helm history my-release
+REVISION    STATUS      DESCRIPTION
+1           superseded  Install complete
+2           deployed    Upgrade complete
+
+<span class="comment"># 7. Rollback to revision 1</span>
+<span class="cmd-prompt">$</span> helm rollback my-release 1
+
+<span class="comment"># 8. Uninstall</span>
+<span class="cmd-prompt">$</span> helm uninstall my-release</div>
+  </div>
+</div>
+
+<!-- Slide 11: Override Values -->
+<div class="slide">
+  <div class="content">
+    <h2>Overriding Values per Environment</h2>
+    <div class="two-col">
+      <div class="col">
+        <h3>values-dev.yaml</h3>
+        <div class="code-block"><span class="keyword">replicaCount</span>: <span class="string">1</span>
+
+<span class="keyword">image</span>:
+  <span class="keyword">tag</span>: <span class="string">"latest"</span>
+
+<span class="keyword">service</span>:
+  <span class="keyword">type</span>: <span class="string">NodePort</span>
+
+<span class="keyword">hpa</span>:
+  <span class="keyword">enabled</span>: <span class="string">false</span>
+
+<span class="keyword">postgres</span>:
+  <span class="keyword">password</span>: <span class="string">devpass</span></div>
+        <h3>values-prod.yaml</h3>
+        <div class="code-block"><span class="keyword">replicaCount</span>: <span class="string">3</span>
+
+<span class="keyword">image</span>:
+  <span class="keyword">tag</span>: <span class="string">"9"</span>
+
+<span class="keyword">service</span>:
+  <span class="keyword">type</span>: <span class="string">LoadBalancer</span>
+
+<span class="keyword">hpa</span>:
+  <span class="keyword">enabled</span>: <span class="string">true</span>
+  <span class="keyword">maxReplicas</span>: <span class="string">10</span>
+
+<span class="keyword">postgres</span>:
+  <span class="keyword">password</span>: <span class="string">$PROD_DB_PASS</span></div>
+      </div>
+      <div class="col">
+        <h3>Deploy per Environment</h3>
+        <div class="code-block"><span class="comment"># Development</span>
+<span class="cmd-prompt">$</span> helm install todos-dev ./todos-app \
+    -f values-dev.yaml \
+    -n dev
+
+<span class="comment"># Production</span>
+<span class="cmd-prompt">$</span> helm install todos-prod ./todos-app \
+    -f values-prod.yaml \
+    -n prod
+
+<span class="comment"># Override individual values</span>
+<span class="cmd-prompt">$</span> helm install todos ./todos-app \
+    --set image.tag="10" \
+    --set replicaCount=2
+
+<span class="comment"># Combine: file + inline override</span>
+<span class="cmd-prompt">$</span> helm upgrade todos-prod ./todos-app \
+    -f values-prod.yaml \
+    --set image.tag="11"</div>
+        <h3>Value Precedence</h3>
+        <div class="diagram" style="flex-direction: column; gap: 6px;">
+          <div class="box" style="width:320px;padding:10px;"><small>--set (highest priority)</small></div>
+          <div style="color:#0969da;">&#8595;</div>
+          <div class="box green" style="width:320px;padding:10px;"><small>-f values-prod.yaml</small></div>
+          <div style="color:#0969da;">&#8595;</div>
+          <div class="box orange" style="width:320px;padding:10px;"><small>values.yaml (default, lowest)</small></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 12: Using Public Charts -->
+<div class="slide">
+  <div class="content">
+    <h2>Using Public Chart Repositories</h2>
+    <div class="code-block"><span class="comment"># Add Bitnami repo</span>
+<span class="cmd-prompt">$</span> helm repo add bitnami https://charts.bitnami.com/bitnami
+<span class="cmd-prompt">$</span> helm repo update
+
+<span class="comment"># Search for charts</span>
+<span class="cmd-prompt">$</span> helm search repo postgresql
+NAME                    CHART VERSION   APP VERSION
+bitnami/postgresql      12.8.0          15.4.0
+
+<span class="comment"># Install PostgreSQL from Bitnami</span>
+<span class="cmd-prompt">$</span> helm install my-postgres bitnami/postgresql \
+    --set auth.postgresPassword=postgres \
+    --set auth.database=tododb \
+    --set primary.persistence.size=1Gi
+
+<span class="comment"># See what was deployed</span>
+<span class="cmd-prompt">$</span> helm get manifest my-postgres
+
+<span class="comment"># See all configurable values</span>
+<span class="cmd-prompt">$</span> helm show values bitnami/postgresql</div>
+    <p style="margin-top:15px;">Popular repos: <span class="badge">Bitnami</span> <span class="badge green">Artifact Hub</span> <span class="badge orange">Prometheus Community</span> <span class="badge">Ingress NGINX</span></p>
+  </div>
+</div>
+
+<!-- Slide 13: Helm vs kubectl -->
+<div class="slide">
+  <div class="content">
+    <h2>Helm vs Plain kubectl</h2>
+    <table>
+      <tr><th>Feature</th><th>kubectl apply</th><th>Helm</th></tr>
+      <tr><td>Templating</td><td><span class="badge red">Manual / kustomize</span></td><td><span class="badge green">Built-in Go templates</span></td></tr>
+      <tr><td>Packaging</td><td><span class="badge red">Separate YAML files</span></td><td><span class="badge green">Single chart package</span></td></tr>
+      <tr><td>Versioning</td><td><span class="badge red">Via git only</span></td><td><span class="badge green">Chart + App versioning</span></td></tr>
+      <tr><td>Rollback</td><td><span class="badge red">Manual revert</span></td><td><span class="badge green">helm rollback &lt;rev&gt;</span></td></tr>
+      <tr><td>Release Tracking</td><td><span class="badge red">None</span></td><td><span class="badge green">Built-in history</span></td></tr>
+      <tr><td>Multi-env Config</td><td><span class="badge red">Duplicate files</span></td><td><span class="badge green">values-{env}.yaml</span></td></tr>
+      <tr><td>Dependencies</td><td><span class="badge red">Manual ordering</span></td><td><span class="badge green">Chart dependencies</span></td></tr>
+      <tr><td>Learning Curve</td><td><span class="badge green">Low</span></td><td><span class="badge orange">Medium</span></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Slide 14: Helm in CI/CD -->
+<div class="slide">
+  <div class="content">
+    <h2>Helm in CI/CD Pipeline</h2>
+    <div class="diagram">
+      <div class="box"><strong>Git Push</strong><br><small>Code + Chart</small></div>
+      <div class="arrow">&#8594;</div>
+      <div class="box green"><strong>CI Build</strong><br><small>Docker image</small></div>
+      <div class="arrow">&#8594;</div>
+      <div class="box orange"><strong>Helm Lint</strong><br><small>Validate chart</small></div>
+      <div class="arrow">&#8594;</div>
+      <div class="box purple"><strong>Helm Upgrade</strong><br><small>Deploy release</small></div>
+    </div>
+    <div class="code-block"><span class="comment"># GitHub Actions / Jenkins / GitLab CI example</span>
+
+<span class="comment"># Step 1: Build & push image</span>
+<span class="cmd-prompt">$</span> docker build -t nagabhushanamn/todos-service:$TAG .
+<span class="cmd-prompt">$</span> docker push nagabhushanamn/todos-service:$TAG
+
+<span class="comment"># Step 2: Lint the chart</span>
+<span class="cmd-prompt">$</span> helm lint ./todos-app
+
+<span class="comment"># Step 3: Deploy with upgrade --install (idempotent)</span>
+<span class="cmd-prompt">$</span> helm upgrade --install todos-release ./todos-app \
+    -f values-prod.yaml \
+    --set image.tag=$TAG \
+    --namespace production \
+    --wait --timeout 5m
+
+<span class="comment"># --install: creates release if it doesn't exist</span>
+<span class="comment"># --wait: waits for pods to be ready</span>
+<span class="comment"># --timeout: fails if not ready in time</span></div>
+  </div>
+</div>
+
+<!-- Slide 15: Best Practices -->
+<div class="slide">
+  <div class="content">
+    <h2>Helm Best Practices</h2>
+    <div class="card-grid">
+      <div class="card">
+        <h3>Version Everything</h3>
+        <p>Use semantic versioning for both <span class="cmd">version</span> (chart) and <span class="cmd">appVersion</span> (app) in Chart.yaml.</p>
+      </div>
+      <div class="card green">
+        <h3>Use helm template</h3>
+        <p>Always dry-run with <span class="cmd">helm template</span> before deploying to catch errors early.</p>
+      </div>
+      <div class="card orange">
+        <h3>Secrets Management</h3>
+        <p>Never commit secrets in values.yaml. Use <span class="cmd">helm-secrets</span> plugin or external secret managers (Vault, AWS SM).</p>
+      </div>
+      <div class="card purple">
+        <h3>Use upgrade --install</h3>
+        <p>Makes deployments idempotent &mdash; works for both first install and subsequent upgrades.</p>
+      </div>
+      <div class="card">
+        <h3>Keep Charts Generic</h3>
+        <p>Design charts to be reusable. Environment-specific values go in separate values files.</p>
+      </div>
+      <div class="card green">
+        <h3>Use _helpers.tpl</h3>
+        <p>Define reusable named templates for labels, names, and selectors to stay DRY.</p>
+      </div>
+      <div class="card orange">
+        <h3>Pin Dependencies</h3>
+        <p>Always pin chart dependency versions to avoid unexpected breaking changes.</p>
+      </div>
+      <div class="card purple">
+        <h3>Add NOTES.txt</h3>
+        <p>Provide post-install instructions showing how to access the app after deployment.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 16: Quick Reference -->
+<div class="slide">
+  <div class="content">
+    <h2>Quick Reference Cheat Sheet</h2>
+    <div class="two-col">
+      <div class="col">
+        <h3>Chart Management</h3>
+        <div class="code-block"><span class="cmd-prompt">$</span> helm create myapp
+<span class="cmd-prompt">$</span> helm package ./myapp
+<span class="cmd-prompt">$</span> helm lint ./myapp
+<span class="cmd-prompt">$</span> helm template rel ./myapp
+<span class="cmd-prompt">$</span> helm show values ./myapp</div>
+        <h3>Release Management</h3>
+        <div class="code-block"><span class="cmd-prompt">$</span> helm install rel ./myapp
+<span class="cmd-prompt">$</span> helm upgrade rel ./myapp
+<span class="cmd-prompt">$</span> helm rollback rel 1
+<span class="cmd-prompt">$</span> helm uninstall rel
+<span class="cmd-prompt">$</span> helm list -A
+<span class="cmd-prompt">$</span> helm history rel
+<span class="cmd-prompt">$</span> helm status rel</div>
+      </div>
+      <div class="col">
+        <h3>Repo Management</h3>
+        <div class="code-block"><span class="cmd-prompt">$</span> helm repo add name url
+<span class="cmd-prompt">$</span> helm repo update
+<span class="cmd-prompt">$</span> helm repo list
+<span class="cmd-prompt">$</span> helm search repo keyword
+<span class="cmd-prompt">$</span> helm search hub keyword</div>
+        <h3>Debugging</h3>
+        <div class="code-block"><span class="comment"># Render without deploying</span>
+<span class="cmd-prompt">$</span> helm template rel ./myapp
+
+<span class="comment"># Dry-run with server validation</span>
+<span class="cmd-prompt">$</span> helm install rel ./myapp --dry-run
+
+<span class="comment"># See generated manifests</span>
+<span class="cmd-prompt">$</span> helm get manifest rel
+
+<span class="comment"># See applied values</span>
+<span class="cmd-prompt">$</span> helm get values rel</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Slide 17: Summary -->
+<div class="slide">
+  <div class="content">
+    <h2>Summary</h2>
+    <div class="diagram" style="margin-bottom: 30px;">
+      <div class="box"><strong>Chart</strong><br><small>templates + values</small></div>
+      <div class="arrow">+</div>
+      <div class="box green"><strong>Config</strong><br><small>values-env.yaml</small></div>
+      <div class="arrow">=</div>
+      <div class="box orange"><strong>Release</strong><br><small>versioned deploy</small></div>
+    </div>
+    <ul style="max-width: 800px;">
+      <li>Helm <span class="highlight">packages</span> K8s manifests into reusable charts</li>
+      <li>Go <span class="highlight">templates</span> eliminate YAML duplication</li>
+      <li>Per-environment config via <span class="highlight">values files</span></li>
+      <li>Built-in <span class="highlight">versioning, history</span>, and <span class="highlight">rollback</span></li>
+      <li>Integrates seamlessly into <span class="highlight">CI/CD</span> pipelines</li>
+      <li>Rich ecosystem of <span class="highlight">public charts</span> on Artifact Hub</li>
+    </ul>
+    <p style="margin-top: 30px; font-size: 1.4em; color: #0550ae; text-align: center;">
+      From <span class="cmd">kubectl apply -f *.yaml</span> &rarr; to <span class="cmd">helm upgrade --install</span>
+    </p>
+  </div>
+</div>
+
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <button id="prevBtn" onclick="changeSlide(-1)">&#9664; Prev</button>
+  <button id="nextBtn" onclick="changeSlide(1)">Next &#9654;</button>
+</div>
+
+<script>
+  let current = 0;
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+
+  function showSlide(n) {
+    slides[current].classList.remove('active');
+    current = (n + total) % total;
+    slides[current].classList.add('active');
+    document.getElementById('prevBtn').disabled = current === 0;
+    document.getElementById('nextBtn').disabled = current === total - 1;
+    document.getElementById('progress').style.width = ((current + 1) / total * 100) + '%';
+    document.getElementById('slideNum').textContent = (current + 1) + ' / ' + total;
+  }
+
+  function changeSlide(dir) { showSlide(current + dir); }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') { e.preventDefault(); changeSlide(1); }
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); changeSlide(-1); }
+    if (e.key === 'Home') { e.preventDefault(); showSlide(0); }
+    if (e.key === 'End') { e.preventDefault(); showSlide(total - 1); }
+  });
+
+  showSlide(0);
+</script>
+
+</body>
+</html>

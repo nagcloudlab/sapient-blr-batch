@@ -1,0 +1,17 @@
+---
+# ============================================
+# Site Playbook — uses group_vars & host_vars
+# ============================================
+
+- name: Show variables from group_vars and host_vars
+  hosts: all
+
+  tasks:
+    - name: Display all variables for this host
+      debug:
+        msg: |
+          Host: {{ inventory_hostname }}
+          Environment: {{ env }}
+          Monitored: {{ monitoring_enabled }}
+          App Port: {{ app_port }}
+          Custom Message: {{ custom_message }}

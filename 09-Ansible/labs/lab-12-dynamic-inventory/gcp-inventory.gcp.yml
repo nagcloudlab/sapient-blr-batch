@@ -1,0 +1,47 @@
+# ============================================
+# GCP Dynamic Inventory Configuration
+# ============================================
+# File MUST end in .gcp.yml for the plugin to recognize it
+
+plugin: google.cloud.gcp_compute
+
+# GCP Project
+projects:
+  - grounded-apogee-503607-h2
+
+# Filter: only VMs in specific zones
+zones:
+  - us-central1-a
+
+# Only include running instances
+filters:
+  - status = RUNNING
+
+# Use external (public) IP for SSH
+hostnames:
+  - public_ip
+
+# Compose variables for each host
+compose:
+  ansible_host: networkInterfaces[0].accessConfigs[0].natIP
+
+# Create groups based on GCP labels
+keyed_groups:
+  # Group by label "role" (e.g., role=webserver → group "role_webserver")
+  - key: labels.role
+    prefix: role
+    separator: "_"
+
+  # Group by zone
+  - key: zone
+    prefix: zone
+    separator: "_"
+
+  # Group by machine type
+  - key: machineType
+    prefix: type
+    separator: "_"
+
+# Authentication (uses application-default credentials if not set)
+# service_account_file: ~/path/to/service-account.json
+auth_kind: application

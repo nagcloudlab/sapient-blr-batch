@@ -1,0 +1,37 @@
+---
+# ============================================
+# Vault Demo Playbook
+# ============================================
+# Run with: ansible-playbook vault-demo.yml --ask-vault-pass
+
+- name: Demo using Ansible Vault secrets
+  hosts: all
+  become: yes
+
+  vars_files:
+    - secrets.yml    # This file is encrypted with ansible-vault
+
+  tasks:
+    - name: Show that we can use encrypted variables
+      debug:
+        msg: "DB User is '{{ db_user }}' (password is hidden for security)"
+
+    - name: Create application config with secrets
+      copy:
+        content: |
+          # Application Configuration
+          db.host=localhost
+          db.user={{ db_user }}
+          db.password={{ db_password }}
+          api.key={{ api_key }}
+        dest: /opt/apps/app.properties
+        mode: "0600"     # Only owner can read (secure!)
+
+    - name: Verify file was created
+      command: ls -la /opt/apps/app.properties
+      register: file_check
+      changed_when: false
+
+    - name: Show file permissions
+      debug:
+        var: file_check.stdout

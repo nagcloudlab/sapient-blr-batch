@@ -1,0 +1,37 @@
+---
+# Common tasks for all servers
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+  tags: install
+
+- name: Install common packages
+  apt:
+    name: "{{ common_packages }}"
+    state: present
+  tags: install
+
+- name: Set timezone
+  timezone:
+    name: "{{ timezone }}"
+  tags: config
+
+- name: Create apps directory
+  file:
+    path: /opt/apps
+    state: directory
+    mode: "0755"
+  tags: config
+
+- name: Set MOTD banner
+  copy:
+    content: |
+      ====================================
+      Server: {{ inventory_hostname }}
+      Managed by Ansible
+      Environment: {{ env | default('staging') }}
+      ====================================
+    dest: /etc/motd
+  tags: config

@@ -1,0 +1,5 @@
+---
+# Variables for webservers group
+app_port: 80
+custom_message: "I am a web server running NGINX"
+nginx_worker_processes: auto

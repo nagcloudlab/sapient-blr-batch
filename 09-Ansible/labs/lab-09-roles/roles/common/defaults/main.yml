@@ -1,0 +1,11 @@
+---
+# Default variables (easily overridable)
+timezone: UTC
+common_packages:
+  - curl
+  - wget
+  - vim
+  - htop
+  - unzip
+  - git
+  - net-tools

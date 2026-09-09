@@ -1,0 +1,11 @@
+apiVersion: v2
+name: todos-app-production
+description: Todos App - Production Environment
+type: application
+version: 0.1.0
+appVersion: "9"
+
+dependencies:
+  - name: todos-app
+    version: "0.1.0"
+    repository: "file://../todos-app"

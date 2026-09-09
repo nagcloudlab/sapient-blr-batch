@@ -1,0 +1,26 @@
+---
+# ============================================
+# Vault Best Practices
+# ============================================
+# Pattern: vault vars prefixed with vault_, referenced in regular vars
+# Run: ansible-playbook vault-best-practices.yml --ask-vault-pass
+
+- name: Vault best practices demo
+  hosts: all
+
+  vars:
+    # Reference vault variables with friendly names
+    db_password: "{{ vault_db_password }}"
+    api_key: "{{ vault_api_key }}"
+
+  vars_files:
+    - plaintext-secrets.yml   # Encrypt this first!
+
+  tasks:
+    - name: Show best practice variable usage
+      debug:
+        msg: |
+          Best Practice Pattern:
+          1. Secrets stored in encrypted vault file
+          2. vault_db_password → db_password (friendly name)
+          3. Easy to see which vars are secrets (vault_ prefix)

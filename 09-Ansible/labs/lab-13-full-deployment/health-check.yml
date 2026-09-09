@@ -1,0 +1,65 @@
+---
+# ============================================
+# Health Check Playbook
+# ============================================
+
+- name: Check NGINX health
+  hosts: webservers
+
+  tasks:
+    - name: Check NGINX service
+      command: systemctl is-active nginx
+      register: nginx_status
+      changed_when: false
+      ignore_errors: yes
+
+    - name: Check NGINX port 80
+      wait_for:
+        port: 80
+        timeout: 5
+      ignore_errors: yes
+      register: port_check
+
+    - name: NGINX Status
+      debug:
+        msg: |
+          Service: {{ nginx_status.stdout | default('unknown') }}
+          Port 80: {{ 'OPEN' if port_check is not failed else 'CLOSED' }}
+
+- name: Check Spring Boot health
+  hosts: appservers
+
+  tasks:
+    - name: Check Spring Boot service
+      command: systemctl is-active springboot
+      register: sb_status
+      changed_when: false
+      ignore_errors: yes
+
+    - name: Check Spring Boot port 8080
+      wait_for:
+        port: 8080
+        timeout: 5
+      ignore_errors: yes
+      register: port_check
+
+    - name: Spring Boot Status
+      debug:
+        msg: |
+          Service: {{ sb_status.stdout | default('unknown') }}
+          Port 8080: {{ 'OPEN' if port_check is not failed else 'CLOSED' }}
+
+- name: End-to-end check
+  hosts: webservers
+
+  tasks:
+    - name: Test reverse proxy path
+      uri:
+        url: "http://localhost/health"
+        return_content: yes
+      register: e2e
+      ignore_errors: yes
+
+    - name: Summary
+      debug:
+        msg: "End-to-end: {{ 'PASS' if e2e is not failed else 'FAIL' }}"
