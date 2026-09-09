@@ -1,0 +1,8 @@
+vm1-nginx       us-central1-a  e2-medium                  10.128.0.6   136.112.166.19  RUNNING
+vm2-springboot  us-central1-a  e2-medium                  10.128.0.7   136.112.94.245  RUNNING
+
+
+ssh -i ~/.ssh/google_compute_engine 136.112.166.19
+ssh -i ~/.ssh/google_compute_engine 136.112.94.245
+
+ansible all -i "136.112.166.19,136.112.94.245" -m ping --user=nagabhushanamn@gmail.com --private-key=~/.ssh/google_compute_engine
