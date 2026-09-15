@@ -1,0 +1,13 @@
+{
+  "name": "foodexpress-traced",
+  "version": "1.0.0",
+  "dependencies": {
+    "express": "^4.18.0",
+    "prom-client": "^14.2.0",
+    "@opentelemetry/sdk-node": "^0.52.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.52.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.48.0",
+    "@opentelemetry/resources": "^1.25.0",
+    "@opentelemetry/semantic-conventions": "^1.25.0"
+  }
+}
