@@ -140,6 +140,33 @@ All three are needed. Metrics tell you THERE'S a problem. Logs tell you WHAT the
 
 ---
 
+## Types of Monitoring
+
+| Type | What It Watches | Example Tools |
+|------|----------------|---------------|
+| **Infrastructure Monitoring** | Servers, CPU, memory, disk, network | Prometheus + Node Exporter, Datadog, Nagios |
+| **Application Monitoring (APM)** | Request rates, error rates, latency inside your app | New Relic, Dynatrace, Elastic APM |
+| **Network Monitoring** | Packet loss, bandwidth, DNS resolution, connectivity | Wireshark, SNMP, Pingdom |
+| **Log Monitoring** | Structured/unstructured log events from services | ELK Stack (Elasticsearch, Logstash, Kibana), Loki |
+| **Synthetic Monitoring** | Simulated user requests to test availability and performance | Pingdom, Checkly, AWS CloudWatch Synthetics |
+| **Real User Monitoring (RUM)** | Actual end-user experience in the browser/app | Google Analytics, Datadog RUM, New Relic Browser |
+| **Database Monitoring** | Query performance, connection pools, replication lag | pganalyze, PMM (Percona), CloudWatch RDS |
+| **Container/Orchestration Monitoring** | Pod health, resource limits, scheduling, restarts | Prometheus + kube-state-metrics, Kubernetes Dashboard |
+
+```
+          Infrastructure          Application            End User
+          ┌──────────┐           ┌──────────┐          ┌──────────┐
+          │ CPU/Mem  │           │ Latency  │          │ Page     │
+          │ Disk/Net │  ──────▶  │ Errors   │  ──────▶ │ Load     │
+          │ Uptime   │           │ Throughput│          │ Clicks   │
+          └──────────┘           └──────────┘          └──────────┘
+           Infra Mon.              APM                   RUM
+```
+
+> **Key Insight:** No single type of monitoring is enough. A slow database (DB monitoring) causes high latency (APM) which frustrates users (RUM). You need visibility across all layers to connect cause and effect.
+
+---
+
 ## Discussion
 
 1. Have you ever tried to find a bug with no logs or monitoring data? What was that like?
