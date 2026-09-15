@@ -1,0 +1,109 @@
+groups:
+  # ---- Golden Signal: ERRORS ----
+  - name: error-alerts
+    rules:
+      - alert: HighPaymentFailureRate
+        expr: >
+          (rate(payments_failed_total[2m]) + rate(payments_error_total[2m]))
+          / (rate(payments_completed_total[2m]) + rate(payments_failed_total[2m]) + rate(payments_error_total[2m]))
+          > 0.15
+        for: 1m
+        labels:
+          severity: critical
+          service: payment-service
+        annotations:
+          summary: "High payment failure rate"
+          description: "Payment failure rate is {{ $value | humanizePercentage }} (threshold: 15%)"
+
+      - alert: PaymentServiceErrors
+        expr: rate(payment_service_errors_total[2m]) > 0.05
+        for: 1m
+        labels:
+          severity: warning
+          service: order-service
+        annotations:
+          summary: "Payment service errors detected"
+          description: "Order service seeing {{ $value }} errors/sec calling payment service"
+
+  # ---- Golden Signal: LATENCY ----
+  - name: latency-alerts
+    rules:
+      - alert: HighOrderLatencyP95
+        expr: >
+          histogram_quantile(0.95,
+            rate(http_request_duration_seconds_bucket{route="/orders"}[2m])
+          ) > 1.0
+        for: 1m
+        labels:
+          severity: warning
+          service: order-service
+        annotations:
+          summary: "High p95 latency on POST /orders"
+          description: "p95 latency is {{ $value }}s (threshold: 1s)"
+
+      - alert: HighPaymentCallLatencyP95
+        expr: >
+          histogram_quantile(0.95,
+            rate(payment_service_call_duration_seconds_bucket[2m])
+          ) > 2.0
+        for: 1m
+        labels:
+          severity: critical
+          service: order-service
+        annotations:
+          summary: "Payment service calls are slow"
+          description: "p95 payment call latency is {{ $value }}s (threshold: 2s)"
+
+  # ---- Golden Signal: TRAFFIC ----
+  - name: traffic-alerts
+    rules:
+      - alert: NoTraffic
+        expr: >
+          rate(http_request_duration_seconds_count{route="/orders"}[5m]) == 0
+        for: 5m
+        labels:
+          severity: warning
+          service: order-service
+        annotations:
+          summary: "No order traffic detected"
+          description: "No orders received in the last 5 minutes"
+
+  # ---- Golden Signal: SATURATION ----
+  - name: saturation-alerts
+    rules:
+      - alert: HighMemoryUsage
+        expr: >
+          process_resident_memory_bytes{job="order-service"}
+          / 1024 / 1024 > 256
+        for: 2m
+        labels:
+          severity: warning
+          service: order-service
+        annotations:
+          summary: "High memory usage on order-service"
+          description: "Memory usage is {{ $value }}MB (threshold: 256MB)"
+
+      - alert: HighJvmHeapUsage
+        expr: >
+          jvm_memory_used_bytes{area="heap", job="payment-service"}
+          / jvm_memory_max_bytes{area="heap", job="payment-service"}
+          > 0.80
+        for: 2m
+        labels:
+          severity: warning
+          service: payment-service
+        annotations:
+          summary: "High JVM heap usage on payment-service"
+          description: "Heap usage is {{ $value | humanizePercentage }} (threshold: 80%)"
+
+  # ---- Service Health ----
+  - name: availability-alerts
+    rules:
+      - alert: ServiceDown
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is DOWN"
+          description: "Prometheus cannot scrape {{ $labels.job }} - service may be crashed or unreachable"

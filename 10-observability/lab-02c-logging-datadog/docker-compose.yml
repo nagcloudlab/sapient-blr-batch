@@ -1,0 +1,32 @@
+services:
+  order-service:
+    build: ./order-service
+    ports:
+      - "3000:3000"
+    environment:
+      - PAYMENT_SERVICE_URL=http://payment-service:8080
+    depends_on:
+      - payment-service
+    labels:
+      com.datadoghq.ad.logs: '[{"source":"nodejs","service":"order-service"}]'
+
+  payment-service:
+    build: ./payment-service
+    ports:
+      - "8080:8080"
+    labels:
+      com.datadoghq.ad.logs: '[{"source":"java","service":"payment-service"}]'
+
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:latest
+    environment:
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_SITE=datadoghq.com
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_CONTAINER_EXCLUDE="name:datadog-agent"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro

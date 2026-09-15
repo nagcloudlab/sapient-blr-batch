@@ -1,0 +1,77 @@
+{
+  "title": "Order & Payment Services",
+  "uid": "services-dashboard",
+  "schemaVersion": 39,
+  "panels": [
+    {
+      "title": "Order Service - Request Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "rate(http_request_duration_seconds_count{job=\"order-service\"}[1m])",
+          "legendFormat": "{{method}} {{route}} {{status_code}}"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "prometheus" }
+    },
+    {
+      "title": "Payment Service - Request Rate",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "rate(http_server_requests_seconds_count{application=\"payment-service\"}[1m])",
+          "legendFormat": "{{method}} {{uri}} {{status}}"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "prometheus" }
+    },
+    {
+      "title": "Orders Created (by status)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 8, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "orders_created_total",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "prometheus" }
+    },
+    {
+      "title": "Payments Completed vs Failed",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 8, "x": 8, "y": 8 },
+      "targets": [
+        {
+          "expr": "payments_completed_total",
+          "legendFormat": "Completed"
+        },
+        {
+          "expr": "payments_failed_total",
+          "legendFormat": "Failed"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "prometheus" }
+    },
+    {
+      "title": "Payment Service Call Latency (from Order Service)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 8, "x": 16, "y": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, rate(payment_service_call_duration_seconds_bucket[1m]))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.50, rate(payment_service_call_duration_seconds_bucket[1m]))",
+          "legendFormat": "p50"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "prometheus" }
+    }
+  ],
+  "time": { "from": "now-15m", "to": "now" },
+  "refresh": "5s"
+}

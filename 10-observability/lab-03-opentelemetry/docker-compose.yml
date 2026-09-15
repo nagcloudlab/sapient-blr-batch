@@ -1,0 +1,79 @@
+services:
+  # ---- Application Services ----
+  order-service:
+    build: ./order-service
+    ports:
+      - "3000:3000"
+    environment:
+      - PAYMENT_SERVICE_URL=http://payment-service:8080
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+    depends_on:
+      - payment-service
+      - otel-collector
+
+  payment-service:
+    build: ./payment-service
+    ports:
+      - "8080:8080"
+    environment:
+      - OTEL_SERVICE_NAME=payment-service
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_LOGS_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=otlp
+      - OTEL_TRACES_EXPORTER=otlp
+    depends_on:
+      - otel-collector
+
+  # ---- OpenTelemetry Collector (central pipeline) ----
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.91.0
+    ports:
+      - "4317:4317"     # OTLP gRPC
+      - "4318:4318"     # OTLP HTTP
+      - "8889:8889"     # Prometheus metrics export
+    volumes:
+      - ./otel-collector/otel-collector-config.yml:/etc/otelcol-contrib/config.yaml
+    depends_on:
+      - jaeger
+      - loki
+
+  # ---- Trace Backend ----
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"   # Jaeger UI
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+  # ---- Log Backend ----
+  loki:
+    image: grafana/loki:2.9.0
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+
+  # ---- Metrics Backend ----
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - otel-collector
+
+  # ---- Unified Dashboard ----
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus
+      - loki
+      - jaeger

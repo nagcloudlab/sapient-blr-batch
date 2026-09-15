@@ -1,0 +1,55 @@
+services:
+  order-service:
+    build: ./order-service
+    ports:
+      - "3000:3000"
+    environment:
+      - PAYMENT_SERVICE_URL=http://payment-service:8080
+    depends_on:
+      - payment-service
+
+  payment-service:
+    build: ./payment-service
+    ports:
+      - "8080:8080"
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./prometheus/alerts.yml:/etc/prometheus/alerts.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-lifecycle"
+    depends_on:
+      - order-service
+      - payment-service
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+    depends_on:
+      - webhook-logger
+
+  webhook-logger:
+    build: ./webhook-logger
+    ports:
+      - "9095:9095"
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - ./grafana/provisioning:/etc/grafana/provisioning
+    depends_on:
+      - prometheus

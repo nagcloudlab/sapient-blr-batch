@@ -1,0 +1,32 @@
+filebeat.inputs:
+  - type: container
+    paths:
+      - "/var/lib/docker/containers/*/*.log"
+    processors:
+      - add_docker_metadata:
+          host: "unix:///var/run/docker.sock"
+      - decode_json_fields:
+          fields: ["message"]
+          target: ""
+          overwrite_keys: true
+    # Only collect logs from our services, not ELK containers
+    container.ids:
+      - "*"
+    include_lines: ['^\{.*\}$']
+
+# Drop logs from ELK stack containers
+processors:
+  - drop_event:
+      when:
+        or:
+          - contains:
+              container.name: "elasticsearch"
+          - contains:
+              container.name: "logstash"
+          - contains:
+              container.name: "kibana"
+          - contains:
+              container.name: "filebeat"
+
+output.logstash:
+  hosts: ["logstash:5000"]
