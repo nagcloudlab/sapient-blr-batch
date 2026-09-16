@@ -18,7 +18,7 @@ services:
       - "logging=true"
 
   loki:
-    image: grafana/loki:2.9.0
+    image: grafana/loki:3.1.0
     ports:
       - "3100:3100"
     volumes:
@@ -26,7 +26,7 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
 
   promtail:
-    image: grafana/promtail:2.9.0
+    image: grafana/promtail:3.1.0
     volumes:
       - ./promtail/promtail-config.yml:/etc/promtail/config.yml
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
