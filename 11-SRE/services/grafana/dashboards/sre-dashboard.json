@@ -1,0 +1,153 @@
+{
+  "title": "SRE - SLI Dashboard",
+  "uid": "sre-sli-dashboard",
+  "schemaVersion": 39,
+  "panels": [
+    {
+      "title": "Availability SLI (Order Service)",
+      "description": "% of non-5xx responses. SLO target: 99.9%",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 6, "x": 0, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_request_duration_seconds_count{job=\"order-service\", status_code!~\"5..\"}[5m])) / sum(rate(http_request_duration_seconds_count{job=\"order-service\"}[5m])) * 100",
+          "legendFormat": "Availability %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 95,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "steps": [
+              { "value": 0, "color": "red" },
+              { "value": 99, "color": "yellow" },
+              { "value": 99.9, "color": "green" }
+            ]
+          }
+        }
+      },
+      "datasource": { "type": "prometheus", "uid": "prometheus" }
+    },
+    {
+      "title": "Latency SLI (Order Service)",
+      "description": "% of requests < 500ms. SLO target: 95%",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 6, "x": 6, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_request_duration_seconds_bucket{job=\"order-service\", le=\"0.5\"}[5m])) / sum(rate(http_request_duration_seconds_count{job=\"order-service\"}[5m])) * 100",
+          "legendFormat": "Latency SLI %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 80,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "steps": [
+              { "value": 0, "color": "red" },
+              { "value": 90, "color": "yellow" },
+              { "value": 95, "color": "green" }
+            ]
+          }
+        }
+      },
+      "datasource": { "type": "prometheus", "uid": "prometheus" }
+    },
+    {
+      "title": "Payment Success Rate",
+      "description": "Completed payments / Total payment attempts",
+      "type": "gauge",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 0 },
+      "targets": [
+        {
+          "expr": "rate(payments_completed_total[5m]) / (rate(payments_completed_total[5m]) + rate(payments_failed_total[5m]) + rate(payments_error_total[5m])) * 100",
+          "legendFormat": "Payment Success %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "min": 60,
+          "max": 100,
+          "unit": "percent",
+          "thresholds": {
+            "steps": [
+              { "value": 0, "color": "red" },
+              { "value": 90, "color": "yellow" },
+              { "value": 99, "color": "green" }
+            ]
+          }
+        }
+      },
+      "datasource": { "type": "prometheus", "uid": "prometheus" }
+    },
+    {
+      "title": "Request Rate (Success vs Error)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 0 },
+      "targets": [
+        {
+          "expr": "sum(rate(http_request_duration_seconds_count{job=\"order-service\", status_code!~\"5..\"}[1m]))",
+          "legendFormat": "Successful"
+        },
+        {
+          "expr": "sum(rate(http_request_duration_seconds_count{job=\"order-service\", status_code=~\"5..\"}[1m]))",
+          "legendFormat": "Failed (5xx)"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "prometheus" }
+    },
+    {
+      "title": "Latency Percentiles (Order Service)",
+      "type": "timeseries",
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, rate(http_request_duration_seconds_bucket{job=\"order-service\"}[5m]))",
+          "legendFormat": "p50"
+        },
+        {
+          "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job=\"order-service\"}[5m]))",
+          "legendFormat": "p95"
+        },
+        {
+          "expr": "histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job=\"order-service\"}[5m]))",
+          "legendFormat": "p99"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": { "unit": "s" }
+      },
+      "datasource": { "type": "prometheus", "uid": "prometheus" }
+    },
+    {
+      "title": "Orders Created (by status)",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 12, "y": 8 },
+      "targets": [
+        {
+          "expr": "orders_created_total",
+          "legendFormat": "{{status}}"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "prometheus" }
+    },
+    {
+      "title": "Payment Errors by Type",
+      "type": "stat",
+      "gridPos": { "h": 8, "w": 6, "x": 18, "y": 8 },
+      "targets": [
+        {
+          "expr": "payment_service_errors_total",
+          "legendFormat": "{{error_type}}"
+        }
+      ],
+      "datasource": { "type": "prometheus", "uid": "prometheus" }
+    }
+  ],
+  "time": { "from": "now-15m", "to": "now" },
+  "refresh": "5s"
+}
