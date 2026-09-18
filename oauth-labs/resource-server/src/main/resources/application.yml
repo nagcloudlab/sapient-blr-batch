@@ -1,0 +1,19 @@
+server:
+  port: 8080
+
+spring:
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # Option 1: Keycloak (local)
+          issuer-uri: http://localhost:8180/realms/foodexpress
+          jwk-set-uri: http://localhost:8180/realms/foodexpress/protocol/openid-connect/certs
+
+          # Option 2: Google (cloud) — uncomment to switch
+          # issuer-uri: https://accounts.google.com
+          # jwk-set-uri: https://www.googleapis.com/oauth2/v3/certs
+
+logging:
+  level:
+    org.springframework.security: DEBUG

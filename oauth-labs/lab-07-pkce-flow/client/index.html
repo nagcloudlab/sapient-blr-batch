@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FoodExpress SPA (PKCE Flow)</title>
+    <style>
+        body { font-family: sans-serif; max-width: 900px; margin: 40px auto; padding: 0 20px; }
+        .card { background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 10px 0; }
+        .success { background: #e8f5e9; }
+        .error { background: #ffebee; }
+        pre { background: #263238; color: #eee; padding: 15px; border-radius: 4px; overflow-x: auto; font-size: 12px; }
+        button { padding: 10px 20px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 14px; margin: 5px; }
+        button.danger { background: #d32f2f; }
+        .step { border-left: 3px solid #1976d2; padding-left: 15px; margin: 15px 0; }
+        .step h4 { color: #1976d2; margin: 5px 0; }
+        #log { max-height: 400px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>FoodExpress SPA (PKCE Flow)</h1>
+    <p>This runs <b>entirely in the browser</b>. No backend. No client secret.</p>
+
+    <div id="auth-section">
+        <div class="card">
+            <h3>Not logged in</h3>
+            <button onclick="login()">Login with Keycloak (PKCE)</button>
+        </div>
+    </div>
+
+    <div id="user-section" style="display:none">
+        <div class="card success">
+            <h3>Welcome, <span id="username"></span>!</h3>
+            <p>Email: <span id="email"></span> | Roles: <span id="roles"></span></p>
+        </div>
+
+        <h3>Call Resource Server (Spring Boot :8080)</h3>
+        <button onclick="callApi('/profile')">GET /profile</button>
+        <button onclick="callApi('/orders')">GET /orders</button>
+        <button onclick="callApi('/admin/users')">GET /admin/users</button>
+        <button onclick="callApi('/debug/token')">GET /debug/token</button>
+        <button onclick="callApi('/public/menu')">GET /public/menu</button>
+        <div id="api-result"></div>
+        <hr>
+        <button class="danger" onclick="logout()">Logout</button>
+    </div>
+
+    <h3>PKCE Flow Log</h3>
+    <div id="log"><pre id="log-content">Waiting...</pre></div>
+
+    <script>
+    const KEYCLOAK = 'http://localhost:8180/realms/foodexpress/protocol/openid-connect';
+    const CLIENT_ID = 'foodexpress-spa';
+    const REDIRECT_URI = window.location.origin + window.location.pathname;
+    const API_URL = 'http://localhost:8080';
+    let accessToken = null;
+
+    function log(msg) {
+        const el = document.getElementById('log-content');
+        el.textContent += '\n' + new Date().toLocaleTimeString() + ' | ' + msg;
+        el.parentElement.scrollTop = el.parentElement.scrollHeight;
+    }
+
+    // ─── PKCE helpers ───
+    function generateCodeVerifier() {
+        const array = new Uint8Array(48);
+        crypto.getRandomValues(array);
+        return btoa(String.fromCharCode(...array)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    }
+
+    async function generateCodeChallenge(verifier) {
+        const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+        return btoa(String.fromCharCode(...new Uint8Array(hash))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+    }
+
+    // ─── Login ───
+    async function login() {
+        const codeVerifier = generateCodeVerifier();
+        const codeChallenge = await generateCodeChallenge(codeVerifier);
+        const state = generateCodeVerifier();
+
+        sessionStorage.setItem('pkce_code_verifier', codeVerifier);
+        sessionStorage.setItem('pkce_state', state);
+
+        log('STEP 1: PKCE LOGIN');
+        log('  code_verifier:  ' + codeVerifier.substring(0, 30) + '...');
+        log('  code_challenge: ' + codeChallenge.substring(0, 30) + '...');
+        log('  method:         S256 (SHA-256)');
+        log('  NO client_secret! PKCE replaces it.');
+        log('  Redirecting to Keycloak...');
+
+        const params = new URLSearchParams({
+            client_id: CLIENT_ID, redirect_uri: REDIRECT_URI,
+            response_type: 'code', scope: 'openid profile email',
+            state, code_challenge: codeChallenge, code_challenge_method: 'S256',
+        });
+        window.location.href = `${KEYCLOAK}/auth?${params}`;
+    }
+
+    // ─── Handle callback ───
+    async function handleCallback() {
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        if (!code) return;
+
+        const state = params.get('state');
+        const savedState = sessionStorage.getItem('pkce_state');
+        const codeVerifier = sessionStorage.getItem('pkce_code_verifier');
+
+        log('STEP 2: CALLBACK');
+        log('  code:          ' + code.substring(0, 30) + '...');
+        log('  state matches: ' + (state === savedState));
+
+        window.history.replaceState({}, '', window.location.pathname);
+
+        log('STEP 3: TOKEN EXCHANGE');
+        log('  Sending code + code_verifier (NOT client_secret!)');
+
+        const res = await fetch(`${KEYCLOAK}/token`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams({
+                grant_type: 'authorization_code', client_id: CLIENT_ID,
+                code, redirect_uri: REDIRECT_URI, code_verifier: codeVerifier,
+            }),
+        });
+        const tokens = await res.json();
+        if (tokens.error) { log('ERROR: ' + tokens.error); return; }
+
+        accessToken = tokens.access_token;
+        log('  Token received! Expires in ' + tokens.expires_in + 's');
+
+        const b64 = accessToken.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+        const payload = JSON.parse(atob(b64));
+        log('STEP 4: DECODED');
+        log('  User: ' + payload.preferred_username);
+        log('  Roles: ' + JSON.stringify(payload.realm_access?.roles));
+
+        document.getElementById('username').textContent = payload.preferred_username;
+        document.getElementById('email').textContent = payload.email || 'N/A';
+        document.getElementById('roles').textContent = JSON.stringify(payload.realm_access?.roles);
+        document.getElementById('auth-section').style.display = 'none';
+        document.getElementById('user-section').style.display = 'block';
+
+        sessionStorage.removeItem('pkce_code_verifier');
+        sessionStorage.removeItem('pkce_state');
+    }
+
+    // ─── Call Resource Server ───
+    async function callApi(endpoint) {
+        log('CALLING: ' + API_URL + endpoint);
+        const headers = endpoint.startsWith('/public') ? {} : { 'Authorization': 'Bearer ' + accessToken };
+        try {
+            const res = await fetch(API_URL + endpoint, { headers });
+            const data = await res.json();
+            log('  Response: ' + res.status);
+            document.getElementById('api-result').innerHTML = `
+                <div class="card ${res.ok ? 'success' : 'error'}">
+                <h4>${endpoint} — ${res.status}</h4>
+                <pre>${JSON.stringify(data, null, 2)}</pre></div>`;
+        } catch (err) { log('  ERROR: ' + err.message); }
+    }
+
+    function logout() {
+        accessToken = null; sessionStorage.clear();
+        window.location.href = `${KEYCLOAK}/logout?post_logout_redirect_uri=${REDIRECT_URI}&client_id=${CLIENT_ID}`;
+    }
+
+    handleCallback();
+    </script>
+</body>
+</html>

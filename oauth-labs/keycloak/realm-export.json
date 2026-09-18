@@ -1,0 +1,179 @@
+{
+  "realm": "foodexpress",
+  "enabled": true,
+  "displayName": "FoodExpress",
+  "sslRequired": "none",
+  "registrationAllowed": true,
+  "loginWithEmailAllowed": true,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 1800,
+  "roles": {
+    "realm": [
+      { "name": "customer", "description": "Regular customer" },
+      { "name": "restaurant-owner", "description": "Restaurant owner" },
+      { "name": "delivery-partner", "description": "Delivery partner" },
+      { "name": "admin", "description": "Platform admin" }
+    ]
+  },
+  "users": [
+    {
+      "username": "rahul",
+      "email": "rahul@foodexpress.com",
+      "firstName": "Rahul",
+      "lastName": "Sharma",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "password123", "temporary": false }],
+      "realmRoles": ["customer"]
+    },
+    {
+      "username": "priya",
+      "email": "priya@foodexpress.com",
+      "firstName": "Priya",
+      "lastName": "Patel",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "password123", "temporary": false }],
+      "realmRoles": ["restaurant-owner"]
+    },
+    {
+      "username": "admin-user",
+      "email": "admin@foodexpress.com",
+      "firstName": "Admin",
+      "lastName": "User",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [{ "type": "password", "value": "admin123", "temporary": false }],
+      "realmRoles": ["admin"]
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "openid",
+      "protocol": "openid-connect",
+      "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "false" },
+      "protocolMappers": [
+        {
+          "name": "sub",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-sub-mapper",
+          "consentRequired": false,
+          "config": { "introspection.token.claim": "true", "access.token.claim": "true" }
+        }
+      ]
+    },
+    {
+      "name": "profile",
+      "protocol": "openid-connect",
+      "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "true" },
+      "protocolMappers": [
+        {
+          "name": "full name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-full-name-mapper",
+          "consentRequired": false,
+          "config": { "id.token.claim": "true", "access.token.claim": "true", "userinfo.token.claim": "true" }
+        },
+        {
+          "name": "given name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": { "user.attribute": "firstName", "id.token.claim": "true", "access.token.claim": "true", "claim.name": "given_name", "jsonType.label": "String", "userinfo.token.claim": "true" }
+        },
+        {
+          "name": "family name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": { "user.attribute": "lastName", "id.token.claim": "true", "access.token.claim": "true", "claim.name": "family_name", "jsonType.label": "String", "userinfo.token.claim": "true" }
+        },
+        {
+          "name": "username",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": { "user.attribute": "username", "id.token.claim": "true", "access.token.claim": "true", "claim.name": "preferred_username", "jsonType.label": "String", "userinfo.token.claim": "true" }
+        }
+      ]
+    },
+    {
+      "name": "email",
+      "protocol": "openid-connect",
+      "attributes": { "include.in.token.scope": "true", "display.on.consent.screen": "true" },
+      "protocolMappers": [
+        {
+          "name": "email",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": { "user.attribute": "email", "id.token.claim": "true", "access.token.claim": "true", "claim.name": "email", "jsonType.label": "String", "userinfo.token.claim": "true" }
+        },
+        {
+          "name": "email verified",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": { "user.attribute": "emailVerified", "id.token.claim": "true", "access.token.claim": "true", "claim.name": "email_verified", "jsonType.label": "boolean", "userinfo.token.claim": "true" }
+        }
+      ]
+    },
+    {
+      "name": "roles",
+      "protocol": "openid-connect",
+      "attributes": { "include.in.token.scope": "true" },
+      "protocolMappers": [
+        {
+          "name": "realm roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "consentRequired": false,
+          "config": { "multivalued": "true", "id.token.claim": "true", "access.token.claim": "true", "claim.name": "realm_access.roles", "jsonType.label": "String", "userinfo.token.claim": "true" }
+        }
+      ]
+    }
+  ],
+  "defaultDefaultClientScopes": ["openid", "profile", "email", "roles"],
+  "clients": [
+    {
+      "clientId": "foodexpress-web",
+      "name": "FoodExpress Web App",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "web-secret-123",
+      "redirectUris": ["http://localhost:3000/*", "http://localhost:8080/*"],
+      "webOrigins": ["http://localhost:3000", "http://localhost:8080"],
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect",
+      "defaultClientScopes": ["openid", "profile", "email", "roles"]
+    },
+    {
+      "clientId": "foodexpress-spa",
+      "name": "FoodExpress SPA (PKCE)",
+      "enabled": true,
+      "publicClient": true,
+      "redirectUris": ["http://localhost:5500/*", "http://localhost:3001/*"],
+      "webOrigins": ["http://localhost:5500", "http://localhost:3001"],
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "protocol": "openid-connect",
+      "attributes": { "pkce.code.challenge.method": "S256" },
+      "defaultClientScopes": ["openid", "profile", "email", "roles"]
+    },
+    {
+      "clientId": "foodexpress-api",
+      "name": "FoodExpress API (Client Credentials)",
+      "enabled": true,
+      "publicClient": false,
+      "secret": "api-secret-456",
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
+      "protocol": "openid-connect",
+      "defaultClientScopes": ["openid", "roles"]
+    }
+  ]
+}
