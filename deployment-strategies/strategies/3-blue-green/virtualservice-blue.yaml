@@ -1,0 +1,22 @@
+# Route ALL traffic to Blue (v1)
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: sample-app
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - app-gateway
+  http:
+    - route:
+        - destination:
+            host: sample-app-blue
+            port:
+              number: 80
+          weight: 100
+        - destination:
+            host: sample-app-green
+            port:
+              number: 80
+          weight: 0

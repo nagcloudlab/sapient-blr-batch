@@ -1,0 +1,25 @@
+# Dark Launch: Mirror only 50% of traffic to v2
+# Useful when v2 can't handle full production load yet
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: sample-app
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - app-gateway
+  http:
+    - route:
+        - destination:
+            host: sample-app
+            subset: v1
+            port:
+              number: 80
+      mirror:
+        host: sample-app
+        subset: v2
+        port:
+          number: 80
+      mirrorPercentage:
+        value: 50.0

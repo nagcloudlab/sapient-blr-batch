@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ app_name }} - {{ version }}</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh;
+            background: {{ color }};
+            color: white;
+        }
+        .card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 50px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            min-width: 400px;
+        }
+        .version {
+            font-size: 72px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        .app-name { font-size: 28px; opacity: 0.9; }
+        .hostname {
+            font-size: 14px;
+            opacity: 0.7;
+            margin-top: 20px;
+            font-family: monospace;
+            background: rgba(0,0,0,0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+        .auto-refresh { font-size: 12px; opacity: 0.5; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="app-name">{{ app_name }}</div>
+        <div class="version">{{ version }}</div>
+        <div class="hostname">Pod: {{ hostname }}</div>
+        <div class="auto-refresh">Auto-refreshes every 2 seconds</div>
+    </div>
+    <script>
+        setTimeout(() => location.reload(), 2000);
+    </script>
+</body>
+</html>

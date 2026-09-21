@@ -1,0 +1,29 @@
+# A/B Testing: Route based on User-Agent (e.g., mobile vs desktop)
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: sample-app
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - app-gateway
+  http:
+    # Rule 1: Mobile users -> v2
+    - match:
+        - headers:
+            user-agent:
+              regex: ".*Mobile.*"
+      route:
+        - destination:
+            host: sample-app
+            subset: v2
+            port:
+              number: 80
+    # Rule 2: Default (desktop) -> v1
+    - route:
+        - destination:
+            host: sample-app
+            subset: v1
+            port:
+              number: 80

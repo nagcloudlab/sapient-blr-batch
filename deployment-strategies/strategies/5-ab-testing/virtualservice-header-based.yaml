@@ -1,0 +1,30 @@
+# A/B Testing: Route based on HTTP headers
+# Users with header "x-user-group: beta" get v2, everyone else gets v1
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: sample-app
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - app-gateway
+  http:
+    # Rule 1: Beta users (header match) -> v2
+    - match:
+        - headers:
+            x-user-group:
+              exact: beta
+      route:
+        - destination:
+            host: sample-app
+            subset: v2
+            port:
+              number: 80
+    # Rule 2: Default -> v1
+    - route:
+        - destination:
+            host: sample-app
+            subset: v1
+            port:
+              number: 80

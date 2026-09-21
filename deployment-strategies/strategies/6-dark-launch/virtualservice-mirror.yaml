@@ -1,0 +1,28 @@
+# Dark Launch: Mirror (shadow) traffic to v2
+# All real traffic goes to v1
+# A COPY of all traffic is also sent to v2 (fire-and-forget)
+# v2 responses are discarded - users never see them
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: sample-app
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - app-gateway
+  http:
+    - route:
+        - destination:
+            host: sample-app
+            subset: v1
+            port:
+              number: 80
+      # Mirror all traffic to v2
+      mirror:
+        host: sample-app
+        subset: v2
+        port:
+          number: 80
+      mirrorPercentage:
+        value: 100.0

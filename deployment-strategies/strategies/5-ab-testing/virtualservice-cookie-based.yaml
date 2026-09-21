@@ -1,0 +1,30 @@
+# A/B Testing: Route based on cookies
+# Users with cookie "user_type=internal" get v2
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: sample-app
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - app-gateway
+  http:
+    # Rule 1: Internal users (cookie match) -> v2
+    - match:
+        - headers:
+            cookie:
+              regex: ".*user_type=internal.*"
+      route:
+        - destination:
+            host: sample-app
+            subset: v2
+            port:
+              number: 80
+    # Rule 2: Default -> v1
+    - route:
+        - destination:
+            host: sample-app
+            subset: v1
+            port:
+              number: 80

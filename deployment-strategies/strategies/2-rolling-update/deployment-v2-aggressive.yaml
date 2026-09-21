@@ -1,0 +1,36 @@
+# Aggressive rolling update for comparison
+# Students can see the difference between conservative and aggressive settings
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-app
+  labels:
+    app: sample-app
+spec:
+  replicas: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 3          # Allow up to 3 extra pods
+      maxUnavailable: 2    # Allow up to 2 pods to be unavailable
+  selector:
+    matchLabels:
+      app: sample-app
+  template:
+    metadata:
+      labels:
+        app: sample-app
+        version: v2
+    spec:
+      containers:
+        - name: sample-app
+          image: sample-app:v2
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8080
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 5

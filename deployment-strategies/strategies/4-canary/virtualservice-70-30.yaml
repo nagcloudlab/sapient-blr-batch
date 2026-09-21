@@ -1,0 +1,24 @@
+# Canary Phase 2: Increase to 30% traffic to v2
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: sample-app
+spec:
+  hosts:
+    - "*"
+  gateways:
+    - app-gateway
+  http:
+    - route:
+        - destination:
+            host: sample-app
+            subset: v1
+            port:
+              number: 80
+          weight: 70
+        - destination:
+            host: sample-app
+            subset: v2
+            port:
+              number: 80
+          weight: 30
