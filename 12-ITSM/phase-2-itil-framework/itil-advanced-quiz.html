@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITIL 4 Advanced Assessment -- Expert Level</title>
+<style>
+  :root {
+    --primary: #0d47a1;
+    --primary-light: #1565c0;
+    --accent: #ff6f00;
+    --success: #2e7d32;
+    --error: #c62828;
+    --bg: #eceff1;
+    --card: #ffffff;
+    --text: #212121;
+    --text-light: #607d8b;
+    --border: #cfd8dc;
+    --dark: #263238;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+
+  .header {
+    background: linear-gradient(135deg, var(--dark), var(--primary));
+    color: #fff; padding: 1.25rem 2rem; text-align: center;
+    position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.25);
+  }
+  .header h1 { font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+  .header-sub { font-size: 0.75rem; opacity: 0.7; margin-top: 0.15rem; letter-spacing: 1px; text-transform: uppercase; }
+  .header-info { display: flex; justify-content: center; gap: 2rem; margin-top: 0.5rem; font-size: 0.85rem; opacity: 0.9; }
+  .header-info span { display: flex; align-items: center; gap: 0.3rem; }
+  .progress-container { background: rgba(255,255,255,0.15); border-radius: 10px; height: 5px; margin-top: 0.6rem; max-width: 600px; margin-left: auto; margin-right: auto; }
+  .progress-bar { background: var(--accent); height: 100%; border-radius: 10px; transition: width 0.4s ease; width: 0%; }
+
+  .container { max-width: 740px; margin: 0 auto; padding: 1.5rem; }
+
+  /* Welcome */
+  .welcome { text-align: center; padding: 2.5rem 2rem; background: var(--card); border-radius: 16px; margin-top: 1.5rem; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+  .welcome h2 { color: var(--primary); margin-bottom: 0.5rem; font-size: 1.6rem; }
+  .welcome .subtitle { color: var(--text-light); margin-bottom: 1.5rem; }
+  .welcome .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 0.75rem; margin: 1.25rem 0; }
+  .stats-grid .stat { background: var(--bg); padding: 0.85rem; border-radius: 8px; }
+  .stats-grid .stat .num { font-size: 1.6rem; font-weight: 700; color: var(--primary); }
+  .stats-grid .stat .label { font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+  .difficulty-tag { display: inline-block; padding: 0.2rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px; }
+  .diff-intermediate { background: #e3f2fd; color: #1565c0; }
+  .diff-advanced { background: #fff3e0; color: #e65100; }
+  .diff-expert { background: #fce4ec; color: #c62828; }
+
+  /* Question Card */
+  .question-card {
+    background: var(--card); border-radius: 16px; padding: 2rem; margin-top: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07); position: relative; overflow: hidden;
+  }
+  .question-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; }
+  .question-card.diff-intermediate::before { background: linear-gradient(90deg, #1565c0, #42a5f5); }
+  .question-card.diff-advanced::before { background: linear-gradient(90deg, #e65100, #fb8c00); }
+  .question-card.diff-expert::before { background: linear-gradient(90deg, #c62828, #ef5350); }
+
+  .q-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 0.65rem; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 0.5rem; }
+  .q-section-tag { background: #eceff1; color: var(--dark); padding: 0.2rem 0.65rem; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+  .q-counter { color: var(--text-light); font-size: 0.8rem; font-weight: 600; }
+  .q-text { font-weight: 600; font-size: 1.1rem; margin-bottom: 1.25rem; line-height: 1.55; }
+
+  /* Scenario Box */
+  .scenario-box { background: #f5f5f5; border-left: 4px solid var(--primary); border-radius: 0 8px 8px 0; padding: 0.85rem 1rem; margin-bottom: 1.25rem; font-size: 0.9rem; color: #37474f; line-height: 1.55; }
+  .scenario-box strong { color: var(--dark); }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 0.5rem; }
+  .option {
+    display: flex; align-items: flex-start; padding: 0.85rem 1.1rem; border: 2px solid var(--border);
+    border-radius: 10px; cursor: pointer; transition: all 0.2s ease; font-size: 0.92rem;
+  }
+  .option:hover:not(.disabled) { border-color: var(--primary-light); background: #e3f2fd; transform: translateX(3px); }
+  .option .opt-letter {
+    width: 30px; height: 30px; border: 2px solid #b0bec5; border-radius: 50%; margin-right: 0.85rem;
+    flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem; color: #90a4ae; transition: all 0.2s; margin-top: 1px;
+  }
+  .option .opt-text { flex: 1; }
+  .option .opt-icon { font-size: 1.2rem; margin-left: 0.5rem; opacity: 0; transition: opacity 0.3s; flex-shrink: 0; margin-top: 2px; }
+  .option.correct { border-color: var(--success) !important; background: #e8f5e9 !important; transform: none; }
+  .option.correct .opt-letter { border-color: var(--success); background: var(--success); color: #fff; }
+  .option.correct .opt-icon { opacity: 1; }
+  .option.wrong { border-color: var(--error) !important; background: #ffebee !important; transform: none; }
+  .option.wrong .opt-letter { border-color: var(--error); background: var(--error); color: #fff; }
+  .option.wrong .opt-icon { opacity: 1; }
+  .option.disabled { pointer-events: none; cursor: default; }
+  .option.disabled:not(.correct):not(.wrong) { opacity: 0.45; }
+
+  /* Explanation */
+  .explanation { margin-top: 1rem; padding: 1rem 1.1rem; border-radius: 10px; font-size: 0.88rem; line-height: 1.6; animation: slideUp 0.3s ease; }
+  .explanation.correct-exp { background: #e8f5e9; border-left: 4px solid var(--success); color: #1b5e20; }
+  .explanation.wrong-exp { background: #fff3e0; border-left: 4px solid var(--accent); color: #bf360c; }
+  .explanation strong { display: block; margin-bottom: 0.2rem; }
+  @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  /* Nav */
+  .nav-bar { display: flex; justify-content: space-between; align-items: center; margin-top: 1.25rem; gap: 0.75rem; }
+  .dot-nav { display: flex; gap: 5px; flex-wrap: wrap; justify-content: center; flex: 1; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; transition: all 0.2s; }
+  .dot:hover { border-color: var(--primary); transform: scale(1.25); }
+  .dot.current { border-color: var(--primary); background: var(--primary); transform: scale(1.25); }
+  .dot.answered-correct { border-color: var(--success); background: var(--success); }
+  .dot.answered-wrong { border-color: var(--error); background: var(--error); }
+
+  /* Buttons */
+  .btn { padding: 0.65rem 1.5rem; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 600; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(13,71,161,0.3); }
+  .btn-accent { background: var(--accent); color: #fff; }
+  .btn-accent:hover { background: #e65100; }
+  .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+  .btn-outline:hover { background: var(--primary); color: #fff; }
+  .btn-ghost { background: transparent; color: var(--text-light); border: 2px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+  .btn-group { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
+
+  /* Results */
+  .results { background: var(--card); border-radius: 16px; padding: 2.5rem; margin-top: 1.5rem; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+  .results h2 { color: var(--primary); margin-bottom: 0.5rem; }
+  .score-circle { width: 150px; height: 150px; border-radius: 50%; margin: 1.25rem auto; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; }
+  .score-circle .pct { font-size: 2.3rem; font-weight: 800; line-height: 1; }
+  .score-circle .pct-sign { font-size: 0.9rem; }
+  .score-circle .label { font-size: 0.7rem; opacity: 0.9; margin-top: 0.2rem; }
+  .grade-excellent { background: linear-gradient(135deg, #2e7d32, #43a047); }
+  .grade-good { background: linear-gradient(135deg, #1565c0, #1e88e5); }
+  .grade-average { background: linear-gradient(135deg, #e65100, #fb8c00); }
+  .grade-poor { background: linear-gradient(135deg, #c62828, #e53935); }
+  .section-scores { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin: 1.25rem 0; text-align: left; }
+  .section-score-card { background: var(--bg); padding: 0.85rem; border-radius: 8px; border-left: 4px solid var(--primary); }
+  .section-score-card h4 { font-size: 0.75rem; color: var(--text-light); margin-bottom: 0.3rem; }
+  .section-score-card .score { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+  .section-score-card .bar-bg { height: 5px; background: var(--border); border-radius: 3px; margin-top: 0.4rem; }
+  .section-score-card .bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+
+  .timer { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .timer.warning { color: #ffab00; }
+  .timer.danger { color: #ff1744; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.5} }
+
+  @media (max-width: 600px) {
+    .header h1 { font-size: 1rem; }
+    .header-info { gap: 0.75rem; font-size: 0.75rem; }
+    .container { padding: 0.75rem; }
+    .question-card { padding: 1.25rem; }
+    .q-text { font-size: 1rem; }
+    .option { padding: 0.7rem 0.85rem; font-size: 0.88rem; }
+    .welcome { padding: 1.5rem 1rem; }
+    .results { padding: 1.5rem; }
+    .nav-bar { flex-direction: column; }
+    .dot { width: 9px; height: 9px; }
+  }
+  .fade-in { animation: fadeIn 0.35s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none} }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>ITIL 4 Advanced & Expert Assessment</h1>
+  <div class="header-sub">Beyond the Basics -- Deep Practice Knowledge</div>
+  <div class="header-info">
+    <span id="hdrSection">--</span>
+    <span id="hdrProgress">--/--</span>
+    <span class="timer" id="hdrTimer">--:--</span>
+  </div>
+  <div class="progress-container"><div class="progress-bar" id="progressBar"></div></div>
+</div>
+<div class="container" id="app"></div>
+
+<script>
+const sections = [
+  {
+    id: "four-dimensions",
+    title: "Four Dimensions of Service Management",
+    difficulty: "intermediate",
+    questions: [
+      { q: "ITIL 4 defines four dimensions of service management. Which of the following is NOT one of them?", options: ["Organizations and People", "Information and Technology", "Partners and Suppliers", "Governance and Compliance"], answer: 3, explanation: "The four dimensions are: (1) Organizations and People, (2) Information and Technology, (3) Partners and Suppliers, (4) Value Streams and Processes. 'Governance and Compliance' is part of the SVS, not a separate dimension." },
+      { q: "The 'Organizations and People' dimension addresses which of the following?", options: ["Software architecture and deployment tools", "Culture, roles, authority, competencies, and communication", "Third-party vendor contracts and outsourcing", "Automation of repetitive tasks"], answer: 1, explanation: "This dimension covers organizational structure, culture, staffing, competencies, roles and responsibilities, and how people communicate and collaborate." },
+      { q: "A company's ITSM improvement fails because the team has the right tools but the wrong culture -- people hoard information instead of sharing. Which dimension was neglected?", options: ["Information and Technology", "Value Streams and Processes", "Organizations and People", "Partners and Suppliers"], answer: 2, explanation: "Culture, communication, and collaboration fall under 'Organizations and People'. The right tools (Information & Technology) are useless if the culture doesn't support sharing." },
+      { q: "The 'Value Streams and Processes' dimension focuses on:", options: ["How individual practices are certified", "How activities and workflows are organized to create value", "How infrastructure is physically deployed", "How suppliers are selected and evaluated"], answer: 1, explanation: "This dimension defines the activities, workflows, and value streams that the organization uses to convert demand into value. It ensures work flows efficiently." },
+      { q: "Which external factor model does ITIL 4 recommend for analyzing constraints on the four dimensions?", options: ["SWOT Analysis", "PESTLE (Political, Economic, Social, Technological, Legal, Environmental)", "Porter's Five Forces", "BCG Matrix"], answer: 1, explanation: "ITIL 4 explicitly references PESTLE as external factors that constrain and influence all four dimensions. For example, Legal factors affect data handling (Information & Technology dimension)." },
+      { q: "An organization uses a cloud provider for infrastructure but keeps development in-house. Which dimension is most relevant for managing this hybrid approach?", options: ["Organizations and People", "Information and Technology", "Partners and Suppliers", "Value Streams and Processes"], answer: 2, explanation: "'Partners and Suppliers' addresses relationships with external providers. Managing a hybrid model (in-house + cloud) requires clear contracts, integration points, and shared responsibilities." },
+      { q: "All four dimensions must be balanced because:", options: ["ITIL certification requires it", "Over-focusing on one dimension creates vulnerabilities in others", "Each dimension maps to exactly one ITIL practice", "Auditors check each dimension separately"], answer: 1, explanation: "Neglecting any dimension creates risk. Great technology with poor culture fails. Great processes with wrong suppliers fail. All four must be addressed holistically." },
+      { q: "A company builds an excellent knowledge management system but nobody uses it because it's not integrated into their daily workflow. Which dimension mismatch is this?", options: ["Information & Technology vs Value Streams & Processes", "Organizations & People vs Partners & Suppliers", "Partners & Suppliers vs Value Streams & Processes", "All dimensions are aligned -- the problem is elsewhere"], answer: 0, explanation: "The technology (Information & Technology) exists but isn't embedded in how people work (Value Streams & Processes). The KM system must be part of the incident resolution workflow to be used." }
+    ]
+  },
+  {
+    id: "value-streams",
+    title: "Value Streams, Outcomes & Utility/Warranty",
+    difficulty: "advanced",
+    questions: [
+      { q: "In ITIL 4, what is a 'value stream'?", options: ["A revenue generation model for IT", "A series of steps an organization takes to create and deliver products/services to a consumer", "A monitoring dashboard showing real-time metrics", "The flow of data through a CI/CD pipeline"], answer: 1, explanation: "A value stream is a series of steps an organization undertakes to create and deliver products and services to consumers. Each value stream takes a specific path through the Service Value Chain activities." },
+      { q: "What is the difference between an 'output' and an 'outcome' in ITIL 4?", options: ["They are the same thing", "Output is a tangible deliverable; Outcome is the result or change enabled by the output", "Output is for internal use; Outcome is for external stakeholders", "Output is measured; Outcome cannot be measured"], answer: 1, explanation: "Output = a tangible deliverable (e.g., a monthly uptime report). Outcome = the result enabled by that output (e.g., stakeholder confidence in IT reliability). ITIL focuses on outcomes over outputs." },
+      { q: "In ITIL 4, 'Utility' and 'Warranty' together define service value. What does Utility mean?", options: ["The service is available and reliable enough", "The service is fit for purpose -- it does what the user needs", "The service is cost-effective", "The service is compliant with regulations"], answer: 1, explanation: "Utility = 'fit for purpose' (does it do what I need?). Warranty = 'fit for use' (is it available, reliable, and secure enough?). Both are needed for value. A feature that works but is always down has utility but no warranty." },
+      { q: "A video conferencing service has excellent features (screen sharing, recording, breakout rooms) but suffers 99.5% downtime. Using ITIL terminology:", options: ["It has both utility and warranty", "It has utility but lacks warranty", "It has warranty but lacks utility", "It has neither utility nor warranty"], answer: 1, explanation: "Utility (fit for purpose) is high -- great features. But warranty (fit for use) is severely lacking -- 99.5% downtime means it's almost never available. The service fails on warranty." },
+      { q: "What is 'value co-creation' in ITIL 4?", options: ["The provider creates all value and delivers it to the consumer", "Value is jointly created by the provider and the consumer working together", "Value is determined solely by the consumer after receiving the service", "Value is set by the market price of the service"], answer: 1, explanation: "ITIL 4 emphasizes that value is co-created. The provider delivers the service, but the consumer must actively engage (provide requirements, use the service, give feedback) for value to be realized." },
+      { q: "A 'service relationship' in ITIL 4 consists of:", options: ["Only the SLA between provider and consumer", "Service provision, service consumption, and service relationship management", "The contract and the invoice", "Technical integration between provider and consumer systems"], answer: 1, explanation: "A service relationship includes: (1) Service provision (provider delivers), (2) Service consumption (consumer uses), and (3) Service relationship management (ongoing collaboration and management)." },
+      { q: "What is a 'service offering' in ITIL 4?", options: ["A marketing brochure for IT services", "A description of one or more services designed to address the needs of a target consumer group", "The total IT budget allocation", "A proposal for a new service"], answer: 1, explanation: "A service offering is a formal description of one or more services designed to address needs of a target consumer group. It may include goods, access to resources, and service actions." },
+      { q: "Which of these is an example of a 'service action' within a service offering?", options: ["A laptop provided to a user (goods)", "Access to a shared network drive (access to resources)", "IT support resolving a user's technical issue (service action)", "An SLA document (agreement)"], answer: 2, explanation: "A service offering consists of: Goods (tangible items, e.g., laptop), Access to resources (e.g., network drive), and Service actions (performed by provider, e.g., IT support fixing an issue)." },
+      { q: "An organization maps its incident resolution as: Detect > Log > Categorize > Prioritize > Investigate > Resolve > Close. This is an example of:", options: ["A practice", "A value stream", "A guiding principle", "A governance framework"], answer: 1, explanation: "This is a value stream -- a specific series of steps to deliver value (in this case, restoring service). It maps to the Deliver & Support activity in the Service Value Chain." },
+      { q: "What is 'demand' vs 'opportunity' in the SVS context?", options: ["Demand is external, opportunity is internal", "Demand is reactive (a need exists now); Opportunity is proactive (a chance to improve or create value)", "They are interchangeable terms", "Demand comes from consumers; Opportunity comes from regulators"], answer: 1, explanation: "Demand = reactive need from consumers (e.g., 'fix this incident'). Opportunity = proactive possibility (e.g., 'we could offer a new self-service portal'). Both are inputs to the SVS." }
+    ]
+  },
+  {
+    id: "deep-practices",
+    title: "Deep Dive: Practice Interactions & Nuances",
+    difficulty: "advanced",
+    questions: [
+      { q: "In ITIL 4, which practice is responsible for ensuring that risks are properly assessed before changes are authorized?", options: ["Risk Management", "Change Enablement", "Problem Management", "Information Security Management"], answer: 1, explanation: "Change Enablement (not general Risk Management) is specifically responsible for assessing change-related risks and ensuring proper authorization. Risk Management is a broader general practice." },
+      { q: "What is the relationship between Incident Management and the Service Desk practice?", options: ["They are the same practice", "Service Desk is the communication channel; Incident Management is the process for restoring service", "Service Desk handles all incidents without Incident Management", "Incident Management replaces Service Desk in ITIL 4"], answer: 1, explanation: "Service Desk is the single point of contact/communication channel. Incident Management is the practice (people + process + tools) for detecting, logging, and resolving incidents. They work together." },
+      { q: "In Problem Management, what are the three phases of the practice?", options: ["Detect, Log, Resolve", "Problem identification, Problem control, Error control", "Investigate, Document, Fix", "Reactive, Proactive, Review"], answer: 1, explanation: "Problem Management has three phases: (1) Problem identification -- detecting problems, (2) Problem control -- analyzing and documenting root cause, (3) Error control -- managing known errors and resolving them." },
+      { q: "What distinguishes 'Organizational Change Management' from 'Change Enablement'?", options: ["They are different names for the same practice", "Organizational Change Management is about people/culture change; Change Enablement is about IT system changes", "Change Enablement is for large changes; Organizational Change Management is for small ones", "Organizational Change Management is ITIL v3; Change Enablement is ITIL 4"], answer: 1, explanation: "Organizational Change Management = managing the PEOPLE side of change (resistance, training, adoption). Change Enablement = managing IT system/service changes (risk assessment, CAB approval)." },
+      { q: "Which practice maintains the 'Service Portfolio' -- the complete set of services managed by an organization?", options: ["Service Catalog Management", "Portfolio Management", "Service Level Management", "Strategy Management"], answer: 1, explanation: "Portfolio Management maintains the full service portfolio (pipeline, catalog, retired). Service Catalog Management only maintains the customer-facing catalog of live/available services." },
+      { q: "The IT Asset Management practice differs from Service Configuration Management in that:", options: ["They manage the same things", "IT Asset Management tracks financial lifecycle (cost, depreciation); Configuration Management tracks technical relationships and attributes", "IT Asset Management is only for hardware", "Service Configuration Management is only for software"], answer: 1, explanation: "ITAM focuses on the financial lifecycle: procurement, cost, depreciation, disposal. SCM/CMDB focuses on technical attributes and relationships between CIs. A server has both an asset record (cost) and a CI record (dependencies)." },
+      { q: "In Supplier Management, what is a 'multi-vendor sourcing' strategy?", options: ["Using a single vendor for all IT services", "Using multiple vendors for different services, requiring integration and coordination", "Outsourcing IT management to another company", "Building all services in-house"], answer: 1, explanation: "Multi-vendor sourcing uses different specialized vendors for different services. It requires careful coordination, integration management, and clear contracts to avoid gaps between providers." },
+      { q: "Which practice would address the question: 'Are we investing in the right mix of services for our business strategy?'", options: ["Service Level Management", "Portfolio Management", "Continual Improvement", "Strategy Management"], answer: 3, explanation: "Strategy Management sets the direction and determines WHERE to invest. Portfolio Management then manages the actual set of services. The question is strategic, so Strategy Management leads." },
+      { q: "The 'Service Validation and Testing' practice ensures:", options: ["Users are trained on new services", "New or changed services meet defined requirements before deployment", "SLAs are met during service operation", "Incidents are properly categorized"], answer: 1, explanation: "Service Validation & Testing ensures new/changed services meet requirements and quality standards BEFORE going live. It prevents defective services from reaching production." },
+      { q: "Information Security Management in ITIL 4 is based on which core principles?", options: ["Prevention, Detection, Correction", "Confidentiality, Integrity, Availability (CIA)", "Authentication, Authorization, Accounting (AAA)", "Plan, Do, Check, Act (PDCA)"], answer: 1, explanation: "Information Security Management is built on the CIA triad: Confidentiality (only authorized access), Integrity (data is accurate/complete), Availability (data/services accessible when needed)." }
+    ]
+  },
+  {
+    id: "csf-integration",
+    title: "CSI, Governance & Practice Integration",
+    difficulty: "expert",
+    questions: [
+      { q: "The Continual Improvement model in ITIL 4 has how many steps?", options: ["4 (Plan-Do-Check-Act)", "5", "6", "7"], answer: 2, explanation: "The ITIL 4 Continual Improvement model has 6 steps: (1) What is the vision? (2) Where are we now? (3) Where do we want to be? (4) How do we get there? (5) Take action (6) Did we get there? Then back to step 1." },
+      { q: "What is the 'Continual Improvement Register' (CIR)?", options: ["A database of all incidents", "A prioritized backlog of improvement ideas and initiatives tracked across the organization", "A log of all changes made to production", "A list of certified ITIL professionals"], answer: 1, explanation: "The CIR is a structured backlog of improvement opportunities. Ideas from any source (incidents, assessments, feedback) are logged, prioritized, and tracked. It ensures improvements don't get lost." },
+      { q: "In ITIL 4 governance, what is the relationship between 'governing body' and 'management'?", options: ["They are the same group", "The governing body sets direction and monitors; Management plans, builds, and operates", "Management sets policies; The governing body executes them", "The governing body handles day-to-day operations"], answer: 1, explanation: "Governance: governing body DIRECTS (sets policies), MONITORS (checks compliance), and EVALUATES (assesses performance). Management: PLANS, BUILDS, OPERATES based on governance direction." },
+      { q: "A Maturity Assessment reveals an organization is at 'Level 2 - Repeatable' for Incident Management. What does this typically mean?", options: ["No defined process exists", "Basic processes exist and are repeated, but not formally documented or consistently followed", "Processes are documented, standardized, and measured", "Processes are continuously optimized using data-driven decisions"], answer: 1, explanation: "Maturity Level 2 (Repeatable) means basic processes exist and similar work is done similarly, but documentation is informal and consistency varies between teams. Level 3 = documented/standardized, Level 5 = optimized." },
+      { q: "How does 'Workforce and Talent Management' practice relate to successful ITSM implementation?", options: ["It doesn't -- ITSM is about processes, not people", "It ensures the right people with right skills, motivation, and capacity are available for ITSM roles", "It only handles recruitment", "It manages vendor staffing"], answer: 1, explanation: "ITSM success depends on people. This practice ensures: right skills (training), right capacity (enough staff), right motivation (culture, career paths), and right structure (clear roles and responsibilities)." },
+      { q: "What is 'shift-left' in the context of ITSM?", options: ["Moving to an earlier timezone for support", "Moving resolution capabilities closer to the user -- from L3 to L2 to L1 to self-service", "Shifting the change window to earlier in the week", "Left-aligning text in incident reports"], answer: 1, explanation: "Shift-left moves resolution closer to the user: L3 creates KB articles, L2 uses them, L1 can then resolve those issues, and eventually users resolve via self-service. This reduces cost and improves speed." },
+      { q: "When integrating DevOps with ITIL 4, which aspect most benefits from ITIL practices?", options: ["Writing code faster", "Governance, risk management, and compliance around deployments", "Choosing programming languages", "Setting up development environments"], answer: 1, explanation: "DevOps excels at speed. ITIL 4 adds governance, risk management, and compliance. Together: fast AND safe. Change Enablement ensures deployments are authorized. Service Level Management ensures quality." },
+      { q: "A 'Swarming' approach to incident resolution means:", options: ["Escalating all incidents to the highest level immediately", "Multiple specialists collaborate simultaneously on an incident instead of sequential L1 > L2 > L3 escalation", "Closing incidents without resolution", "Assigning all incidents to one person"], answer: 1, explanation: "Swarming replaces tiered escalation with collaborative resolution. The right experts join immediately, work together in real-time. It reduces handoffs and resolution time, especially for complex incidents." },
+      { q: "What is the purpose of 'Service Integration and Management' (SIAM) in a multi-provider environment?", options: ["To replace all external providers with internal teams", "To provide a single management layer that integrates and coordinates multiple service providers", "To choose the cheapest provider", "To manage internal team schedules"], answer: 1, explanation: "SIAM provides governance and coordination across multiple providers. It ensures services from different vendors integrate seamlessly, SLAs are met end-to-end, and there are no gaps between providers." },
+      { q: "In the context of ITIL 4 and Agile, what is a 'Minimum Viable Practice' (MVP)?", options: ["The smallest possible ITIL certification", "Implementing just enough of a practice to deliver value, then iteratively improving it", "A practice that has passed minimum quality standards", "The cheapest practice to implement"], answer: 1, explanation: "Minimum Viable Practice means starting with a lightweight implementation of a practice (e.g., basic incident logging) that delivers value NOW, then iteratively enhancing it based on feedback. This aligns with 'Progress iteratively with feedback'." }
+    ]
+  },
+  {
+    id: "expert-scenarios",
+    title: "Expert Scenarios: Multi-Practice, Multi-Dimension",
+    difficulty: "expert",
+    questions: [
+      {
+        scenario: "A financial services company migrates from on-premises data centers to AWS. Post-migration, they experience: (a) 40% more incidents than before, (b) CMDB is outdated because auto-discovery wasn't configured, (c) Change Enablement process still assumes physical server changes, (d) Operations team lacks cloud skills.",
+        q: "Which ITIL 4 dimensions have been neglected in this migration?",
+        options: [
+          "Only Information and Technology",
+          "Only Organizations and People",
+          "All four dimensions -- Organizations & People (skills gap), Information & Technology (auto-discovery), Partners & Suppliers (AWS relationship), Value Streams & Processes (change process outdated)",
+          "Only Partners and Suppliers"
+        ],
+        answer: 2,
+        explanation: "All four dimensions are affected: People lack cloud skills, technology (CMDB) isn't configured for cloud, the AWS relationship needs management, and processes (Change Enablement) weren't updated for cloud-native workflows."
+      },
+      {
+        scenario: "An e-commerce platform has a P1 incident every Friday evening during peak sales. Root cause analysis shows the database connection pool exhausts at high load. The Problem Manager documents it as a Known Error with a workaround (restart the connection pool), but the permanent fix (increase pool size) requires a change to production database configuration.",
+        q: "What is the correct sequence of ITIL practices to permanently resolve this?",
+        options: [
+          "Incident Management only -- just keep restarting",
+          "Problem Management (Known Error) > Change Enablement (submit change) > Service Validation & Testing (test in staging) > Deployment Management (deploy to prod) > Problem Management (close the problem)",
+          "Change Enablement first, then Problem Management",
+          "Knowledge Management > Incident Management > Done"
+        ],
+        answer: 1,
+        explanation: "The Known Error exists (Problem Management). To fix permanently: submit a Change Request (Change Enablement), test the config change (Service Validation), deploy it (Deployment Management), then close the Known Error (Problem Management). Multiple practices interlock."
+      },
+      {
+        scenario: "A hospital's IT team implements ITIL but faces resistance from doctors who see ITSM processes as bureaucracy that slows down patient care. The IT team insists all changes to medical systems follow full CAB approval, even minor updates to the appointment scheduling system.",
+        q: "Which guiding principles are being violated, and what should be done?",
+        options: [
+          "No principles are violated -- compliance is critical in healthcare",
+          "'Focus on value' (ITSM should serve patient care) and 'Keep it simple' (minor changes shouldn't need full CAB). Solution: create Standard Change templates for low-risk medical system updates.",
+          "'Optimize and automate' -- they should automate the CAB process",
+          "'Start where you are' -- they should go back to having no process"
+        ],
+        answer: 1,
+        explanation: "Two principles violated: 'Focus on value' -- the process should serve patient care, not hinder it. 'Keep it simple and practical' -- full CAB for minor changes is over-engineered. Standard Change templates for low-risk updates would maintain governance while reducing friction."
+      },
+      {
+        scenario: "A SaaS company offers a service with 99.9% SLA to enterprise clients. Their monitoring shows actual availability is 99.95%. However, clients are complaining about 'poor performance'. Investigation reveals: response time during peak hours is 8 seconds (acceptable is under 2 seconds).",
+        q: "What ITIL concept explains why the service seems to meet SLA but still fails to deliver value?",
+        options: [
+          "The SLA is too generous",
+          "The SLA measures availability (warranty) but not performance. The service has warranty (uptime) but lacks full utility (usable response times). SLIs should include response time, not just uptime.",
+          "The clients are wrong -- 99.95% is excellent",
+          "This is a capacity issue only, not an ITIL concern"
+        ],
+        answer: 1,
+        explanation: "Classic utility vs warranty issue. Availability (warranty) is met, but performance (part of utility -- the service must do what users need it to do, which includes being responsive) is failing. The SLA needs to include response time as an SLI, not just uptime."
+      },
+      {
+        scenario: "Two teams at an organization have conflicting change requests. Team A wants to upgrade the network switch firmware (maintenance window: Sunday 2-4 AM). Team B wants to deploy a new microservice that depends on the same network switch (same window). Neither team knows about the other's change.",
+        q: "Which ITIL practices and capabilities would prevent this conflict?",
+        options: [
+          "Only Incident Management -- deal with it when it fails",
+          "Change Enablement (change calendar with conflict detection), Service Configuration Management (CMDB showing the shared CI dependency), and Collaborate & Promote Visibility (shared change calendar for all teams)",
+          "Problem Management and Knowledge Management",
+          "Portfolio Management and Strategy Management"
+        ],
+        answer: 1,
+        explanation: "Three capabilities needed: (1) Change calendar with conflict detection (Change Enablement), (2) CMDB showing both changes affect the same CI (Service Configuration Management), (3) Shared visibility so teams see each other's changes (Collaborate & Promote Visibility principle)."
+      },
+      {
+        scenario: "An organization implements a 'big bang' ITSM transformation: new tool (ServiceNow), new processes (all 34 practices), new roles (ITIL-aligned), all at once. Six months later, adoption is at 30%, shadow IT processes are rampant, and the investment is at risk.",
+        q: "Which ITIL 4 guiding principles were violated?",
+        options: [
+          "Only 'Focus on value'",
+          "'Progress iteratively with feedback' (should have done phased rollout), 'Start where you are' (should have built on existing processes), and 'Keep it simple' (34 practices at once is overwhelming)",
+          "Only 'Optimize and automate'",
+          "No principles were violated -- the organization just needs more time"
+        ],
+        answer: 1,
+        explanation: "Three principles violated: (1) 'Progress iteratively' -- should have been phased (start with Incident & Change, add others later). (2) 'Start where you are' -- existing processes had value. (3) 'Keep it simple' -- 34 practices at once overwhelmed the organization."
+      },
+      {
+        scenario: "A global bank operates in 15 countries. Each country has its own IT team, its own incident management process, different tools, and different SLA definitions. The CIO wants to standardize ITSM globally.",
+        q: "Which ITIL 4 approach would be most effective?",
+        options: [
+          "Force all countries to adopt one process immediately",
+          "Apply 'Start where you are' -- assess each country's maturity, find common practices that work, standardize in phases. Use a Minimum Viable Practice approach per country, then converge over iterations.",
+          "Let each country continue independently",
+          "Outsource all ITSM to a single global provider"
+        ],
+        answer: 1,
+        explanation: "Multiple principles apply: 'Start where you are' (assess current state per country), 'Progress iteratively' (phased standardization), 'Collaborate and promote visibility' (share best practices across countries). Minimum Viable Practice per country, then converge."
+      },
+      {
+        scenario: "An organization's Problem Management team identifies that 60% of P1 incidents are caused by changes deployed on Fridays. They propose a 'no deploy Friday' policy.",
+        q: "Evaluate this proposal using ITIL 4 principles:",
+        options: [
+          "Good idea -- implement it immediately as a permanent policy",
+          "It addresses the symptom, not the root cause. Better approach: investigate WHY Friday deploys fail (rushed testing? skeleton crew?), fix the underlying issue (improve testing, ensure staffing). 'Keep it simple' doesn't mean avoiding the real problem.",
+          "Bad idea -- it restricts business agility",
+          "Not an ITSM concern -- this is a development team issue"
+        ],
+        answer: 1,
+        explanation: "'No deploy Friday' treats the symptom. The root cause might be: inadequate testing, reduced Friday staffing, change fatigue from the week. Problem Management should investigate further. The fix might be: better automated testing, mandatory Friday monitoring staff, or deployment cooling-off periods -- not a blanket ban."
+      },
+      {
+        scenario: "A startup grows from 50 to 500 employees in one year. Their informal IT support (walking to the IT person's desk) no longer works. They need to implement ITSM but have zero ITIL maturity.",
+        q: "What is the recommended ITIL 4 approach for this startup?",
+        options: [
+          "Implement all 34 ITIL practices immediately",
+          "Start with 3-4 high-value practices as MVPs: (1) Service Desk (single point of contact), (2) Incident Management (log and track issues), (3) Knowledge Management (FAQs and self-service). Iterate and add more practices as maturity grows.",
+          "Hire a full ITIL consulting firm for a 12-month transformation",
+          "Continue with informal support -- ITIL is for large enterprises only"
+        ],
+        answer: 1,
+        explanation: "Applying 'Start where you are', 'Progress iteratively', and 'Keep it simple': begin with high-impact, low-complexity practices. Service Desk + Incident Management + Knowledge Management solve the immediate pain. Add Change Enablement, Problem Management, etc. as the organization matures."
+      },
+      {
+        scenario: "An AI team proposes using machine learning to auto-categorize and auto-route incidents based on historical data. The ITSM team is skeptical, saying 'ITIL doesn't mention AI'.",
+        q: "How does ITIL 4 address this situation?",
+        options: [
+          "ITIL 4 doesn't support AI -- stick to manual processes",
+          "ITIL 4 is technology-agnostic and principle-driven. 'Optimize and automate' explicitly encourages automation. AI-driven categorization optimizes the Incident Management practice. The 'Information and Technology' dimension supports adopting the right technology.",
+          "AI should only be used for Change Management",
+          "AI would violate the 'Keep it simple' principle"
+        ],
+        answer: 1,
+        explanation: "ITIL 4 is deliberately technology-agnostic -- it provides principles, not technology mandates. 'Optimize and automate' supports AI. The 'Information and Technology' dimension explicitly covers technology decisions. AI-driven incident routing is a valid optimization of the Incident Management practice."
+      }
+    ]
+  }
+];
+
+// Flatten
+const flat = [];
+sections.forEach((sec, si) => sec.questions.forEach((_, qi) => flat.push({ si, qi, title: sec.title, diff: sec.difficulty })));
+const TOTAL = flat.length;
+
+let idx = 0, answers = {}, quizStarted = false, quizFinished = false, timerInterval = null, totalSeconds = 0;
+function K(si,qi){return si+'-'+qi}
+function cK(){const f=flat[idx];return K(f.si,f.qi)}
+function cQ(){const f=flat[idx];return sections[f.si].questions[f.qi]}
+function nAnswered(){return Object.keys(answers).length}
+
+function render(){
+  if(!quizStarted)return renderWelcome();
+  if(quizFinished)return renderResults();
+  renderQuestion();
+}
+
+function renderWelcome(){
+  document.getElementById('hdrSection').textContent='--';
+  document.getElementById('hdrProgress').textContent='--/--';
+  document.getElementById('hdrTimer').textContent='--:--';
+  document.getElementById('progressBar').style.width='0%';
+  document.getElementById('app').innerHTML=`
+    <div class="welcome fade-in">
+      <h2>ITIL 4 Advanced & Expert Quiz</h2>
+      <p class="subtitle">Go beyond the basics -- four dimensions, value streams, practice interactions, governance, and complex real-world scenarios.</p>
+      <div class="stats-grid">
+        <div class="stat"><div class="num">${TOTAL}</div><div class="label">Questions</div></div>
+        <div class="stat"><div class="num">${sections.length}</div><div class="label">Sections</div></div>
+        <div class="stat"><div class="num">60</div><div class="label">Minutes</div></div>
+        <div class="stat"><div class="num">70%</div><div class="label">Pass Mark</div></div>
+      </div>
+      <h3 style="text-align:left;margin:1.5rem 0 0.75rem;color:var(--primary);">Sections:</h3>
+      <div style="text-align:left;">
+        ${sections.map((s,i)=>`
+          <div style="padding:0.6rem 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+            <span><strong>${i+1}.</strong> ${s.title}</span>
+            <span><span class="difficulty-tag diff-${s.difficulty}">${s.difficulty.toUpperCase()}</span> <span style="color:var(--text-light);font-size:0.8rem;margin-left:0.5rem;">${s.questions.length} Qs</span></span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="btn-group" style="margin-top:2rem;">
+        <button class="btn btn-primary" onclick="startQuiz()" style="padding:0.9rem 2.5rem;font-size:1.05rem;">Start Advanced Quiz</button>
+      </div>
+      <p style="margin-top:1rem;font-size:0.78rem;color:var(--text-light);">One question at a time. Answer revealed instantly on selection. Keyboard: A/B/C/D to answer, Arrow keys to navigate.</p>
+    </div>`;
+}
+
+function renderQuestion(){
+  const f=flat[idx],q=cQ(),k=cK(),sel=answers[k],done=sel!==undefined,ok=sel===q.answer;
+  const L=['A','B','C','D'];
+  document.getElementById('hdrSection').textContent=f.title;
+  document.getElementById('hdrProgress').textContent=`${idx+1} / ${TOTAL}`;
+  document.getElementById('progressBar').style.width=`${(nAnswered()/TOTAL)*100}%`;
+
+  const scenarioHtml = q.scenario ? `<div class="scenario-box"><strong>Scenario:</strong> ${q.scenario}</div>` : '';
+
+  const optsHtml = q.options.map((o,oi)=>{
+    let c='option',icon='';
+    if(done){c+=' disabled';if(oi===q.answer){c+=' correct';icon='<span class="opt-icon">&#10004;</span>'}else if(oi===sel&&oi!==q.answer){c+=' wrong';icon='<span class="opt-icon">&#10008;</span>'}}
+    return `<div class="${c}" onclick="pick(${oi})"><div class="opt-letter">${L[oi]}</div><div class="opt-text">${o}</div>${icon}</div>`;
+  }).join('');
+
+  let expHtml='';
+  if(done) expHtml=`<div class="explanation ${ok?'correct-exp':'wrong-exp'}"><strong>${ok?'&#10004; Correct!':'&#10008; Incorrect'}</strong>${!ok?'The correct answer is: <strong>'+L[q.answer]+'. '+q.options[q.answer]+'</strong><br><br>':''}${q.explanation}</div>`;
+
+  const dots=flat.map((fq,i)=>{
+    let c='dot';const dk=K(fq.si,fq.qi);
+    if(i===idx)c+=' current';else if(answers[dk]!==undefined){c+=answers[dk]===sections[fq.si].questions[fq.qi].answer?' answered-correct':' answered-wrong'}
+    return `<div class="${c}" onclick="go(${i})" title="Q${i+1}"></div>`;
+  }).join('');
+
+  document.getElementById('app').innerHTML=`
+    <div class="question-card diff-${f.diff} fade-in">
+      <div class="q-meta">
+        <span><span class="q-section-tag">${f.title}</span> <span class="difficulty-tag diff-${f.diff}" style="margin-left:0.4rem;">${f.diff.toUpperCase()}</span></span>
+        <span class="q-counter">Q${idx+1} of ${TOTAL}</span>
+      </div>
+      ${scenarioHtml}
+      <div class="q-text">${q.q}</div>
+      <div class="options">${optsHtml}</div>
+      ${expHtml}
+    </div>
+    <div class="nav-bar">
+      <button class="btn btn-ghost" onclick="go(${idx-1})" ${idx===0?'disabled':''}>&#8592; Prev</button>
+      <div class="dot-nav">${dots}</div>
+      ${done&&idx<TOTAL-1?'<button class="btn btn-primary" onclick="go('+(idx+1)+')">Next &#8594;</button>':done&&idx===TOTAL-1?'<button class="btn btn-accent" onclick="finish()">See Results</button>':'<button class="btn btn-ghost" onclick="go('+(idx+1)+')" '+(idx>=TOTAL-1?'disabled':'')+'>Skip &#8594;</button>'}
+    </div>
+    <div style="text-align:center;margin-top:0.75rem;color:var(--text-light);font-size:0.78rem;">
+      ${nAnswered()} of ${TOTAL} answered${nAnswered()===TOTAL?' &mdash; <a href="#" onclick="finish();return false" style="color:var(--accent);font-weight:600;">See Results</a>':''}
+    </div>`;
+}
+
+function renderResults(){
+  clearInterval(timerInterval);
+  let tc=0;
+  const sr=sections.map((s,si)=>{let c=0;s.questions.forEach((q,qi)=>{if(answers[K(si,qi)]===q.answer)c++});tc+=c;return{title:s.title,diff:s.difficulty,correct:c,total:s.questions.length}});
+  const pct=Math.round((tc/TOTAL)*100);
+  let gc,gt;if(pct>=90){gc='grade-excellent';gt='Outstanding! True ITIL Expert'}else if(pct>=70){gc='grade-good';gt='Strong Performance -- Advanced ITIL Knowledge'}else if(pct>=50){gc='grade-average';gt='Developing -- Review Advanced Topics'}else{gc='grade-poor';gt='Significant Gaps -- Revisit Study Material'}
+  const m=Math.floor(totalSeconds/60),s=totalSeconds%60;
+  document.getElementById('hdrSection').textContent='Completed';
+  document.getElementById('hdrProgress').textContent=`${tc}/${TOTAL}`;
+  document.getElementById('hdrTimer').textContent=`${m}m ${s}s`;
+  document.getElementById('progressBar').style.width='100%';
+  function bc(r){if(r>=0.9)return'var(--success)';if(r>=0.7)return'#1565c0';if(r>=0.5)return'var(--accent)';return'var(--error)'}
+  document.getElementById('app').innerHTML=`
+    <div class="results fade-in">
+      <h2>Assessment Complete</h2>
+      <p style="color:var(--text-light);">${gt}</p>
+      <div class="score-circle ${gc}"><div class="pct">${pct}<span class="pct-sign">%</span></div><div class="label">${tc} of ${TOTAL}</div></div>
+      <div style="display:flex;justify-content:center;gap:1.5rem;margin:1rem 0;flex-wrap:wrap;font-size:0.9rem;">
+        <div><strong>Time:</strong> ${m}m ${s}s</div><div><strong>Correct:</strong> ${tc}</div><div><strong>Wrong:</strong> ${TOTAL-tc}</div>
+        <div><strong>Result:</strong> <span style="color:${pct>=70?'var(--success)':'var(--error)'};font-weight:700;">${pct>=70?'PASS':'FAIL'}</span></div>
+      </div>
+      <h3 style="text-align:left;margin:1.25rem 0 0.5rem;color:var(--primary);">Section Breakdown</h3>
+      <div class="section-scores">
+        ${sr.map((x,i)=>{const r=x.correct/x.total;return`<div class="section-score-card"><h4>S${i+1}: ${x.title} <span class="difficulty-tag diff-${x.diff}" style="margin-left:0.3rem;font-size:0.6rem;">${x.diff.toUpperCase()}</span></h4><div class="score">${x.correct}/${x.total} <span style="font-size:0.8rem;color:var(--text-light);">(${Math.round(r*100)}%)</span></div><div class="bar-bg"><div class="bar-fill" style="width:${r*100}%;background:${bc(r)}"></div></div></div>`}).join('')}
+      </div>
+      <h3 style="text-align:left;margin:1.25rem 0 0.5rem;color:var(--primary);">Study Recommendations</h3>
+      <div style="text-align:left;font-size:0.9rem;">
+        ${sr.map((x,i)=>{const r=x.correct/x.total;if(r<0.7)return'<p style="padding:0.4rem 0;border-bottom:1px solid var(--border);"><span style="color:var(--error);font-weight:600;">Needs review:</span> S'+(i+1)+' -- '+x.title+' ('+Math.round(r*100)+'%)</p>';return''}).join('')||'<p style="color:var(--success);font-weight:600;">Excellent across all sections!</p>'}
+      </div>
+      <div class="btn-group" style="margin-top:1.5rem;">
+        <button class="btn btn-outline" onclick="review()">Review Answers</button>
+        <button class="btn btn-primary" onclick="reset()">Retake</button>
+      </div>
+    </div>`;
+}
+
+function startQuiz(){quizStarted=true;totalSeconds=0;timerInterval=setInterval(()=>{totalSeconds++;const m=Math.floor(totalSeconds/60),s=totalSeconds%60;const e=document.getElementById('hdrTimer');e.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');if(totalSeconds>=3300)e.classList.add('danger');else if(totalSeconds>=3000)e.classList.add('warning')},1000);render()}
+function pick(oi){if(answers[cK()]!==undefined)return;answers[cK()]=oi;render()}
+function go(i){if(i>=0&&i<TOTAL){idx=i;render();window.scrollTo({top:0,behavior:'smooth'})}}
+function finish(){quizFinished=true;render();window.scrollTo({top:0,behavior:'smooth'})}
+function review(){quizFinished=false;idx=0;render();window.scrollTo({top:0,behavior:'smooth'})}
+function reset(){answers={};idx=0;quizStarted=false;quizFinished=false;totalSeconds=0;clearInterval(timerInterval);render();window.scrollTo({top:0,behavior:'smooth'})}
+
+document.addEventListener('keydown',function(e){
+  if(!quizStarted||quizFinished)return;
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();go(idx+1)}
+  if(e.key==='ArrowLeft'){e.preventDefault();go(idx-1)}
+  if(e.key==='1'||e.key==='a'||e.key==='A')pick(0);
+  if(e.key==='2'||e.key==='b'||e.key==='B')pick(1);
+  if(e.key==='3'||e.key==='c'||e.key==='C')pick(2);
+  if(e.key==='4'||e.key==='d'||e.key==='D')pick(3);
+});
+
+render();
+</script>
+</body>
+</html>
