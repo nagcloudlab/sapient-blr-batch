@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITIL 4 Practices Assessment Quiz</title>
+<style>
+  :root {
+    --primary: #1a237e;
+    --primary-light: #3949ab;
+    --accent: #ff6f00;
+    --success: #2e7d32;
+    --error: #c62828;
+    --bg: #f5f5f5;
+    --card: #ffffff;
+    --text: #212121;
+    --text-light: #757575;
+    --border: #e0e0e0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, var(--primary), var(--primary-light));
+    color: #fff;
+    padding: 1.25rem 2rem;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+  }
+  .header h1 { font-size: 1.3rem; font-weight: 700; }
+  .header-info {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+    opacity: 0.9;
+  }
+  .header-info span { display: flex; align-items: center; gap: 0.3rem; }
+
+  /* Progress Bar */
+  .progress-container {
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    height: 6px;
+    margin-top: 0.6rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .progress-bar {
+    background: var(--accent);
+    height: 100%;
+    border-radius: 10px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* Container */
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+
+  /* Welcome Screen */
+  .welcome {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--card);
+    border-radius: 16px;
+    margin-top: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  }
+  .welcome h2 { color: var(--primary); margin-bottom: 1rem; font-size: 1.8rem; }
+  .welcome p { max-width: 600px; margin: 0 auto 1rem; color: var(--text-light); }
+  .welcome .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .stats-grid .stat {
+    background: var(--bg);
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+  }
+  .stats-grid .stat .num { font-size: 1.8rem; font-weight: 700; color: var(--primary); }
+  .stats-grid .stat .label { font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* Question Card */
+  .question-card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-top: 2rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    position: relative;
+    overflow: hidden;
+  }
+  .question-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--primary-light));
+  }
+  .q-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .q-section-tag {
+    background: #e8eaf6;
+    color: var(--primary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .q-counter {
+    color: var(--text-light);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .q-text {
+    font-weight: 600;
+    font-size: 1.15rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    color: var(--text);
+  }
+
+  /* Options */
+  .options { display: flex; flex-direction: column; gap: 0.6rem; }
+  .option {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-size: 0.95rem;
+    position: relative;
+  }
+  .option:hover:not(.disabled) { border-color: var(--primary-light); background: #e8eaf6; transform: translateX(4px); }
+  .option .opt-letter {
+    width: 32px;
+    height: 32px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: #999;
+    transition: all 0.25s;
+  }
+  .option .opt-text { flex: 1; }
+  .option .opt-icon {
+    font-size: 1.3rem;
+    margin-left: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  /* Correct */
+  .option.correct {
+    border-color: var(--success) !important;
+    background: #e8f5e9 !important;
+    transform: none;
+  }
+  .option.correct .opt-letter {
+    border-color: var(--success);
+    background: var(--success);
+    color: #fff;
+  }
+  .option.correct .opt-icon { opacity: 1; }
+
+  /* Wrong */
+  .option.wrong {
+    border-color: var(--error) !important;
+    background: #ffebee !important;
+    transform: none;
+  }
+  .option.wrong .opt-letter {
+    border-color: var(--error);
+    background: var(--error);
+    color: #fff;
+  }
+  .option.wrong .opt-icon { opacity: 1; }
+
+  /* Disabled after answer */
+  .option.disabled { pointer-events: none; cursor: default; }
+  .option.disabled:not(.correct):not(.wrong) { opacity: 0.5; }
+
+  /* Explanation */
+  .explanation {
+    margin-top: 1.25rem;
+    padding: 1rem 1.25rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    animation: slideUp 0.35s ease;
+  }
+  .explanation.correct-exp { background: #e8f5e9; border-left: 4px solid var(--success); color: #1b5e20; }
+  .explanation.wrong-exp { background: #fff3e0; border-left: 4px solid var(--accent); color: #e65100; }
+  .explanation strong { display: block; margin-bottom: 0.25rem; font-size: 0.95rem; }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* Navigation */
+  .nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1.5rem;
+    gap: 1rem;
+  }
+  .dot-nav {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    flex: 1;
+  }
+  .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .dot:hover { border-color: var(--primary); transform: scale(1.2); }
+  .dot.current { border-color: var(--primary); background: var(--primary); transform: scale(1.2); }
+  .dot.answered-correct { border-color: var(--success); background: var(--success); }
+  .dot.answered-wrong { border-color: var(--error); background: var(--error); }
+  .dot.answered-pending { border-color: var(--accent); background: var(--accent); }
+
+  /* Buttons */
+  .btn {
+    padding: 0.7rem 1.75rem;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+  }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-light); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(26,35,126,0.3); }
+  .btn-accent { background: var(--accent); color: #fff; }
+  .btn-accent:hover { background: #e65100; }
+  .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+  .btn-outline:hover { background: var(--primary); color: #fff; }
+  .btn-ghost { background: transparent; color: var(--text-light); border: 2px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--primary); color: var(--primary); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+  .btn-group { display: flex; gap: 1rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
+
+  /* Results */
+  .results {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 2.5rem;
+    margin-top: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  }
+  .results h2 { color: var(--primary); margin-bottom: 0.5rem; }
+  .score-circle {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    margin: 1.5rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+  }
+  .score-circle .pct { font-size: 2.5rem; font-weight: 800; line-height: 1; }
+  .score-circle .pct-sign { font-size: 1rem; }
+  .score-circle .label { font-size: 0.75rem; font-weight: 400; opacity: 0.9; margin-top: 0.25rem; }
+  .grade-excellent { background: linear-gradient(135deg, #2e7d32, #43a047); }
+  .grade-good { background: linear-gradient(135deg, #1565c0, #1e88e5); }
+  .grade-average { background: linear-gradient(135deg, #e65100, #fb8c00); }
+  .grade-poor { background: linear-gradient(135deg, #c62828, #e53935); }
+
+  .section-scores {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin: 1.5rem 0;
+    text-align: left;
+  }
+  .section-score-card {
+    background: var(--bg);
+    padding: 1rem;
+    border-radius: 10px;
+    border-left: 4px solid var(--primary);
+  }
+  .section-score-card h4 { font-size: 0.8rem; color: var(--text-light); margin-bottom: 0.4rem; }
+  .section-score-card .score { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+  .section-score-card .bar-bg { height: 6px; background: var(--border); border-radius: 3px; margin-top: 0.5rem; }
+  .section-score-card .bar-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+
+  /* Timer */
+  .timer { font-weight: 600; font-variant-numeric: tabular-nums; }
+  .timer.warning { color: #ffab00; }
+  .timer.danger { color: #ff1744; animation: pulse 1s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  /* Responsive */
+  @media (max-width: 600px) {
+    .header h1 { font-size: 1rem; }
+    .header-info { gap: 0.75rem; font-size: 0.75rem; }
+    .container { padding: 1rem; }
+    .question-card { padding: 1.25rem; margin-top: 1rem; }
+    .q-text { font-size: 1rem; }
+    .option { padding: 0.75rem 1rem; font-size: 0.9rem; }
+    .option .opt-letter { width: 28px; height: 28px; font-size: 0.75rem; margin-right: 0.75rem; }
+    .welcome { padding: 2rem 1rem; }
+    .results { padding: 1.5rem; }
+    .nav-bar { flex-direction: column; }
+    .dot { width: 10px; height: 10px; }
+  }
+
+  .fade-in { animation: fadeIn 0.4s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>ITIL 4 & ITSM Practices -- Assessment Quiz</h1>
+  <div class="header-info">
+    <span id="hdrSection">Section: --</span>
+    <span id="hdrProgress">Question: --/--</span>
+    <span class="timer" id="hdrTimer">--:--</span>
+  </div>
+  <div class="progress-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+</div>
+
+<div class="container" id="app"></div>
+
+<script>
+// ===================== QUESTION BANK =====================
+const sections = [
+  {
+    id: "itsm-fundamentals",
+    title: "ITSM Fundamentals",
+    questions: [
+      {
+        q: "What is the primary goal of IT Service Management (ITSM)?",
+        options: [
+          "To install and maintain hardware",
+          "To plan, deliver, operate, and improve IT services",
+          "To write software applications",
+          "To manage networking infrastructure only"
+        ],
+        answer: 1,
+        explanation: "ITSM is a set of policies, processes, and procedures to plan, deliver, operate, and improve IT services. It's about running IT like a well-managed business."
+      },
+      {
+        q: "An unplanned interruption to an IT service or reduction in the quality of an IT service is called:",
+        options: [
+          "A Problem",
+          "A Change",
+          "An Incident",
+          "A Service Request"
+        ],
+        answer: 2,
+        explanation: "An Incident is an unplanned interruption or reduction in quality. The goal of Incident Management is to restore normal service as quickly as possible."
+      },
+      {
+        q: "What is the key difference between an Incident and a Problem?",
+        options: [
+          "Incidents are urgent; Problems are not",
+          "Incidents focus on restoring service; Problems focus on finding the root cause",
+          "Problems are always caused by Incidents",
+          "There is no difference -- they are the same"
+        ],
+        answer: 1,
+        explanation: "Incident = 'Fix it NOW' (restore service). Problem = 'WHY did it happen?' (find root cause and prevent recurrence). They have fundamentally different objectives."
+      },
+      {
+        q: "In Incident Management, how is Priority typically calculated?",
+        options: [
+          "Based on the caller's seniority",
+          "Impact x Urgency",
+          "By the number of affected users only",
+          "By the time of day the incident occurs"
+        ],
+        answer: 1,
+        explanation: "Priority = Impact x Urgency. Impact measures how many users/services are affected. Urgency measures how quickly it needs to be fixed. Together they determine Priority."
+      },
+      {
+        q: "What is a 'Known Error' in Problem Management?",
+        options: [
+          "Any error that occurs more than once",
+          "A problem with a documented root cause and a workaround",
+          "An error that has been resolved permanently",
+          "A software bug reported by the vendor"
+        ],
+        answer: 1,
+        explanation: "A Known Error is a problem that has an identified root cause AND a documented workaround (or fix). Known Errors are recorded in the Known Error Database (KEDB)."
+      },
+      {
+        q: "Which type of Change is pre-approved, low-risk, and follows a template?",
+        options: [
+          "Normal Change",
+          "Emergency Change",
+          "Standard Change",
+          "Expedited Change"
+        ],
+        answer: 2,
+        explanation: "Standard Changes are pre-approved, low-risk, and template-based. They don't need CAB approval. Examples: adding a user account, installing approved software."
+      },
+      {
+        q: "What is the role of the CAB (Change Advisory Board)?",
+        options: [
+          "To write code for changes",
+          "To review, assess, and authorize change requests",
+          "To deploy changes to production",
+          "To create incident reports"
+        ],
+        answer: 1,
+        explanation: "The CAB reviews, assesses risk, and authorizes (approves/rejects) change requests. It includes representatives from relevant teams to provide expert input."
+      },
+      {
+        q: "What does CMDB stand for, and what is its purpose?",
+        options: [
+          "Central Management Data Bureau -- manages user data",
+          "Configuration Management Database -- stores CIs and their relationships",
+          "Change Management Dashboard Board -- tracks changes",
+          "Computer Maintenance and Diagnostic Base -- hardware diagnostics"
+        ],
+        answer: 1,
+        explanation: "CMDB = Configuration Management Database. It stores all Configuration Items (CIs) and their relationships, enabling impact analysis and dependency mapping."
+      },
+      {
+        q: "In Service Level Management, what is the difference between SLA, OLA, and UC?",
+        options: [
+          "They are different names for the same agreement",
+          "SLA is with the customer, OLA is internal between teams, UC is with external suppliers",
+          "SLA is for incidents, OLA for changes, UC for problems",
+          "SLA is monthly, OLA is weekly, UC is daily"
+        ],
+        answer: 1,
+        explanation: "SLA = Agreement with the customer. OLA = Internal agreement between teams. UC = Underpinning Contract with external suppliers. All support service delivery."
+      },
+      {
+        q: "What is the primary purpose of a Service Catalog?",
+        options: [
+          "To list all incidents and their resolutions",
+          "To provide a single source of information about all live IT services available to users",
+          "To store all change request history",
+          "To document the organization's IT budget"
+        ],
+        answer: 1,
+        explanation: "The Service Catalog is the 'menu' of all live IT services available to users. It tells them what they can request, what it costs, and what SLAs apply."
+      }
+    ]
+  },
+  {
+    id: "itil-overview",
+    title: "ITIL 4 Overview & Guiding Principles",
+    questions: [
+      {
+        q: "What does ITIL stand for?",
+        options: [
+          "International Technology Infrastructure Library",
+          "Information Technology Infrastructure Library",
+          "Integrated Technology and IT Lifecycle",
+          "IT Improvement and Transformation Library"
+        ],
+        answer: 1,
+        explanation: "ITIL = Information Technology Infrastructure Library. It is a globally accepted framework of best practices for IT Service Management."
+      },
+      {
+        q: "What is the relationship between ITSM and ITIL?",
+        options: [
+          "They are the same thing",
+          "ITSM is the discipline/practice; ITIL is the framework/guidebook for doing it well",
+          "ITIL replaced ITSM in 2019",
+          "ITSM is for large companies; ITIL is for small companies"
+        ],
+        answer: 1,
+        explanation: "ITSM is 'cooking' (the practice). ITIL is 'the recipe book' (the framework). You can do ITSM without ITIL, but ITIL provides proven best practices."
+      },
+      {
+        q: "Which of these is a key difference between ITIL v3 and ITIL 4?",
+        options: [
+          "ITIL 4 has fewer practices than ITIL v3",
+          "ITIL v3 used a linear lifecycle; ITIL 4 uses a flexible Service Value System",
+          "ITIL 4 doesn't include Change Management",
+          "ITIL v3 was Agile-friendly; ITIL 4 is waterfall-only"
+        ],
+        answer: 1,
+        explanation: "ITIL v3 followed a linear lifecycle (Strategy > Design > Transition > Operation > CSI). ITIL 4 replaced this with the flexible Service Value System (SVS) that is Agile/DevOps-friendly."
+      },
+      {
+        q: "How many Guiding Principles does ITIL 4 define?",
+        options: ["5", "6", "7", "9"],
+        answer: 2,
+        explanation: "ITIL 4 defines 7 Guiding Principles: (1) Focus on value, (2) Start where you are, (3) Progress iteratively with feedback, (4) Collaborate and promote visibility, (5) Think and work holistically, (6) Keep it simple and practical, (7) Optimize and automate."
+      },
+      {
+        q: "Which ITIL 4 guiding principle states: 'Don't throw everything away and start from scratch -- assess what you already have'?",
+        options: [
+          "Focus on value",
+          "Start where you are",
+          "Keep it simple and practical",
+          "Progress iteratively with feedback"
+        ],
+        answer: 1,
+        explanation: "'Start where you are' means assessing your current state (tools, processes, people) before making changes. Build on what works rather than rebuilding from zero."
+      },
+      {
+        q: "'First optimize the process, THEN automate it.' Which guiding principle does this describe?",
+        options: [
+          "Progress iteratively with feedback",
+          "Think and work holistically",
+          "Optimize and automate",
+          "Keep it simple and practical"
+        ],
+        answer: 2,
+        explanation: "'Optimize and automate' -- the key insight is to optimize FIRST (remove waste, streamline), then automate. Automating a broken process just gives you broken results faster."
+      },
+      {
+        q: "Which principle emphasizes breaking silos, sharing information, and making work visible?",
+        options: [
+          "Focus on value",
+          "Think and work holistically",
+          "Collaborate and promote visibility",
+          "Keep it simple and practical"
+        ],
+        answer: 2,
+        explanation: "'Collaborate and promote visibility' is about breaking down silos. Share information across teams, make work visible through dashboards, shared calendars, and open communication."
+      },
+      {
+        q: "'No service, practice, or component stands alone -- everything is connected.' This best describes:",
+        options: [
+          "Collaborate and promote visibility",
+          "Think and work holistically",
+          "Start where you are",
+          "Focus on value"
+        ],
+        answer: 1,
+        explanation: "'Think and work holistically' reminds us that changes to one component affect others. Always consider the full picture and dependencies before acting."
+      },
+      {
+        q: "Which guiding principle aligns most closely with Agile's iterative approach?",
+        options: [
+          "Optimize and automate",
+          "Keep it simple and practical",
+          "Progress iteratively with feedback",
+          "Focus on value"
+        ],
+        answer: 2,
+        explanation: "'Progress iteratively with feedback' directly mirrors Agile: small steps, measure results, get feedback, adjust. Don't try to do everything in one big bang."
+      },
+      {
+        q: "A team has a 12-step change approval process, but only 5 steps actually reduce risk. Which principle should they apply?",
+        options: [
+          "Start where you are",
+          "Keep it simple and practical",
+          "Think and work holistically",
+          "Optimize and automate"
+        ],
+        answer: 1,
+        explanation: "'Keep it simple and practical' -- if a process doesn't add value, eliminate it. Use the minimum steps needed to achieve the objective. Remove unnecessary bureaucracy."
+      }
+    ]
+  },
+  {
+    id: "svs-svc",
+    title: "Service Value System & Value Chain",
+    questions: [
+      { q: "What are the two INPUTS to the Service Value System (SVS)?", options: ["Incidents and Changes", "Opportunity and Demand", "Users and Providers", "Cost and Revenue"], answer: 1, explanation: "The SVS receives Opportunity (chance to add value/improve) and Demand (a need from a consumer) as inputs. The output is Value." },
+      { q: "What is the OUTPUT of the Service Value System?", options: ["Reports", "Value", "Services", "Processes"], answer: 1, explanation: "The SVS transforms demand/opportunity into Value. Value is perceived by the consumer, not the provider. It's the benefit the consumer experiences." },
+      { q: "Which of the following is NOT a component of the Service Value System?", options: ["Guiding Principles", "Service Value Chain", "Practices", "Service Lifecycle"], answer: 3, explanation: "The SVS components are: Guiding Principles, Governance, Service Value Chain, Practices, and Continual Improvement. 'Service Lifecycle' was an ITIL v3 concept replaced by the SVS." },
+      { q: "How many activities does the Service Value Chain have?", options: ["4", "5", "6", "7"], answer: 2, explanation: "The Service Value Chain has 6 activities: Plan, Improve, Engage, Design & Transition, Obtain/Build, and Deliver & Support." },
+      { q: "Which Value Chain activity ensures a shared understanding of the vision, current status, and direction for all services?", options: ["Engage", "Plan", "Improve", "Deliver & Support"], answer: 1, explanation: "Plan ensures a shared understanding of the vision, current status, and direction. It answers: Where are we? Where do we want to be? How do we get there?" },
+      { q: "Which Value Chain activity focuses on understanding stakeholder needs and maintaining good relationships?", options: ["Plan", "Deliver & Support", "Engage", "Improve"], answer: 2, explanation: "Engage is about understanding stakeholder needs, ensuring transparency, and maintaining good relationships with customers, users, suppliers, and internal teams." },
+      { q: "Where does day-to-day operations (handling incidents, fulfilling requests, monitoring) happen in the Value Chain?", options: ["Plan", "Obtain/Build", "Design & Transition", "Deliver & Support"], answer: 3, explanation: "Deliver & Support is where day-to-day operations happen -- deploying services, handling incidents, resolving problems, fulfilling requests, and monitoring SLIs." },
+      { q: "In ITIL 4, the Service Value Chain is described as:", options: ["A strict linear sequence of activities", "A flexible set of interconnected activities that can be combined differently", "A replacement for all ITIL practices", "Only applicable to large organizations"], answer: 1, explanation: "The Value Chain is NOT linear. It's flexible -- different types of work (value streams) take different paths through the activities." },
+      { q: "Which Value Chain activity applies to ALL other activities and focuses on continual improvement?", options: ["Plan", "Engage", "Improve", "Design & Transition"], answer: 2, explanation: "Improve applies to the entire Value Chain. It doesn't just improve services -- it improves how you Plan, Engage, Design, Build, and Deliver." },
+      { q: "In ITIL 4, value is defined as:", options: ["The revenue generated by IT services", "The perceived benefits, usefulness, and importance of something", "The number of services listed in the catalog", "The total uptime of all IT systems"], answer: 1, explanation: "Value is the perceived benefits, usefulness, and importance of something. It's co-created between provider and consumer." }
+    ]
+  },
+  {
+    id: "practices",
+    title: "ITIL 4 Practices (34 Practices)",
+    questions: [
+      { q: "ITIL 4 organizes its 34 practices into three categories. Which are they?", options: ["Strategic, Tactical, Operational", "General Management, Service Management, Technical Management", "Core, Supporting, Advanced", "Planning, Execution, Monitoring"], answer: 1, explanation: "The three categories are: General Management (14 practices), Service Management (17 practices), and Technical Management (3 practices)." },
+      { q: "Why did ITIL 4 change the term from 'processes' (ITIL v3) to 'practices'?", options: ["To modernize the branding", "Because practices include people, tools, and information -- not just workflows", "Because processes are no longer important", "To reduce the total count"], answer: 1, explanation: "ITIL v3 'process' = just the workflow. ITIL 4 'practice' = people + process + tools + information + partners. Practices are broader and more holistic." },
+      { q: "Which practice is responsible for 'making new and changed services and features available for use'?", options: ["Change Enablement", "Deployment Management", "Release Management", "Service Validation & Testing"], answer: 2, explanation: "Release Management packages changes together and makes them available for use. Change = permission, Release = package, Deployment = physical installation." },
+      { q: "What is the correct relationship between Change, Release, and Deployment?", options: ["They are three names for the same activity", "Change (permission) -> Release (package) -> Deployment (action to install)", "Deployment comes first, then Release, then Change", "Release and Deployment are the same; Change is different"], answer: 1, explanation: "Change = 'You MAY modify this.' Release = 'Here's the package of changes bundled together.' Deployment = 'Install it into production.'" },
+      { q: "Which ITIL 4 practice covers 'systematically observing services and recording/reporting events'?", options: ["Availability Management", "Incident Management", "Monitoring and Event Management", "Service Level Management"], answer: 2, explanation: "Monitoring and Event Management detects events (informational, warning, exception), classifies them, and triggers appropriate responses." },
+      { q: "In Monitoring & Event Management, what are the three types of events?", options: ["Minor, Major, Critical", "Informational, Warning, Exception", "Low, Medium, High", "Planned, Unplanned, Emergency"], answer: 1, explanation: "Informational = something happened, no action needed. Warning = approaching a threshold. Exception = threshold breached, action needed NOW." },
+      { q: "What does RTO and RPO stand for in Service Continuity Management?", options: ["Real Time Operations / Recovery Point Options", "Recovery Time Objective / Recovery Point Objective", "Response Time Order / Recovery Process Overview", "Restore Target Output / Restore Point Output"], answer: 1, explanation: "RTO = Recovery Time Objective (how fast must we recover?). RPO = Recovery Point Objective (how much data can we lose?)." },
+      { q: "Which practice ensures services have sufficient capacity to meet current and future demand?", options: ["Availability Management", "Service Level Management", "Capacity and Performance Management", "Service Continuity Management"], answer: 2, explanation: "Capacity & Performance Management ensures enough resources exist for current and future demand." },
+      { q: "In ITIL 4, 'Change Enablement' was previously known as:", options: ["Release Management", "Change Management", "Transition Management", "Configuration Management"], answer: 1, explanation: "ITIL 4 renamed 'Change Management' to 'Change Enablement' to emphasize that changes should be enabled and facilitated, not just controlled." },
+      { q: "Which of the following is a Technical Management practice?", options: ["Incident Management", "Continual Improvement", "Deployment Management", "Service Level Management"], answer: 2, explanation: "The three Technical Management practices are: Deployment Management, Infrastructure & Platform Management, and Software Development & Management." }
+    ]
+  },
+  {
+    id: "scenarios",
+    title: "Scenario-Based Questions",
+    questions: [
+      { q: "A payment gateway goes down at 11 PM. The team fixes it by restarting the service. Two days later, it happens again. Which practices should be invoked?", options: ["Only Incident Management (restart again)", "Incident Management (restore now) AND Problem Management (investigate root cause)", "Only Change Management (plan a change)", "Only Knowledge Management (write an article)"], answer: 1, explanation: "Incident Management restores service immediately. Since it recurred, Problem Management must investigate the root cause to prevent future occurrences." },
+      { q: "A team wants to upgrade a database from version 14 to 16. They've tested in staging. What is the correct ITIL process?", options: ["Deploy directly to production -- testing was done", "Submit a Change Request, get CAB approval, deploy in a maintenance window with a rollback plan", "Create an Incident ticket and deploy the upgrade", "Update the Knowledge Base and proceed"], answer: 1, explanation: "Any modification to production requires Change Enablement: submit a Change Request, risk assessment, CAB approval, deploy in an approved window with a rollback plan." },
+      { q: "An engineer discovers that 5 incidents in the last week all relate to the same server. What should they create?", options: ["A 6th incident for tracking purposes", "A Problem record to investigate the root cause", "A Change Request to replace the server immediately", "A Service Request for a new server"], answer: 1, explanation: "Multiple incidents with the same root cause indicate a Problem. Create a Problem record, link the 5 incidents, and investigate the underlying cause." },
+      { q: "During a major incident, the team realizes a recent change caused it. The emergency fix requires skipping the normal CAB process. What type of change should be raised?", options: ["Standard Change", "Normal Change (expedited)", "Emergency Change", "No change needed -- just fix it"], answer: 2, explanation: "Emergency Changes are for critical situations requiring immediate action. They fast-track approval (verbal/phone) and require post-implementation CAB review." },
+      { q: "A bank wants to increase their transaction rate limit. What ITSM process handles this?", options: ["Incident Management -- it's a service issue", "Problem Management -- find why the limit is too low", "Service Request Management -- it's a standard, pre-defined request", "Change Management -- it modifies the system"], answer: 2, explanation: "A TPS limit increase is a pre-defined, routine request with a known fulfillment process. It's a Service Request submitted through the Service Catalog." },
+      { q: "A company's IT team resolves the same email issue every month using the same fix. Applying ITIL principles, what should they do?", options: ["Continue resolving it each time -- it's working fine", "Document the fix in the Knowledge Base AND create a Problem to find the root cause", "Escalate to management every time", "Remove email from the Service Catalog"], answer: 1, explanation: "Two actions: (1) Knowledge Management -- document the workaround. (2) Problem Management -- investigate the root cause to permanently fix it." },
+      { q: "An organization is planning a major IT transformation. They're tempted to discard all existing tools and processes. Which guiding principle should they follow?", options: ["Optimize and automate", "Start where you are", "Keep it simple and practical", "Focus on value"], answer: 1, explanation: "'Start where you are' -- assess what currently works before discarding it. Build on existing strengths." },
+      { q: "The disaster recovery drill reveals that the backup site takes 45 minutes to activate, but the RTO is 15 minutes. What should happen?", options: ["Nothing -- 45 minutes is acceptable", "Raise a Problem record and improve the DR setup to meet the 15-minute RTO", "Change the RTO to 45 minutes", "Cancel the DR site contract"], answer: 1, explanation: "The DR setup fails to meet the agreed RTO. A Problem should be raised to investigate and improve the failover process." },
+      { q: "A team automates a manual incident assignment process that is currently inefficient and error-prone. According to ITIL principles, what should they have done FIRST?", options: ["Buy the best automation tool available", "Optimize the process to remove inefficiencies, THEN automate it", "Automate immediately to save time", "Keep the manual process and add more people"], answer: 1, explanation: "'Optimize and automate' -- first optimize (remove waste), THEN automate. Automating a broken process just produces broken results faster." },
+      { q: "A new feature is deployed. The service desk starts getting calls about it. There's no documentation. Which ITIL practices were missed during transition?", options: ["Incident Management and Problem Management", "Knowledge Management and Service Desk", "Change Enablement and Release Management", "Capacity Management and Availability Management"], answer: 1, explanation: "Knowledge Management (no documentation) and Service Desk preparation (not briefed) were missed. These should be part of the Design & Transition activity." }
+    ]
+  }
+];
+
+// Build flat question list: [{sectionIndex, questionIndex, sectionTitle}]
+const flatQuestions = [];
+sections.forEach((sec, si) => {
+  sec.questions.forEach((_, qi) => {
+    flatQuestions.push({ si, qi, sectionTitle: sec.title });
+  });
+});
+const TOTAL = flatQuestions.length;
+
+// ===================== STATE =====================
+let currentIndex = 0;  // index into flatQuestions
+let answers = {};      // { "si-qi": optionIndex }
+let quizStarted = false;
+let quizFinished = false;
+let timerInterval = null;
+let totalSeconds = 0;
+
+function key(si, qi) { return si + '-' + qi; }
+function currentKey() { const f = flatQuestions[currentIndex]; return key(f.si, f.qi); }
+function currentQ() { const f = flatQuestions[currentIndex]; return sections[f.si].questions[f.qi]; }
+function totalAnswered() { return Object.keys(answers).length; }
+
+// ===================== RENDER =====================
+function render() {
+  if (!quizStarted) return renderWelcome();
+  if (quizFinished) return renderResults();
+  renderQuestion();
+}
+
+function renderWelcome() {
+  document.getElementById('hdrSection').textContent = 'Section: --';
+  document.getElementById('hdrProgress').textContent = 'Question: --/--';
+  document.getElementById('hdrTimer').textContent = '--:--';
+  document.getElementById('progressBar').style.width = '0%';
+
+  document.getElementById('app').innerHTML = `
+    <div class="welcome fade-in">
+      <h2>ITIL 4 & ITSM Practices Assessment</h2>
+      <p>Test your knowledge across ITSM fundamentals, ITIL 4 Guiding Principles, Service Value System, ITIL Practices, and real-world scenarios.</p>
+      <div class="stats-grid">
+        <div class="stat"><div class="num">${TOTAL}</div><div class="label">Questions</div></div>
+        <div class="stat"><div class="num">${sections.length}</div><div class="label">Sections</div></div>
+        <div class="stat"><div class="num">45</div><div class="label">Minutes</div></div>
+        <div class="stat"><div class="num">70%</div><div class="label">Pass Mark</div></div>
+      </div>
+      <h3 style="text-align:left;margin:1.5rem 0 0.75rem;color:var(--primary);">Sections:</h3>
+      <div style="text-align:left;">
+        ${sections.map((s, i) => `
+          <div style="padding:0.5rem 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;">
+            <span><strong>${i + 1}.</strong> ${s.title}</span>
+            <span style="color:var(--text-light);font-size:0.85rem;">${s.questions.length} Qs</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="btn-group" style="margin-top:2rem;">
+        <button class="btn btn-primary" onclick="startQuiz()" style="padding:1rem 3rem;font-size:1.1rem;">Start Quiz</button>
+      </div>
+      <p style="margin-top:1rem;font-size:0.8rem;color:var(--text-light);">
+        One question at a time. Answer is revealed instantly on selection.
+      </p>
+    </div>
+  `;
+}
+
+function renderQuestion() {
+  const f = flatQuestions[currentIndex];
+  const q = currentQ();
+  const k = currentKey();
+  const selected = answers[k];
+  const isAnswered = selected !== undefined;
+  const isCorrect = selected === q.answer;
+  const letters = ['A', 'B', 'C', 'D'];
+
+  // Update header
+  document.getElementById('hdrSection').textContent = `${f.sectionTitle}`;
+  document.getElementById('hdrProgress').textContent = `${currentIndex + 1} / ${TOTAL}`;
+  document.getElementById('progressBar').style.width = `${(totalAnswered() / TOTAL) * 100}%`;
+
+  let optionsHtml = q.options.map((opt, oi) => {
+    let cls = 'option';
+    let icon = '';
+    if (isAnswered) {
+      cls += ' disabled';
+      if (oi === q.answer) { cls += ' correct'; icon = '<span class="opt-icon">&#10004;</span>'; }
+      else if (oi === selected && oi !== q.answer) { cls += ' wrong'; icon = '<span class="opt-icon">&#10008;</span>'; }
+    }
+    return `
+      <div class="${cls}" onclick="selectAnswer(${oi})">
+        <div class="opt-letter">${letters[oi]}</div>
+        <div class="opt-text">${opt}</div>
+        ${icon}
+      </div>
+    `;
+  }).join('');
+
+  let explanationHtml = '';
+  if (isAnswered) {
+    explanationHtml = `
+      <div class="explanation ${isCorrect ? 'correct-exp' : 'wrong-exp'}">
+        <strong>${isCorrect ? '&#10004; Correct!' : '&#10008; Incorrect'}</strong>
+        ${!isCorrect ? 'The correct answer is: <strong>' + letters[q.answer] + '. ' + q.options[q.answer] + '</strong><br><br>' : ''}
+        ${q.explanation}
+      </div>
+    `;
+  }
+
+  // Dot navigation
+  let dotsHtml = flatQuestions.map((fq, i) => {
+    let cls = 'dot';
+    const dk = key(fq.si, fq.qi);
+    if (i === currentIndex) cls += ' current';
+    else if (answers[dk] !== undefined) {
+      const dq = sections[fq.si].questions[fq.qi];
+      cls += answers[dk] === dq.answer ? ' answered-correct' : ' answered-wrong';
+    }
+    return `<div class="${cls}" onclick="goTo(${i})" title="Q${i + 1}"></div>`;
+  }).join('');
+
+  document.getElementById('app').innerHTML = `
+    <div class="question-card fade-in">
+      <div class="q-meta">
+        <span class="q-section-tag">Section ${f.si + 1}: ${f.sectionTitle}</span>
+        <span class="q-counter">Q ${currentIndex + 1} of ${TOTAL}</span>
+      </div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">${optionsHtml}</div>
+      ${explanationHtml}
+    </div>
+
+    <div class="nav-bar">
+      <button class="btn btn-ghost" onclick="goPrev()" ${currentIndex === 0 ? 'disabled' : ''}>&#8592; Prev</button>
+      <div class="dot-nav">${dotsHtml}</div>
+      ${isAnswered && currentIndex < TOTAL - 1
+        ? '<button class="btn btn-primary" onclick="goNext()">Next &#8594;</button>'
+        : isAnswered && currentIndex === TOTAL - 1
+          ? '<button class="btn btn-accent" onclick="finishQuiz()">See Results</button>'
+          : '<button class="btn btn-ghost" onclick="goNext()" ' + (currentIndex >= TOTAL - 1 ? 'disabled' : '') + '>Skip &#8594;</button>'
+      }
+    </div>
+
+    <div style="text-align:center;margin-top:1rem;color:var(--text-light);font-size:0.8rem;">
+      ${totalAnswered()} of ${TOTAL} answered
+      ${totalAnswered() === TOTAL ? ' &mdash; <a href="#" onclick="finishQuiz();return false;" style="color:var(--accent);font-weight:600;">See Results</a>' : ''}
+    </div>
+  `;
+}
+
+function renderResults() {
+  clearInterval(timerInterval);
+
+  let totalCorrect = 0;
+  const sectionResults = sections.map((sec, si) => {
+    let correct = 0;
+    sec.questions.forEach((q, qi) => {
+      if (answers[key(si, qi)] === q.answer) correct++;
+    });
+    totalCorrect += correct;
+    return { title: sec.title, correct, total: sec.questions.length };
+  });
+
+  const pct = Math.round((totalCorrect / TOTAL) * 100);
+  let gradeClass, gradeText;
+  if (pct >= 90) { gradeClass = 'grade-excellent'; gradeText = 'Excellent! ITIL Expert Level'; }
+  else if (pct >= 70) { gradeClass = 'grade-good'; gradeText = 'Good! Solid ITIL Foundation'; }
+  else if (pct >= 50) { gradeClass = 'grade-average'; gradeText = 'Needs Improvement -- Review Weak Areas'; }
+  else { gradeClass = 'grade-poor'; gradeText = 'More Study Required -- Revisit Phase 1 & 2'; }
+
+  const mins = Math.floor(totalSeconds / 60);
+  const secs = totalSeconds % 60;
+  document.getElementById('hdrSection').textContent = 'Completed';
+  document.getElementById('hdrProgress').textContent = `${totalCorrect}/${TOTAL} Correct`;
+  document.getElementById('hdrTimer').textContent = `${mins}m ${secs}s`;
+  document.getElementById('progressBar').style.width = '100%';
+
+  function barColor(r) {
+    if (r >= 0.9) return 'var(--success)';
+    if (r >= 0.7) return '#1565c0';
+    if (r >= 0.5) return 'var(--accent)';
+    return 'var(--error)';
+  }
+
+  document.getElementById('app').innerHTML = `
+    <div class="results fade-in">
+      <h2>Quiz Complete!</h2>
+      <p style="color:var(--text-light);">${gradeText}</p>
+      <div class="score-circle ${gradeClass}">
+        <div class="pct">${pct}<span class="pct-sign">%</span></div>
+        <div class="label">${totalCorrect} of ${TOTAL}</div>
+      </div>
+      <div style="display:flex;justify-content:center;gap:2rem;margin:1rem 0;flex-wrap:wrap;font-size:0.95rem;">
+        <div><strong>Time:</strong> ${mins}m ${secs}s</div>
+        <div><strong>Correct:</strong> ${totalCorrect}</div>
+        <div><strong>Wrong:</strong> ${TOTAL - totalCorrect}</div>
+        <div><strong>Result:</strong> <span style="color:${pct >= 70 ? 'var(--success)' : 'var(--error)'};font-weight:700;">${pct >= 70 ? 'PASS' : 'FAIL'}</span></div>
+      </div>
+
+      <h3 style="text-align:left;margin:1.5rem 0 0.75rem;color:var(--primary);">Section Breakdown</h3>
+      <div class="section-scores">
+        ${sectionResults.map((sr, i) => {
+          const r = sr.correct / sr.total;
+          return `<div class="section-score-card">
+            <h4>S${i + 1}: ${sr.title}</h4>
+            <div class="score">${sr.correct}/${sr.total} <span style="font-size:0.85rem;color:var(--text-light);">(${Math.round(r * 100)}%)</span></div>
+            <div class="bar-bg"><div class="bar-fill" style="width:${r * 100}%;background:${barColor(r)};"></div></div>
+          </div>`;
+        }).join('')}
+      </div>
+
+      <h3 style="text-align:left;margin:1.5rem 0 0.75rem;color:var(--primary);">Recommendations</h3>
+      <div style="text-align:left;">
+        ${sectionResults.map((sr, i) => {
+          const r = sr.correct / sr.total;
+          if (r < 0.7) return '<p style="padding:0.5rem 0;border-bottom:1px solid var(--border);"><span style="color:var(--error);font-weight:600;">Review needed:</span> Section ' + (i+1) + ' -- ' + sr.title + ' (' + Math.round(r*100) + '%). Revisit the study material.</p>';
+          return '';
+        }).join('') || '<p style="color:var(--success);">Great job! All sections at or above passing level.</p>'}
+      </div>
+
+      <div class="btn-group" style="margin-top:2rem;">
+        <button class="btn btn-outline" onclick="reviewAll()">Review All Answers</button>
+        <button class="btn btn-primary" onclick="resetQuiz()">Retake Quiz</button>
+      </div>
+    </div>
+  `;
+}
+
+// ===================== ACTIONS =====================
+function startQuiz() {
+  quizStarted = true;
+  totalSeconds = 0;
+  timerInterval = setInterval(() => {
+    totalSeconds++;
+    const m = Math.floor(totalSeconds / 60);
+    const s = totalSeconds % 60;
+    const el = document.getElementById('hdrTimer');
+    el.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    if (totalSeconds >= 2400) el.classList.add('danger');
+    else if (totalSeconds >= 2100) el.classList.add('warning');
+  }, 1000);
+  render();
+}
+
+function selectAnswer(optionIndex) {
+  const k = currentKey();
+  if (answers[k] !== undefined) return; // already answered
+  answers[k] = optionIndex;
+  render();
+}
+
+function goNext() {
+  if (currentIndex < TOTAL - 1) { currentIndex++; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+}
+function goPrev() {
+  if (currentIndex > 0) { currentIndex--; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+}
+function goTo(i) {
+  currentIndex = i; render(); window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function finishQuiz() {
+  quizFinished = true;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function reviewAll() {
+  quizFinished = false;
+  currentIndex = 0;
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetQuiz() {
+  answers = {};
+  currentIndex = 0;
+  quizStarted = false;
+  quizFinished = false;
+  totalSeconds = 0;
+  clearInterval(timerInterval);
+  render();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+  if (!quizStarted || quizFinished) return;
+  if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goNext(); }
+  if (e.key === 'ArrowLeft') { e.preventDefault(); goPrev(); }
+  if (e.key === '1' || e.key === 'a' || e.key === 'A') selectAnswer(0);
+  if (e.key === '2' || e.key === 'b' || e.key === 'B') selectAnswer(1);
+  if (e.key === '3' || e.key === 'c' || e.key === 'C') selectAnswer(2);
+  if (e.key === '4' || e.key === 'd' || e.key === 'D') selectAnswer(3);
+});
+
+// ===================== INIT =====================
+render();
+</script>
+</body>
+</html>
