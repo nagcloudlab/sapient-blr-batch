@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ITIL 4 Foundation -- Certification Mock Test</title>
+<style>
+:root{--p:#1a237e;--pl:#283593;--ac:#e65100;--ok:#2e7d32;--no:#c62828;--bg:#f5f5f5;--card:#fff;--tx:#212121;--tx2:#607d8b;--bd:#e0e0e0;--dk:#0d1117}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--tx);line-height:1.6}
+
+header{background:linear-gradient(135deg,var(--dk) 0%,var(--p) 100%);color:#fff;padding:1rem 1.5rem;position:sticky;top:0;z-index:99;box-shadow:0 2px 12px rgba(0,0,0,.25)}
+header h1{font-size:1.05rem;font-weight:700;text-align:center}
+.hsub{text-align:center;font-size:.62rem;opacity:.5;letter-spacing:1.5px;text-transform:uppercase;margin-top:.1rem}
+.hrow{display:flex;justify-content:center;gap:1.75rem;margin-top:.4rem;font-size:.82rem;opacity:.88}
+.pbar{background:rgba(255,255,255,.13);border-radius:8px;height:4px;margin:.5rem auto 0;max-width:520px}
+.pfill{background:var(--ac);height:100%;border-radius:8px;transition:width .35s}
+
+.wrap{max-width:680px;margin:0 auto;padding:1.25rem}
+
+/* Welcome */
+.wl{text-align:center;padding:2.5rem 1.75rem;background:var(--card);border-radius:14px;margin-top:1.5rem;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+.wl h2{color:var(--p);font-size:1.5rem;margin-bottom:.25rem}
+.wl .sub{color:var(--tx2);margin-bottom:1.25rem;font-size:.88rem}
+.wl .exam-info{text-align:left;background:#f8f9fa;border-radius:10px;padding:1.1rem 1.25rem;margin:1.25rem 0;font-size:.88rem;line-height:1.7}
+.wl .exam-info strong{color:var(--p)}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:.6rem;margin:1rem 0}
+.sg .s{background:var(--bg);padding:.7rem;border-radius:8px;text-align:center}
+.sg .s .n{font-size:1.5rem;font-weight:700;color:var(--p)}
+.sg .s .l{font-size:.6rem;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px}
+
+/* Question */
+.qc{background:var(--card);border-radius:14px;padding:1.75rem;margin-top:1.25rem;box-shadow:0 3px 14px rgba(0,0,0,.05);position:relative}
+.qc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--p),var(--pl));border-radius:14px 14px 0 0}
+.qm{display:flex;justify-content:space-between;align-items:center;margin-bottom:.85rem;padding-bottom:.55rem;border-bottom:1px solid var(--bd)}
+.qtag{background:#e8eaf6;color:var(--p);padding:.15rem .55rem;border-radius:12px;font-size:.62rem;font-weight:600}
+.qn{color:var(--tx2);font-size:.78rem;font-weight:600}
+.qt{font-weight:600;font-size:1.05rem;margin-bottom:1.15rem;line-height:1.55}
+
+.opts{display:flex;flex-direction:column;gap:.45rem}
+.op{display:flex;align-items:flex-start;padding:.75rem 1rem;border:2px solid var(--bd);border-radius:10px;cursor:pointer;transition:all .2s;font-size:.9rem;line-height:1.5}
+.op:hover:not(.dis){border-color:var(--pl);background:#e8eaf6;transform:translateX(2px)}
+.ol{width:28px;height:28px;border:2px solid #b0bec5;border-radius:50%;margin-right:.75rem;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:#90a4ae;transition:all .2s;margin-top:1px}
+.ot{flex:1}
+.oi{font-size:1.1rem;margin-left:.5rem;opacity:0;transition:opacity .25s;flex-shrink:0;margin-top:2px}
+.op.ok{border-color:var(--ok)!important;background:#e8f5e9!important;transform:none}.op.ok .ol{border-color:var(--ok);background:var(--ok);color:#fff}.op.ok .oi{opacity:1}
+.op.no{border-color:var(--no)!important;background:#ffebee!important;transform:none}.op.no .ol{border-color:var(--no);background:var(--no);color:#fff}.op.no .oi{opacity:1}
+.op.dis{pointer-events:none}.op.dis:not(.ok):not(.no){opacity:.4}
+
+.ex{margin-top:.85rem;padding:.85rem 1rem;border-radius:10px;font-size:.85rem;line-height:1.6;animation:su .3s ease}
+.ex.oe{background:#e8f5e9;border-left:4px solid var(--ok);color:#1b5e20}
+.ex.ne{background:#fff8e1;border-left:4px solid var(--ac);color:#bf360c}
+.ex b{display:block;margin-bottom:.15rem;font-size:.88rem}
+@keyframes su{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Flag */
+.flag-bar{display:flex;align-items:center;gap:.5rem;margin-top:.75rem;padding-top:.6rem;border-top:1px solid var(--bd)}
+.flag-btn{background:none;border:1.5px solid var(--bd);border-radius:6px;padding:.3rem .65rem;font-size:.72rem;cursor:pointer;color:var(--tx2);transition:all .15s;display:flex;align-items:center;gap:.25rem}
+.flag-btn:hover{border-color:var(--ac);color:var(--ac)}
+.flag-btn.flagged{border-color:var(--ac);color:var(--ac);background:#fff3e0}
+
+.nv{display:flex;justify-content:space-between;align-items:center;margin-top:1rem;gap:.5rem}
+.dots{display:flex;gap:3px;flex-wrap:wrap;justify-content:center;flex:1}
+.d{width:9px;height:9px;border-radius:50%;border:2px solid var(--bd);cursor:pointer;transition:all .15s}
+.d:hover{border-color:var(--p);transform:scale(1.3)}
+.d.cur{border-color:var(--p);background:var(--p);transform:scale(1.3)}
+.d.aok{border-color:var(--ok);background:var(--ok)}.d.ano{border-color:var(--no);background:var(--no)}
+.d.fl{box-shadow:0 0 0 2px var(--ac)}
+
+.btn{padding:.55rem 1.25rem;border:none;border-radius:7px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap}
+.bp{background:var(--p);color:#fff}.bp:hover{background:var(--pl);transform:translateY(-1px);box-shadow:0 3px 10px rgba(26,35,126,.25)}
+.ba{background:var(--ac);color:#fff}.ba:hover{background:#bf360c}
+.bo{background:0;border:2px solid var(--p);color:var(--p)}.bo:hover{background:var(--p);color:#fff}
+.bg{background:0;color:var(--tx2);border:2px solid var(--bd)}.bg:hover{border-color:var(--p);color:var(--p)}
+.btn:disabled{opacity:.3;cursor:not-allowed;transform:none!important}
+
+/* Results */
+.res{background:var(--card);border-radius:14px;padding:2.25rem;margin-top:1.5rem;text-align:center;box-shadow:0 4px 18px rgba(0,0,0,.07)}
+.sc{width:140px;height:140px;border-radius:50%;margin:1rem auto;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff}
+.sc .pn{font-size:2.2rem;font-weight:800;line-height:1}.sc .ps{font-size:.85rem}.sc .lb{font-size:.62rem;opacity:.85;margin-top:.15rem}
+.ge{background:linear-gradient(135deg,#1b5e20,#43a047)}.gg{background:linear-gradient(135deg,#1565c0,#1e88e5)}.ga{background:linear-gradient(135deg,#e65100,#fb8c00)}.gp{background:linear-gradient(135deg,#c62828,#e53935)}
+
+.timer{font-weight:600;font-variant-numeric:tabular-nums}.timer.tw{color:#ffab00}.timer.td{color:#ff1744;animation:pu 1s infinite}
+@keyframes pu{0%,100%{opacity:1}50%{opacity:.5}}
+@media(max-width:600px){header h1{font-size:.9rem}.wrap{padding:.75rem}.qc{padding:1.15rem}.qt{font-size:.95rem}.op{padding:.6rem .8rem;font-size:.85rem}.wl{padding:1.5rem 1rem}.res{padding:1.5rem}.nv{flex-direction:column}}
+.fi{animation:fi .3s ease}@keyframes fi{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<header>
+<h1>ITIL 4 Foundation -- Certification Mock Exam</h1>
+<div class="hsub">Simulates the official PeopleCert ITIL 4 Foundation exam format</div>
+<div class="hrow"><span id="hs">--</span><span id="hp">--</span><span class="timer" id="ht">--:--</span></div>
+<div class="pbar"><div class="pfill" id="pb"></div></div>
+</header>
+<div class="wrap" id="app"></div>
+<script>
+const Q=[
+// ===== SCENARIO: INCIDENT & PROBLEM =====
+{sec:"Incident & Problem",q:"A payment gateway crashes at 11 PM. The on-call engineer restarts the service and it recovers. The same crash happens again 3 days later. What should happen AFTER the second restart?",o:["Close the incident -- service is restored","Create a Problem record to investigate root cause","Submit a Change Request to rebuild the gateway","Escalate directly to the vendor"],a:1,ex:"Incident Management restored service (restart). But recurrence signals an underlying cause. Problem Management must now investigate via Problem Identification > Problem Control > Error Control to prevent future occurrences."},
+{sec:"Incident & Problem",q:"During a P1 database outage, the DBA finds that a recent OS patch caused the crash. They need to roll back the patch immediately. What type of change is this?",o:["Standard Change","Normal Change","Emergency Change","No change is needed"],a:2,ex:"A production outage requiring immediate reversal of a change is a textbook Emergency Change. It gets fast-track verbal approval, immediate implementation, and mandatory post-implementation CAB review afterward."},
+{sec:"Incident & Problem",q:"An e-commerce site has 12 incidents this month about slow checkout. All are resolved individually by restarting the cart microservice. The Problem Manager creates a Known Error. What must the Known Error record contain?",o:["Only the incident numbers","Root cause and a documented workaround","The developer who wrote the code","A completed fix"],a:1,ex:"A Known Error requires: documented root cause (what's causing it) AND a workaround (restart cart service). A permanent fix is desirable but not required -- that's what separates a Known Error from a resolved Problem."},
+{sec:"Incident & Problem",q:"Five different users report they cannot access the CRM system. Investigation shows the load balancer dropped CRM from its pool after a failed health check. How many incidents should be logged?",o:["One incident -- same root cause","Five incidents -- one per user report","No incidents -- this is a Problem","One incident plus one Problem"],a:0,ex:"Same cause, same service, same timeframe = one incident. Individual user reports are linked to this single incident record. If it recurs, THEN Problem Management is invoked. Logging five separate P1s creates confusion."},
+{sec:"Incident & Problem",q:"A NOC analyst receives an alert: 'Server CPU at 95%'. Users haven't reported any issues yet. What should the analyst do FIRST?",o:["Wait until users complain to log an incident","Log an incident immediately and begin investigation","Ignore it -- monitoring alerts are informational only","Create a Problem record for high CPU"],a:1,ex:"A threshold breach is an exception event per Monitoring & Event Management. Even without user complaints, the analyst should log an incident proactively. Detecting before users notice is the goal of mature incident management."},
+
+// ===== SCENARIO: CHANGE & RELEASE =====
+{sec:"Change & Release",q:"A developer deploys code to production on Friday evening without a Change Request. The deployment causes a 2-hour outage on Saturday morning. What is the FIRST process failure?",o:["Incident Management failed to detect it","Change Enablement was bypassed entirely","Problem Management should have prevented this","The Service Desk failed to communicate"],a:1,ex:"The root process failure is bypassing Change Enablement. No risk assessment, no approval, no rollback plan. The outage is a consequence. Post-incident review should address why the developer could bypass the change process."},
+{sec:"Change & Release",q:"A team wants to add a new user to Active Directory. This is done 20 times per week using the same documented steps. What change type should this be?",o:["Normal Change with CAB approval","Emergency Change","Standard Change from a pre-approved template","It does not need a change record"],a:2,ex:"Routine, low-risk, well-documented, frequently repeated = Standard Change. Pre-approved via template, no CAB needed. Forcing this through Normal Change would waste CAB time and slow delivery with no risk reduction."},
+{sec:"Change & Release",q:"During a CAB meeting, a change to upgrade the email server is reviewed. The risk assessment shows high impact but the team has no rollback plan. What should the CAB do?",o:["Approve it -- high-impact changes are expected","Reject it and request a rollback plan before resubmission","Defer it indefinitely","Convert it to an Emergency Change"],a:1,ex:"A change without a rollback plan is not ready for approval regardless of urgency. The CAB should reject (or return for rework) and require a documented rollback plan. This is core Change Enablement governance."},
+{sec:"Change & Release",q:"Release 4.2 bundles three approved changes: a bug fix, a new feature, and a security patch. Deployment uses canary strategy at 5% traffic. After 30 minutes, error rates spike. What should happen?",o:["Continue the rollout -- 5% is acceptable risk","Roll back the entire release immediately","Investigate which of the three changes caused the spike","Escalate to the CTO before taking action"],a:1,ex:"In a canary deployment with spiking errors, the safe action is immediate rollback. Investigation into which specific change caused the issue happens AFTER service is restored. Speed of rollback is why canary deployments exist."},
+{sec:"Change & Release",q:"A bank has a mandatory change freeze from Dec 15 to Jan 5. On Dec 20, a critical security vulnerability (CVE score 9.8) is disclosed affecting their customer portal. What should they do?",o:["Wait until Jan 6 to patch -- freeze is absolute","Invoke the Emergency Change process to patch during the freeze","Ignore it -- firewalls will protect the portal","Close the portal until January"],a:1,ex:"Change freezes must have an exception process. A CVE 9.8 vulnerability is more risky unpatched than the risk of a controlled emergency patch. The Emergency Change process exists precisely for situations where the risk of NOT changing exceeds the risk of changing."},
+
+// ===== SCENARIO: SLA & SERVICE LEVEL =====
+{sec:"SLA & Service Level",q:"A cloud service reports 99.95% uptime -- exceeding the 99.9% SLA. But customer satisfaction dropped 30% this quarter. Response times during peak hours are 8 seconds (target: under 2 seconds). What explains this?",o:["The customers are being unreasonable","The SLA only measures availability, not performance","The monitoring tools are misconfigured","99.95% uptime means everything is fine"],a:1,ex:"This is the Watermelon Effect: green on the outside (SLA met), red inside (users frustrated). The SLA measures warranty (availability) but not utility (usable performance). SLIs must include response time, error rates, and user experience -- not just uptime."},
+{sec:"SLA & Service Level",q:"An SLA states 'P1 incidents resolved within 4 hours'. A P1 incident is logged at 4 PM Friday. The SLA schedule is 'Business Hours: Mon-Fri 9-6'. When does the SLA breach?",o:["8 PM Friday (4 hours from logging)","12 PM Monday (4 business hours later)","4 PM Monday","It depends on the time zone"],a:1,ex:"Business hours SLA: Friday 4-6 PM = 2 hours counted. Saturday/Sunday = 0 (not business hours). Monday 9 AM-11 AM = 2 more hours. Total: 4 business hours. SLA breaches at Monday 12 PM (noon), not Friday 8 PM."},
+{sec:"SLA & Service Level",q:"A service has three underpinning agreements: an OLA with the network team (1-hour response), an OLA with the DBA team (2-hour response), and a UC with the cloud provider (30-minute response). The customer SLA promises 4-hour resolution. Is this achievable?",o:["Yes -- individual response times add up to 3.5 hours","No -- OLAs and UCs measure response, not resolution","It depends on the service catalog","Only if all three teams work in parallel"],a:1,ex:"OLAs and UCs measure response time (acknowledgment), not resolution time. A 1-hour response doesn't mean a 1-hour fix. SLAs must account for actual resolution effort, not just the sum of response times from underpinning agreements."},
+{sec:"SLA & Service Level",q:"A managed service provider reports all SLA dashboards as 'green' for 6 months. But when a major audit occurs, they discover the SLA definition counted planned downtime as 'available'. What practice failed?",o:["Incident Management","Service Level Management","Change Enablement","Continual Improvement"],a:1,ex:"Service Level Management failed: SLIs were poorly defined, allowing planned downtime to be counted as uptime. SLM must ensure metrics reflect real customer experience. This is also a governance failure -- nobody questioned the green dashboards."},
+
+// ===== SCENARIO: CMDB & CONFIGURATION =====
+{sec:"CMDB & Config",q:"A network engineer makes a firewall rule change. That night, an application in a different data center stops working. Nobody connects the two events for 6 hours. What CMDB capability was missing?",o:["Incident auto-creation","CI relationship mapping showing the dependency","Automated backup of firewall configs","A knowledge base article about the firewall"],a:1,ex:"If the CMDB showed the application depends on the firewall (CI relationship), the incident team would immediately check recent changes to dependent CIs. Without dependency mapping, there's no way to connect a firewall change to an app failure quickly."},
+{sec:"CMDB & Config",q:"An organization's CMDB has 50,000 CIs but hasn't been updated in 18 months. A major incident requires impact analysis but the dependency data is stale. Which practice should have prevented this?",o:["Incident Management","Problem Management","Service Configuration Management","Change Enablement"],a:2,ex:"Service Configuration Management is responsible for keeping CI information accurate and current. A stale CMDB is a failure of this practice. Automated discovery tools and change-triggered CMDB updates should keep data fresh."},
+{sec:"CMDB & Config",q:"IT Asset Management shows a server was purchased 5 years ago and is fully depreciated. Service Configuration Management shows the same server runs a critical production database. What does this tell you?",o:["The server should be decommissioned -- it's depreciated","ITAM and SCM serve different purposes and both views are valid","The CMDB record is wrong","Asset Management should override configuration data"],a:1,ex:"ITAM tracks financial lifecycle (cost, depreciation, disposal). SCM tracks technical role and dependencies. A server can be financially worthless (ITAM) but operationally critical (SCM). Both views are needed for informed decisions about replacement."},
+
+// ===== SCENARIO: GUIDING PRINCIPLES APPLIED =====
+{sec:"Principles Applied",q:"After a major outage, management demands a full ITSM overhaul: new tool, new processes, new structure -- all within 3 months. Which guiding principle is the STRONGEST counter-argument?",o:["Focus on value","Optimize and automate","Progress iteratively with feedback","Keep it simple and practical"],a:2,ex:"'Progress iteratively with feedback' directly challenges a big-bang overhaul. Small incremental changes with measurement are safer and more effective than replacing everything at once under pressure. Start with the most painful gap, fix it, measure, then move to the next."},
+{sec:"Principles Applied",q:"A team has built an excellent self-service portal, but adoption is only 5%. Users still call the service desk. The team's reaction: 'Users are lazy.' Applying ITIL 4 principles, what's more likely?",o:["The users need more training on the portal","The portal doesn't deliver value from the user's perspective","The service desk should refuse phone calls","The portal needs more features"],a:1,ex:"'Focus on value' -- value is perceived by the consumer, not the provider. If users prefer calling, the portal likely isn't meeting their actual needs (too complex, missing features they need, hard to find). Investigate user experience before blaming users."},
+{sec:"Principles Applied",q:"An operations team manually copies monitoring alerts from email into incident tickets -- 40 times per day. They want to automate this. Their current email-to-ticket process has a 15% error rate due to wrong categorization. What should they do FIRST?",o:["Buy an automation tool immediately","Fix the categorization logic, then automate","Hire more staff to reduce the error rate","Stop monitoring to reduce alert volume"],a:1,ex:"'Optimize and automate' -- fix the 15% categorization error first (optimize), then automate. Automating a process with 15% error rate means you'll auto-create wrong tickets 6 times per day, faster than before."},
+{sec:"Principles Applied",q:"During an ITSM improvement project, the project team works in isolation for 4 months and delivers a new change management process. The operations team rejects it, saying 'this doesn't reflect how we actually work.' Which principle was violated?",o:["Keep it simple and practical","Optimize and automate","Collaborate and promote visibility","Focus on value"],a:2,ex:"'Collaborate and promote visibility' -- the project team worked in a silo. The operations team (key stakeholders) wasn't involved. Collaboration from the start ensures buy-in and that the solution reflects real-world needs."},
+
+// ===== SCENARIO: SVS & VALUE CHAIN =====
+{sec:"SVS & Value Chain",q:"A user reports that the VPN is slow. The service desk logs it. The network team investigates and finds the VPN concentrator needs a firmware upgrade. They submit a change request, get approval, test in staging, and deploy. Which value chain activities were involved?",o:["Only Deliver & Support","Engage, Deliver & Support, Design & Transition, Obtain/Build","Only Engage and Plan","All six activities including Plan and Improve"],a:1,ex:"Engage (user reports issue), Deliver & Support (investigation, incident resolution), Design & Transition (test firmware in staging), Obtain/Build (acquire firmware, deploy). Plan and Improve weren't directly involved in this specific value stream."},
+{sec:"SVS & Value Chain",q:"The CIO asks: 'Should we invest in improving our incident process or building a self-service portal?' Which value chain activity addresses this decision?",o:["Engage","Deliver and support","Plan","Improve"],a:2,ex:"Plan ensures a shared understanding of the vision and direction, and makes portfolio/investment decisions. Choosing between two improvement investments is a planning activity -- it sets priorities and allocates resources."},
+{sec:"SVS & Value Chain",q:"A customer complains that the monthly SLA report doesn't reflect their actual experience. The service provider agrees to redesign the reporting. Which SVS input triggered this work?",o:["Opportunity","Demand","Value","Governance"],a:1,ex:"Demand = a need from a consumer that must be addressed. The customer's complaint about poor reporting is a demand that enters the SVS. Opportunity would be proactive (e.g., 'we could add real-time dashboards before anyone asks')."},
+
+// ===== SCENARIO: MULTI-PRACTICE =====
+{sec:"Multi-Practice",q:"A hospital deploys a new patient records system. Within a week: staff can't find features (no training), the old system is still running in parallel causing confusion, and response times are 10 seconds. Which ITIL dimensions were neglected?",o:["Only Information and Technology","Only Organizations and People","Only Value Streams and Processes","All four dimensions"],a:3,ex:"Organizations & People (no training), Information & Technology (performance issues), Value Streams & Processes (parallel systems causing confusion), Partners & Suppliers (vendor didn't meet performance specs). All four dimensions must be addressed during any service transition."},
+{sec:"Multi-Practice",q:"An organization's monitoring tool generates 2,000 alerts/day. The NOC investigates each one manually. 94% turn out to be false positives. Applying ITIL 4, what should they do?",o:["Hire more NOC staff to handle the volume","Tune alert thresholds and automate triage first","Disable monitoring to reduce noise","Escalate all alerts to L2 automatically"],a:1,ex:"'Optimize and automate': first optimize (tune thresholds to reduce the 94% noise), then automate (auto-triage remaining alerts by severity). Hiring more staff to process noise is wasteful. This improves the Monitoring & Event Management practice."},
+{sec:"Multi-Practice",q:"After a major outage, the blameless post-mortem reveals: (1) a config change had no Change Request, (2) the runbook was 18 months outdated, (3) on-call paging went to a wrong number, (4) rollback took 90 minutes with no documented procedure. How many ITIL practices failed?",o:["One -- Change Enablement","Two -- Change Enablement and Knowledge Management","Four -- Change, Knowledge, Incident, and Deployment","Only Incident Management failed"],a:2,ex:"Four practices failed: Change Enablement (no CR), Knowledge Management (stale runbook), Incident Management (wrong on-call contact), Deployment Management (no rollback docs). Blameless post-mortems focus on systemic failures, not individual blame."},
+{sec:"Multi-Practice",q:"Two teams submit changes for the same maintenance window affecting the same database server. Neither team knows about the other's change. The changes conflict and cause a 4-hour outage. What combination would have prevented this?",o:["Better Incident Management response","Change calendar plus CMDB dependency mapping","Faster Problem Management investigation","More frequent CAB meetings"],a:1,ex:"Change Enablement's change calendar would show both changes scheduled simultaneously. CMDB's CI dependency mapping would flag both target the same server. Together with 'Collaborate and promote visibility', the conflict is caught before implementation."},
+{sec:"Multi-Practice",q:"A company migrates to AWS. Post-migration: CMDB is stale (no auto-discovery configured), the change process still assumes physical servers, the ops team lacks cloud skills, and the AWS contract has unclear SLA terms. How many of the four dimensions are affected?",o:["One -- Information and Technology","Two -- Technology and Partners","Three -- all except Value Streams","All four dimensions"],a:3,ex:"Organizations & People (skills gap), Information & Technology (stale CMDB), Partners & Suppliers (unclear AWS SLAs), Value Streams & Processes (change process not updated for cloud). A cloud migration touches every dimension -- neglecting any one causes failures."},
+
+// ===== SCENARIO: GOVERNANCE & IMPROVEMENT =====
+{sec:"Governance & CSI",q:"All ITSM dashboards show green for 12 months. But a data breach occurs through a known vulnerability that had an available patch for 6 months. The CISO had flagged the risk but was overruled. What governance function failed?",o:["The Service Desk","The continual improvement register","The governing body's evaluate-direct-monitor responsibility","The Problem Management practice"],a:2,ex:"The governing body failed its three responsibilities: Evaluate (should have assessed the security risk), Direct (should have mandated patching), Monitor (dashboards showed green but reality was red -- Watermelon Effect). The CISO escalated but governance had no teeth."},
+{sec:"Governance & CSI",q:"An incident review reveals the same type of failure has occurred 4 times this quarter. Each time it was resolved as an individual incident. The continual improvement model's FIRST question to ask is:",o:["How do we get there?","Where do we want to be?","What is the vision?","Where are we now?"],a:2,ex:"The continual improvement model always starts with 'What is the vision?' -- aligning the improvement with business goals. Then assess current state (4 recurring incidents), define target state (zero recurrence), plan the fix, execute, and verify."},
+{sec:"Governance & CSI",q:"A team measures ITSM success by: incidents closed per month (1,200+), average resolution time (< 4 hours), and change success rate (96%). All targets are met. But 38% of incidents are repeats of previous incidents. What metric is missing?",o:["Total number of changes per month","Customer satisfaction score","Problem Management effectiveness (repeat incident rate)","Number of knowledge articles published"],a:2,ex:"High closure volume with 38% repeats means Incident Management is fast but Problem Management is failing. The missing metric is repeat incident rate / Problem Management effectiveness. Closing the same incident repeatedly is activity without value."},
+{sec:"Governance & CSI",q:"The CFO mandates a 25% IT budget cut. The IT team proposes cutting staff across all teams equally. Applying ITIL 4, what is a better approach?",o:["Cut the newest hires first","Use Service Financial Management to identify low-value services to retire","Outsource everything to reduce headcount","Reduce SLA targets so fewer staff are needed"],a:1,ex:"Service Financial Management reveals cost-per-service. Portfolio Management identifies low-value services for retirement. IT Asset Management finds unused licenses. Targeted cuts preserve value; across-the-board cuts destroy capability randomly."},
+];
+
+const ALL=Q;
+const T=ALL.length;
+let I=0,A={},flags={},started=false,done=false,ti=null,ts=0;
+function nA(){return Object.keys(A).length}
+function $(id){return document.getElementById(id)}
+
+function R(){if(!started)return RW();if(done)return RR();RQ()}
+
+function RW(){
+$('hs').textContent='--';$('hp').textContent='--';$('ht').textContent='60:00';$('pb').style.width='0%';
+$('app').innerHTML=`<div class="wl fi">
+<h2>ITIL 4 Foundation Mock Exam</h2>
+<p class="sub">Realistic simulation of the official PeopleCert ITIL 4 Foundation certification exam.</p>
+<div class="exam-info">
+<strong>Exam Format (mirrors real exam):</strong><br>
+&#8226; <strong>${T} multiple-choice questions</strong> (real exam: 40 questions)<br>
+&#8226; <strong>60-minute time limit</strong> (real exam: 60 minutes)<br>
+&#8226; <strong>65% pass mark</strong> (${Math.ceil(T*0.65)} of ${T} correct) (real exam: 26/40 = 65%)<br>
+&#8226; <strong>One correct answer</strong> per question<br>
+&#8226; No negative marking<br>
+&#8226; You can flag questions for review and navigate freely<br>
+&#8226; Covers: Key Concepts, Guiding Principles, Four Dimensions, SVS, Value Chain, Practices, Continual Improvement
+</div>
+<div class="sg">
+<div class="s"><div class="n">${T}</div><div class="l">Questions</div></div>
+<div class="s"><div class="n">60</div><div class="l">Minutes</div></div>
+<div class="s"><div class="n">65%</div><div class="l">Pass Mark</div></div>
+<div class="s"><div class="n">${Math.ceil(T*0.65)}</div><div class="l">To Pass</div></div>
+</div>
+<div style="display:flex;gap:.75rem;justify-content:center;margin-top:1.5rem;flex-wrap:wrap">
+<button class="btn bp" onclick="ST()" style="padding:.85rem 2.5rem;font-size:1rem">Start Exam</button>
+</div>
+<p style="margin-top:.75rem;font-size:.7rem;color:var(--tx2)">Keyboard: A/B/C/D to answer, arrows to navigate, F to flag</p>
+</div>`}
+
+function RQ(){
+const q=ALL[I],k=I,s=A[k],dn=s!==undefined,ok=s===q.a,L=['A','B','C','D'];
+$('hs').textContent=q.sec;$('hp').textContent=`Q ${I+1}/${T}`;$('pb').style.width=`${(nA()/T)*100}%`;
+const timeLeft=Math.max(0,3600-ts);const tm=Math.floor(timeLeft/60),tss=timeLeft%60;
+const te=$('ht');te.textContent=String(tm).padStart(2,'0')+':'+String(tss).padStart(2,'0');
+
+const opts=q.o.map((o,i)=>{let c='op',ic='';if(dn){c+=' dis';if(i===q.a){c+=' ok';ic='<span class="oi">&#10004;</span>'}else if(i===s&&i!==q.a){c+=' no';ic='<span class="oi">&#10008;</span>'}}return`<div class="${c}" onclick="PK(${i})"><div class="ol">${L[i]}</div><div class="ot">${o}</div>${ic}</div>`}).join('');
+
+let ex='';if(dn)ex=`<div class="ex ${ok?'oe':'ne'}"><b>${ok?'&#10004; Correct!':'&#10008; Incorrect'}</b>${!ok?'Correct answer: <b>'+L[q.a]+'. '+q.o[q.a]+'</b><br><br>':''}${q.ex}</div>`;
+
+const dots=ALL.map((_,i)=>{let c='d';if(i===I)c+=' cur';else if(A[i]!==undefined)c+=A[i]===ALL[i].a?' aok':' ano';if(flags[i])c+=' fl';return`<div class="${c}" onclick="GO(${i})" title="Q${i+1}${flags[i]?' [flagged]':''}"></div>`}).join('');
+
+const isFlagged=flags[I];
+$('app').innerHTML=`<div class="qc fi">
+<div class="qm"><span class="qtag">${q.sec}</span><span class="qn">Question ${I+1} of ${T}</span></div>
+<div class="qt">${q.q.replace(/\n/g,'<br>')}</div>
+<div class="opts">${opts}</div>
+${ex}
+<div class="flag-bar">
+<button class="flag-btn ${isFlagged?'flagged':''}" onclick="TF()">&#9873; ${isFlagged?'Flagged':'Flag for review'}</button>
+<span style="flex:1"></span>
+<span style="font-size:.7rem;color:var(--tx2)">${nA()}/${T} answered${Object.keys(flags).length>0?' &middot; '+Object.keys(flags).length+' flagged':''}</span>
+</div>
+</div>
+<div class="nv">
+<button class="btn bg" onclick="GO(${I-1})" ${I===0?'disabled':''}>&#8592; Prev</button>
+<div class="dots">${dots}</div>
+${dn&&I<T-1?`<button class="btn bp" onclick="GO(${I+1})">Next &#8594;</button>`:dn&&I===T-1?'<button class="btn ba" onclick="FN()">Submit Exam</button>':`<button class="btn bg" onclick="GO(${I+1})" ${I>=T-1?'disabled':''}>Next &#8594;</button>`}
+</div>
+${nA()===T?'<div style="text-align:center;margin-top:.6rem"><button class="btn ba" onclick="FN()" style="font-size:.8rem;padding:.45rem 1.25rem">Submit Exam ('+nA()+'/'+T+' answered)</button></div>':''}`}
+
+function RR(){
+clearInterval(ti);let tc=0;
+ALL.forEach((q,i)=>{if(A[i]===q.a)tc++});
+const pct=Math.round((tc/T)*100),pass=pct>=65;
+let gc,gt;if(pct>=90){gc='ge';gt='Distinction -- Outstanding!'}else if(pct>=75){gc='gg';gt='Pass with Merit'}else if(pct>=65){gc='gg';gt='Pass -- ITIL 4 Foundation Level'}else if(pct>=50){gc='ga';gt='Fail -- Close, Review Weak Areas'}else{gc='gp';gt='Fail -- More Study Required'}
+const m=Math.floor(ts/60),se=ts%60;
+$('hs').textContent='Exam Complete';$('hp').textContent=`${tc}/${T}`;$('ht').textContent=`${m}m ${se}s`;$('pb').style.width='100%';
+
+// Section breakdown
+const secMap={};ALL.forEach((q,i)=>{if(!secMap[q.sec])secMap[q.sec]={c:0,t:0};secMap[q.sec].t++;if(A[i]===q.a)secMap[q.sec].c++});
+function bc(r){return r>=.9?'var(--ok)':r>=.65?'#1565c0':r>=.5?'var(--ac)':'var(--no)'}
+
+$('app').innerHTML=`<div class="res fi">
+<h2>Exam Results</h2>
+<p style="color:var(--tx2);font-size:.9rem">${gt}</p>
+<div class="sc ${gc}"><div class="pn">${pct}<span class="ps">%</span></div><div class="lb">${tc} of ${T}</div></div>
+<div style="display:flex;justify-content:center;gap:1.25rem;margin:.75rem 0;flex-wrap:wrap;font-size:.88rem">
+<div><b>Time:</b> ${m}m ${se}s</div>
+<div><b>Correct:</b> ${tc}</div>
+<div><b>Incorrect:</b> ${T-tc}</div>
+<div><b>Pass Mark:</b> 65% (${Math.ceil(T*.65)}/${T})</div>
+<div><b>Result:</b> <span style="color:${pass?'var(--ok)':'var(--no)'};font-weight:700">${pass?'PASS':'FAIL'}</span></div>
+</div>
+<h3 style="text-align:left;margin:1rem 0 .4rem;color:var(--p);font-size:.95rem">Topic Breakdown</h3>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.6rem;margin:.5rem 0;text-align:left">
+${Object.entries(secMap).map(([name,d])=>{const r=d.c/d.t;return`<div style="background:var(--bg);padding:.7rem;border-radius:8px;border-left:4px solid ${bc(r)}"><div style="font-size:.7rem;color:var(--tx2)">${name}</div><div style="font-size:1.05rem;font-weight:700;color:var(--p)">${d.c}/${d.t} <span style="font-size:.75rem;color:var(--tx2)">(${Math.round(r*100)}%)</span></div><div style="height:4px;background:var(--bd);border-radius:2px;margin-top:.3rem"><div style="height:100%;border-radius:2px;width:${r*100}%;background:${bc(r)}"></div></div></div>`}).join('')}
+</div>
+<h3 style="text-align:left;margin:1rem 0 .4rem;color:var(--p);font-size:.95rem">Review</h3>
+<div style="text-align:left;font-size:.85rem">
+${Object.entries(secMap).map(([name,d])=>{const r=d.c/d.t;return r<.65?'<p style="padding:.3rem 0;border-bottom:1px solid var(--bd)"><span style="color:var(--no);font-weight:600">Below pass mark:</span> '+name+' ('+Math.round(r*100)+'%) -- revisit this topic.</p>':''}).join('')||'<p style="color:var(--ok);font-weight:600">All topics at or above pass mark!</p>'}
+</div>
+<div style="display:flex;gap:.75rem;justify-content:center;margin-top:1.25rem;flex-wrap:wrap">
+<button class="btn bo" onclick="RV()">Review Answers</button>
+<button class="btn bp" onclick="RS()">Retake Exam</button>
+</div>
+</div>`}
+
+function ST(){started=true;ts=0;ti=setInterval(()=>{ts++;const left=Math.max(0,3600-ts);const m=Math.floor(left/60),s=left%60;const e=$('ht');e.textContent=String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');if(left<=300)e.className='timer td';else if(left<=600)e.className='timer tw';else e.className='timer';if(left<=0){clearInterval(ti);FN()}},1000);R()}
+function PK(i){if(A[I]!==undefined)return;A[I]=i;R()}
+function GO(i){if(i>=0&&i<T){I=i;R();window.scrollTo({top:0,behavior:'smooth'})}}
+function TF(){if(flags[I])delete flags[I];else flags[I]=true;R()}
+function FN(){done=true;R();window.scrollTo({top:0,behavior:'smooth'})}
+function RV(){done=false;I=0;R();window.scrollTo({top:0,behavior:'smooth'})}
+function RS(){A={};flags={};I=0;started=false;done=false;ts=0;clearInterval(ti);R();window.scrollTo({top:0,behavior:'smooth'})}
+
+document.addEventListener('keydown',e=>{
+if(!started||done)return;
+if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();GO(I+1)}
+if(e.key==='ArrowLeft'){e.preventDefault();GO(I-1)}
+if('1aA'.includes(e.key))PK(0);if('2bB'.includes(e.key))PK(1);
+if('3cC'.includes(e.key))PK(2);if('4dD'.includes(e.key))PK(3);
+if(e.key==='f'||e.key==='F')TF();
+});
+R();
+</script>
+</body>
+</html>

@@ -216,9 +216,9 @@ const sections = [
       { q: "In Problem Management, what are the three phases of the practice?", options: ["Detect, Log, Resolve", "Problem identification, Problem control, Error control", "Investigate, Document, Fix", "Reactive, Proactive, Review"], answer: 1, explanation: "Problem Management has three phases: (1) Problem identification -- detecting problems, (2) Problem control -- analyzing and documenting root cause, (3) Error control -- managing known errors and resolving them." },
       { q: "What distinguishes 'Organizational Change Management' from 'Change Enablement'?", options: ["They are different names for the same practice", "Organizational Change Management is about people/culture change; Change Enablement is about IT system changes", "Change Enablement is for large changes; Organizational Change Management is for small ones", "Organizational Change Management is ITIL v3; Change Enablement is ITIL 4"], answer: 1, explanation: "Organizational Change Management = managing the PEOPLE side of change (resistance, training, adoption). Change Enablement = managing IT system/service changes (risk assessment, CAB approval)." },
       { q: "Which practice maintains the 'Service Portfolio' -- the complete set of services managed by an organization?", options: ["Service Catalog Management", "Portfolio Management", "Service Level Management", "Strategy Management"], answer: 1, explanation: "Portfolio Management maintains the full service portfolio (pipeline, catalog, retired). Service Catalog Management only maintains the customer-facing catalog of live/available services." },
-      { q: "The IT Asset Management practice differs from Service Configuration Management in that:", options: ["They manage the same things", "IT Asset Management tracks financial lifecycle (cost, depreciation); Configuration Management tracks technical relationships and attributes", "IT Asset Management is only for hardware", "Service Configuration Management is only for software"], answer: 1, explanation: "ITAM focuses on the financial lifecycle: procurement, cost, depreciation, disposal. SCM/CMDB focuses on technical attributes and relationships between CIs. A server has both an asset record (cost) and a CI record (dependencies)." },
-      { q: "In Supplier Management, what is a 'multi-vendor sourcing' strategy?", options: ["Using a single vendor for all IT services", "Using multiple vendors for different services, requiring integration and coordination", "Outsourcing IT management to another company", "Building all services in-house"], answer: 1, explanation: "Multi-vendor sourcing uses different specialized vendors for different services. It requires careful coordination, integration management, and clear contracts to avoid gaps between providers." },
-      { q: "Which practice would address the question: 'Are we investing in the right mix of services for our business strategy?'", options: ["Service Level Management", "Portfolio Management", "Continual Improvement", "Strategy Management"], answer: 3, explanation: "Strategy Management sets the direction and determines WHERE to invest. Portfolio Management then manages the actual set of services. The question is strategic, so Strategy Management leads." },
+      { q: "The IT Asset Management practice differs from Service Configuration Management in that:", options: ["They manage the same data and records", "ITAM tracks financial lifecycle; SCM tracks technical relationships", "IT Asset Management is only for hardware", "Service Configuration Management is only for software"], answer: 1, explanation: "ITAM focuses on the financial lifecycle: procurement, cost, depreciation, disposal. SCM/CMDB focuses on technical attributes and relationships between CIs. A server has both an asset record (cost) and a CI record (dependencies)." },
+      { q: "In Supplier Management, what is a 'multi-vendor sourcing' strategy?", options: ["Using a single vendor for all IT services", "Using multiple vendors, requiring integration and coordination", "Outsourcing IT management to another company", "Building all services in-house"], answer: 1, explanation: "Multi-vendor sourcing uses different specialized vendors for different services. It requires careful coordination, integration management, and clear contracts to avoid gaps between providers." },
+      { q: "Which practice addresses: 'Are we investing in the right mix of services?'", options: ["Service Level Management", "Portfolio Management", "Continual Improvement", "Strategy Management"], answer: 3, explanation: "Strategy Management sets the direction and determines WHERE to invest. Portfolio Management then manages the actual set of services. The question is strategic, so Strategy Management leads." },
       { q: "The 'Service Validation and Testing' practice ensures:", options: ["Users are trained on new services", "New or changed services meet defined requirements before deployment", "SLAs are met during service operation", "Incidents are properly categorized"], answer: 1, explanation: "Service Validation & Testing ensures new/changed services meet requirements and quality standards BEFORE going live. It prevents defective services from reaching production." },
       { q: "Information Security Management in ITIL 4 is based on which core principles?", options: ["Prevention, Detection, Correction", "Confidentiality, Integrity, Availability (CIA)", "Authentication, Authorization, Accounting (AAA)", "Plan, Do, Check, Act (PDCA)"], answer: 1, explanation: "Information Security Management is built on the CIA triad: Confidentiality (only authorized access), Integrity (data is accurate/complete), Availability (data/services accessible when needed)." }
     ]
@@ -229,15 +229,15 @@ const sections = [
     difficulty: "expert",
     questions: [
       { q: "The Continual Improvement model in ITIL 4 has how many steps?", options: ["4 (Plan-Do-Check-Act)", "5", "6", "7"], answer: 2, explanation: "The ITIL 4 Continual Improvement model has 6 steps: (1) What is the vision? (2) Where are we now? (3) Where do we want to be? (4) How do we get there? (5) Take action (6) Did we get there? Then back to step 1." },
-      { q: "What is the 'Continual Improvement Register' (CIR)?", options: ["A database of all incidents", "A prioritized backlog of improvement ideas and initiatives tracked across the organization", "A log of all changes made to production", "A list of certified ITIL professionals"], answer: 1, explanation: "The CIR is a structured backlog of improvement opportunities. Ideas from any source (incidents, assessments, feedback) are logged, prioritized, and tracked. It ensures improvements don't get lost." },
-      { q: "In ITIL 4 governance, what is the relationship between 'governing body' and 'management'?", options: ["They are the same group", "The governing body sets direction and monitors; Management plans, builds, and operates", "Management sets policies; The governing body executes them", "The governing body handles day-to-day operations"], answer: 1, explanation: "Governance: governing body DIRECTS (sets policies), MONITORS (checks compliance), and EVALUATES (assesses performance). Management: PLANS, BUILDS, OPERATES based on governance direction." },
-      { q: "A Maturity Assessment reveals an organization is at 'Level 2 - Repeatable' for Incident Management. What does this typically mean?", options: ["No defined process exists", "Basic processes exist and are repeated, but not formally documented or consistently followed", "Processes are documented, standardized, and measured", "Processes are continuously optimized using data-driven decisions"], answer: 1, explanation: "Maturity Level 2 (Repeatable) means basic processes exist and similar work is done similarly, but documentation is informal and consistency varies between teams. Level 3 = documented/standardized, Level 5 = optimized." },
-      { q: "How does 'Workforce and Talent Management' practice relate to successful ITSM implementation?", options: ["It doesn't -- ITSM is about processes, not people", "It ensures the right people with right skills, motivation, and capacity are available for ITSM roles", "It only handles recruitment", "It manages vendor staffing"], answer: 1, explanation: "ITSM success depends on people. This practice ensures: right skills (training), right capacity (enough staff), right motivation (culture, career paths), and right structure (clear roles and responsibilities)." },
-      { q: "What is 'shift-left' in the context of ITSM?", options: ["Moving to an earlier timezone for support", "Moving resolution capabilities closer to the user -- from L3 to L2 to L1 to self-service", "Shifting the change window to earlier in the week", "Left-aligning text in incident reports"], answer: 1, explanation: "Shift-left moves resolution closer to the user: L3 creates KB articles, L2 uses them, L1 can then resolve those issues, and eventually users resolve via self-service. This reduces cost and improves speed." },
-      { q: "When integrating DevOps with ITIL 4, which aspect most benefits from ITIL practices?", options: ["Writing code faster", "Governance, risk management, and compliance around deployments", "Choosing programming languages", "Setting up development environments"], answer: 1, explanation: "DevOps excels at speed. ITIL 4 adds governance, risk management, and compliance. Together: fast AND safe. Change Enablement ensures deployments are authorized. Service Level Management ensures quality." },
-      { q: "A 'Swarming' approach to incident resolution means:", options: ["Escalating all incidents to the highest level immediately", "Multiple specialists collaborate simultaneously on an incident instead of sequential L1 > L2 > L3 escalation", "Closing incidents without resolution", "Assigning all incidents to one person"], answer: 1, explanation: "Swarming replaces tiered escalation with collaborative resolution. The right experts join immediately, work together in real-time. It reduces handoffs and resolution time, especially for complex incidents." },
-      { q: "What is the purpose of 'Service Integration and Management' (SIAM) in a multi-provider environment?", options: ["To replace all external providers with internal teams", "To provide a single management layer that integrates and coordinates multiple service providers", "To choose the cheapest provider", "To manage internal team schedules"], answer: 1, explanation: "SIAM provides governance and coordination across multiple providers. It ensures services from different vendors integrate seamlessly, SLAs are met end-to-end, and there are no gaps between providers." },
-      { q: "In the context of ITIL 4 and Agile, what is a 'Minimum Viable Practice' (MVP)?", options: ["The smallest possible ITIL certification", "Implementing just enough of a practice to deliver value, then iteratively improving it", "A practice that has passed minimum quality standards", "The cheapest practice to implement"], answer: 1, explanation: "Minimum Viable Practice means starting with a lightweight implementation of a practice (e.g., basic incident logging) that delivers value NOW, then iteratively enhancing it based on feedback. This aligns with 'Progress iteratively with feedback'." }
+      { q: "What is the 'Continual Improvement Register' (CIR)?", options: ["A database of all incidents", "A prioritized backlog of improvement ideas", "A log of all production changes", "A list of certified ITIL professionals"], answer: 1, explanation: "The CIR is a structured backlog of improvement opportunities. Ideas from any source (incidents, assessments, feedback) are logged, prioritized, and tracked. It ensures improvements don't get lost." },
+      { q: "In ITIL 4 governance, what is the relationship between 'governing body' and 'management'?", options: ["They are the same group", "Governing body directs and monitors; management executes", "Management sets policies; governing body executes", "Governing body handles day-to-day operations"], answer: 1, explanation: "Governance: governing body DIRECTS (sets policies), MONITORS (checks compliance), and EVALUATES (assesses performance). Management: PLANS, BUILDS, OPERATES based on governance direction." },
+      { q: "A Maturity Assessment reveals 'Level 2 - Repeatable' for Incident Management. What does this mean?", options: ["No defined process exists at all", "Basic processes exist but are informal and inconsistent", "Processes are fully documented and measured", "Processes are continuously optimized with data"], answer: 1, explanation: "Maturity Level 2 (Repeatable) means basic processes exist and similar work is done similarly, but documentation is informal and consistency varies between teams. Level 3 = documented/standardized, Level 5 = optimized." },
+      { q: "How does 'Workforce and Talent Management' relate to ITSM success?", options: ["It doesn't -- ITSM is about processes, not people", "It ensures right skills, motivation, and capacity for ITSM", "It only handles recruitment and hiring", "It manages vendor staffing exclusively"], answer: 1, explanation: "ITSM success depends on people. This practice ensures: right skills (training), right capacity (enough staff), right motivation (culture, career paths), and right structure (clear roles and responsibilities)." },
+      { q: "What is 'shift-left' in the context of ITSM?", options: ["Moving to an earlier timezone for support", "Moving resolution closer to the user (L3 > L2 > L1 > self-service)", "Shifting the change window to earlier in the week", "Prioritizing left-column items in a kanban board"], answer: 1, explanation: "Shift-left moves resolution closer to the user: L3 creates KB articles, L2 uses them, L1 can then resolve those issues, and eventually users resolve via self-service. This reduces cost and improves speed." },
+      { q: "When integrating DevOps with ITIL 4, which aspect benefits most?", options: ["Writing code faster", "Governance, risk management, and compliance", "Choosing programming languages", "Setting up development environments"], answer: 1, explanation: "DevOps excels at speed. ITIL 4 adds governance, risk management, and compliance. Together: fast AND safe. Change Enablement ensures deployments are authorized. Service Level Management ensures quality." },
+      { q: "A 'Swarming' approach to incident resolution means:", options: ["Escalating all incidents to the highest tier", "Specialists collaborate simultaneously instead of L1>L2>L3", "Closing incidents without full resolution", "Assigning all incidents to a single person"], answer: 1, explanation: "Swarming replaces tiered escalation with collaborative resolution. The right experts join immediately, work together in real-time. It reduces handoffs and resolution time, especially for complex incidents." },
+      { q: "What is 'SIAM' in a multi-provider environment?", options: ["A method to replace all external providers", "A single management layer coordinating multiple providers", "A tool for choosing the cheapest provider", "A framework for internal team scheduling"], answer: 1, explanation: "SIAM (Service Integration and Management) provides governance and coordination across multiple providers. It ensures services from different vendors integrate seamlessly and SLAs are met end-to-end." },
+      { q: "In ITIL 4, what is a 'Minimum Viable Practice' (MVP)?", options: ["The smallest possible ITIL certification", "Just enough of a practice to deliver value, then iterate", "A practice that has passed minimum quality checks", "The cheapest practice to implement first"], answer: 1, explanation: "Minimum Viable Practice means starting with a lightweight implementation (e.g., basic incident logging) that delivers value NOW, then iteratively enhancing it. This aligns with 'Progress iteratively with feedback'." }
     ]
   },
   {
@@ -251,119 +251,119 @@ const sections = [
         options: [
           "Only Information and Technology",
           "Only Organizations and People",
-          "All four dimensions -- Organizations & People (skills gap), Information & Technology (auto-discovery), Partners & Suppliers (AWS relationship), Value Streams & Processes (change process outdated)",
+          "All four dimensions were neglected",
           "Only Partners and Suppliers"
         ],
         answer: 2,
-        explanation: "All four dimensions are affected: People lack cloud skills, technology (CMDB) isn't configured for cloud, the AWS relationship needs management, and processes (Change Enablement) weren't updated for cloud-native workflows."
+        explanation: "All four dimensions are affected: Organizations & People (skills gap), Information & Technology (CMDB auto-discovery), Partners & Suppliers (AWS relationship management), Value Streams & Processes (change process outdated for cloud). Neglecting any dimension during transformation creates cascading failures."
       },
       {
         scenario: "An e-commerce platform has a P1 incident every Friday evening during peak sales. Root cause analysis shows the database connection pool exhausts at high load. The Problem Manager documents it as a Known Error with a workaround (restart the connection pool), but the permanent fix (increase pool size) requires a change to production database configuration.",
         q: "What is the correct sequence of ITIL practices to permanently resolve this?",
         options: [
-          "Incident Management only -- just keep restarting",
-          "Problem Management (Known Error) > Change Enablement (submit change) > Service Validation & Testing (test in staging) > Deployment Management (deploy to prod) > Problem Management (close the problem)",
+          "Incident Management only -- keep applying the workaround",
+          "Problem > Change Enablement > Validation & Testing > Deployment > Problem close",
           "Change Enablement first, then Problem Management",
-          "Knowledge Management > Incident Management > Done"
+          "Knowledge Management > Incident Management > close"
         ],
         answer: 1,
-        explanation: "The Known Error exists (Problem Management). To fix permanently: submit a Change Request (Change Enablement), test the config change (Service Validation), deploy it (Deployment Management), then close the Known Error (Problem Management). Multiple practices interlock."
+        explanation: "The Known Error exists (Problem Management). To fix permanently: submit a Change Request (Change Enablement), test the config change (Service Validation & Testing), deploy it (Deployment Management), then close the Known Error (Problem Management). Multiple practices interlock in sequence."
       },
       {
         scenario: "A hospital's IT team implements ITIL but faces resistance from doctors who see ITSM processes as bureaucracy that slows down patient care. The IT team insists all changes to medical systems follow full CAB approval, even minor updates to the appointment scheduling system.",
-        q: "Which guiding principles are being violated, and what should be done?",
+        q: "Which guiding principles are being violated?",
         options: [
-          "No principles are violated -- compliance is critical in healthcare",
-          "'Focus on value' (ITSM should serve patient care) and 'Keep it simple' (minor changes shouldn't need full CAB). Solution: create Standard Change templates for low-risk medical system updates.",
-          "'Optimize and automate' -- they should automate the CAB process",
-          "'Start where you are' -- they should go back to having no process"
+          "No principles violated -- compliance is critical in healthcare",
+          "'Focus on value' and 'Keep it simple and practical'",
+          "'Optimize and automate' only",
+          "'Start where you are' only"
         ],
         answer: 1,
-        explanation: "Two principles violated: 'Focus on value' -- the process should serve patient care, not hinder it. 'Keep it simple and practical' -- full CAB for minor changes is over-engineered. Standard Change templates for low-risk updates would maintain governance while reducing friction."
+        explanation: "'Focus on value' -- ITSM should serve patient care, not hinder it. 'Keep it simple and practical' -- full CAB for minor, low-risk changes is over-engineered. Solution: create Standard Change templates for low-risk medical system updates, maintaining governance while reducing friction."
       },
       {
         scenario: "A SaaS company offers a service with 99.9% SLA to enterprise clients. Their monitoring shows actual availability is 99.95%. However, clients are complaining about 'poor performance'. Investigation reveals: response time during peak hours is 8 seconds (acceptable is under 2 seconds).",
-        q: "What ITIL concept explains why the service seems to meet SLA but still fails to deliver value?",
+        q: "What ITIL concept explains this disconnect?",
         options: [
-          "The SLA is too generous",
-          "The SLA measures availability (warranty) but not performance. The service has warranty (uptime) but lacks full utility (usable response times). SLIs should include response time, not just uptime.",
-          "The clients are wrong -- 99.95% is excellent",
-          "This is a capacity issue only, not an ITIL concern"
+          "The SLA targets are set too generously",
+          "The SLA only measures warranty, not utility",
+          "The clients have unrealistic expectations",
+          "This is outside the scope of ITIL practices"
         ],
         answer: 1,
-        explanation: "Classic utility vs warranty issue. Availability (warranty) is met, but performance (part of utility -- the service must do what users need it to do, which includes being responsive) is failing. The SLA needs to include response time as an SLI, not just uptime."
+        explanation: "Classic utility vs warranty gap. The SLA measures availability (warranty -- fitness for use) but not performance (part of utility -- fitness for purpose). The service is 'up' but unusable at 8s response times. SLIs should include response time percentiles, not just uptime."
       },
       {
         scenario: "Two teams at an organization have conflicting change requests. Team A wants to upgrade the network switch firmware (maintenance window: Sunday 2-4 AM). Team B wants to deploy a new microservice that depends on the same network switch (same window). Neither team knows about the other's change.",
-        q: "Which ITIL practices and capabilities would prevent this conflict?",
+        q: "Which combination of practices and principles would prevent this conflict?",
         options: [
-          "Only Incident Management -- deal with it when it fails",
-          "Change Enablement (change calendar with conflict detection), Service Configuration Management (CMDB showing the shared CI dependency), and Collaborate & Promote Visibility (shared change calendar for all teams)",
+          "Incident Management -- deal with failures reactively",
+          "Change Enablement, CMDB, and the Visibility principle",
           "Problem Management and Knowledge Management",
           "Portfolio Management and Strategy Management"
         ],
         answer: 1,
-        explanation: "Three capabilities needed: (1) Change calendar with conflict detection (Change Enablement), (2) CMDB showing both changes affect the same CI (Service Configuration Management), (3) Shared visibility so teams see each other's changes (Collaborate & Promote Visibility principle)."
+        explanation: "Three capabilities needed: (1) Change calendar with conflict detection (Change Enablement), (2) CMDB showing both changes affect the same CI (Service Configuration Management), (3) Shared change calendar for cross-team visibility ('Collaborate and promote visibility' principle)."
       },
       {
         scenario: "An organization implements a 'big bang' ITSM transformation: new tool (ServiceNow), new processes (all 34 practices), new roles (ITIL-aligned), all at once. Six months later, adoption is at 30%, shadow IT processes are rampant, and the investment is at risk.",
         q: "Which ITIL 4 guiding principles were violated?",
         options: [
           "Only 'Focus on value'",
-          "'Progress iteratively with feedback' (should have done phased rollout), 'Start where you are' (should have built on existing processes), and 'Keep it simple' (34 practices at once is overwhelming)",
+          "'Progress iteratively', 'Start where you are', and 'Keep it simple'",
           "Only 'Optimize and automate'",
-          "No principles were violated -- the organization just needs more time"
+          "No principles were violated -- they just need more time"
         ],
         answer: 1,
-        explanation: "Three principles violated: (1) 'Progress iteratively' -- should have been phased (start with Incident & Change, add others later). (2) 'Start where you are' -- existing processes had value. (3) 'Keep it simple' -- 34 practices at once overwhelmed the organization."
+        explanation: "Three principles violated: (1) 'Progress iteratively' -- should have been phased rollout (start with Incident & Change, add others later). (2) 'Start where you are' -- existing processes had value. (3) 'Keep it simple' -- 34 practices at once overwhelmed the organization."
       },
       {
         scenario: "A global bank operates in 15 countries. Each country has its own IT team, its own incident management process, different tools, and different SLA definitions. The CIO wants to standardize ITSM globally.",
         q: "Which ITIL 4 approach would be most effective?",
         options: [
           "Force all countries to adopt one process immediately",
-          "Apply 'Start where you are' -- assess each country's maturity, find common practices that work, standardize in phases. Use a Minimum Viable Practice approach per country, then converge over iterations.",
+          "Assess each country, then standardize in phases",
           "Let each country continue independently",
           "Outsource all ITSM to a single global provider"
         ],
         answer: 1,
-        explanation: "Multiple principles apply: 'Start where you are' (assess current state per country), 'Progress iteratively' (phased standardization), 'Collaborate and promote visibility' (share best practices across countries). Minimum Viable Practice per country, then converge."
+        explanation: "Apply 'Start where you are' (assess each country's maturity and find common practices), 'Progress iteratively' (phased standardization), and 'Collaborate and promote visibility' (share best practices across countries). Use a Minimum Viable Practice approach per country, then converge over iterations."
       },
       {
         scenario: "An organization's Problem Management team identifies that 60% of P1 incidents are caused by changes deployed on Fridays. They propose a 'no deploy Friday' policy.",
         q: "Evaluate this proposal using ITIL 4 principles:",
         options: [
-          "Good idea -- implement it immediately as a permanent policy",
-          "It addresses the symptom, not the root cause. Better approach: investigate WHY Friday deploys fail (rushed testing? skeleton crew?), fix the underlying issue (improve testing, ensure staffing). 'Keep it simple' doesn't mean avoiding the real problem.",
-          "Bad idea -- it restricts business agility",
-          "Not an ITSM concern -- this is a development team issue"
+          "Good idea -- implement it permanently",
+          "It treats the symptom; investigate the root cause instead",
+          "Bad idea -- it restricts business agility entirely",
+          "Not an ITSM concern at all"
         ],
         answer: 1,
-        explanation: "'No deploy Friday' treats the symptom. The root cause might be: inadequate testing, reduced Friday staffing, change fatigue from the week. Problem Management should investigate further. The fix might be: better automated testing, mandatory Friday monitoring staff, or deployment cooling-off periods -- not a blanket ban."
+        explanation: "'No deploy Friday' treats the symptom, not the root cause. Problem Management should investigate WHY Friday deploys fail: rushed testing? skeleton crew? change fatigue? The fix might be better automated testing, mandatory monitoring staff, or deployment cooling-off periods -- not a blanket ban."
       },
       {
         scenario: "A startup grows from 50 to 500 employees in one year. Their informal IT support (walking to the IT person's desk) no longer works. They need to implement ITSM but have zero ITIL maturity.",
         q: "What is the recommended ITIL 4 approach for this startup?",
         options: [
           "Implement all 34 ITIL practices immediately",
-          "Start with 3-4 high-value practices as MVPs: (1) Service Desk (single point of contact), (2) Incident Management (log and track issues), (3) Knowledge Management (FAQs and self-service). Iterate and add more practices as maturity grows.",
-          "Hire a full ITIL consulting firm for a 12-month transformation",
-          "Continue with informal support -- ITIL is for large enterprises only"
+          "Start with 3-4 high-value practices, iterate and grow",
+          "Hire consultants for a full 12-month transformation",
+          "ITIL is only for large enterprises -- continue informally"
         ],
         answer: 1,
-        explanation: "Applying 'Start where you are', 'Progress iteratively', and 'Keep it simple': begin with high-impact, low-complexity practices. Service Desk + Incident Management + Knowledge Management solve the immediate pain. Add Change Enablement, Problem Management, etc. as the organization matures."
+        explanation: "Apply 'Start where you are', 'Progress iteratively', and 'Keep it simple': begin with Service Desk, Incident Management, and Knowledge Management. These solve the immediate pain. Add Change Enablement, Problem Management, etc. as the organization matures."
       },
       {
         scenario: "An AI team proposes using machine learning to auto-categorize and auto-route incidents based on historical data. The ITSM team is skeptical, saying 'ITIL doesn't mention AI'.",
         q: "How does ITIL 4 address this situation?",
         options: [
-          "ITIL 4 doesn't support AI -- stick to manual processes",
-          "ITIL 4 is technology-agnostic and principle-driven. 'Optimize and automate' explicitly encourages automation. AI-driven categorization optimizes the Incident Management practice. The 'Information and Technology' dimension supports adopting the right technology.",
+          "ITIL 4 doesn't support AI -- use manual processes",
+          "ITIL 4 is technology-agnostic; 'Optimize and automate' supports this",
           "AI should only be used for Change Management",
           "AI would violate the 'Keep it simple' principle"
         ],
         answer: 1,
-        explanation: "ITIL 4 is deliberately technology-agnostic -- it provides principles, not technology mandates. 'Optimize and automate' supports AI. The 'Information and Technology' dimension explicitly covers technology decisions. AI-driven incident routing is a valid optimization of the Incident Management practice."
+        explanation: "ITIL 4 is deliberately technology-agnostic -- it provides principles, not technology mandates. 'Optimize and automate' explicitly encourages automation. The 'Information and Technology' dimension supports adopting the right technology. AI-driven incident routing is a valid optimization of Incident Management."
       }
     ]
   }
