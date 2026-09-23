@@ -27,50 +27,48 @@ groups:
       # --- P1 Critical: High Transaction Failure Rate ---
       - alert: UpiHighTransactionFailureRate
         expr: |
-          (
-            rate(upi_transactions_total{status="failed"}[2m])
-            /
-            (rate(upi_transactions_total{status="success"}[2m]) + rate(upi_transactions_total{status="failed"}[2m]))
-          ) > 0.5
+          sum(rate(upi_transactions_total{status="failed"}[2m]))
+          /
+          clamp_min(sum(rate(upi_transactions_total[2m])), 1e-10)
+          > 0.5
         for: 1m
         labels:
           severity: critical
         annotations:
           summary: "UPI transaction failure rate above 50%"
-          description: "More than 50% of UPI transactions are failing on {{ $labels.instance }}. Current failure rate: {{ $value | humanizePercentage }}. This indicates a major payment processing issue."
-          runbook: "1. Check chaos status: curl payment-service:8081/chaos/status\n2. Check downstream dependencies\n3. Review application logs for error patterns"
+          description: "More than 50% of UPI transactions are failing. Current failure rate: {{ $value | humanizePercentage }}. This indicates a major payment processing issue."
+          runbook: "1. Check chaos status: curl upi-transaction-service:8081/chaos/status\n2. Check downstream dependencies\n3. Review application logs for error patterns"
 
       # --- P2 High: Elevated Transaction Latency ---
       - alert: UpiHighTransactionLatency
         expr: |
-          histogram_quantile(0.95, rate(upi_transaction_duration_seconds_bucket[2m])) > 3
+          histogram_quantile(0.95, sum by (le) (rate(upi_transaction_duration_seconds_bucket[2m]))) > 3
         for: 1m
         labels:
           severity: warning
         annotations:
           summary: "UPI transaction P95 latency above 3 seconds"
-          description: "95th percentile transaction processing time is {{ $value | humanizeDuration }} on {{ $labels.instance }}. SLA threshold is 3 seconds."
+          description: "95th percentile transaction processing time is {{ $value | humanizeDuration }}. SLA threshold is 3 seconds."
           runbook: "1. Check for injected latency\n2. Review JVM heap usage\n3. Check database connection pool"
 
       # --- P2 High: Settlement Failures ---
       - alert: UpiSettlementFailures
         expr: |
-          rate(upi_settlements_total{status="failed"}[2m]) > 0.1
+          sum(rate(upi_settlements_total{status="failed"}[2m])) > 0.1
         for: 1m
         labels:
           severity: warning
         annotations:
           summary: "UPI settlement failures detected"
-          description: "Settlement service is experiencing failures at {{ $value }} per second. This may indicate transaction service issues or network problems."
+          description: "Settlement service is experiencing failures at {{ $value | humanize }} per second. This may indicate transaction service issues or network problems."
 
-      # --- P3 Moderate: High HTTP Error Rate (5xx) ---
+      # --- P3 Moderate: High HTTP 5xx Error Rate ---
       - alert: UpiHighHttpErrorRate
         expr: |
-          (
-            rate(http_server_requests_seconds_count{status=~"5.."}[2m])
-            /
-            rate(http_server_requests_seconds_count[2m])
-          ) > 0.3
+          sum by (application, uri) (rate(http_server_requests_seconds_count{status=~"5..",uri=~"/api/.*"}[2m]))
+          /
+          clamp_min(sum by (application, uri) (rate(http_server_requests_seconds_count{uri=~"/api/.*"}[2m])), 1e-10)
+          > 0.3
         for: 1m
         labels:
           severity: warning
@@ -81,9 +79,10 @@ groups:
       # --- P3 Moderate: JVM Heap Usage High ---
       - alert: UpiJvmHeapHigh
         expr: |
-          jvm_memory_used_bytes{area="heap"}
+          sum by (application) (jvm_memory_used_bytes{area="heap"})
           /
-          jvm_memory_max_bytes{area="heap"} > 0.85
+          clamp_min(sum by (application) (jvm_memory_committed_bytes{area="heap"}), 1)
+          > 0.85
         for: 2m
         labels:
           severity: warning

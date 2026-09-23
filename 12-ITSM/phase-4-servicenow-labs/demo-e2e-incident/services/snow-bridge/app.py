@@ -15,7 +15,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s [%(levelname)s] %(me
 logger = logging.getLogger(__name__)
 
 # --- ServiceNow Configuration ---
-SNOW_INSTANCE = os.environ.get('SNOW_INSTANCE', 'https://devXXXXXX.service-now.com')
+SNOW_INSTANCE = os.environ.get('SNOW_INSTANCE', 'https://devXXXXXX.service-now.com').rstrip('/')
 SNOW_USER = os.environ.get('SNOW_USER', 'admin')
 SNOW_PASSWORD = os.environ.get('SNOW_PASSWORD', 'password')
 SNOW_ENABLED = os.environ.get('SNOW_ENABLED', 'true').lower() == 'true'
@@ -171,7 +171,9 @@ def resolve_snow_incident(alert):
 @app.route('/webhook', methods=['POST'])
 def alertmanager_webhook():
     """Receive AlertManager webhook payload."""
+    logger.info("Received webhook from AlertManager")
     data = request.get_json(silent=True)
+    logger.debug(f"Webhook payload: {data}")
     if not data:
         return jsonify({'error': 'No JSON payload'}), 400
 
