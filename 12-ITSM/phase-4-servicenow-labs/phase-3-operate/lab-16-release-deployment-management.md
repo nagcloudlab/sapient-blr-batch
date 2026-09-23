@@ -225,7 +225,7 @@ Detailed for UPI Platform:
 ### Step 2.2: Understand the Release Record
 
 ```
-The Release record (table: rm_release) contains:
+The Release record (table: release_project) contains:
 
   ┌─────────────────────────────────────────────────────────┐
   │ Release Record Fields                                   │
@@ -1089,7 +1089,7 @@ Release Dashboard Widgets:
 |-------|-------|
 | Report name | UPI Release Management — Quarterly Summary |
 | Source type | Table |
-| Table | Release [rm_release] |
+| Table | Release [release_project] |
 | Type | Bar chart |
 | Group by | Type |
 | Filter | Release date is in the last 3 months |
@@ -1104,7 +1104,7 @@ Release Dashboard Widgets:
 |-------|-------|
 | Report name | UPI Release Timeline |
 | Type | Calendar |
-| Table | Release [rm_release] |
+| Table | Release [release_project] |
 | Date field | Release date |
 
 **Report 3: Changes per Release**
@@ -1245,7 +1245,7 @@ Create a comprehensive release report:
 | Field | Value |
 |-------|-------|
 | Report name | UPI Releases — Last Quarter |
-| Table | Release [rm_release] |
+| Table | Release [release_project] |
 | Type | List |
 | Filter | Release date is in the last 90 days |
 | Columns | Number, Short description, Type, State, Release date, Risk, Close notes |
@@ -1269,7 +1269,7 @@ Create a comprehensive release report:
 
 ```javascript
 // Create the Release Record for UPI Platform v3.2.0
-var rel = new GlideRecord('rm_release');
+var rel = new GlideRecord('release_project');
 rel.initialize();
 rel.short_description = 'UPI Platform v3.2.0 — September Release';
 rel.description = 'Major release including circuit breaker implementation, settlement batch optimization, merchant onboarding API, and PostgreSQL upgrade.';
@@ -1422,7 +1422,7 @@ var phases = [
 ];
 
 phases.forEach(function(phase) {
-    var ph = new GlideRecord('rm_release_phase');
+    var ph = new GlideRecord('release_phase');
     ph.initialize();
     ph.release = relSysId;
     ph.short_description = phase.short_description;
@@ -1454,7 +1454,7 @@ var tasks = [
 ];
 
 tasks.forEach(function(task) {
-    var t = new GlideRecord('rm_task');
+    var t = new GlideRecord('release_task');
     t.initialize();
     t.parent = phaseSysId;
     t.short_description = task.desc;
@@ -1479,20 +1479,20 @@ Release Management Tables in ServiceNow:
   ┌──────────────────────┬──────────────────────────────────────────┐
   │ Table                │ Purpose                                  │
   ├──────────────────────┼──────────────────────────────────────────┤
-  │ rm_release           │ Release records                          │
-  │ rm_release_phase     │ Phases within a release                  │
-  │ rm_task              │ Tasks within a release/phase             │
+  │ release_project           │ Release records                          │
+  │ release_phase     │ Phases within a release                  │
+  │ release_task              │ Tasks within a release/phase             │
   │ change_request       │ Change requests linked to releases       │
   │ cmdb_ci              │ Configuration items affected             │
-  │ rm_release_scrum     │ Agile/Scrum release tracking             │
+  │ release_feature     │ Features within a release                │
   │ change_blackout      │ Blackout/freeze periods                  │
   └──────────────────────┴──────────────────────────────────────────┘
 
   Key Relationships:
-    rm_release → rm_release_phase (one-to-many)
-    rm_release → change_request   (one-to-many via release field)
-    rm_release → cmdb_ci          (many-to-many via affected CIs)
-    rm_release_phase → rm_task    (one-to-many)
+    release_project → release_phase (one-to-many)
+    release_project → change_request   (one-to-many via release field)
+    release_project → cmdb_ci          (many-to-many via affected CIs)
+    release_phase → release_task    (one-to-many)
 ```
 
 ---

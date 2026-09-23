@@ -252,7 +252,7 @@ The Continual Improvement Management module may need to be activated on your PDI
 ```
 Step 1: Navigate to System Definition > Plugins
 Step 2: Search for "Continual Improvement Management"
-Step 3: Plugin ID: com.snc.continual_improvement_management
+Step 3: Plugin ID: com.sn_cim
 Step 4: Click Activate/Upgrade if not already active
 Step 5: Wait for activation to complete (2-3 minutes)
 ```
@@ -1820,7 +1820,7 @@ Use this checklist to confirm you have completed all parts of Lab 18.
 
 ```
 PART 2: CIM MODULE
-[ ] CIM plugin activated (com.snc.continual_improvement_management)
+[ ] CIM plugin activated (com.sn_cim)
 [ ] Navigated to Continual Improvement > All
 [ ] Understand CIM record structure and fields
 
