@@ -1,6 +1,6 @@
 # Lab 08: Problem Management
 
-**Level:** Intermediate | **Duration:** 75 minutes | **Prerequisites:** Lab 07/07A completed (incidents exist) | **PDI Version:** Zurich
+**Level:** Intermediate | **Duration:** 75 minutes | **Prerequisites:** Lab 07A completed (demo stack running, `[AUTO]` incidents exist) | **PDI Version:** Zurich
 
 ---
 
@@ -8,152 +8,166 @@
 
 By the end of this lab, you will:
 - Understand the difference between incidents and problems
-- Create problems from recurring incidents
-- Perform root cause analysis (RCA)
+- Create a problem from recurring UPI payment incidents
+- Perform root cause analysis (RCA) using real monitoring data
 - Document known errors and workarounds
 - Link problems to incidents and change requests
-- Use the problem lifecycle (New → Investigation → Root Cause Identified → Known Error → Closed)
+- Manage the full problem lifecycle
 
 ---
 
-## Key Concept: Incident vs Problem
+## Scenario: UPI Payment Outage Investigation
 
 ```
-Incident:  "The service is down — fix it NOW"          (reactive, restore service)
-Problem:   "WHY does the service keep going down?"      (proactive, find root cause)
+  Day 1: Your UPI Transaction Service experiences a sudden spike in failures.
+         Prometheus detects it, AlertManager fires alerts, and ServiceNow
+         auto-creates 4 incidents via the snow-bridge.
 
-Incident = Symptom
-Problem  = Disease
+  Day 2: The service desk resolves the immediate issue (workaround applied).
+         But the question remains — WHY did it happen? Can it happen again?
 
-One Problem can cause many Incidents.
-```
-
-```
-                 Problem: UPI Transaction Service instability
-                    |
-        +-----------+-----------+-----------+
-        |           |           |           |
-   INC0010005  INC0010006  INC0010007  INC0010008
-   (Failure    (Settlement (HTTP 5xx   (Service
-    rate 50%)   failures)   errors)     down)
+  Day 3: The Platform Engineering team opens a PROBLEM to investigate.
+         This lab follows their investigation from start to finish.
 ```
 
 ---
 
-## Part 1: View Existing Incidents
+## Part 1: Incident vs Problem — The Core Difference
 
-### Step 1.1: Identify Recurring Incidents
+```
+Incident:  "The UPI service is failing — restore it NOW!"      (reactive)
+Problem:   "WHY do UPI payments keep failing?"                  (proactive)
 
-1. Navigate to **Incident > All**
-2. Filter: Short description **contains** `AUTO`
-3. You should see the incidents auto-created by the monitoring stack in Lab 07A:
-   - `[AUTO] UPI transaction failure rate above 50%`
-   - `[AUTO] UPI settlement failures detected`
-   - `[AUTO] High HTTP 5xx error rate on upi-transaction-service`
-   - `[AUTO] UPI Transaction Service is DOWN`
-4. Note: These are all symptoms of the **same underlying problem**
+  Incident = Symptom       →  Goal: Restore service ASAP
+  Problem  = Root Cause    →  Goal: Prevent it from happening again
+```
 
-### Step 1.2: Analyze the Pattern
+### How They Connect
 
-Look at the incidents and identify commonalities:
+```
+  Problem: PRB0040001 — UPI Transaction Service instability
+     |
+     |  "One root cause caused all these incidents"
+     |
+     +--- INC: [AUTO] UPI transaction failure rate above 50%
+     +--- INC: [AUTO] UPI settlement failures detected
+     +--- INC: [AUTO] High HTTP 5xx error rate on upi-transaction-service
+     +--- INC: [AUTO] UPI Transaction Service is DOWN
+     |
+     |  "The permanent fix goes through Change Management"
+     |
+     +--- CHG: Secure chaos endpoints + add circuit breaker
+```
+
+---
+
+## Part 2: Review Your Existing Incidents
+
+### Step 2.1: Find the Auto-Created Incidents
+
+1. Navigate to **Incident > All** (or type `incident.list`)
+2. Click the **funnel icon** to open the filter
+3. Set: **Short description** | **contains** | `AUTO`
+4. Click **Run**
+5. You should see incidents auto-created by the monitoring stack in Lab 07A:
+
+| Incident | Short Description | Priority |
+|---|---|---|
+| INC0010001 | [AUTO] UPI transaction failure rate above 50% | P1 Critical |
+| INC0010002 | [AUTO] UPI settlement failures detected | P3 Moderate |
+| INC0010003 | [AUTO] High HTTP 5xx error rate on upi-transaction-service | P3 Moderate |
+| INC0010004 | [AUTO] UPI Transaction Service is DOWN | P1 Critical |
+
+> **Note:** Your incident numbers may differ. Any `[AUTO]` prefixed incidents from Lab 07A will work.
+
+### Step 2.2: Spot the Pattern
+
+All 4 incidents share:
 
 | Field | Common Pattern |
 |---|---|
+| Short description | All related to UPI Transaction Service |
 | Category | Software |
 | Assignment group | Platform Engineering |
-| Configuration item | UPI Transaction Service |
-| Time window | All occurred within minutes of each other |
-| Root cause | Same — service instability |
+| Time window | All fired within minutes of each other |
+| Source | All auto-created by Prometheus AlertManager |
 
-**Key insight:** When you see multiple incidents with the same root cause, it's time to create a **Problem**.
+**Key Insight:** Multiple incidents with the same root cause = time to create a **Problem**.
 
 ---
 
-## Part 2: Create a Problem
+## Part 3: Create the Problem
 
-### Step 2.1: Navigate to Problem Management
+### Step 3.1: Open the Problem Form
 
-1. Navigate to **Problem > Create New** (or type `problem.do` in Filter Navigator)
-2. You'll see the Problem form — similar to Incident but with different fields
+Navigate to **Problem > Create New** (or type `problem.do` in Filter Navigator)
 
-### Step 2.2: Create a Problem Record
-
-Fill in the Problem form:
+### Step 3.2: Fill in the Problem
 
 | Field | Value |
 |---|---|
 | Short description | UPI Transaction Service recurring failures causing payment disruptions |
-| Description | Multiple incidents reported within a short time window indicating UPI Transaction Service instability. Incidents include high failure rates (>50%), settlement failures, HTTP 5xx errors, and complete service outages. All incidents trace back to the UPI Transaction Service. Impact: Payment processing for all UPI users. |
+| Description | (see below) |
 | Category | Software |
 | Impact | 1 - High |
 | Urgency | 1 - High |
 | Assignment group | Platform Engineering |
-| Assigned to | Ravi Kumar |
+| Assigned to | Ravi Kumar (or any available user) |
 
-Click **Submit** and note the Problem number (e.g., PRB0040001)
+**Description** (paste this):
+```
+Multiple incidents reported within a short time window indicating UPI Transaction
+Service instability:
+- Transaction failure rate exceeded 50% (INC auto-created by monitoring)
+- Settlement service failures (downstream impact)
+- HTTP 5xx errors on /api/upi/pay endpoint
+- Complete service outage detected
 
-### Step 2.3: Understand Problem Fields
+Impact: All UPI payment processing affected — estimated 500+ transactions/minute.
+Detected by: Prometheus + AlertManager monitoring stack.
+Affected Services: UPI Transaction Service, UPI Settlement Service.
+```
 
-Open the Problem you just created and note these key fields:
-
-| Field | Purpose |
-|---|---|
-| **State** | Lifecycle state (New, Open, etc.) |
-| **Known error** | Checkbox — is this a documented known error? |
-| **Root cause** | Text field for the identified root cause |
-| **Fix** | Text field for the permanent fix |
-| **Workaround** | Text field for temporary workaround |
-| **Related Links** | "Create Known Error article" and other actions |
+Click **Submit** and note the Problem number (e.g., **PRB0040001**)
 
 ---
 
-## Part 3: Link Incidents to the Problem
+## Part 4: Link Incidents to the Problem
 
-There are three ways to link incidents to a problem. Use whichever works on your PDI.
+There are multiple ways to link incidents. Choose the one that works on your PDI.
 
-### Method A: From the Incident Form (Recommended)
+### Method A: From the Incident Form (Recommended for Zurich)
 
-**Step 1 — Add the Problem field to the Incident form (one-time setup):**
+**One-time setup — add the Problem field to the Incident form:**
 
-1. Navigate to **Incident > All** and open any `[AUTO]` incident
-2. Right-click the grey header bar (where it says "Incident - INC00XXXXX")
-3. Select **Configure > Form Layout**
-4. In the **Available** list, find `Problem` (or `problem_id`)
-5. Move it to the **Selected** list (place it near the Category/Assignment group area)
-6. Click **Save**
-7. You should now see a **Problem** reference field on the incident form
+1. Open any `[AUTO]` incident
+2. Right-click the grey header bar → **Configure > Form Layout**
+3. In the **Available** list, find **Problem** (scroll to the P section)
+4. Select it and click **>** to move it to the **Selected** list
+5. Click **Save**
 
-**Step 2 — Link each incident:**
+**Now link each incident:**
 
-For each `[AUTO]` incident:
+1. Open an `[AUTO]` incident
+2. In the **Problem** field, click the magnifying glass
+3. Search for your Problem number (PRB0040001)
+4. Select it → click **Update**
+5. Repeat for all `[AUTO]` incidents
 
-1. Open the incident
-2. Find the **Problem** field (you just added it)
-3. Click the magnifying glass and search for your Problem number (e.g., PRB0040001)
-4. Select it
-5. Click **Update**
-
-Repeat for all 4 `[AUTO]` UPI incidents.
-
-### Method B: From the Problem Form (Related Incidents List)
-
-On some PDI versions (Zurich and earlier), the Problem form supports a Related Incidents related list:
+### Method B: From the Problem Form (Related Lists)
 
 1. Open the Problem record (PRB0040001)
-2. Right-click the header bar → **Configure > Related Lists**
+2. Right-click the header → **Configure > Related Lists**
 3. Find **Incident > Problem** in the Available list
-4. Move it to the Selected list → click **Save**
-5. The **Related Incidents** related list now appears on the Problem form
-6. Click **Edit** in the Related Incidents list
-7. Search for the `[AUTO]` incidents and add them
-8. Click **Save**
+4. Move it to Selected → click **Save**
+5. A **Related Incidents** list now appears at the bottom of the Problem form
+6. Click **Edit** → search for `[AUTO]` incidents → add them → **Save**
 
-### Method C: Use a Script (Fastest)
+### Method C: Script (Fastest)
 
-Run this in **System Definition > Scripts - Background**:
+Run in **System Definition > Scripts - Background**:
 
 ```javascript
-// Link all [AUTO] incidents to a problem
 var prob = new GlideRecord('problem');
 prob.addQuery('short_description', 'CONTAINS', 'UPI Transaction Service recurring');
 prob.query();
@@ -162,139 +176,162 @@ if (prob.next()) {
   inc.addQuery('short_description', 'CONTAINS', '[AUTO]');
   inc.query();
   while (inc.next()) {
-    inc.problem_id = prob.sys_id;
-    inc.update();
-    gs.info('Linked ' + inc.number + ' to ' + prob.number);
+    if (inc.problem_id.nil()) {
+      inc.problem_id = prob.sys_id;
+      inc.update();
+      gs.info('Linked ' + inc.number + ' to ' + prob.number);
+    }
   }
 }
 ```
 
 ### Verify the Links
 
-1. Open any `[AUTO]` incident — the **Problem** field should show PRB0040001
-2. To see all incidents linked to the problem from the list view:
-   - Type `incident.list` in Filter Navigator
-   - Filter: **Problem** | **is** | PRB0040001
-   - You should see all 4 linked incidents
-3. Or type this directly in Filter Navigator:
-   ```
-   incident.list?sysparm_query=problem_id.number=PRB0040001
-   ```
+Type this in Filter Navigator to see all incidents linked to your problem:
+```
+incident.list?sysparm_query=problem_id.number=PRB0040001
+```
 
 ---
 
-## Part 4: Problem Investigation
+## Part 5: Root Cause Analysis (RCA)
 
-### Step 4.1: Change State to Investigation
+### Step 5.1: Begin Investigation
 
 1. Open the Problem record
-2. Change **State** to: **Open** (or **Assess** depending on your PDI)
-3. Add a work note: "Beginning investigation into recurring UPI Transaction Service failures. Reviewing monitoring data, application logs, and infrastructure metrics."
+2. Click **Assess** (or change **State** to **Open**)
+3. Add a **Work note**:
+   ```
+   Starting RCA for UPI Transaction Service failures.
+
+   Investigation plan:
+   1. Review Prometheus metrics and Grafana dashboards at time of incident
+   2. Analyze application logs from upi-transaction-service container
+   3. Check for recent deployments or configuration changes
+   4. Review service architecture for single points of failure
+   ```
 4. Click **Update**
 
-### Step 4.2: Document the Investigation
+### Step 5.2: Document Findings (Add Work Notes)
 
-Add work notes at each stage of the investigation:
+**Work note 2 — Metrics analysis:**
+```
+Reviewed Prometheus and Grafana data:
+- upi_transactions_total{status="failed"} spiked from 0% to 80% at [timestamp]
+- Rate of change was instantaneous — not a gradual degradation
+- upi_settlement_duration_seconds showed cascading failures within 30 seconds
+- P95 transaction latency remained normal — only error rate changed
+- JVM heap usage was within normal limits (45% of committed heap)
+- No deployment recorded in the change calendar at that time
 
-**Work note 1 — Initial triage:**
-```
-Investigation started.
-- 4 related incidents identified, all within a 5-minute window
-- All incidents originate from the UPI Transaction Service
-- Monitoring dashboard shows sudden spike in error rate from 0% to 80%
-- Settlement service failures are a downstream effect
-```
-
-**Work note 2 — Data gathering:**
-```
-Reviewed Prometheus metrics and Grafana dashboards:
-- upi_transactions_total{status="failed"} spiked at [timestamp]
-- P95 latency remained normal during failure period
-- JVM heap usage was within normal range
-- No deployment or config changes recorded at that time
+Conclusion: Not a resource exhaustion issue. Something toggled the service
+into a failure state externally.
 ```
 
-**Work note 3 — Hypothesis:**
+**Work note 3 — Code review findings:**
 ```
-Hypothesis: The service has an exposed chaos/configuration endpoint that can be
-triggered externally, causing the service to enter a degraded state. This is a
-design vulnerability — the chaos endpoints should not be accessible in production.
+Reviewed UPI Transaction Service source code (Spring Boot application):
+
+FINDING: The service exposes chaos engineering endpoints at:
+  POST /chaos/enable    → sets failure rate to 80%
+  POST /chaos/down      → simulates complete outage
+  POST /chaos/latency   → injects artificial latency
+
+These endpoints have NO authentication. Any network-reachable client can
+trigger a production outage by calling /chaos/enable.
+
+Additionally, the UPI Settlement Service calls the Transaction Service
+without a circuit breaker — when transactions fail, settlements cascade-fail
+with no fallback or timeout protection.
 ```
 
-### Step 4.3: Identify Root Cause
+### Step 5.3: Document the Root Cause
 
 1. Open the Problem record
-2. Fill in the **Root cause** field:
+2. Find the **Cause Notes** (or **Root Cause**) field and enter:
    ```
-   The UPI Transaction Service exposes chaos engineering endpoints (/chaos/enable,
-   /chaos/down, /chaos/latency) without authentication. These endpoints can be
-   triggered to inject failures, high latency, or complete service outage.
-   Additionally, there is no circuit breaker pattern between the Settlement
-   Service and Transaction Service, causing cascading failures.
+   ROOT CAUSE: Unprotected chaos engineering endpoints + missing circuit breaker
+
+   1. The UPI Transaction Service exposes /chaos/* endpoints without any
+      authentication or authorization. These endpoints can inject failures,
+      latency, or complete outages into the production service.
+
+   2. No circuit breaker pattern exists between the UPI Settlement Service
+      and Transaction Service. When transactions fail, settlement requests
+      cascade-fail with no fallback, timeout, or bulkhead isolation.
+
+   3. No network segmentation prevents internal services from reaching
+      the chaos endpoints.
    ```
-3. Change **State** to the next appropriate state (e.g., **Root Cause Identified** or **Fix in Progress**)
-4. Add a work note: "Root cause identified. The chaos endpoints are unprotected and there is no circuit breaker for cascading failure protection."
-5. Click **Update**
+3. Add a work note: "Root cause identified — unprotected chaos endpoints and missing circuit breaker pattern."
+4. Click **Update**
 
 ---
 
-## Part 5: Known Error and Workaround
+## Part 6: Known Error and Workaround
 
-### Step 5.1: Document the Workaround
+### Step 6.1: Document the Workaround
 
 1. Open the Problem record
 2. Fill in the **Workaround** field:
    ```
-   Temporary workaround:
-   1. Disable chaos injection: curl -X POST http://upi-transaction-service:8081/chaos/disable
-   2. Monitor the Grafana dashboard for recovery (failure rate should drop to 0%)
-   3. Verify settlement service resumes normal operation
-   4. If service is completely down, restart the container:
+   Immediate workaround (restores service within 30 seconds):
+
+   1. Disable chaos mode:
+      curl -X POST http://upi-transaction-service:8081/chaos/disable
+
+   2. Verify recovery on Grafana dashboard:
+      - Transaction failure rate should drop to 0%
+      - Settlement success rate should recover
+
+   3. If service is completely unresponsive, restart:
       docker compose restart upi-transaction-service
+
+   4. Monitor for 15 minutes to confirm stability
    ```
 3. Click **Update**
 
-### Step 5.2: Mark as Known Error
+### Step 6.2: Mark as Known Error
 
-1. Open the Problem record
-2. Check the **Known error** checkbox
-3. Fill in the **Fix** field:
+1. Check the **Known error** checkbox on the Problem form
+2. Fill in the **Fix Notes** field:
    ```
-   Permanent fix (requires Change Request):
-   1. Remove or secure chaos endpoints behind authentication in production builds
-   2. Implement Spring Security to protect /chaos/* endpoints with admin role
-   3. Add circuit breaker (Resilience4j) between Settlement and Transaction services
-   4. Add rate limiting on the UPI payment endpoint
-   5. Configure AlertManager to auto-remediate by calling /chaos/disable
-      when failure rate exceeds threshold
+   Permanent fix (requires Change Request CHG):
+
+   1. SECURITY: Add Spring Security to /chaos/* endpoints
+      - Require admin role authentication
+      - Disable chaos endpoints entirely in production profile
+
+   2. RESILIENCE: Add Resilience4j circuit breaker in Settlement Service
+      - Circuit opens after 5 consecutive failures
+      - Half-open after 30 seconds for retry
+      - Fallback: queue settlement for retry
+
+   3. RATE LIMITING: Add rate limiter on /api/upi/pay
+      - Prevent thundering herd on recovery
+
+   4. MONITORING: Add circuit breaker state change alerts
+      - Alert when circuit opens (early warning)
+
+   5. NETWORK: Restrict /chaos/* to management network only
    ```
-4. Add a work note: "Marked as Known Error. Workaround documented. Permanent fix requires a Change Request for code deployment."
-5. Click **Update**
+3. Add a work note: "Marked as Known Error. Workaround documented. Permanent fix requires a Change Request."
+4. Click **Update**
 
-### Step 5.3: What is a Known Error?
+### Step 6.3: Known Error Database (KEDB)
 
-```
-Known Error = A Problem where the root cause is identified AND a workaround exists
-
-Problem Lifecycle:
-  New → Open/Investigate → Root Cause Identified → Known Error → Closed
-
-A Known Error stays open until the permanent fix is deployed via a Change Request.
-```
-
-### Step 5.4: Known Error Database (KEDB)
-
-1. Navigate to **Problem > Known Errors** (or filter problems where Known error = true)
-2. This is the **Known Error Database** — a searchable list of all documented known errors
-3. This is valuable because:
-   - When a new incident comes in, agents can search KEDB for a matching workaround
-   - Faster resolution: "We know about this issue. Here's the workaround."
+1. Navigate to **Problem > Known Errors** (or filter `problem.list` where Known error = true)
+2. Your UPI problem should appear here
+3. The KEDB enables:
+   - Service desk agents to search for known workarounds
+   - Faster MTTR — "We know this issue. Apply the workaround."
+   - Tracking of unresolved known errors until permanent fix
 
 ---
 
-## Part 6: Link Problem to a Change Request
+## Part 7: Link to Change Request
 
-### Step 6.1: Create a Change Request (Preview for Lab 09)
+### Step 7.1: Create a Change Request
 
 1. Navigate to **Change > Create New** (or type `change_request.do`)
 2. Fill in:
@@ -302,110 +339,122 @@ A Known Error stays open until the permanent fix is deployed via a Change Reques
    | Field | Value |
    |---|---|
    | Short description | Secure UPI Transaction Service chaos endpoints and add circuit breaker |
-   | Description | Implement security controls on chaos engineering endpoints and add Resilience4j circuit breaker pattern to prevent cascading failures. See Problem PRB0040001 for root cause analysis. |
+   | Description | Implement security controls on chaos engineering endpoints and add Resilience4j circuit breaker. See Problem PRB0040001. |
    | Category | Software |
    | Type | Normal |
    | Risk | Moderate |
    | Impact | 1 - High |
    | Assignment group | Platform Engineering |
-   | Assigned to | Ravi Kumar |
 
-3. Click **Submit**
-4. Note the Change number (e.g., CHG0030001)
+3. Click **Submit** and note the Change number (e.g., CHG0030001)
 
-### Step 6.2: Link the Change to the Problem
+### Step 7.2: Link Change to Problem
 
-1. Open the Problem record (PRB0040001)
-2. Scroll down to the related lists at the bottom
-3. Look for the **Change Requests** tab (or related list)
-   - If not visible: right-click the header → **Configure > Related Lists** → add **Change Request > Problem** → **Save**
-4. Click **New** or **Edit** in the Change Requests related list
-5. Search for the Change Request you just created (CHG0030001)
-6. Select it and click **Save**
-7. Add a work note: "Change Request CHG0030001 created for permanent fix. Awaiting CAB approval."
-8. Click **Update**
+1. Open the Problem (PRB0040001)
+2. Scroll to the **Change Requests** related list at the bottom
+   - If not visible: right-click header → **Configure > Related Lists** → add **Change Request** → Save
+3. Click **New** or **Edit** in the Change Requests list
+4. Search for CHG0030001 → add it → **Save**
+5. Add a work note: "Change Request created for permanent fix. Awaiting CAB approval."
+6. Click **Update**
 
-### Step 6.3: The Full Picture
+### Step 7.3: The Complete ITSM Chain
 
 ```
-Problem: PRB0040001 (UPI Transaction Service instability)
-    |
-    |-- Root Cause: Unprotected chaos endpoints + no circuit breaker
-    |-- Workaround: curl /chaos/disable + restart container
-    |-- Known Error: YES
-    |
-    |-- Related Incidents:
-    |     INC0010005 - Transaction failure rate >50%
-    |     INC0010006 - Settlement failures
-    |     INC0010007 - HTTP 5xx errors
-    |     INC0010008 - Service DOWN
-    |
-    |-- Change Request:
-          CHG0030001 - Secure chaos endpoints + add circuit breaker
+DETECTION           RESPONSE            INVESTIGATION         RESOLUTION
+---------           --------            -------------         ----------
+Prometheus     →    AlertManager   →    Snow Bridge     →     ServiceNow
+(metrics)           (routing)           (webhook)             (incident)
+                                                                  |
+                                                                  v
+                                                              Problem
+                                                              (RCA)
+                                                                  |
+                                                                  v
+                                                            Known Error
+                                                            (workaround)
+                                                                  |
+                                                                  v
+                                                          Change Request
+                                                          (permanent fix)
+                                                                  |
+                                                                  v
+                                                            Problem Closed
+                                                          (fix verified)
 ```
 
 ---
 
-## Part 7: Close the Problem
+## Part 8: Problem Lifecycle
 
-### Step 7.1: Close After Fix Deployment
+### Step 8.1: Lifecycle States
 
-Once the Change Request is approved and deployed (we'll do this in Lab 09), close the Problem:
+```
+New → Assess → Root Cause Analysis → Fix in Progress → Resolved/Closed
+                      |
+                      v
+                Known Error (stays open until permanent fix deployed)
+```
+
+### Step 8.2: Close the Problem (Practice)
 
 1. Open the Problem record
-2. Change **State** to: **Closed** (or **Resolved**)
-3. Fill in close fields:
+2. Change **State** to **Resolved** (or **Closed**)
+3. Fill in:
    - **Close code**: Fix Applied
-   - **Close notes**: "Permanent fix deployed via CHG0030001. Chaos endpoints secured behind authentication. Circuit breaker added between Settlement and Transaction services. Monitoring confirms no further occurrences."
+   - **Close notes**: "Permanent fix deployed via CHG0030001. Chaos endpoints secured with Spring Security. Circuit breaker added. Monitoring confirms zero recurrence over 72 hours."
 4. Click **Update**
 
-> **Note:** For this lab, you can close the problem now for practice. In a real environment, you would wait until the change is deployed and verified.
+> **Note:** In a real environment, you'd close only after the Change is deployed and verified (Lab 09). For practice, close it now.
 
 ---
 
-## Part 8: Practice Exercises
+## Part 9: Practice Exercises
 
-### Exercise 1: Create a Problem from Scratch
+### Exercise 1: UPI QR Code Payment Problem
 
-1. Create 3 new incidents with a common theme:
-   - "Database connection timeout on HR portal"
-   - "HR self-service page loading slowly"
-   - "HR leave request submission failing"
-2. Create a Problem: "HR Portal database performance degradation"
-3. Link all 3 incidents to the problem
-4. Document root cause: "Database connection pool exhausted due to long-running queries from new reporting module"
-5. Add workaround: "Restart the database connection pool service and disable the new reporting module queries"
+1. Create 3 incidents:
+   - "UPI QR code scan timeout on merchant POS terminals"
+   - "QR code payment confirmation delayed by 60+ seconds"
+   - "Merchant settlement report missing QR transactions"
+2. Create a Problem: "UPI QR Code payment processing delays across merchant network"
+3. Link all 3 incidents
+4. Document root cause: "QR code validation service DNS resolver configured with expired upstream nameserver, causing 60-second timeout fallback"
+5. Workaround: "Manually update /etc/resolv.conf on QR validation pods to use secondary DNS"
 6. Mark as Known Error
-7. Create a Change Request for the permanent fix
+7. Create a Change Request: "Update DNS configuration for QR code validation service"
 
-### Exercise 2: Problem Reporting
+### Exercise 2: Proactive Problem Management
 
-1. Navigate to **Problem > All** (`problem.list`)
-2. How many open problems exist? ___
-3. How many are marked as Known Errors? ___
-4. Filter by Priority = 1 — how many critical problems? ___
-
-### Exercise 3: Proactive Problem Management
-
-Create a proactive problem (before any incidents occur):
+Create a problem BEFORE any incidents occur:
 
 1. Navigate to **Problem > Create New**
 2. Short description: "UPI Settlement Service single point of failure — no redundancy"
-3. Description: "The settlement service runs as a single instance. If it goes down, all UPI settlements halt. This is a design risk identified during architecture review."
-4. This is a **proactive** problem — identified before incidents happen
-5. Document recommended fix: "Deploy settlement service with minimum 2 replicas behind a load balancer"
+3. Description: "The settlement service runs as a single container. If it crashes, all settlements halt. Architecture review recommends minimum 2 replicas."
+4. This is **proactive** — no incidents have happened yet
+5. Document fix: "Deploy with 2+ replicas behind load balancer with health-check failover"
+
+### Exercise 3: Problem Reporting
+
+1. Navigate to `problem.list`
+2. Answer:
+   - Total open problems: ___
+   - Known Errors: ___
+   - Problems with linked Change Requests: ___
+   - Problems with 3+ related incidents: ___
 
 ---
 
 ## Lab Summary
 
-| What You Did | Why It Matters |
+| What You Did | ITSM Value |
 |---|---|
-| Created a Problem from recurring incidents | Move from reactive (incidents) to proactive (root cause) |
-| Linked incidents to a problem | Shows the relationship — one cause, many symptoms |
-| Performed root cause analysis | Structured investigation to find the real issue |
-| Documented Known Error + workaround | Teams can use the workaround while awaiting permanent fix |
-| Linked to a Change Request | Connects the fix to the change management process |
+| Identified recurring incidents | Pattern recognition — multiple symptoms, one cause |
+| Created a Problem record | Shift from reactive firefighting to structured investigation |
+| Performed RCA with real data | Used Prometheus/Grafana evidence in the investigation |
+| Documented Known Error + workaround | Service desk can resolve future incidents faster (lower MTTR) |
+| Linked Problem → Change Request | Permanent fix follows Change Management process |
+| Closed the loop | Detection → Incident → Problem → Known Error → Change → Closed |
 
 ---
 
@@ -413,50 +462,49 @@ Create a proactive problem (before any incidents occur):
 
 | Concept | Definition |
 |---|---|
-| **Problem** | The underlying cause of one or more incidents |
-| **Root Cause Analysis (RCA)** | Structured investigation to identify why incidents occurred |
-| **Known Error** | A problem with an identified root cause and documented workaround |
-| **KEDB** | Known Error Database — searchable list of documented known errors |
-| **Workaround** | Temporary fix to reduce/eliminate impact until permanent fix is deployed |
-| **Proactive Problem Management** | Identifying and resolving problems before incidents occur |
-| **Problem → Change** | Permanent fixes are deployed through Change Management |
+| **Problem** | The underlying root cause of one or more incidents |
+| **Root Cause Analysis** | Structured investigation: What happened? Why? How to prevent? |
+| **Known Error** | Problem with identified root cause + documented workaround |
+| **KEDB** | Known Error Database — searchable by service desk for faster resolution |
+| **Workaround** | Temporary fix that restores service until permanent fix is deployed |
+| **Proactive Problem** | Identified through review/analysis before incidents occur |
+| **Problem → Change** | Permanent fixes go through Change Management (Lab 09) |
 
 ---
 
 ## What's Next
 
-In **Lab 09**, you'll work with **Change Management** — submitting change requests, CAB approval process, implementing changes, and post-implementation review. You'll complete the fix for the UPI problem identified in this lab.
+In **Lab 09: Change Management**, you'll take the Change Request created here (CHG0030001) through the full change lifecycle — planning, CAB approval, implementation, and post-implementation review.
 
 ---
 
 ## Appendix: Bulk Setup via Background Script
 
-> **Shortcut:** This script creates the Problem record, links it to the auto-created incidents from Lab 07A, documents the root cause, workaround, marks it as Known Error, and creates the Change Request — all in one run.
+> **Shortcut:** Run this single script to create all Problem records, link incidents, add investigation notes, create the Change Request, and set up exercise data.
 
 ### How to Run
 
-1. Navigate to **System Definition > Scripts - Background** (or type `scripts` in Filter Navigator)
-2. Paste the entire script below and click **Run script**
-3. Check the output pane for confirmation messages
+1. Navigate to **System Definition > Scripts - Background**
+2. Paste the script below → click **Run script**
+3. Check the output pane for confirmation
 
 ### What This Script Covers
 
-| Manual Steps | What the Script Does |
+| Lab Section | What the Script Does |
 |---|---|
-| Step 2.2 | Creates the Problem record with full description |
-| Steps 3.1-3.2 | Links all `[AUTO]` incidents to the problem |
-| Steps 4.2-4.3 | Adds investigation work notes and root cause |
-| Steps 5.1-5.2 | Documents workaround and marks as Known Error |
-| Step 6.1 | Creates the Change Request for the permanent fix |
-| Step 6.2 | Links the Change Request to the Problem |
-| Exercise 1 | Creates 3 HR incidents + HR Problem + links them |
-| Exercise 3 | Creates the proactive settlement service problem |
+| Part 3 | Creates the UPI Problem with full description |
+| Part 4 | Links all `[AUTO]` incidents to the problem |
+| Part 5 | Adds 4 investigation work notes + root cause |
+| Part 6 | Documents workaround, marks as Known Error |
+| Part 7 | Creates the Change Request |
+| Exercise 1 | Creates 3 UPI QR Code incidents + Problem + links |
+| Exercise 2 | Creates the proactive Settlement SPOF problem |
 
-### What You Still Need to Do Manually
+### What You Still Do Manually
 
-- **Part 4** — Read through the investigation notes to understand the RCA process
-- **Part 7** — Practice closing the problem through the UI
-- **Part 8 Exercise 2** — Problem reporting queries
+- **Part 5** — Read the investigation notes to understand the RCA thought process
+- **Part 8** — Practice closing the problem through the UI
+- **Exercise 3** — Run the reporting queries yourself
 
 ### The Script
 
@@ -500,8 +548,28 @@ function ensureGroup(name) {
   return sysId;
 }
 
+function createIncident(data) {
+  var check = new GlideRecord('incident');
+  check.addQuery('short_description', data.short_description);
+  check.query();
+  if (check.next()) {
+    gs.info('  Incident exists: ' + check.number);
+    return check.sys_id.toString();
+  }
+  var gr = new GlideRecord('incident');
+  gr.initialize();
+  gr.short_description = data.short_description;
+  gr.category = data.category || 'software';
+  gr.impact = data.impact || 2;
+  gr.urgency = data.urgency || 2;
+  if (data.assignment_group) gr.assignment_group = data.assignment_group;
+  var sysId = gr.insert();
+  gs.info('  Created incident: ' + gr.number);
+  return sysId;
+}
+
 // ============================================================
-// PART A: Create the main UPI Problem (Step 2.2)
+// PART A: UPI Problem + Link Incidents + Investigation Notes
 // ============================================================
 
 gs.info('--- Creating UPI Problem ---');
@@ -517,40 +585,36 @@ if (pCheck.next()) {
   var prob = new GlideRecord('problem');
   prob.initialize();
   prob.short_description = 'UPI Transaction Service recurring failures causing payment disruptions';
-  prob.description = 'Multiple incidents reported within a short time window indicating UPI Transaction Service instability. Incidents include high failure rates (>50%), settlement failures, HTTP 5xx errors, and complete service outages. All incidents trace back to the UPI Transaction Service.\n\nImpact: Payment processing for all UPI users.\nAffected Services: UPI Transaction Service, UPI Settlement Service\nDetected by: Prometheus + AlertManager monitoring stack';
+  prob.description = 'Multiple incidents reported within a short time window indicating UPI Transaction Service instability:\n- Transaction failure rate exceeded 50%\n- Settlement service failures (downstream impact)\n- HTTP 5xx errors on /api/upi/pay endpoint\n- Complete service outage detected\n\nImpact: All UPI payment processing affected.\nDetected by: Prometheus + AlertManager monitoring stack.\nAffected Services: UPI Transaction Service, UPI Settlement Service.';
   prob.category = 'software';
   prob.impact = 1;
   prob.urgency = 1;
   prob.assignment_group = ensureGroup('Platform Engineering');
   prob.assigned_to = getUserSysId('ravi.kumar');
-  prob.cause_notes = 'The UPI Transaction Service exposes chaos engineering endpoints (/chaos/enable, /chaos/down, /chaos/latency) without authentication. These endpoints can be triggered to inject failures, high latency, or complete service outage. Additionally, there is no circuit breaker pattern between the Settlement Service and Transaction Service, causing cascading failures.';
-  prob.fix_notes = 'Permanent fix (requires Change Request):\n1. Remove or secure chaos endpoints behind authentication in production builds\n2. Implement Spring Security to protect /chaos/* endpoints with admin role\n3. Add circuit breaker (Resilience4j) between Settlement and Transaction services\n4. Add rate limiting on the UPI payment endpoint\n5. Configure AlertManager to auto-remediate by calling /chaos/disable when failure rate exceeds threshold';
-  prob.workaround = 'Temporary workaround:\n1. Disable chaos injection: curl -X POST http://upi-transaction-service:8081/chaos/disable\n2. Monitor the Grafana dashboard for recovery (failure rate should drop to 0%)\n3. Verify settlement service resumes normal operation\n4. If service is completely down, restart the container: docker compose restart upi-transaction-service';
+  prob.cause_notes = 'ROOT CAUSE: Unprotected chaos engineering endpoints + missing circuit breaker\n\n1. The UPI Transaction Service exposes /chaos/* endpoints without authentication. These endpoints can inject failures, latency, or outages.\n2. No circuit breaker between Settlement and Transaction services — failures cascade.\n3. No network segmentation prevents internal services from reaching chaos endpoints.';
+  prob.fix_notes = 'Permanent fix:\n1. Add Spring Security to /chaos/* endpoints (admin role only)\n2. Add Resilience4j circuit breaker in Settlement Service\n3. Add rate limiting on /api/upi/pay\n4. Add circuit breaker state change alerts\n5. Restrict /chaos/* to management network only';
+  prob.workaround = 'Immediate workaround:\n1. Disable chaos: curl -X POST http://upi-transaction-service:8081/chaos/disable\n2. Verify recovery on Grafana (failure rate drops to 0%)\n3. If unresponsive: docker compose restart upi-transaction-service\n4. Monitor 15 minutes for stability';
   prob.known_error = true;
   problemSysId = prob.insert();
-  gs.info('Created Problem: ' + prob.number + ' (sys_id: ' + problemSysId + ')');
+  gs.info('Created Problem: ' + prob.number);
 
   // Add investigation work notes
   var pUpdate = new GlideRecord('problem');
   if (pUpdate.get(problemSysId)) {
-    pUpdate.work_notes = 'Investigation started.\n- 4 related incidents identified, all within a 5-minute window\n- All incidents originate from the UPI Transaction Service\n- Monitoring dashboard shows sudden spike in error rate from 0% to 80%\n- Settlement service failures are a downstream effect';
+    pUpdate.work_notes = 'Starting RCA for UPI Transaction Service failures.\n\nInvestigation plan:\n1. Review Prometheus metrics at time of incident\n2. Analyze application logs\n3. Check for recent deployments or config changes\n4. Review service architecture for failure points';
     pUpdate.update();
-    pUpdate.work_notes = 'Reviewed Prometheus metrics and Grafana dashboards:\n- upi_transactions_total{status="failed"} spiked suddenly\n- P95 latency remained normal during failure period\n- JVM heap usage was within normal range\n- No deployment or config changes recorded at that time';
+    pUpdate.work_notes = 'Metrics analysis:\n- upi_transactions_total{status="failed"} spiked from 0% to 80% instantaneously\n- Settlement failures cascaded within 30 seconds\n- P95 latency remained normal — only error rate changed\n- JVM heap at 45% — not resource exhaustion\n- No deployment in change calendar\n\nConclusion: External trigger toggled service into failure state.';
     pUpdate.update();
-    pUpdate.work_notes = 'Root cause identified: The service has exposed chaos/configuration endpoints that can be triggered externally without authentication, causing the service to enter a degraded state. This is a design vulnerability. Additionally, no circuit breaker exists between Settlement and Transaction services, leading to cascading failures.';
+    pUpdate.work_notes = 'Code review findings:\n- Service exposes /chaos/enable, /chaos/down, /chaos/latency endpoints\n- NO authentication on these endpoints\n- Any network-reachable client can trigger production outage\n- Settlement Service has no circuit breaker — cascading failures';
     pUpdate.update();
-    pUpdate.work_notes = 'Marked as Known Error. Workaround documented. Permanent fix requires a Change Request for code deployment.';
+    pUpdate.work_notes = 'Root cause identified. Marked as Known Error. Workaround documented. Permanent fix requires Change Request.';
     pUpdate.update();
     gs.info('  Added investigation work notes');
   }
 }
 
-// ============================================================
-// PART B: Link [AUTO] incidents to the Problem (Steps 3.1-3.2)
-// ============================================================
-
-gs.info('--- Linking incidents to Problem ---');
-
+// Link [AUTO] incidents
+gs.info('--- Linking [AUTO] incidents ---');
 var incGr = new GlideRecord('incident');
 incGr.addQuery('short_description', 'CONTAINS', '[AUTO]');
 incGr.query();
@@ -560,133 +624,106 @@ while (incGr.next()) {
     incGr.problem_id = problemSysId;
     incGr.update();
     linkedCount++;
-    gs.info('  Linked incident ' + incGr.number + ' to problem');
-  } else {
-    gs.info('  Incident ' + incGr.number + ' already linked to a problem');
+    gs.info('  Linked ' + incGr.number);
   }
 }
-gs.info('  Total incidents linked: ' + linkedCount);
+gs.info('  Total linked: ' + linkedCount);
 
 // ============================================================
-// PART C: Create Change Request (Step 6.1)
+// PART B: Change Request
 // ============================================================
 
 gs.info('--- Creating Change Request ---');
-
-var chgSysId;
 var chgCheck = new GlideRecord('change_request');
 chgCheck.addQuery('short_description', 'Secure UPI Transaction Service chaos endpoints and add circuit breaker');
 chgCheck.query();
 if (chgCheck.next()) {
-  gs.info('Change Request already exists: ' + chgCheck.number);
-  chgSysId = chgCheck.sys_id.toString();
+  gs.info('Change Request exists: ' + chgCheck.number);
 } else {
   var chg = new GlideRecord('change_request');
   chg.initialize();
   chg.short_description = 'Secure UPI Transaction Service chaos endpoints and add circuit breaker';
-  chg.description = 'Implement security controls on chaos engineering endpoints and add Resilience4j circuit breaker pattern to prevent cascading failures between UPI Settlement and Transaction services.\n\nRoot cause from Problem: Unprotected chaos endpoints allow unauthorized service degradation.\n\nChanges required:\n1. Add Spring Security to /chaos/* endpoints (admin role only)\n2. Add Resilience4j circuit breaker in Settlement Service\n3. Add rate limiting on /api/upi/pay endpoint\n4. Update monitoring alerts for circuit breaker state changes';
+  chg.description = 'Implement security controls on chaos endpoints and add Resilience4j circuit breaker.\nSee Problem PRB0040001 for root cause analysis.\n\nChanges:\n1. Spring Security on /chaos/* endpoints\n2. Resilience4j circuit breaker in Settlement Service\n3. Rate limiting on /api/upi/pay\n4. Circuit breaker state alerts';
   chg.category = 'Software';
   chg.type = 'normal';
   chg.risk = 'moderate';
   chg.impact = 1;
   chg.assignment_group = ensureGroup('Platform Engineering');
   chg.assigned_to = getUserSysId('ravi.kumar');
-  chgSysId = chg.insert();
+  chg.insert();
   gs.info('Created Change Request: ' + chg.number);
 }
 
 // ============================================================
-// PART D: Exercise 1 — HR Problem with 3 incidents
+// PART C: Exercise 1 — UPI QR Code Problem
 // ============================================================
 
-gs.info('--- Creating HR exercise incidents and problem ---');
+gs.info('--- Creating Exercise 1: QR Code Problem ---');
+var peGroup = ensureGroup('Platform Engineering');
 
-var hrGroup = ensureGroup('Service Desk');
-
-var hrIncidents = [
-  { short_description: 'Database connection timeout on HR portal',      category: 'software', impact: 2, urgency: 2 },
-  { short_description: 'HR self-service page loading slowly',           category: 'software', impact: 2, urgency: 3 },
-  { short_description: 'HR leave request submission failing',           category: 'software', impact: 2, urgency: 2 }
+var qrIncidents = [
+  { short_description: 'UPI QR code scan timeout on merchant POS terminals',        assignment_group: peGroup, impact: 2, urgency: 1 },
+  { short_description: 'QR code payment confirmation delayed by 60+ seconds',       assignment_group: peGroup, impact: 2, urgency: 2 },
+  { short_description: 'Merchant settlement report missing QR transactions',         assignment_group: peGroup, impact: 2, urgency: 2 }
 ];
 
-var hrIncSysIds = [];
-for (var i = 0; i < hrIncidents.length; i++) {
-  var hi = hrIncidents[i];
-  var hiCheck = new GlideRecord('incident');
-  hiCheck.addQuery('short_description', hi.short_description);
-  hiCheck.query();
-  if (hiCheck.next()) {
-    gs.info('  HR incident already exists: ' + hiCheck.number);
-    hrIncSysIds.push(hiCheck.sys_id.toString());
-  } else {
-    var hiRec = new GlideRecord('incident');
-    hiRec.initialize();
-    hiRec.short_description = hi.short_description;
-    hiRec.category = hi.category;
-    hiRec.impact = hi.impact;
-    hiRec.urgency = hi.urgency;
-    hiRec.assignment_group = hrGroup;
-    var hiSysId = hiRec.insert();
-    gs.info('  Created HR incident: ' + hiRec.number);
-    hrIncSysIds.push(hiSysId);
-  }
+var qrSysIds = [];
+for (var i = 0; i < qrIncidents.length; i++) {
+  qrSysIds.push(createIncident(qrIncidents[i]));
 }
 
-// Create HR Problem
-var hrProbSysId;
-var hrProbCheck = new GlideRecord('problem');
-hrProbCheck.addQuery('short_description', 'HR Portal database performance degradation');
-hrProbCheck.query();
-if (hrProbCheck.next()) {
-  gs.info('HR Problem already exists: ' + hrProbCheck.number);
-  hrProbSysId = hrProbCheck.sys_id.toString();
+var qrProbSysId;
+var qrCheck = new GlideRecord('problem');
+qrCheck.addQuery('short_description', 'UPI QR Code payment processing delays across merchant network');
+qrCheck.query();
+if (qrCheck.next()) {
+  gs.info('QR Problem exists: ' + qrCheck.number);
+  qrProbSysId = qrCheck.sys_id.toString();
 } else {
-  var hrProb = new GlideRecord('problem');
-  hrProb.initialize();
-  hrProb.short_description = 'HR Portal database performance degradation';
-  hrProb.description = 'Multiple incidents related to HR portal performance — connection timeouts, slow page loads, and submission failures. All point to database performance issues.';
-  hrProb.category = 'software';
-  hrProb.impact = 2;
-  hrProb.urgency = 2;
-  hrProb.assignment_group = hrGroup;
-  hrProb.cause_notes = 'Database connection pool exhausted due to long-running queries from new reporting module.';
-  hrProb.workaround = 'Restart the database connection pool service and temporarily disable the new reporting module queries.';
-  hrProb.known_error = true;
-  hrProbSysId = hrProb.insert();
-  gs.info('Created HR Problem: ' + hrProb.number);
+  var qrProb = new GlideRecord('problem');
+  qrProb.initialize();
+  qrProb.short_description = 'UPI QR Code payment processing delays across merchant network';
+  qrProb.description = 'Multiple incidents related to QR code payment delays — scan timeouts, confirmation delays, and missing transactions in settlement reports.';
+  qrProb.category = 'software';
+  qrProb.impact = 2;
+  qrProb.urgency = 1;
+  qrProb.assignment_group = peGroup;
+  qrProb.cause_notes = 'QR code validation service DNS resolver configured with expired upstream nameserver, causing 60-second timeout fallback on every DNS lookup.';
+  qrProb.workaround = 'Manually update /etc/resolv.conf on QR validation pods to use secondary DNS (10.0.1.53).';
+  qrProb.known_error = true;
+  qrProbSysId = qrProb.insert();
+  gs.info('Created QR Problem: ' + qrProb.number);
 }
 
-// Link HR incidents to HR problem
-for (var j = 0; j < hrIncSysIds.length; j++) {
-  var hrInc = new GlideRecord('incident');
-  if (hrInc.get(hrIncSysIds[j]) && hrInc.problem_id.nil()) {
-    hrInc.problem_id = hrProbSysId;
-    hrInc.update();
-    gs.info('  Linked ' + hrInc.number + ' to HR problem');
+for (var j = 0; j < qrSysIds.length; j++) {
+  var qrInc = new GlideRecord('incident');
+  if (qrInc.get(qrSysIds[j]) && qrInc.problem_id.nil()) {
+    qrInc.problem_id = qrProbSysId;
+    qrInc.update();
+    gs.info('  Linked ' + qrInc.number + ' to QR problem');
   }
 }
 
 // ============================================================
-// PART E: Exercise 3 — Proactive Problem
+// PART D: Exercise 2 — Proactive Problem
 // ============================================================
 
-gs.info('--- Creating proactive problem ---');
-
+gs.info('--- Creating Exercise 2: Proactive Problem ---');
 var proCheck = new GlideRecord('problem');
-proCheck.addQuery('short_description', 'UPI Settlement Service single point of failure — no redundancy');
+proCheck.addQuery('short_description', 'CONTAINS', 'Settlement Service single point of failure');
 proCheck.query();
 if (proCheck.next()) {
-  gs.info('Proactive problem already exists: ' + proCheck.number);
+  gs.info('Proactive problem exists: ' + proCheck.number);
 } else {
   var proPrb = new GlideRecord('problem');
   proPrb.initialize();
   proPrb.short_description = 'UPI Settlement Service single point of failure — no redundancy';
-  proPrb.description = 'The settlement service runs as a single instance with no redundancy. If it goes down, all UPI settlements halt. This is a design risk identified during architecture review — no incidents have occurred yet, but the risk is significant.';
+  proPrb.description = 'The settlement service runs as a single container with no redundancy. If it crashes, all UPI settlements halt. Architecture review recommends minimum 2 replicas with health-check failover.';
   proPrb.category = 'software';
   proPrb.impact = 1;
   proPrb.urgency = 3;
-  proPrb.assignment_group = ensureGroup('Platform Engineering');
-  proPrb.fix_notes = 'Deploy settlement service with minimum 2 replicas behind a load balancer. Implement health-check based failover. Add Kubernetes HPA for auto-scaling.';
+  proPrb.assignment_group = peGroup;
+  proPrb.fix_notes = 'Deploy with 2+ replicas behind load balancer. Add health-check based failover. Configure auto-scaling for peak transaction periods.';
   proPrb.insert();
   gs.info('Created proactive problem: ' + proPrb.number);
 }
@@ -696,19 +733,12 @@ gs.info('=== Lab 08 setup complete! ===');
 
 ### Verify After Running
 
-1. **Problems:** Navigate to `problem.list` — you should see 3 problems (UPI, HR, Proactive)
-2. **Linked Incidents:** Open the UPI Problem — Related Incidents should list the `[AUTO]` incidents
-3. **Known Errors:** Filter problems by `Known error = true` — UPI and HR problems should appear
-4. **Change Request:** Navigate to `change_request.list` — find the chaos endpoint security change
-
-### Records Created
-
-| Record | Details |
+| Check | How |
 |---|---|
-| Problem: UPI failures | Root cause + workaround + Known Error + investigation notes |
-| Problem: HR Portal | Exercise 1 — with 3 linked incidents |
-| Problem: Settlement SPOF | Exercise 3 — proactive, no incidents yet |
-| Change Request | Secure chaos endpoints + circuit breaker (feeds into Lab 09) |
-| 3 HR Incidents | Linked to HR Problem |
+| Problems created | `problem.list` — should see 3 problems (UPI, QR Code, Proactive SPOF) |
+| Incidents linked | `incident.list?sysparm_query=problem_id.number=PRB0040001` |
+| Known Errors | `problem.list` → filter Known error = true |
+| Change Request | `change_request.list` → find chaos endpoint security change |
+| Work notes | Open UPI Problem → scroll to Activity → 4 investigation notes |
 
-> **Note:** This script is idempotent — you can run it multiple times safely. After running, walk through **Part 4 (Investigation)** to understand the RCA process and **Part 7 (Close)** to practice closing a problem through the UI.
+> **Note:** This script is idempotent — safe to run multiple times. After running, walk through **Part 5 (RCA)** to understand the investigation thought process and **Part 8 (Close)** to practice closing through the UI.
