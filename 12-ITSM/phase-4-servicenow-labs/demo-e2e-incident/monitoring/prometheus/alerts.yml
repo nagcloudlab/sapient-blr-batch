@@ -1,0 +1,92 @@
+groups:
+  - name: upi_service_alerts
+    rules:
+
+      # --- P1 Critical: UPI Transaction Service Down ---
+      - alert: UpiTransactionServiceDown
+        expr: up{job="upi-transaction-service"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "UPI Transaction Service is DOWN"
+          description: "The UPI Transaction Service ({{ $labels.instance }}) has been unreachable for more than 30 seconds. All UPI payments are impacted."
+          runbook: "1. Check container status: docker compose ps\n2. Check logs: docker compose logs upi-transaction-service\n3. Restart if needed: docker compose restart upi-transaction-service"
+
+      # --- P1 Critical: UPI Settlement Service Down ---
+      - alert: UpiSettlementServiceDown
+        expr: up{job="upi-settlement-service"} == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "UPI Settlement Service is DOWN"
+          description: "The UPI Settlement Service ({{ $labels.instance }}) is unreachable. Settlement processing is halted."
+          runbook: "1. Check container status\n2. Verify transaction service connectivity\n3. Check logs for OOM or crash"
+
+      # --- P1 Critical: High Transaction Failure Rate ---
+      - alert: UpiHighTransactionFailureRate
+        expr: |
+          (
+            rate(upi_transactions_total{status="failed"}[2m])
+            /
+            (rate(upi_transactions_total{status="success"}[2m]) + rate(upi_transactions_total{status="failed"}[2m]))
+          ) > 0.5
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "UPI transaction failure rate above 50%"
+          description: "More than 50% of UPI transactions are failing on {{ $labels.instance }}. Current failure rate: {{ $value | humanizePercentage }}. This indicates a major payment processing issue."
+          runbook: "1. Check chaos status: curl payment-service:8081/chaos/status\n2. Check downstream dependencies\n3. Review application logs for error patterns"
+
+      # --- P2 High: Elevated Transaction Latency ---
+      - alert: UpiHighTransactionLatency
+        expr: |
+          histogram_quantile(0.95, rate(upi_transaction_duration_seconds_bucket[2m])) > 3
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "UPI transaction P95 latency above 3 seconds"
+          description: "95th percentile transaction processing time is {{ $value | humanizeDuration }} on {{ $labels.instance }}. SLA threshold is 3 seconds."
+          runbook: "1. Check for injected latency\n2. Review JVM heap usage\n3. Check database connection pool"
+
+      # --- P2 High: Settlement Failures ---
+      - alert: UpiSettlementFailures
+        expr: |
+          rate(upi_settlements_total{status="failed"}[2m]) > 0.1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "UPI settlement failures detected"
+          description: "Settlement service is experiencing failures at {{ $value }} per second. This may indicate transaction service issues or network problems."
+
+      # --- P3 Moderate: High HTTP Error Rate (5xx) ---
+      - alert: UpiHighHttpErrorRate
+        expr: |
+          (
+            rate(http_server_requests_seconds_count{status=~"5.."}[2m])
+            /
+            rate(http_server_requests_seconds_count[2m])
+          ) > 0.3
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High HTTP 5xx error rate on {{ $labels.application }}"
+          description: "{{ $labels.application }} is returning 5xx errors at {{ $value | humanizePercentage }} rate. Endpoint: {{ $labels.uri }}"
+
+      # --- P3 Moderate: JVM Heap Usage High ---
+      - alert: UpiJvmHeapHigh
+        expr: |
+          jvm_memory_used_bytes{area="heap"}
+          /
+          jvm_memory_max_bytes{area="heap"} > 0.85
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "JVM heap usage above 85% on {{ $labels.application }}"
+          description: "{{ $labels.application }} heap memory usage is at {{ $value | humanizePercentage }}. Risk of OutOfMemoryError."

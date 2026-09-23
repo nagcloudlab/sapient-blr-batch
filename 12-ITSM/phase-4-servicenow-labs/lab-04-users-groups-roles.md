@@ -338,3 +338,188 @@ Fill in this matrix as you test. Some results may vary depending on your PDI's c
 ## What's Next
 
 In **Lab 05**, you'll explore tables and columns -- the database structure behind everything in ServiceNow. You'll create a custom table and add fields to it.
+
+---
+
+## Appendix: Bulk Setup via Background Script
+
+> **Shortcut:** Instead of performing Parts 1-3 manually through the UI, you can run this single background script to create all users, groups, members, and role assignments at once.
+
+### How to Run
+
+1. Navigate to **System Definition > Scripts - Background** (or type `scripts` in Filter Navigator)
+2. Paste the entire script below and click **Run script**
+3. Check the output pane for confirmation messages
+4. After running, skip to **Part 4 (Impersonation)** to test permissions through the UI
+
+### What This Script Covers
+
+| Manual Steps | What the Script Does |
+|---|---|
+| Steps 1.2-1.4 | Creates all 6 users with emails and passwords |
+| Steps 2.2-2.4 | Creates 5 groups with managers and adds members |
+| Steps 3.2-3.3 | Assigns roles directly to each user |
+| Step 3.4 | Assigns `itil` role to Platform Engineering group (role inheritance) |
+
+### The Script
+
+```javascript
+// ============================================================
+// Lab 04 - Full Setup: Users, Groups, Members, Roles
+// Run in: System Definition > Scripts - Background
+// Idempotent -- safe to run multiple times
+// ============================================================
+
+// --- PART 1: Create Users ---
+var users = [
+  { user_name: 'ravi.kumar',   first_name: 'Ravi',   last_name: 'Kumar',   title: 'Platform Engineer',    department: 'IT' },
+  { user_name: 'priya.sharma', first_name: 'Priya',  last_name: 'Sharma',  title: 'NOC Operator',         department: 'IT' },
+  { user_name: 'amit.verma',   first_name: 'Amit',   last_name: 'Verma',   title: 'Junior Engineer',      department: 'IT' },
+  { user_name: 'meera.joshi',  first_name: 'Meera',  last_name: 'Joshi',   title: 'Service Desk Lead',    department: 'IT' },
+  { user_name: 'vijay.admin',  first_name: 'Vijay',  last_name: 'Admin',   title: 'System Administrator', department: 'IT' },
+  { user_name: 'sanjay.mgr',   first_name: 'Sanjay', last_name: 'Manager', title: 'VP Engineering',       department: 'Engineering' }
+];
+
+for (var i = 0; i < users.length; i++) {
+  var u = users[i];
+  var check = new GlideRecord('sys_user');
+  check.addQuery('user_name', u.user_name);
+  check.query();
+  if (check.next()) {
+    gs.info('User already exists, skipping: ' + u.user_name);
+    continue;
+  }
+  var gr = new GlideRecord('sys_user');
+  gr.initialize();
+  gr.user_name     = u.user_name;
+  gr.first_name    = u.first_name;
+  gr.last_name     = u.last_name;
+  gr.email         = u.user_name + '@example.com';
+  gr.title         = u.title;
+  gr.department    = u.department;
+  gr.active        = true;
+  gr.user_password = 'ServiceNow@123';
+  gr.insert();
+  gs.info('Created user: ' + u.user_name);
+}
+
+// Helper functions
+function getUserSysId(userName) {
+  var gr = new GlideRecord('sys_user');
+  gr.addQuery('user_name', userName);
+  gr.query();
+  if (gr.next()) return gr.sys_id.toString();
+  return null;
+}
+
+function getRoleSysId(roleName) {
+  var gr = new GlideRecord('sys_user_role');
+  gr.addQuery('name', roleName);
+  gr.query();
+  if (gr.next()) return gr.sys_id.toString();
+  return null;
+}
+
+// --- PART 2: Create Groups and Add Members ---
+var groups = [
+  { name: 'Platform Engineering', manager: 'ravi.kumar',   members: ['ravi.kumar', 'amit.verma'],  description: 'Handles UPI platform infrastructure' },
+  { name: 'NOC',                  manager: 'priya.sharma', members: ['priya.sharma'],              description: 'Network Operations Center' },
+  { name: 'Service Desk',         manager: 'meera.joshi',  members: ['meera.joshi'],               description: 'Service Desk team' },
+  { name: 'IT Management',        manager: 'sanjay.mgr',   members: ['sanjay.mgr'],                description: 'IT Management team' },
+  { name: 'IT Administration',    manager: 'vijay.admin',  members: ['vijay.admin'],               description: 'IT Administration team' }
+];
+
+for (var g = 0; g < groups.length; g++) {
+  var grp = groups[g];
+  var gCheck = new GlideRecord('sys_user_group');
+  gCheck.addQuery('name', grp.name);
+  gCheck.query();
+  var groupSysId;
+  if (gCheck.next()) {
+    gs.info('Group already exists, reusing: ' + grp.name);
+    groupSysId = gCheck.sys_id.toString();
+  } else {
+    var gRec = new GlideRecord('sys_user_group');
+    gRec.initialize();
+    gRec.name        = grp.name;
+    gRec.description = grp.description;
+    gRec.manager     = getUserSysId(grp.manager);
+    gRec.active      = true;
+    groupSysId = gRec.insert();
+    gs.info('Created group: ' + grp.name);
+  }
+
+  for (var m = 0; m < grp.members.length; m++) {
+    var userSysId = getUserSysId(grp.members[m]);
+    if (!userSysId) { gs.warn('User not found: ' + grp.members[m]); continue; }
+    var mCheck = new GlideRecord('sys_user_grmember');
+    mCheck.addQuery('group', groupSysId);
+    mCheck.addQuery('user', userSysId);
+    mCheck.query();
+    if (mCheck.next()) { gs.info('  Already a member: ' + grp.members[m]); continue; }
+    var mRec = new GlideRecord('sys_user_grmember');
+    mRec.initialize();
+    mRec.group = groupSysId;
+    mRec.user  = userSysId;
+    mRec.insert();
+    gs.info('  Added member: ' + grp.members[m] + ' -> ' + grp.name);
+  }
+}
+
+// --- PART 3: Assign Roles to Users ---
+var userRoles = [
+  { user: 'ravi.kumar',   roles: ['itil'] },
+  { user: 'priya.sharma', roles: ['itil'] },
+  { user: 'amit.verma',   roles: ['itil'] },
+  { user: 'meera.joshi',  roles: ['itil', 'sn_change_mgr'] },
+  { user: 'vijay.admin',  roles: ['admin'] },
+  { user: 'sanjay.mgr',   roles: ['approver_user'] }
+];
+
+for (var r = 0; r < userRoles.length; r++) {
+  var ur = userRoles[r];
+  var uSysId = getUserSysId(ur.user);
+  if (!uSysId) { gs.warn('User not found: ' + ur.user); continue; }
+  for (var j = 0; j < ur.roles.length; j++) {
+    var roleSysId = getRoleSysId(ur.roles[j]);
+    if (!roleSysId) { gs.warn('Role not found: ' + ur.roles[j]); continue; }
+    var rCheck = new GlideRecord('sys_user_has_role');
+    rCheck.addQuery('user', uSysId);
+    rCheck.addQuery('role', roleSysId);
+    rCheck.query();
+    if (rCheck.next()) { gs.info('  Role already assigned: ' + ur.user + ' <- ' + ur.roles[j]); continue; }
+    var rRec = new GlideRecord('sys_user_has_role');
+    rRec.initialize();
+    rRec.user = uSysId;
+    rRec.role = roleSysId;
+    rRec.insert();
+    gs.info('  Assigned role: ' + ur.user + ' <- ' + ur.roles[j]);
+  }
+}
+
+// --- Assign itil Role to Platform Engineering Group (Role Inheritance) ---
+var peGroup = new GlideRecord('sys_user_group');
+peGroup.addQuery('name', 'Platform Engineering');
+peGroup.query();
+if (peGroup.next()) {
+  var itilRole = getRoleSysId('itil');
+  if (itilRole) {
+    var grRoleCheck = new GlideRecord('sys_group_has_role');
+    grRoleCheck.addQuery('group', peGroup.sys_id.toString());
+    grRoleCheck.addQuery('role', itilRole);
+    grRoleCheck.query();
+    if (!grRoleCheck.next()) {
+      var grRoleRec = new GlideRecord('sys_group_has_role');
+      grRoleRec.initialize();
+      grRoleRec.group = peGroup.sys_id.toString();
+      grRoleRec.role  = itilRole;
+      grRoleRec.insert();
+      gs.info('  Assigned group role: Platform Engineering <- itil');
+    }
+  }
+}
+
+gs.info('=== Lab 04 setup complete! ===');
+```
+
+> **Note:** This script is idempotent -- you can run it multiple times safely. It checks for existing records before creating new ones.

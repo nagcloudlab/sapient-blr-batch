@@ -430,3 +430,238 @@ Create a table called **Application Deployment** to track deployments:
 ## What's Next
 
 In **Lab 06**, you'll master filters, views, and list controls -- essential for working efficiently with data in ServiceNow.
+
+---
+
+## Appendix: Bulk Setup via Background Script
+
+> **Shortcut:** Instead of performing Parts 3-4 manually through the UI, you can run this single background script to create the custom table, add all fields, set up choice lists, and insert a test record.
+
+### How to Run
+
+1. Navigate to **System Definition > Scripts - Background** (or type `scripts` in Filter Navigator)
+2. Paste the entire script below and click **Run script**
+3. Check the output pane for confirmation messages
+4. After running, verify by navigating to `u_server_health_check.list`
+
+### What This Script Covers
+
+| Manual Steps | What the Script Does |
+|---|---|
+| Step 3.2 | Creates the `u_server_health_check` table (extends Task) |
+| Steps 3.4 | Adds all 7 custom columns (Server, Check Date, CPU/Memory/Disk/Overall Status, Checked By) |
+| Steps 3.4 (choices) | Creates all choice list values for status fields |
+| Step 4.3 | Inserts a test record |
+| Exercise 2 | Creates the `u_application_deployment` table with all fields and choices |
+| Exercise 3 | Inserts 3 sample Server Health Check records |
+
+### The Script
+
+```javascript
+// ============================================================
+// Lab 05 - Full Setup: Tables, Columns, Choices, Test Records
+// Run in: System Definition > Scripts - Background
+// Idempotent -- safe to run multiple times
+// ============================================================
+
+// --- Helper: Create a table ---
+function createTable(label, name, extendsTable) {
+  var gr = new GlideRecord('sys_db_object');
+  gr.addQuery('name', name);
+  gr.query();
+  if (gr.next()) {
+    gs.info('Table already exists: ' + name);
+    return gr.sys_id.toString();
+  }
+  gr.initialize();
+  gr.label = label;
+  gr.name = name;
+  gr.super_class = getTableSysId(extendsTable);
+  gr.is_extendable = true;
+  gr.create_access_controls = true;
+  var sysId = gr.insert();
+  gs.info('Created table: ' + name);
+  return sysId;
+}
+
+// --- Helper: Get table sys_id ---
+function getTableSysId(tableName) {
+  var gr = new GlideRecord('sys_db_object');
+  gr.addQuery('name', tableName);
+  gr.query();
+  if (gr.next()) return gr.sys_id.toString();
+  return null;
+}
+
+// --- Helper: Add a column to a table ---
+function addColumn(tableName, columnLabel, columnName, columnType, reference, mandatory) {
+  var gr = new GlideRecord('sys_dictionary');
+  gr.addQuery('name', tableName);
+  gr.addQuery('element', columnName);
+  gr.query();
+  if (gr.next()) {
+    gs.info('  Column already exists: ' + tableName + '.' + columnName);
+    return;
+  }
+  gr.initialize();
+  gr.name = tableName;
+  gr.element = columnName;
+  gr.column_label = columnLabel;
+  gr.internal_type = columnType;
+  if (reference) gr.reference = getTableSysId(reference);
+  if (mandatory) gr.mandatory = true;
+  gr.insert();
+  gs.info('  Added column: ' + tableName + '.' + columnName + ' (' + columnType + ')');
+}
+
+// --- Helper: Add a choice value ---
+function addChoice(tableName, element, value, label, sequence) {
+  var gr = new GlideRecord('sys_choice');
+  gr.addQuery('name', tableName);
+  gr.addQuery('element', element);
+  gr.addQuery('value', value);
+  gr.query();
+  if (gr.next()) {
+    gs.info('    Choice already exists: ' + element + ' = ' + label);
+    return;
+  }
+  gr.initialize();
+  gr.name = tableName;
+  gr.element = element;
+  gr.value = value;
+  gr.label = label;
+  gr.sequence = sequence || 0;
+  gr.language = 'en';
+  gr.insert();
+  gs.info('    Added choice: ' + element + ' = ' + label);
+}
+
+// --- Helper: Get user sys_id ---
+function getUserSysId(userName) {
+  var gr = new GlideRecord('sys_user');
+  gr.addQuery('user_name', userName);
+  gr.query();
+  if (gr.next()) return gr.sys_id.toString();
+  return null;
+}
+
+// ============================================================
+// PART A: Server Health Check Table (Steps 3.2 - 3.4)
+// ============================================================
+
+gs.info('--- Creating Server Health Check table ---');
+createTable('Server Health Check', 'u_server_health_check', 'task');
+
+// Add custom columns
+addColumn('u_server_health_check', 'Server',         'u_server',         'reference',  'cmdb_ci',  true);
+addColumn('u_server_health_check', 'Check Date',     'u_check_date',     'glide_date_time', null,  true);
+addColumn('u_server_health_check', 'CPU Status',     'u_cpu_status',     'choice',     null,       false);
+addColumn('u_server_health_check', 'Memory Status',  'u_memory_status',  'choice',     null,       false);
+addColumn('u_server_health_check', 'Disk Status',    'u_disk_status',    'choice',     null,       false);
+addColumn('u_server_health_check', 'Overall Status', 'u_overall_status', 'choice',     null,       false);
+addColumn('u_server_health_check', 'Checked By',     'u_checked_by',     'reference',  'sys_user', false);
+
+// Add choices for CPU / Memory / Disk Status
+var statusFields = ['u_cpu_status', 'u_memory_status', 'u_disk_status'];
+for (var s = 0; s < statusFields.length; s++) {
+  addChoice('u_server_health_check', statusFields[s], '1', 'Normal',   100);
+  addChoice('u_server_health_check', statusFields[s], '2', 'Warning',  200);
+  addChoice('u_server_health_check', statusFields[s], '3', 'Critical', 300);
+}
+
+// Add choices for Overall Status
+addChoice('u_server_health_check', 'u_overall_status', '1', 'Healthy',  100);
+addChoice('u_server_health_check', 'u_overall_status', '2', 'Degraded', 200);
+addChoice('u_server_health_check', 'u_overall_status', '3', 'Critical', 300);
+
+// ============================================================
+// PART B: Insert Test Records (Step 4.3 + Exercise 3)
+// ============================================================
+
+gs.info('--- Creating test records ---');
+
+var testRecords = [
+  {
+    short_description: 'Monthly health check - Web Server 01',
+    u_check_date:      gs.nowDateTime(),
+    u_checked_by:      getUserSysId('ravi.kumar'),
+    u_cpu_status:      '1',  // Normal
+    u_memory_status:   '2',  // Warning
+    u_disk_status:     '1',  // Normal
+    u_overall_status:  '2'   // Degraded
+  },
+  {
+    short_description: 'Monthly health check - DB Server 01',
+    u_check_date:      gs.nowDateTime(),
+    u_checked_by:      getUserSysId('priya.sharma'),
+    u_cpu_status:      '3',  // Critical
+    u_memory_status:   '3',  // Critical
+    u_disk_status:     '2',  // Warning
+    u_overall_status:  '3'   // Critical
+  },
+  {
+    short_description: 'Monthly health check - App Server 01',
+    u_check_date:      gs.nowDateTime(),
+    u_checked_by:      getUserSysId('amit.verma'),
+    u_cpu_status:      '1',  // Normal
+    u_memory_status:   '1',  // Normal
+    u_disk_status:     '1',  // Normal
+    u_overall_status:  '1'   // Healthy
+  }
+];
+
+for (var t = 0; t < testRecords.length; t++) {
+  var rec = testRecords[t];
+  // Check if record already exists
+  var rCheck = new GlideRecord('u_server_health_check');
+  rCheck.addQuery('short_description', rec.short_description);
+  rCheck.query();
+  if (rCheck.next()) {
+    gs.info('  Record already exists: ' + rec.short_description);
+    continue;
+  }
+  var rGr = new GlideRecord('u_server_health_check');
+  rGr.initialize();
+  rGr.short_description = rec.short_description;
+  rGr.u_check_date      = rec.u_check_date;
+  rGr.u_checked_by      = rec.u_checked_by;
+  rGr.u_cpu_status      = rec.u_cpu_status;
+  rGr.u_memory_status   = rec.u_memory_status;
+  rGr.u_disk_status     = rec.u_disk_status;
+  rGr.u_overall_status  = rec.u_overall_status;
+  rGr.insert();
+  gs.info('  Created record: ' + rec.short_description);
+}
+
+// ============================================================
+// PART C: Application Deployment Table (Exercise 2)
+// ============================================================
+
+gs.info('--- Creating Application Deployment table ---');
+createTable('Application Deployment', 'u_application_deployment', 'task');
+
+// Add custom columns
+addColumn('u_application_deployment', 'Application Name',   'u_application_name',   'string',         null,       true);
+addColumn('u_application_deployment', 'Environment',        'u_environment',        'choice',         null,       false);
+addColumn('u_application_deployment', 'Version',            'u_version',            'string',         null,       false);
+addColumn('u_application_deployment', 'Deployed By',        'u_deployed_by',        'reference',      'sys_user', false);
+addColumn('u_application_deployment', 'Deployment Date',    'u_deployment_date',    'glide_date_time', null,      false);
+addColumn('u_application_deployment', 'Deployment Status',  'u_deployment_status',  'choice',         null,       false);
+addColumn('u_application_deployment', 'Rollback Plan',      'u_rollback_plan',      'string',         null,       false);
+
+// Add choices for Environment
+addChoice('u_application_deployment', 'u_environment', '1', 'Dev',        100);
+addChoice('u_application_deployment', 'u_environment', '2', 'Staging',    200);
+addChoice('u_application_deployment', 'u_environment', '3', 'Production', 300);
+
+// Add choices for Deployment Status
+addChoice('u_application_deployment', 'u_deployment_status', '1', 'Planned',     100);
+addChoice('u_application_deployment', 'u_deployment_status', '2', 'In Progress', 200);
+addChoice('u_application_deployment', 'u_deployment_status', '3', 'Completed',   300);
+addChoice('u_application_deployment', 'u_deployment_status', '4', 'Failed',      400);
+addChoice('u_application_deployment', 'u_deployment_status', '5', 'Rolled Back', 500);
+
+gs.info('=== Lab 05 setup complete! ===');
+```
+
+> **Note:** This script is idempotent -- you can run it multiple times safely. After running, you still need to do **Part 4 (Form Layout)** manually through the UI, as form layout configuration requires the Form Designer. Also explore **Parts 1-2** manually to understand table inheritance and field types -- those are learning exercises, not setup tasks.

@@ -1,0 +1,117 @@
+services:
+
+  # --- UPI Microservices ---
+
+  upi-transaction-service:
+    build: ./services/upi-transaction-service
+    container_name: upi-transaction-service
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8081/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - upi-network
+
+  upi-settlement-service:
+    build: ./services/upi-settlement-service
+    container_name: upi-settlement-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      upi-transaction-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8082/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - upi-network
+
+  # --- ServiceNow Bridge ---
+
+  snow-bridge:
+    build: ./services/snow-bridge
+    container_name: snow-bridge
+    ports:
+      - "5005:5005"
+    environment:
+      - SNOW_INSTANCE=${SNOW_INSTANCE:-https://devXXXXXX.service-now.com}
+      - SNOW_USER=${SNOW_USER:-admin}
+      - SNOW_PASSWORD=${SNOW_PASSWORD:-password}
+      - SNOW_ENABLED=${SNOW_ENABLED:-false}
+    networks:
+      - upi-network
+
+  # --- Monitoring Stack ---
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/prometheus/alerts.yml:/etc/prometheus/alerts.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=7d'
+    depends_on:
+      - upi-transaction-service
+      - upi-settlement-service
+    networks:
+      - upi-network
+
+  alertmanager:
+    image: prom/alertmanager:v0.27.0
+    container_name: alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+    depends_on:
+      - snow-bridge
+    networks:
+      - upi-network
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+    networks:
+      - upi-network
+
+  # --- Traffic Generator ---
+
+  traffic-generator:
+    build: ./traffic
+    container_name: traffic-generator
+    environment:
+      - TXN_SERVICE_URL=http://upi-transaction-service:8081
+      - STL_SERVICE_URL=http://upi-settlement-service:8082
+      - RPS=${TRAFFIC_RPS:-2}
+    depends_on:
+      upi-transaction-service:
+        condition: service_healthy
+      upi-settlement-service:
+        condition: service_healthy
+    networks:
+      - upi-network
+
+networks:
+  upi-network:
+    driver: bridge

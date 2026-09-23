@@ -366,3 +366,337 @@ This data will be used in later labs for reporting and dashboards.
 ## What's Next
 
 In **Lab 08**, you'll work with **Problem Management** -- creating problems from recurring incidents, performing root cause analysis, and documenting known errors.
+
+---
+
+## Appendix: Bulk Setup via Background Script
+
+> **Shortcut:** This script creates all incidents (including exercise data), assignment rules, and templates. The lifecycle walkthrough (Part 2), escalation practice (Part 3), and linking records (Part 4) must be done manually through the UI -- those are the core learning exercises.
+
+### How to Run
+
+1. Navigate to **System Definition > Scripts - Background** (or type `scripts` in Filter Navigator)
+2. Paste the entire script below and click **Run script**
+3. Check the output pane for confirmation messages
+
+### What This Script Covers
+
+| Manual Steps | What the Script Does |
+|---|---|
+| Steps 1.1, 1.3, 1.4 | Creates 5 initial incidents with varied priorities |
+| Step 3.1 | Creates "Auto-assign Network incidents" assignment rule |
+| Step 3.3 | Creates the "Application timeout" escalation incident + Database group |
+| Step 5.1 | Creates the "VPN Outage P1" incident template |
+| Exercise 2 | Creates the Major Incident (payment system down) + 3 child incidents |
+| Exercise 3 | Creates 10 additional incidents with varied priorities, categories, and states |
+
+### What You Still Need to Do Manually
+
+- **Part 2** — Walk through the incident lifecycle (New → In Progress → Resolved → Closed) on the VPN incident
+- **Part 3** — Practice manual escalation and reassignment through the UI
+- **Part 4** — Link incidents to CIs, problems, and knowledge articles
+- **Part 5** — Test using the template to create a new incident via the form
+- **Part 6** — View reports and do quick counts
+
+### The Script
+
+```javascript
+// ============================================================
+// Lab 07 - Setup: Incidents, Assignment Rules, Templates
+// Run in: System Definition > Scripts - Background
+// Idempotent -- safe to run multiple times
+// ============================================================
+
+// --- Helper: Get sys_id of a user by user_name or name ---
+function getUserSysId(userName) {
+  var gr = new GlideRecord('sys_user');
+  gr.addQuery('user_name', userName);
+  gr.query();
+  if (gr.next()) return gr.sys_id.toString();
+  // Try by name
+  gr = new GlideRecord('sys_user');
+  gr.addQuery('name', userName);
+  gr.query();
+  if (gr.next()) return gr.sys_id.toString();
+  return null;
+}
+
+// --- Helper: Get sys_id of a group by name ---
+function getGroupSysId(groupName) {
+  var gr = new GlideRecord('sys_user_group');
+  gr.addQuery('name', groupName);
+  gr.query();
+  if (gr.next()) return gr.sys_id.toString();
+  return null;
+}
+
+// --- Helper: Create a group if it doesn't exist ---
+function ensureGroup(name, description) {
+  var sysId = getGroupSysId(name);
+  if (sysId) return sysId;
+  var gr = new GlideRecord('sys_user_group');
+  gr.initialize();
+  gr.name = name;
+  gr.description = description || '';
+  gr.active = true;
+  sysId = gr.insert();
+  gs.info('Created group: ' + name);
+  return sysId;
+}
+
+// --- Helper: Create an incident ---
+function createIncident(data) {
+  // Check if already exists by short_description
+  var check = new GlideRecord('incident');
+  check.addQuery('short_description', data.short_description);
+  check.query();
+  if (check.next()) {
+    gs.info('Incident already exists: ' + data.short_description);
+    return check.sys_id.toString();
+  }
+  var gr = new GlideRecord('incident');
+  gr.initialize();
+  gr.short_description = data.short_description;
+  if (data.description) gr.description = data.description;
+  if (data.caller_id) gr.caller_id = data.caller_id;
+  if (data.category) gr.category = data.category;
+  if (data.subcategory) gr.subcategory = data.subcategory;
+  if (data.impact) gr.impact = data.impact;
+  if (data.urgency) gr.urgency = data.urgency;
+  if (data.assignment_group) gr.assignment_group = data.assignment_group;
+  if (data.assigned_to) gr.assigned_to = data.assigned_to;
+  if (data.state) gr.state = data.state;
+  if (data.parent_incident) gr.parent_incident = data.parent_incident;
+  var sysId = gr.insert();
+  gs.info('Created incident: ' + gr.number + ' - ' + data.short_description);
+  return sysId;
+}
+
+// ============================================================
+// PART A: Ensure required groups exist
+// ============================================================
+
+gs.info('--- Ensuring groups exist ---');
+ensureGroup('Service Desk', 'Level 1 support');
+ensureGroup('Network', 'Network infrastructure team');
+ensureGroup('Hardware', 'Hardware support team');
+ensureGroup('Software', 'Application support team');
+ensureGroup('Database', 'Database administration team');
+
+// ============================================================
+// PART B: Create initial incidents (Steps 1.1, 1.3, 1.4)
+// ============================================================
+
+gs.info('--- Creating initial incidents ---');
+
+// Step 1.1: Email incident (P3)
+createIncident({
+  short_description: 'Unable to access email from mobile device',
+  description: 'User reports that email on iPhone has stopped syncing after latest update. Tried restarting the device. All other apps work fine.',
+  caller_id: getUserSysId('Abel Tuter'),
+  category: 'software',
+  subcategory: 'email',
+  impact: 2,
+  urgency: 2,
+  assignment_group: getGroupSysId('Service Desk'),
+  assigned_to: getUserSysId('Beth Anglin')
+});
+
+// Step 1.3: VPN P1 incident (leave open for lifecycle exercise)
+createIncident({
+  short_description: 'VPN service down - all remote users affected',
+  description: 'VPN gateway is unreachable. Over 500 remote users cannot connect. Started at 9:00 AM.',
+  caller_id: getUserSysId('David Loo'),
+  category: 'network',
+  subcategory: 'vpn',
+  impact: 1,
+  urgency: 1,
+  assignment_group: getGroupSysId('Network')
+});
+
+// Step 1.4: Laptop screen (P4)
+createIncident({
+  short_description: 'Laptop screen flickering',
+  caller_id: getUserSysId('Fred Luddy'),
+  category: 'hardware',
+  impact: 3,
+  urgency: 2,
+  assignment_group: getGroupSysId('Hardware')
+});
+
+// Step 1.4: Printer (P4)
+createIncident({
+  short_description: 'Cannot print to network printer',
+  caller_id: getUserSysId('Abel Tuter'),
+  category: 'software',
+  impact: 2,
+  urgency: 3,
+  assignment_group: getGroupSysId('Service Desk')
+});
+
+// Step 1.4: WiFi (P3)
+createIncident({
+  short_description: 'WiFi keeps disconnecting in Bldg 2',
+  caller_id: getUserSysId('Beth Anglin'),
+  category: 'network',
+  impact: 2,
+  urgency: 2,
+  assignment_group: getGroupSysId('Network')
+});
+
+// ============================================================
+// PART C: Escalation incident (Step 3.3)
+// ============================================================
+
+gs.info('--- Creating escalation incident ---');
+
+createIncident({
+  short_description: 'Application timeout errors on internal portal',
+  description: 'Users experiencing frequent timeout errors on the internal company portal. Issue affects multiple departments.',
+  category: 'software',
+  impact: 2,
+  urgency: 1,
+  assignment_group: getGroupSysId('Service Desk')
+});
+
+// ============================================================
+// PART D: Major Incident + Child Incidents (Exercise 2)
+// ============================================================
+
+gs.info('--- Creating major incident with children ---');
+
+var majorIncSysId = createIncident({
+  short_description: 'Payment processing system down - all transactions failing',
+  description: 'Complete payment processing outage. No transactions are being processed. Customer impact is severe.',
+  category: 'software',
+  impact: 1,
+  urgency: 1,
+  assignment_group: getGroupSysId('Software')
+});
+
+// Child incidents
+createIncident({
+  short_description: 'Payment gateway not responding',
+  description: 'The payment gateway API returns 503 errors for all requests.',
+  category: 'software',
+  impact: 1,
+  urgency: 1,
+  assignment_group: getGroupSysId('Software'),
+  parent_incident: majorIncSysId
+});
+
+createIncident({
+  short_description: 'Database replication lag detected',
+  description: 'Primary to replica replication lag exceeds 30 seconds. Queries timing out.',
+  category: 'software',
+  impact: 1,
+  urgency: 1,
+  assignment_group: getGroupSysId('Database'),
+  parent_incident: majorIncSysId
+});
+
+createIncident({
+  short_description: 'Load balancer health check failing',
+  description: 'Load balancer reports all backend nodes as unhealthy. Traffic not being distributed.',
+  category: 'network',
+  impact: 1,
+  urgency: 1,
+  assignment_group: getGroupSysId('Network'),
+  parent_incident: majorIncSysId
+});
+
+// ============================================================
+// PART E: Exercise 3 - 10 varied incidents for reporting data
+// ============================================================
+
+gs.info('--- Creating reporting data incidents ---');
+
+var reportingIncidents = [
+  { short_description: 'Server CPU utilization above 95%',          category: 'hardware',  impact: 1, urgency: 2, group: 'Hardware',     state: 2 },
+  { short_description: 'Disk space critically low on file server',  category: 'hardware',  impact: 2, urgency: 1, group: 'Hardware',     state: 2 },
+  { short_description: 'DNS resolution failures intermittent',      category: 'network',   impact: 2, urgency: 2, group: 'Network',      state: 1 },
+  { short_description: 'SSO login page returning 500 error',        category: 'software',  impact: 1, urgency: 1, group: 'Software',     state: 2 },
+  { short_description: 'Backup job failed on database server',      category: 'software',  impact: 2, urgency: 3, group: 'Database',     state: 6 },
+  { short_description: 'Office 365 license activation issue',       category: 'software',  impact: 3, urgency: 3, group: 'Service Desk', state: 6 },
+  { short_description: 'Monitor not detected after docking',        category: 'hardware',  impact: 3, urgency: 3, group: 'Hardware',     state: 1 },
+  { short_description: 'Network switch port flapping in MDF',       category: 'network',   impact: 1, urgency: 2, group: 'Network',      state: 2 },
+  { short_description: 'LDAP sync not updating new hires',          category: 'software',  impact: 2, urgency: 2, group: 'Software',     state: 1 },
+  { short_description: 'Printer queue stuck on 3rd floor',          category: 'hardware',  impact: 3, urgency: 2, group: 'Service Desk', state: 6 }
+];
+
+for (var i = 0; i < reportingIncidents.length; i++) {
+  var ri = reportingIncidents[i];
+  createIncident({
+    short_description: ri.short_description,
+    category: ri.category,
+    impact: ri.impact,
+    urgency: ri.urgency,
+    assignment_group: getGroupSysId(ri.group),
+    state: ri.state
+  });
+}
+
+// ============================================================
+// PART F: Assignment Rule (Step 3.1)
+// ============================================================
+
+gs.info('--- Creating assignment rule ---');
+
+var ar = new GlideRecord('sysrule_assignment');
+ar.addQuery('name', 'Auto-assign Network incidents');
+ar.query();
+if (ar.next()) {
+  gs.info('Assignment rule already exists: Auto-assign Network incidents');
+} else {
+  ar.initialize();
+  ar.name = 'Auto-assign Network incidents';
+  ar.table = 'incident';
+  ar.active = true;
+  ar.condition = 'category=network';
+  ar.group = getGroupSysId('Network');
+  ar.insert();
+  gs.info('Created assignment rule: Auto-assign Network incidents');
+}
+
+// ============================================================
+// PART G: Incident Template (Step 5.1)
+// ============================================================
+
+gs.info('--- Creating incident template ---');
+
+var tmpl = new GlideRecord('sys_template');
+tmpl.addQuery('name', 'VPN Outage P1');
+tmpl.addQuery('table', 'incident');
+tmpl.query();
+if (tmpl.next()) {
+  gs.info('Template already exists: VPN Outage P1');
+} else {
+  tmpl.initialize();
+  tmpl.name = 'VPN Outage P1';
+  tmpl.table = 'incident';
+  tmpl.template = 'category=network^subcategory=vpn^impact=1^urgency=1^assignment_group=' + getGroupSysId('Network') + '^short_description=VPN service disruption - [LOCATION]';
+  tmpl.active = true;
+  tmpl.insert();
+  gs.info('Created template: VPN Outage P1');
+}
+
+gs.info('=== Lab 07 setup complete! ===');
+```
+
+### Verify After Running
+
+1. **Incidents:** Navigate to `incident.list` -- you should see 18+ new incidents
+2. **Assignment Rule:** Navigate to `sysrule_assignment.list` -- check "Auto-assign Network incidents"
+3. **Template:** Navigate to `sys_template.list` -- check "VPN Outage P1"
+4. **Major Incident:** Search for "Payment processing" -- verify 3 child incidents are linked
+
+### Incident Summary
+
+| Category | Count | Priorities |
+|---|---|---|
+| Network | 5 | P1 x2, P2 x1, P3 x1, child x1 |
+| Software | 6 | P1 x2, P2 x1, P3 x1, P4 x1, child x1 |
+| Hardware | 5 | P2 x2, P4 x2, P5 x1 |
+| Total | 18 | Mixed for reporting |
+
+> **Note:** This script is idempotent -- you can run it multiple times safely. After running, work through **Part 2 (Lifecycle)** manually on the VPN incident, and **Part 4 (Linking)** to practice connecting incidents to CIs and problems.

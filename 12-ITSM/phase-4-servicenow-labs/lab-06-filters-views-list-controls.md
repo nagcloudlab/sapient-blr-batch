@@ -382,3 +382,225 @@ Create these custom views for the Incident list:
 Congratulations -- you've completed the **Beginner** labs! You now have a solid foundation in ServiceNow navigation, administration, and data management.
 
 In **Lab 07**, you begin the **Intermediate** labs, starting with **Incident Management** -- you'll create, manage, escalate, and resolve incidents through the full lifecycle.
+
+---
+
+## Appendix: Bulk Setup via Background Script
+
+> **Shortcut:** This script creates the saved filters, custom list views, and navigator module from Parts 2-3 and the exercises. Parts 1, 4, and 5 are learning exercises that must be done through the UI.
+
+### How to Run
+
+1. Navigate to **System Definition > Scripts - Background** (or type `scripts` in Filter Navigator)
+2. Paste the entire script below and click **Run script**
+3. Check the output pane for confirmation messages
+
+### What This Script Covers
+
+| Manual Steps | What the Script Does |
+|---|---|
+| Step 2.1 | Creates the "My Open P1 Incidents" saved filter |
+| Step 2.3 | Creates the "Open P1 Incidents" navigator module |
+| Steps 3.2-3.4 | Creates `manager_view` and `sla_view` list layouts |
+| Exercise 1 | Creates all 4 saved filters (Unassigned Critical, My Team's Work, etc.) |
+| Exercise 2 | Creates Executive View and Technician View list layouts |
+
+### What You Still Need to Do Manually
+
+- **Part 1** — Practice building filters in the condition builder (this is a learning exercise)
+- **Part 4** — List controls: export, visual task board, context menus (UI-only features)
+- **Part 5** — Encoded queries: copy/paste from breadcrumbs, test in URLs
+
+### The Script
+
+```javascript
+// ============================================================
+// Lab 06 - Setup: Saved Filters, Views, Navigator Module
+// Run in: System Definition > Scripts - Background
+// Idempotent -- safe to run multiple times
+// ============================================================
+
+// --- Helper: Create or skip a saved filter ---
+function createFilter(title, table, filter, isGlobal) {
+  var gr = new GlideRecord('sys_filter');
+  gr.addQuery('title', title);
+  gr.addQuery('table', table);
+  gr.query();
+  if (gr.next()) {
+    gs.info('Filter already exists: ' + title);
+    return;
+  }
+  gr.initialize();
+  gr.title = title;
+  gr.table = table;
+  gr.filter = filter;
+  gr.active = true;
+  if (isGlobal) gr.visible = 'global';
+  gr.insert();
+  gs.info('Created filter: ' + title);
+}
+
+// --- Helper: Add a column to a list view ---
+function addListColumn(tableName, viewName, element, position) {
+  var gr = new GlideRecord('sys_ui_list');
+  gr.addQuery('name', tableName);
+  gr.addQuery('view', viewName);
+  gr.addQuery('element', element);
+  gr.query();
+  if (gr.next()) return; // already exists
+  gr.initialize();
+  gr.name = tableName;
+  gr.view = viewName;
+  gr.element = element;
+  gr.position = position;
+  gr.insert();
+}
+
+// --- Helper: Create a list view (delete existing columns first if view exists) ---
+function createListView(tableName, viewName, columns) {
+  // Check if view already has columns
+  var check = new GlideRecord('sys_ui_list');
+  check.addQuery('name', tableName);
+  check.addQuery('view', viewName);
+  check.query();
+  if (check.next()) {
+    gs.info('View already exists: ' + tableName + ' / ' + viewName);
+    return;
+  }
+  for (var i = 0; i < columns.length; i++) {
+    addListColumn(tableName, viewName, columns[i], (i + 1) * 100);
+  }
+  gs.info('Created view: ' + tableName + ' / ' + viewName);
+}
+
+// ============================================================
+// PART A: Saved Filters (Step 2.1 + Exercise 1)
+// ============================================================
+
+gs.info('--- Creating saved filters ---');
+
+// Step 2.1: My Open P1 Incidents
+createFilter(
+  'My Open P1 Incidents',
+  'incident',
+  'priority=1^state!=7'
+);
+
+// Exercise 1: Unassigned Critical
+createFilter(
+  'Unassigned Critical',
+  'incident',
+  'priority=1^assigned_toISEMPTY'
+);
+
+// Exercise 1: My Team's Work
+createFilter(
+  'My Team\'s Work',
+  'incident',
+  'assignment_group.name=Platform Engineering^state!=7'
+);
+
+// Exercise 1: Aging Incidents
+createFilter(
+  'Aging Incidents',
+  'incident',
+  'state=2^opened_atRELATIVELE@dayofweek@ago@30'
+);
+
+// Exercise 1: Recent P1/P2
+createFilter(
+  'Recent P1/P2',
+  'incident',
+  'priorityIN1,2^opened_atRELATIVEGE@dayofweek@ago@7'
+);
+
+// ============================================================
+// PART B: Custom List Views (Steps 3.2-3.4 + Exercise 2)
+// ============================================================
+
+gs.info('--- Creating custom list views ---');
+
+// Step 3.2: Manager View
+createListView('incident', 'manager_view', [
+  'number',
+  'short_description',
+  'priority',
+  'state',
+  'assignment_group',
+  'assigned_to',
+  'opened_at',
+  'category'
+]);
+
+// Step 3.4: SLA View
+createListView('incident', 'sla_view', [
+  'number',
+  'short_description',
+  'priority',
+  'state',
+  'made_sla',
+  'reassignment_count',
+  'assigned_to',
+  'assignment_group'
+]);
+
+// Exercise 2: Executive View
+createListView('incident', 'executive_view', [
+  'number',
+  'short_description',
+  'priority',
+  'state',
+  'made_sla',
+  'assignment_group'
+]);
+
+// Exercise 2: Technician View
+createListView('incident', 'technician_view', [
+  'number',
+  'short_description',
+  'category',
+  'subcategory',
+  'cmdb_ci',
+  'work_notes'
+]);
+
+// ============================================================
+// PART C: Navigator Module (Step 2.3)
+// ============================================================
+
+gs.info('--- Creating navigator module ---');
+
+var mod = new GlideRecord('sys_app_module');
+mod.addQuery('title', 'Open P1 Incidents');
+mod.query();
+if (mod.next()) {
+  gs.info('Module already exists: Open P1 Incidents');
+} else {
+  // Find the Incident application menu
+  var menu = new GlideRecord('sys_app_application');
+  menu.addQuery('title', 'Incident');
+  menu.query();
+  if (menu.next()) {
+    mod.initialize();
+    mod.title = 'Open P1 Incidents';
+    mod.application = menu.sys_id.toString();
+    mod.order = 200;
+    mod.filter = 'priority=1^state!=7';
+    mod.name = 'incident';
+    mod.insert();
+    gs.info('Created module: Open P1 Incidents');
+  } else {
+    gs.warn('Incident application menu not found -- module not created');
+  }
+}
+
+gs.info('=== Lab 06 setup complete! ===');
+```
+
+### Verify After Running
+
+1. **Saved Filters:** Navigate to Incident > All, open the filter area, check for your saved filters
+2. **Custom Views:** Navigate to `incident.list?sysparm_view=manager_view` to test each view
+3. **Navigator Module:** Check the Incident section in the Application Navigator for "Open P1 Incidents"
+
+> **Note:** This script is idempotent -- you can run it multiple times safely. The core learning of this lab is in **using** filters, views, and list controls through the UI -- the script just pre-creates the artifacts so you can focus on exploring them.
