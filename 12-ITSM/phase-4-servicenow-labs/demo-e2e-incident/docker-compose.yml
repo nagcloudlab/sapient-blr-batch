@@ -33,18 +33,18 @@ services:
 
   # --- ServiceNow Bridge ---
 
-  snow-bridge:
-    build: ./services/snow-bridge
-    container_name: snow-bridge
-    ports:
-      - "5005:5005"
-    environment:
-      - SNOW_INSTANCE=${SNOW_INSTANCE:-https://devXXXXXX.service-now.com}
-      - SNOW_USER=${SNOW_USER:-admin}
-      - SNOW_PASSWORD=${SNOW_PASSWORD:-password}
-      - SNOW_ENABLED=${SNOW_ENABLED:-false}
-    networks:
-      - upi-network
+  # snow-bridge:
+  #   build: ./services/snow-bridge
+  #   container_name: snow-bridge
+  #   ports:
+  #     - "5005:5005"
+  #   environment:
+  #     - SNOW_INSTANCE=${SNOW_INSTANCE:-https://devXXXXXX.service-now.com}
+  #     - SNOW_USER=${SNOW_USER:-admin}
+  #     - SNOW_PASSWORD=${SNOW_PASSWORD:-password}
+  #     - SNOW_ENABLED=${SNOW_ENABLED:-false}
+  #   networks:
+  #     - upi-network
 
   # --- Monitoring Stack ---
 
@@ -65,19 +65,19 @@ services:
     networks:
       - upi-network
 
-  alertmanager:
-    image: prom/alertmanager:v0.27.0
-    container_name: alertmanager
-    ports:
-      - "9093:9093"
-    volumes:
-      - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
-    command:
-      - '--config.file=/etc/alertmanager/alertmanager.yml'
-    depends_on:
-      - snow-bridge
-    networks:
-      - upi-network
+  # alertmanager:
+  #   image: prom/alertmanager:v0.27.0
+  #   container_name: alertmanager
+  #   ports:
+  #     - "9093:9093"
+  #   volumes:
+  #     - ./monitoring/alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+  #   command:
+  #     - '--config.file=/etc/alertmanager/alertmanager.yml'
+  #   depends_on:
+  #     - snow-bridge
+  #   networks:
+  #     - upi-network
 
   grafana:
     image: grafana/grafana:11.1.0
