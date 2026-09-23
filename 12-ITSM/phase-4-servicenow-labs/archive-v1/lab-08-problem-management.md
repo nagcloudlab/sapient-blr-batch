@@ -245,87 +245,123 @@ without a circuit breaker — when transactions fail, settlements cascade-fail
 with no fallback or timeout protection.
 ```
 
-### Step 5.3: Document the Root Cause
+### Step 5.3: Document Root Cause, Workaround, and Fix
 
 1. Open the Problem record
-2. Find the **Cause Notes** (or **Root Cause**) field and enter:
-   ```
-   ROOT CAUSE: Unprotected chaos engineering endpoints + missing circuit breaker
+2. Click the **Analysis Information** tab (between Notes and Resolution Information)
+3. Fill in the three fields:
 
-   1. The UPI Transaction Service exposes /chaos/* endpoints without any
-      authentication or authorization. These endpoints can inject failures,
-      latency, or complete outages into the production service.
+**Cause Notes** (root cause):
+```
+ROOT CAUSE: Unprotected chaos engineering endpoints + missing circuit breaker
 
-   2. No circuit breaker pattern exists between the UPI Settlement Service
-      and Transaction Service. When transactions fail, settlement requests
-      cascade-fail with no fallback, timeout, or bulkhead isolation.
+1. The UPI Transaction Service exposes /chaos/* endpoints without any
+   authentication or authorization. These endpoints can inject failures,
+   latency, or complete outages into the production service.
 
-   3. No network segmentation prevents internal services from reaching
-      the chaos endpoints.
-   ```
-3. Add a work note: "Root cause identified — unprotected chaos endpoints and missing circuit breaker pattern."
+2. No circuit breaker pattern exists between the UPI Settlement Service
+   and Transaction Service. When transactions fail, settlement requests
+   cascade-fail with no fallback, timeout, or bulkhead isolation.
+
+3. No network segmentation prevents internal services from reaching
+   the chaos endpoints.
+```
+
+**Workaround**:
+```
+Immediate workaround (restores service within 30 seconds):
+
+1. Disable chaos mode:
+   curl -X POST http://upi-transaction-service:8081/chaos/disable
+
+2. Verify recovery on Grafana dashboard:
+   - Transaction failure rate should drop to 0%
+   - Settlement success rate should recover
+
+3. If service is completely unresponsive, restart:
+   docker compose restart upi-transaction-service
+
+4. Monitor for 15 minutes to confirm stability
+```
+
+**Fix Notes** (permanent fix):
+```
+Permanent fix (requires Change Request):
+
+1. SECURITY: Add Spring Security to /chaos/* endpoints
+   - Require admin role authentication
+   - Disable chaos endpoints entirely in production profile
+
+2. RESILIENCE: Add Resilience4j circuit breaker in Settlement Service
+   - Circuit opens after 5 consecutive failures
+   - Half-open after 30 seconds for retry
+   - Fallback: queue settlement for retry
+
+3. RATE LIMITING: Add rate limiter on /api/upi/pay
+   - Prevent thundering herd on recovery
+
+4. MONITORING: Add circuit breaker state change alerts
+   - Alert when circuit opens (early warning)
+
+5. NETWORK: Restrict /chaos/* to management network only
+```
+
 4. Click **Update**
+5. Add a work note: "Root cause identified. Workaround and fix documented."
+6. Click **Update**
 
 ---
 
-## Part 6: Known Error and Workaround
+## Part 6: Create Known Error Article
 
-### Step 6.1: Document the Workaround
+In the Zurich release, Known Errors are created as **Knowledge Base articles** linked to the Problem (not a checkbox).
 
-1. Open the Problem record
-2. Fill in the **Workaround** field:
-   ```
-   Immediate workaround (restores service within 30 seconds):
+### Step 6.1: Create the Known Error Article
 
-   1. Disable chaos mode:
-      curl -X POST http://upi-transaction-service:8081/chaos/disable
+1. Open the Problem record (PRB0040001)
+2. Scroll to **Related Links** at the bottom of the form
+3. Click **"Create Known Error article"**
+4. A Knowledge article form opens, pre-filled with your Problem data
+5. Review and update the article:
 
-   2. Verify recovery on Grafana dashboard:
-      - Transaction failure rate should drop to 0%
-      - Settlement success rate should recover
+   | Field | Value |
+   |---|---|
+   | Short description | Known Error: UPI Transaction Service — unprotected chaos endpoints cause payment failures |
+   | Knowledge base | Known Errors (select or use default) |
+   | Category | Software |
+   | Article body | (pre-filled from Problem — add any extra detail) |
 
-   3. If service is completely unresponsive, restart:
-      docker compose restart upi-transaction-service
+6. Ensure the article includes:
+   - **Symptoms:** Transaction failure rate >50%, settlement failures, HTTP 5xx, service outage
+   - **Root Cause:** Unprotected /chaos/* endpoints + no circuit breaker
+   - **Workaround:** `curl -X POST .../chaos/disable`
+   - **Permanent Fix:** Spring Security + Resilience4j (requires Change Request)
+7. Set **Workflow** to **Published** (or click Publish if available)
+8. Click **Submit**
 
-   4. Monitor for 15 minutes to confirm stability
-   ```
-3. Click **Update**
+### Step 6.2: Other Related Links
 
-### Step 6.2: Mark as Known Error
+You also have these useful links on the Problem form:
+- **Communicate Workaround** — notify affected users/teams about the workaround
+- **Communicate Fix** — notify when the permanent fix is deployed
+- **Related Search Results** — find similar problems or knowledge articles
 
-1. Check the **Known error** checkbox on the Problem form
-2. Fill in the **Fix Notes** field:
-   ```
-   Permanent fix (requires Change Request CHG):
+### Step 6.3: View the Known Error Database (KEDB)
 
-   1. SECURITY: Add Spring Security to /chaos/* endpoints
-      - Require admin role authentication
-      - Disable chaos endpoints entirely in production profile
+The KEDB in Zurich is part of the Knowledge Base:
 
-   2. RESILIENCE: Add Resilience4j circuit breaker in Settlement Service
-      - Circuit opens after 5 consecutive failures
-      - Half-open after 30 seconds for retry
-      - Fallback: queue settlement for retry
+1. Navigate to **Knowledge > Articles** (or type `kb_knowledge.list`)
+2. Filter by Knowledge Base = "Known Errors" (or search for "UPI" in the search bar)
+3. Your Known Error article should appear
+4. Service desk agents can search this KEDB when new incidents come in:
+   - New incident about UPI failures → search KEDB → find the workaround → faster resolution
 
-   3. RATE LIMITING: Add rate limiter on /api/upi/pay
-      - Prevent thundering herd on recovery
-
-   4. MONITORING: Add circuit breaker state change alerts
-      - Alert when circuit opens (early warning)
-
-   5. NETWORK: Restrict /chaos/* to management network only
-   ```
-3. Add a work note: "Marked as Known Error. Workaround documented. Permanent fix requires a Change Request."
-4. Click **Update**
-
-### Step 6.3: Known Error Database (KEDB)
-
-1. Navigate to **Problem > Known Errors** (or filter `problem.list` where Known error = true)
-2. Your UPI problem should appear here
-3. The KEDB enables:
-   - Service desk agents to search for known workarounds
-   - Faster MTTR — "We know this issue. Apply the workaround."
-   - Tracking of unresolved known errors until permanent fix
+```
+KEDB Workflow:
+  New incident comes in → Agent searches KEDB → Finds matching Known Error
+  → Applies workaround → Incident resolved in minutes (not hours)
+  → Links incident to existing Problem
+```
 
 ---
 
@@ -494,8 +530,8 @@ In **Lab 09: Change Management**, you'll take the Change Request created here (C
 |---|---|
 | Part 3 | Creates the UPI Problem with full description |
 | Part 4 | Links all `[AUTO]` incidents to the problem |
-| Part 5 | Adds 4 investigation work notes + root cause |
-| Part 6 | Documents workaround, marks as Known Error |
+| Part 5 | Adds 4 investigation work notes + root cause + workaround + fix notes |
+| Part 6 | Known Error article must be created manually via "Create Known Error article" link |
 | Part 7 | Creates the Change Request |
 | Exercise 1 | Creates 3 UPI QR Code incidents + Problem + links |
 | Exercise 2 | Creates the proactive Settlement SPOF problem |
@@ -503,6 +539,7 @@ In **Lab 09: Change Management**, you'll take the Change Request created here (C
 ### What You Still Do Manually
 
 - **Part 5** — Read the investigation notes to understand the RCA thought process
+- **Part 6** — Click "Create Known Error article" on the Problem form (cannot be scripted)
 - **Part 8** — Practice closing the problem through the UI
 - **Exercise 3** — Run the reporting queries yourself
 
@@ -594,7 +631,7 @@ if (pCheck.next()) {
   prob.cause_notes = 'ROOT CAUSE: Unprotected chaos engineering endpoints + missing circuit breaker\n\n1. The UPI Transaction Service exposes /chaos/* endpoints without authentication. These endpoints can inject failures, latency, or outages.\n2. No circuit breaker between Settlement and Transaction services — failures cascade.\n3. No network segmentation prevents internal services from reaching chaos endpoints.';
   prob.fix_notes = 'Permanent fix:\n1. Add Spring Security to /chaos/* endpoints (admin role only)\n2. Add Resilience4j circuit breaker in Settlement Service\n3. Add rate limiting on /api/upi/pay\n4. Add circuit breaker state change alerts\n5. Restrict /chaos/* to management network only';
   prob.workaround = 'Immediate workaround:\n1. Disable chaos: curl -X POST http://upi-transaction-service:8081/chaos/disable\n2. Verify recovery on Grafana (failure rate drops to 0%)\n3. If unresponsive: docker compose restart upi-transaction-service\n4. Monitor 15 minutes for stability';
-  prob.known_error = true;
+  // In Zurich, Known Error is created via "Create Known Error article" link on the form
   problemSysId = prob.insert();
   gs.info('Created Problem: ' + prob.number);
 
@@ -737,7 +774,7 @@ gs.info('=== Lab 08 setup complete! ===');
 |---|---|
 | Problems created | `problem.list` — should see 3 problems (UPI, QR Code, Proactive SPOF) |
 | Incidents linked | `incident.list?sysparm_query=problem_id.number=PRB0040001` |
-| Known Errors | `problem.list` → filter Known error = true |
+| Known Error article | **Knowledge > Articles** → search "UPI" (created via Related Links on Problem form) |
 | Change Request | `change_request.list` → find chaos endpoint security change |
 | Work notes | Open UPI Problem → scroll to Activity → 4 investigation notes |
 

@@ -33,8 +33,43 @@ CATEGORY_MAP = {
     'default':                 'network',
 }
 
+# Map service names to CMDB CI names (must match CIs created in Lab 07)
+CI_NAME_MAP = {
+    'upi-transaction-service': 'UPI Transaction Service',
+    'upi-settlement-service':  'UPI Settlement Service',
+    'prometheus':              'Prometheus Monitoring',
+    'grafana':                 'Grafana Dashboard',
+    'snow-bridge':             'Snow Bridge Integration',
+}
+
+# Cache CI sys_ids after first lookup
+ci_cache = {}
+
 # Track created incidents to avoid duplicates
 active_alerts = {}
+
+
+def lookup_ci_sys_id(ci_name):
+    """Look up a CMDB CI sys_id by name. Results are cached."""
+    if ci_name in ci_cache:
+        return ci_cache[ci_name]
+    if not SNOW_ENABLED:
+        return None
+    try:
+        url = (f"{SNOW_INSTANCE}/api/now/table/cmdb_ci"
+               f"?sysparm_query=name={ci_name}&sysparm_limit=1&sysparm_fields=sys_id,name")
+        resp = requests.get(url, auth=(SNOW_USER, SNOW_PASSWORD),
+                           headers={'Accept': 'application/json'}, timeout=15)
+        resp.raise_for_status()
+        results = resp.json().get('result', [])
+        if results:
+            sys_id = results[0]['sys_id']
+            ci_cache[ci_name] = sys_id
+            logger.info(f"CI lookup: '{ci_name}' -> {sys_id}")
+            return sys_id
+    except requests.exceptions.RequestException as e:
+        logger.warning(f"CI lookup failed for '{ci_name}': {e}")
+    return None
 
 
 def create_snow_incident(alert):
@@ -78,9 +113,15 @@ def create_snow_incident(alert):
         'category': category,
         'assignment_group': 'Platform Engineering',
         'caller_id': 'admin',
-        'u_alert_source': 'Prometheus AlertManager',
-        'u_monitoring_alert': alert_name,
     }
+
+    # Attach CMDB CI if we can find it
+    ci_name = CI_NAME_MAP.get(service)
+    if ci_name:
+        ci_sys_id = lookup_ci_sys_id(ci_name)
+        if ci_sys_id:
+            incident_data['cmdb_ci'] = ci_sys_id
+            logger.info(f"Attaching CI '{ci_name}' to incident")
 
     # Dedup: check if we already have an open incident for this alert
     alert_key = f"{alert_name}_{service}_{instance}"
@@ -142,9 +183,8 @@ def resolve_snow_incident(alert):
         logger.info(f"[DRY RUN] Would add resolution note to {inc_number}")
         return
 
-    # Find and update the incident
+    # Find and auto-resolve the incident
     try:
-        # Find incident by number
         url = f"{SNOW_INSTANCE}/api/now/table/incident?sysparm_query=number={inc_number}&sysparm_limit=1"
         resp = requests.get(url, auth=(SNOW_USER, SNOW_PASSWORD),
                           headers={'Accept': 'application/json'}, timeout=30)
@@ -158,14 +198,18 @@ def resolve_snow_incident(alert):
                 auth=(SNOW_USER, SNOW_PASSWORD),
                 headers={'Content-Type': 'application/json', 'Accept': 'application/json'},
                 json={
+                    'state': '6',  # Resolved
+                    'close_code': 'Solved (Permanently)',
+                    'close_notes': f"Auto-resolved: alert cleared at {alert.get('endsAt', 'unknown')}.",
                     'work_notes': f"[AUTO] Alert resolved at {alert.get('endsAt', 'unknown')}. "
-                                  f"Monitoring confirms service has recovered."
+                                  f"Monitoring confirms service has recovered. "
+                                  f"Incident auto-resolved by Snow Bridge."
                 },
                 timeout=30
             )
-            logger.info(f"Added resolution note to {inc_number}")
+            logger.info(f"Auto-resolved incident {inc_number}")
     except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to update incident {inc_number}: {e}")
+        logger.error(f"Failed to resolve incident {inc_number}: {e}")
 
 
 @app.route('/webhook', methods=['POST'])

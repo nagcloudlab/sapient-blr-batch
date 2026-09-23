@@ -30,12 +30,16 @@ public class SettlementService {
         "SBI", "HDFC", "ICICI", "Axis", "PNB", "BOB", "Kotak", "IndusInd", "YES", "IDBI"
     };
 
+    private final ChaosService chaosService;
+
     public SettlementService(
             RestTemplate restTemplate,
             @Value("${upi.transaction-service-url}") String transactionServiceUrl,
+            ChaosService chaosService,
             MeterRegistry registry) {
         this.restTemplate = restTemplate;
         this.transactionServiceUrl = transactionServiceUrl;
+        this.chaosService = chaosService;
         this.settledCounter = Counter.builder("upi_settlements_total")
                 .tag("status", "settled").register(registry);
         this.failedCounter = Counter.builder("upi_settlements_total")
@@ -57,6 +61,20 @@ public class SettlementService {
         response.setAmount(request.getAmount());
         response.setPayerBank(BANKS[random.nextInt(BANKS.length)]);
         response.setPayeeBank(BANKS[random.nextInt(BANKS.length)]);
+
+        // Simulate latency if chaos injected
+        int extraLatency = chaosService.getLatencyMs();
+        if (extraLatency > 0) {
+            try { Thread.sleep(extraLatency); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
+        }
+
+        // Simulate local failures if chaos enabled
+        if (random.nextInt(100) < chaosService.getFailureRatePercent()) {
+            response.setStatus("FAILED");
+            response.setErrorMessage("Settlement processing error (chaos injected)");
+            failedCounter.increment();
+            return response;
+        }
 
         // Call transaction service to initiate payment
         try {
