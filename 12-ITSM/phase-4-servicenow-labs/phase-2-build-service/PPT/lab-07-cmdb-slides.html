@@ -6,152 +6,126 @@
 <title>Lab 07: CMDB & Configuration Management</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;overflow:hidden}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8fafc;overflow:hidden}
 .deck{width:100vw;height:100vh;position:relative}
-.slide{position:absolute;inset:0;display:none;padding:5vh 6vw;overflow-y:auto}
+.slide{position:absolute;inset:0;display:none;padding:5vh 6vw;overflow-y:auto;background:#fff;color:#1e293b}
 .slide.active{display:flex;flex-direction:column}
-:root{--bg:#fff;--text:#1e293b;--muted:#64748b;--accent:#2563eb;--green:#059669;--red:#dc2626;--orange:#ea580c;--surface:#f1f5f9;--border:#e2e8f0;--dark:#0f172a;--dark2:#1e293b;--purple:#7c3aed;--yellow:#d97706}
-.s-light{background:var(--bg);color:var(--text)}
-.s-dark{background:var(--dark);color:#e2e8f0}
-.s-red{background:#7f1d1d;color:#fecaca}
-.s-green{background:#064e3b;color:#d1fae5}
-.s-accent{background:var(--accent);color:#fff}
-.s-purple{background:var(--purple);color:#fff}
-.tag{font-size:clamp(10px,.85vw,14px);font-weight:700;letter-spacing:2px;text-transform:uppercase;opacity:.7}
-.title{font-size:clamp(28px,4vw,64px);font-weight:800;line-height:1.15;margin:.3em 0}
-.subtitle{font-size:clamp(16px,1.8vw,28px);line-height:1.5;opacity:.85;max-width:70%}
-h2{font-size:clamp(22px,2.8vw,44px);font-weight:700;margin:.3em 0 .4em;line-height:1.2}
+:root{--text:#1e293b;--muted:#64748b;--accent:#2563eb;--green:#059669;--red:#dc2626;--orange:#ea580c;--surface:#f8fafc;--border:#e2e8f0;--dark:#0f172a}
+.tag{font-size:clamp(10px,.85vw,14px);font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--accent)}
+.title{font-size:clamp(28px,4vw,64px);font-weight:800;line-height:1.15;margin:.3em 0;color:var(--text)}
+.subtitle{font-size:clamp(16px,1.8vw,28px);line-height:1.5;color:var(--muted);max-width:70%}
+h2{font-size:clamp(22px,2.8vw,44px);font-weight:700;margin:.3em 0 .4em;line-height:1.2;color:var(--text)}
 h3{font-size:clamp(16px,1.5vw,24px);font-weight:700;margin:.6em 0 .2em;color:var(--accent)}
-.s-dark h3{color:#60a5fa}
-.s-red h3{color:#fca5a5}
-.s-green h3{color:#6ee7b7}
-p,.bl li{font-size:clamp(14px,1.3vw,21px);line-height:1.65}
-.s-dark p,.s-dark .bl li{color:#cbd5e1}
+p,.bl li{font-size:clamp(14px,1.3vw,21px);line-height:1.65;color:var(--text)}
 .big{font-size:clamp(20px,2.2vw,36px);font-weight:700;line-height:1.4}
-.huge{font-size:clamp(36px,5vw,80px);font-weight:800;line-height:1.1}
 .bl{list-style:none;padding:0}
 .bl li{padding:.25em 0 .25em 1.6em;position:relative}
 .bl li::before{content:'';position:absolute;left:0;top:.65em;width:.45em;height:.45em;border-radius:50%;background:var(--accent)}
-.s-dark .bl li::before{background:#60a5fa}
-.s-red .bl li::before{background:#fca5a5}
-.s-green .bl li::before{background:#6ee7b7}
 table{width:100%;border-collapse:collapse;font-size:clamp(12px,1.1vw,18px);margin:.4em 0}
 th{text-align:left;font-weight:700;padding:.5em .7em;border-bottom:2px solid var(--border);color:var(--muted);font-size:.85em;text-transform:uppercase;letter-spacing:.5px}
-td{padding:.45em .7em;border-bottom:1px solid var(--border);vertical-align:top}
+td{padding:.45em .7em;border-bottom:1px solid var(--border);vertical-align:top;color:var(--text)}
 td:first-child{font-weight:600;color:var(--accent);white-space:nowrap}
 tr:nth-child(even) td{background:var(--surface)}
-.s-dark table,.s-dark th{border-color:#334155}
-.s-dark th{color:#94a3b8}
-.s-dark td{color:#e2e8f0;border-color:#1e293b}
-.s-dark td:first-child{color:#60a5fa}
-.s-dark tr:nth-child(even) td{background:#1e293b}
 .box{border-radius:10px;padding:1em 1.3em;margin:.6em 0;font-size:clamp(13px,1.15vw,19px)}
-.box-blue{background:#eff6ff;border-left:4px solid var(--accent);color:var(--dark2)}
+.box-blue{background:#eff6ff;border-left:4px solid var(--accent);color:#1e3a5f}
 .box-green{background:#ecfdf5;border-left:4px solid var(--green);color:#064e3b}
 .box-red{background:#fef2f2;border-left:4px solid var(--red);color:#7f1d1d}
 .box-orange{background:#fff7ed;border-left:4px solid var(--orange);color:#7c2d12}
-.box-dark{background:var(--dark2);border-left:4px solid var(--accent);color:#e2e8f0}
-pre{background:var(--dark);color:#e2e8f0;border-radius:10px;padding:1em 1.3em;font-family:'Cascadia Code',Consolas,monospace;font-size:clamp(11px,1vw,16px);line-height:1.55;overflow-x:auto;margin:.4em 0}
-code{font-family:'Cascadia Code',Consolas,monospace;background:var(--surface);padding:.1em .35em;border-radius:4px;font-size:.9em}
-.s-dark code{background:#334155}
+.box-dark{background:#f1f5f9;border-left:4px solid var(--text);color:var(--text)}
+pre{background:#f1f5f9;color:var(--text);border:1px solid var(--border);border-radius:10px;padding:1em 1.3em;font-family:'Cascadia Code',Consolas,monospace;font-size:clamp(11px,1vw,16px);line-height:1.55;overflow-x:auto;margin:.4em 0}
+code{font-family:'Cascadia Code',Consolas,monospace;background:#f1f5f9;padding:.1em .35em;border-radius:4px;font-size:.9em;color:var(--accent)}
 .cols{display:flex;gap:3vw;margin:.4em 0}.cols>div{flex:1}
-.foot{margin-top:auto;padding-top:.8em;display:flex;justify-content:space-between;font-size:clamp(10px,.75vw,12px);color:var(--muted);font-weight:600}
-.s-dark .foot,.s-red .foot,.s-green .foot,.s-accent .foot,.s-purple .foot{color:rgba(255,255,255,.35)}
+.foot{margin-top:auto;padding-top:.8em;display:flex;justify-content:space-between;font-size:clamp(10px,.75vw,12px);color:var(--muted);font-weight:600;border-top:1px solid var(--border)}
 .badge{display:inline-block;font-size:clamp(10px,.85vw,14px);font-weight:700;padding:.3em .7em;border-radius:6px;letter-spacing:.5px}
-.counter{position:fixed;top:10px;right:14px;background:rgba(0,0,0,.5);color:#94a3b8;font:700 12px/1 monospace;padding:5px 10px;border-radius:5px;z-index:99}
+.counter{position:fixed;top:10px;right:14px;background:rgba(0,0,0,.06);color:var(--muted);font:700 12px/1 monospace;padding:5px 10px;border-radius:5px;z-index:99}
 .timeline{position:relative;padding-left:2em;margin:.5em 0}
 .timeline::before{content:'';position:absolute;left:.4em;top:0;bottom:0;width:3px;background:var(--border)}
-.s-red .timeline::before{background:#991b1b}
-.tl-item{position:relative;padding:.4em 0;font-size:clamp(13px,1.2vw,19px)}
-.tl-item::before{content:'';position:absolute;left:-1.6em;top:.6em;width:12px;height:12px;border-radius:50%;background:var(--accent);border:2px solid #fff}
-.s-red .tl-item::before{background:#ef4444;border-color:#7f1d1d}
-.tl-time{font-weight:700;color:var(--accent);margin-right:.5em}
-.s-red .tl-time{color:#fca5a5}
-.grow{animation:grow .6s ease-out}
-@keyframes grow{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.tl-item{position:relative;padding:.35em 0;font-size:clamp(13px,1.2vw,19px)}
+.tl-item::before{content:'';position:absolute;left:-1.6em;top:.55em;width:12px;height:12px;border-radius:50%;background:var(--red);border:2px solid #fff;box-shadow:0 0 0 1px var(--border)}
+.tl-time{font-weight:700;color:var(--red);margin-right:.5em}
+.tl-ok .tl-item::before{background:var(--green)}
+.tl-ok .tl-time{color:var(--green)}
+.num-hero{text-align:center;padding:1em}
+.num-hero .num{font-size:clamp(48px,7vw,100px);font-weight:800;line-height:1;color:var(--accent)}
+.num-hero .num-label{font-size:clamp(14px,1.2vw,20px);font-weight:600;color:var(--muted);margin-top:.3em}
 </style>
 </head>
 <body>
 <div class="deck" id="deck">
 
-<!-- ========== ACT 1: THE INCIDENT (slides 1-4) ========== -->
-
 <!-- 1: TITLE -->
-<div class="slide s-dark active">
-  <div style="margin-top:8vh">
+<div class="slide active">
+  <div style="margin-top:6vh">
     <div class="tag">Lab 07 &bull; ITIL Practice: Service Configuration Management</div>
     <div class="title">CMDB &amp;<br>Configuration Management</div>
     <div class="subtitle">A story about a 2 AM outage, a missing map, and why 45 minutes became 10 seconds.</div>
     <div style="margin-top:2em">
       <span class="badge" style="background:var(--accent);color:#fff">90 min</span>
-      <span class="badge" style="background:var(--purple);color:#fff;margin-left:.4em">Builds on Labs 01-06</span>
-      <span class="badge" style="background:var(--dark2);color:#94a3b8;margin-left:.4em">PDI: Zurich</span>
+      <span class="badge" style="background:#f1f5f9;color:var(--text);margin-left:.4em">Builds on Labs 01-06</span>
+      <span class="badge" style="background:#f1f5f9;color:var(--muted);margin-left:.4em">PDI: Zurich</span>
     </div>
   </div>
-  <div class="foot"><span>ServiceNow ITSM Labs &bull; NPCI UPI</span><span></span></div>
+  <div class="foot"><span>ServiceNow ITSM Labs &bull; NPCI UPI Scenario</span><span></span></div>
 </div>
 
-<!-- 2: THE INCIDENT - MINUTE BY MINUTE -->
-<div class="slide s-red">
-  <div class="tag">Act 1: The Incident</div>
-  <h2 style="color:#fecaca">Thursday, 2:17 AM &mdash; Prometheus Alert Fires</h2>
+<!-- 2: THE INCIDENT -->
+<div class="slide">
+  <div class="tag" style="color:var(--red)">Act 1 &bull; The Incident</div>
+  <h2>Thursday, 2:17 AM &mdash; Prometheus Alert Fires</h2>
   <div class="timeline">
-    <div class="tl-item"><span class="tl-time">02:17</span> Prometheus fires <code style="background:#991b1b;color:#fecaca">UpiTransactionServiceDown</code>. All UPI payments stop.</div>
-    <div class="tl-item"><span class="tl-time">02:19</span> NOC operator Priya Sharma opens ServiceNow. Creates incident. Tries to search "UPI Transaction Service" in Configuration Item field. <strong>Nothing found.</strong></div>
-    <div class="tl-item"><span class="tl-time">02:22</span> Priya messages Slack: <em>"Transaction Service is down. What server is it on? What else depends on it? Is Settlement affected?"</em></div>
-    <div class="tl-item"><span class="tl-time">02:31</span> No reply. She calls Ravi Kumar. Ravi checks a 6-month-old wiki page, an outdated Confluence doc, and a spreadsheet someone shared in April.</div>
-    <div class="tl-item"><span class="tl-time">02:44</span> Ravi confirms: <em>"It runs on upi-app-01. Settlement calls it, so settlement is also broken."</em></div>
-    <div class="tl-item"><span class="tl-time">02:52</span> Fix applied. Service restored. <strong>Total outage: 35 minutes.</strong></div>
+    <div class="tl-item"><span class="tl-time">02:17</span> Prometheus fires <code>UpiTransactionServiceDown</code>. All UPI payments stop.</div>
+    <div class="tl-item"><span class="tl-time">02:19</span> Priya opens ServiceNow. Creates incident. Searches "UPI Transaction Service" in CI field. <strong>Nothing found.</strong></div>
+    <div class="tl-item"><span class="tl-time">02:22</span> Priya messages Slack: <em>"Transaction Service is down. What server? What depends on it? Is Settlement affected?"</em></div>
+    <div class="tl-item"><span class="tl-time">02:31</span> No reply. Calls Ravi Kumar. He checks an old wiki, a Confluence page, and a spreadsheet from April.</div>
+    <div class="tl-item"><span class="tl-time">02:44</span> Ravi confirms: <em>"It runs on upi-app-01. Settlement calls it, so that's broken too."</em></div>
+    <div class="tl-item"><span class="tl-time">02:52</span> Fix applied. Service restored.</div>
   </div>
-  <div class="box" style="background:#991b1b;border-left:4px solid #ef4444;color:#fecaca;margin-top:.8em">
-    <strong>Understanding the blast radius took 27 minutes. The fix took 8 minutes.</strong><br>
+  <div class="box-red box" style="margin-top:.6em">
+    <strong>Understanding the blast radius: 27 minutes. The actual fix: 8 minutes.</strong><br>
     The problem wasn't the fix. The problem was nobody knew what depended on what.
   </div>
   <div class="foot"><span>Lab 07 &bull; The Incident</span><span>2</span></div>
 </div>
 
-<!-- 3: WHAT IF? -->
-<div class="slide s-green">
-  <div class="tag">Act 1: What If?</div>
-  <h2 style="color:#d1fae5">Now imagine Priya had a CMDB...</h2>
-  <div class="timeline" style="margin-top:.5em">
-    <div class="tl-item" style="color:#d1fae5"><span class="tl-time" style="color:#6ee7b7">02:17</span> Alert fires. Priya opens ServiceNow.</div>
-    <div class="tl-item" style="color:#d1fae5"><span class="tl-time" style="color:#6ee7b7">02:17</span> Searches "UPI Transaction Service" &mdash; <strong>CI found instantly.</strong></div>
-    <div class="tl-item" style="color:#d1fae5"><span class="tl-time" style="color:#6ee7b7">02:17</span> Clicks <strong>"View Map"</strong>. Sees the dependency graph:</div>
+<!-- 3: WHAT IF -->
+<div class="slide">
+  <div class="tag" style="color:var(--green)">Act 1 &bull; What If?</div>
+  <h2>Now imagine Priya had a CMDB...</h2>
+  <div class="timeline tl-ok">
+    <div class="tl-item"><span class="tl-time">02:17</span> Alert fires. Priya opens ServiceNow.</div>
+    <div class="tl-item"><span class="tl-time">02:17</span> Searches "UPI Transaction Service" &mdash; <strong>CI found instantly.</strong></div>
+    <div class="tl-item"><span class="tl-time">02:17</span> Clicks <strong>"View Map"</strong>. Sees the full dependency graph.</div>
   </div>
-  <pre style="margin:.5em 0;background:#064e3b;color:#d1fae5">
-  LB ──depends on──▸ UPI Txn Service ──depends on──▸ PostgreSQL Primary
-                     UPI Stl Service ──depends on──▸ PostgreSQL Primary
+  <pre>
+  LB ── depends on ──▸ UPI Txn Service ── depends on ──▸ PostgreSQL Primary
+                       UPI Stl Service ── depends on ──▸ PostgreSQL Primary
 
-  UPI Txn Service ──runs on──▸ App Server 01
-  Support group: Platform Engineering | Managed by: Ravi Kumar
+  UPI Txn Service ── runs on ──▸ App Server 01
+  Support group: Platform Engineering  |  Managed by: Ravi Kumar
   </pre>
   <div class="cols" style="margin-top:.3em">
     <div>
-      <p style="color:#d1fae5"><strong>In 10 seconds, Priya knows:</strong></p>
-      <ul class="bl" style="color:#d1fae5">
-        <li style="color:#d1fae5">Settlement Service is also affected</li>
-        <li style="color:#d1fae5">The server is upi-app-01</li>
-        <li style="color:#d1fae5">Page Ravi Kumar (Platform Engineering)</li>
-        <li style="color:#d1fae5">Blast radius: all UPI payments</li>
+      <p><strong>In 10 seconds, Priya knows:</strong></p>
+      <ul class="bl">
+        <li>Settlement Service is also affected</li>
+        <li>The server is upi-app-01</li>
+        <li>Page Ravi Kumar (Platform Engineering)</li>
+        <li>Blast radius: all UPI payments</li>
       </ul>
     </div>
-    <div style="display:flex;align-items:center;justify-content:center">
-      <div style="text-align:center">
-        <div style="font-size:clamp(10px,.85vw,14px);font-weight:700;color:#6ee7b7;letter-spacing:1px;text-transform:uppercase">Time to understand impact</div>
-        <div style="font-size:clamp(40px,6vw,90px);font-weight:800;color:#fff;line-height:1">10s</div>
-        <div style="font-size:clamp(12px,1vw,16px);color:#6ee7b7">vs 27 minutes without CMDB</div>
-      </div>
+    <div class="num-hero">
+      <div class="num" style="color:var(--green)">10s</div>
+      <div class="num-label">vs 27 minutes without CMDB</div>
     </div>
   </div>
   <div class="foot"><span>Lab 07 &bull; The Vision</span><span>3</span></div>
 </div>
 
-<!-- 4: SO WHAT IS A CMDB? -->
-<div class="slide s-light">
-  <div class="tag">Act 1: The Concept</div>
+<!-- 4: WHAT IS CMDB -->
+<div class="slide">
+  <div class="tag">Act 1 &bull; The Concept</div>
   <h2>So what exactly is a CMDB?</h2>
-  <p class="big" style="color:var(--accent);margin:.2em 0 .6em">It's Google Maps for your infrastructure.</p>
+  <p class="big" style="color:var(--accent);margin:.2em 0 .5em">It's Google Maps for your infrastructure.</p>
   <div class="cols">
     <div>
       <h3>Google Maps</h3>
@@ -172,17 +146,15 @@ code{font-family:'Cascadia Code',Consolas,monospace;background:var(--surface);pa
       </ul>
     </div>
   </div>
-  <div class="box-blue box" style="margin-top:.6em"><strong>ITIL 4 definition:</strong> Service Configuration Management ensures accurate, reliable information about CIs and their relationships is available when and where it's needed.</div>
-  <div class="foot"><span>Lab 07 &bull; CMDB</span><span>4</span></div>
+  <div class="box-blue box"><strong>ITIL 4:</strong> Service Configuration Management ensures accurate, reliable information about CIs and their relationships is available when and where it's needed.</div>
+  <div class="foot"><span>Lab 07 &bull; CMDB Concept</span><span>4</span></div>
 </div>
 
-<!-- ========== ACT 2: BUILDING THE MAP (slides 5-11) ========== -->
-
-<!-- 5: WHAT DO WE NEED TO MAP? -->
-<div class="slide s-dark">
-  <div class="tag">Act 2: Building the Map</div>
-  <h2>What does NPCI's UPI Platform look like?</h2>
-  <p style="margin-bottom:.5em">This is the real architecture. Every box becomes a CI. Every arrow becomes a relationship.</p>
+<!-- 5: THE UPI ARCHITECTURE -->
+<div class="slide">
+  <div class="tag">Act 2 &bull; Building the Map</div>
+  <h2>What does the UPI Platform look like?</h2>
+  <p>Every box becomes a CI. Every arrow becomes a relationship.</p>
   <pre style="font-size:clamp(10px,.95vw,15px)">
                     UPI Payment Platform
                            |
@@ -199,43 +171,55 @@ code{font-family:'Cascadia Code',Consolas,monospace;background:var(--surface);pa
                                   64GB/16CPU
   </pre>
   <div class="cols" style="margin-top:.3em">
-    <div><p><strong>12 CIs</strong> to register</p></div>
-    <div><p><strong>21 relationships</strong> to create</p></div>
-    <div><p><strong>1 Service Map</strong> to visualize</p></div>
+    <div class="num-hero"><div class="num">12</div><div class="num-label">CIs to register</div></div>
+    <div class="num-hero"><div class="num">21</div><div class="num-label">Relationships to create</div></div>
+    <div class="num-hero"><div class="num">1</div><div class="num-label">Service Map to visualize</div></div>
   </div>
-  <div class="box-dark box">Let's build this step by step. Each step adds more context. By the end, Priya's 2 AM scenario becomes a 10-second answer.</div>
-  <div class="foot"><span>Lab 07 &bull; Building the Map</span><span>5</span></div>
+  <div class="box-dark box">Let's build this step by step. Each step adds more context.</div>
+  <div class="foot"><span>Lab 07 &bull; Architecture</span><span>5</span></div>
 </div>
 
-<!-- 6: STEP 1 - FIRST CI -->
-<div class="slide s-light">
-  <div class="tag">Act 2: Step 1</div>
-  <h2>Register the first CI</h2>
-  <p>Every CI lives in a <strong>class</strong> (table). The class determines what fields you get.</p>
+<!-- 6: CI CLASSES -->
+<div class="slide">
+  <div class="tag">Act 2 &bull; Step 1</div>
+  <h2>Choose the right CI class</h2>
+  <p>Every CI lives in a <strong>class</strong> (table). The class gives you specialized fields.</p>
   <table>
-    <tr><th>CI Class</th><th>Table</th><th>Special Fields</th><th>Our CIs</th></tr>
+    <tr><th>CI Class</th><th>Table</th><th>Special Fields You Get</th><th>Our CIs</th></tr>
     <tr><td>Business App</td><td><code>cmdb_ci_business_app</code></td><td>Business criticality</td><td>UPI Payment Platform</td></tr>
-    <tr><td>App Server</td><td><code>cmdb_ci_app_server</code></td><td>Host, port, process</td><td>Txn Svc, Stl Svc</td></tr>
-    <tr><td>Database</td><td><code>cmdb_ci_db_instance</code></td><td>DB type, version, name</td><td>PG Primary, PG Replica</td></tr>
+    <tr><td>App Server</td><td><code>cmdb_ci_app_server</code></td><td>Host, port, running process</td><td>Txn Svc, Stl Svc</td></tr>
+    <tr><td>Database</td><td><code>cmdb_ci_db_instance</code></td><td>DB type, version, DB name</td><td>PG Primary, Replica</td></tr>
     <tr><td>Load Balancer</td><td><code>cmdb_ci_lb</code></td><td>Balancing method</td><td>Production LB</td></tr>
     <tr><td>Server</td><td><code>cmdb_ci_server</code></td><td>RAM, CPU, OS, disk</td><td>App01, App02, DB Srv</td></tr>
     <tr><td>Application</td><td><code>cmdb_ci_appl</code></td><td>(general)</td><td>Prometheus, Grafana, Bridge</td></tr>
   </table>
-  <h3>Create: UPI Transaction Service</h3>
+  <div class="box-green box"><strong>Why it matters:</strong> Use <code>cmdb_ci_db_instance</code> and you get "TCP Port" and "Database Name" for free. Use generic <code>cmdb_ci</code> and you lose them.</div>
+  <div class="foot"><span>Lab 07 &bull; CI Classes</span><span>6</span></div>
+</div>
+
+<!-- 7: CREATE FIRST CI -->
+<div class="slide">
+  <div class="tag">Act 2 &bull; Step 2</div>
+  <h2>Create the first CI</h2>
   <p>Navigate to <code>cmdb_ci_app_server.list</code> &rarr; <strong>New</strong></p>
   <table>
     <tr><th>Field</th><th>Value</th><th>Why?</th></tr>
-    <tr><td>Name</td><td>UPI Transaction Service</td><td>Matches Prometheus job name &amp; Docker container</td></tr>
+    <tr><td>Name</td><td>UPI Transaction Service</td><td>Matches Docker container &amp; Prometheus job name</td></tr>
     <tr><td>Host name</td><td>upi-txn-01.npci.org.in</td><td>Alert correlation: Prometheus alert &rarr; this CI</td></tr>
+    <tr><td>IP Address</td><td>10.100.1.11</td><td>Network identity</td></tr>
     <tr><td>TCP port</td><td>8081</td><td>Distinguish from Settlement (8082)</td></tr>
-    <tr><td>Support group</td><td>Platform Engineering</td><td>Incident auto-assignment goes here</td></tr>
+    <tr><td>Version</td><td>3.2.1</td><td>Track deployed version for change impact</td></tr>
+    <tr><td>Support group</td><td>Platform Engineering</td><td>Incidents auto-assign to this group</td></tr>
+    <tr><td>Managed by</td><td>Ravi Kumar</td><td>Gets paged at 2 AM</td></tr>
   </table>
-  <div class="foot"><span>Lab 07 &bull; First CI</span><span>6</span></div>
+  <p style="margin-top:.5em">Click <strong>Submit</strong>. Repeat for all 12 CIs (see lab guide for full field tables).</p>
+  <div class="box-orange box"><strong>Time-saver:</strong> Run the Background Script from the lab Appendix to create all 12 CIs in 2 minutes.</div>
+  <div class="foot"><span>Lab 07 &bull; First CI</span><span>7</span></div>
 </div>
 
-<!-- 7: STEP 2 - ONE CI IS LONELY -->
-<div class="slide s-light">
-  <div class="tag">Act 2: Step 2</div>
+<!-- 8: ONE CI IS LONELY -->
+<div class="slide">
+  <div class="tag">Act 2 &bull; Step 3</div>
   <h2>One CI is just a record. Relationships make it a map.</h2>
   <div class="cols">
     <div>
@@ -255,8 +239,8 @@ A: "No idea. They're just
       <h3 style="color:var(--green)">With relationships</h3>
       <pre style="font-size:clamp(10px,.9vw,14px)">
 UPI Txn Service
-  ├── depends on → PostgreSQL Primary
-  └── runs on   → App Server 01
+  |-- depends on -> PostgreSQL
+  |-- runs on   -> App Server 01
 
 Q: "If PostgreSQL fails,
     what breaks?"
@@ -265,73 +249,72 @@ A: "Transaction Service breaks.
       </pre>
     </div>
   </div>
-  <h3>4 relationship types we'll use</h3>
+  <h3>4 relationship types</h3>
   <table>
     <tr><th>Type</th><th>Question it answers</th><th>Example</th></tr>
-    <tr><td>Depends on</td><td>"If B fails, does A break?"</td><td>Txn Svc <strong>depends on</strong> PostgreSQL</td></tr>
-    <tr><td>Runs on</td><td>"Where is A hosted?"</td><td>Txn Svc <strong>runs on</strong> App Server 01</td></tr>
-    <tr><td>Contains</td><td>"What's inside this service?"</td><td>Platform <strong>contains</strong> all 11 CIs</td></tr>
-    <tr><td>Monitors</td><td>"What watches this?"</td><td>Prometheus <strong>monitors</strong> Txn Svc</td></tr>
+    <tr><td>Depends on</td><td>"If B fails, does A break?"</td><td>Txn Svc depends on PostgreSQL</td></tr>
+    <tr><td>Runs on</td><td>"Where is A hosted?"</td><td>Txn Svc runs on App Server 01</td></tr>
+    <tr><td>Contains</td><td>"What's inside this service?"</td><td>Platform contains all 11 CIs</td></tr>
+    <tr><td>Monitors</td><td>"What watches this?"</td><td>Prometheus monitors Txn Svc</td></tr>
   </table>
-  <div class="foot"><span>Lab 07 &bull; Relationships</span><span>7</span></div>
+  <div class="foot"><span>Lab 07 &bull; Relationships</span><span>8</span></div>
 </div>
 
-<!-- 8: STEP 3 - ADD DEPENDENCIES -->
-<div class="slide s-dark">
-  <div class="tag">Act 2: Step 3</div>
-  <h2>Add the dependency chain</h2>
+<!-- 9: ADD THE CHAIN -->
+<div class="slide">
+  <div class="tag">Act 2 &bull; Step 4</div>
+  <h2>Build the dependency chain</h2>
   <p>Open a CI &rarr; Related Items &rarr; CI Relationships &rarr; <strong>New</strong></p>
-  <h3>"Depends on" &mdash; the critical chain</h3>
-  <pre style="font-size:clamp(11px,1vw,16px)">
+  <pre>
   UPI Production LB
-    ├── depends on ──▸ UPI Transaction Service
-    └── depends on ──▸ UPI Settlement Service
+    |-- depends on ---> UPI Transaction Service
+    |-- depends on ---> UPI Settlement Service
 
-  UPI Transaction Service ── depends on ──▸ PostgreSQL Primary
-  UPI Settlement Service  ── depends on ──▸ PostgreSQL Primary
+  UPI Transaction Service -- depends on ---> PostgreSQL Primary
+  UPI Settlement Service  -- depends on ---> PostgreSQL Primary
 
-  PostgreSQL Replica ── depends on ──▸ PostgreSQL Primary
-  Snow Bridge        ── depends on ──▸ Prometheus
+  PostgreSQL Replica -- depends on ---> PostgreSQL Primary
+  Snow Bridge        -- depends on ---> Prometheus
   </pre>
-  <div class="box-dark box"><strong>Now trace the chain:</strong> LB &rarr; Txn Svc &rarr; PostgreSQL Primary. If PostgreSQL fails, everything upstream breaks. This is exactly what Priya needed at 2:17 AM.</div>
+  <div class="box-blue box"><strong>Trace the chain:</strong> LB &rarr; Txn Svc &rarr; PostgreSQL Primary. If PostgreSQL fails, everything upstream breaks. This is exactly what Priya needed at 2:17 AM.</div>
   <h3>"Runs on" &mdash; physical hosting</h3>
   <table>
-    <tr><th>Application</th><th>runs on</th><th>Server</th></tr>
-    <tr><td>Txn Service</td><td>&rarr;</td><td>App Server 01</td></tr>
-    <tr><td>Stl Service</td><td>&rarr;</td><td>App Server 02</td></tr>
-    <tr><td>PG Primary</td><td>&rarr;</td><td>DB Server 01</td></tr>
-    <tr><td>PG Replica</td><td>&rarr;</td><td>DB Server 01</td></tr>
+    <tr><th>Application</th><th></th><th>Server</th></tr>
+    <tr><td>Txn Service</td><td>runs on &rarr;</td><td>App Server 01</td></tr>
+    <tr><td>Stl Service</td><td>runs on &rarr;</td><td>App Server 02</td></tr>
+    <tr><td>PG Primary</td><td>runs on &rarr;</td><td>DB Server 01</td></tr>
+    <tr><td>PG Replica</td><td>runs on &rarr;</td><td>DB Server 01</td></tr>
   </table>
-  <div class="foot"><span>Lab 07 &bull; Dependencies</span><span>8</span></div>
+  <div class="foot"><span>Lab 07 &bull; Dependency Chain</span><span>9</span></div>
 </div>
 
-<!-- 9: STEP 4 - WAIT, DID YOU NOTICE? -->
-<div class="slide s-red">
-  <div class="tag">Act 2: Discovery!</div>
-  <h2 style="color:#fecaca">Wait &mdash; did you notice something?</h2>
-  <pre style="background:#991b1b;color:#fecaca;font-size:clamp(12px,1.1vw,18px)">
-  PostgreSQL Primary  ── runs on ──▸ DB Server 01
-  PostgreSQL Replica  ── runs on ──▸ DB Server 01   ← SAME SERVER!
+<!-- 10: SPOF DISCOVERY -->
+<div class="slide">
+  <div class="tag" style="color:var(--red)">Act 2 &bull; Discovery!</div>
+  <h2 style="color:var(--red)">Wait &mdash; did you notice something?</h2>
+  <pre style="border-color:var(--red);border-width:2px">
+  PostgreSQL Primary  -- runs on --> DB Server 01
+  PostgreSQL Replica  -- runs on --> DB Server 01   <-- SAME SERVER!
   </pre>
-  <p class="big" style="color:#fecaca;margin:.6em 0">Both databases run on the same physical server.</p>
-  <p style="color:#fca5a5;font-size:clamp(14px,1.4vw,22px)">If DB Server 01 fails:</p>
+  <p class="big" style="color:var(--red);margin:.5em 0">Both databases run on the same physical server.</p>
+  <p>If DB Server 01 fails:</p>
   <ul class="bl">
-    <li style="color:#fecaca">PostgreSQL Primary goes down &rarr; Txn Service and Stl Service both break</li>
-    <li style="color:#fecaca">PostgreSQL Replica also goes down &rarr; no failover possible</li>
-    <li style="color:#fecaca">Result: <strong>complete UPI outage with no recovery path</strong></li>
+    <li>PostgreSQL Primary goes down &rarr; Txn and Stl Services both break</li>
+    <li>PostgreSQL Replica also goes down &rarr; <strong>no failover possible</strong></li>
+    <li>Result: <strong>complete UPI outage with no recovery path</strong></li>
   </ul>
-  <div class="box" style="background:#991b1b;border-left:4px solid #ef4444;color:#fecaca;margin-top:.8em">
+  <div class="box-red box">
     <strong>This is a Single Point of Failure (SPOF).</strong><br>
-    We just discovered it by building the CMDB. Without CMDB, this risk is invisible.<br><br>
-    This becomes a <strong>Problem record</strong> in Lab 14 and a <strong>Change Request</strong> in Lab 15 to separate the databases onto different servers.
+    We discovered it by building the CMDB. Without CMDB, this risk is invisible.<br><br>
+    This becomes a <strong>Problem record</strong> in Lab 14 and a <strong>Change Request</strong> in Lab 15 to separate the databases.
   </div>
-  <div class="foot"><span>Lab 07 &bull; SPOF Discovery</span><span>9</span></div>
+  <div class="foot"><span>Lab 07 &bull; SPOF Discovery</span><span>10</span></div>
 </div>
 
-<!-- 10: STEP 5 - COMPLETE THE MODEL -->
-<div class="slide s-light">
-  <div class="tag">Act 2: Step 5</div>
-  <h2>Complete the model: 12 CIs + 21 relationships</h2>
+<!-- 11: COMPLETE + VIEW MAP -->
+<div class="slide">
+  <div class="tag">Act 2 &bull; Step 5</div>
+  <h2>Complete the model &mdash; then see the map</h2>
   <p>Last step: UPI Payment Platform <strong>contains</strong> all 11 other CIs. This wraps everything into one service boundary.</p>
   <div class="cols">
     <div>
@@ -348,118 +331,115 @@ A: "Transaction Service breaks.
     <div>
       <h3>The payoff</h3>
       <ul class="bl">
-        <li>Click <strong>"View Map"</strong> on UPI Payment Platform</li>
-        <li>See the entire topology in one interactive diagram</li>
-        <li>Click any CI to drill into details</li>
-        <li>Trace upstream/downstream impact</li>
-        <li>This is what Priya uses at 2 AM</li>
+        <li>Open <strong>UPI Payment Platform</strong></li>
+        <li>Click <strong>"View Map"</strong></li>
+        <li>See the entire topology</li>
+        <li>Click any CI to drill in</li>
+        <li>Trace upstream / downstream impact</li>
       </ul>
     </div>
   </div>
-  <div class="box-green box"><strong>Go do it now:</strong> Navigate to <code>cmdb_ci_business_app.list</code> &rarr; click UPI Payment Platform &rarr; click <strong>View Map</strong>.</div>
-  <div class="foot"><span>Lab 07 &bull; Complete Model</span><span>10</span></div>
+  <div class="box-green box"><strong>Do it now:</strong> Navigate to <code>cmdb_ci_business_app.list</code> &rarr; click UPI Payment Platform &rarr; <strong>View Map</strong>.</div>
+  <div class="foot"><span>Lab 07 &bull; Complete Model</span><span>11</span></div>
 </div>
 
-<!-- ========== ACT 3: PROVE IT WORKS (slides 11-13) ========== -->
-
-<!-- 11: SCENARIO CHALLENGE -->
-<div class="slide s-accent">
-  <div class="tag" style="color:rgba(255,255,255,.7)">Act 3: Prove It Works</div>
-  <h2 style="color:#fff">Scenario: DB Server CPU at 97%</h2>
-  <p style="color:rgba(255,255,255,.9);font-size:clamp(14px,1.35vw,22px);line-height:1.6">Thursday, 3:47 PM. Grafana shows <code style="background:rgba(0,0,0,.25)">UPI DB Server 01</code> CPU at 97% for 12 minutes. PostgreSQL connection pool: 490/500. Settlement batch is stuck at 47 minutes (normally takes 12).</p>
-  <p style="color:#fff;font-weight:700;font-size:clamp(16px,1.6vw,26px);margin:1em 0 .3em">Using your CMDB, answer these 5 questions:</p>
-  <table style="margin-top:.3em">
-    <tr style="border-color:rgba(255,255,255,.2)"><th style="color:rgba(255,255,255,.5);border-color:rgba(255,255,255,.2)">#</th><th style="color:rgba(255,255,255,.5);border-color:rgba(255,255,255,.2)">Question</th><th style="color:rgba(255,255,255,.5);border-color:rgba(255,255,255,.2)">Where to look in CMDB</th></tr>
-    <tr><td style="color:#fff">1</td><td style="color:#e2e8f0">What runs on DB Server 01?</td><td style="color:#bfdbfe">Check "Runs" relationships on the server</td></tr>
-    <tr><td style="color:#fff">2</td><td style="color:#e2e8f0">If PostgreSQL Primary dies, which services break?</td><td style="color:#bfdbfe">Check "Used by" upstream from PostgreSQL</td></tr>
-    <tr><td style="color:#fff">3</td><td style="color:#e2e8f0">Can we failover to the Replica?</td><td style="color:#bfdbfe">Check Replica's "Runs on" &mdash; same server!</td></tr>
-    <tr><td style="color:#fff">4</td><td style="color:#e2e8f0">Who gets paged?</td><td style="color:#bfdbfe">Check "Support group" and "Managed by" on the CI</td></tr>
-    <tr><td style="color:#fff">5</td><td style="color:#e2e8f0">What's the blast radius?</td><td style="color:#bfdbfe">Trace the full chain to UPI Payment Platform</td></tr>
-  </table>
-  <div class="foot" style="color:rgba(255,255,255,.3)"><span>Lab 07 &bull; Scenario Challenge</span><span>11</span></div>
-</div>
-
-<!-- 12: ITIL THEORY - NOW IT MAKES SENSE -->
-<div class="slide s-light">
-  <div class="tag">Act 3: The Theory (Now It Makes Sense)</div>
-  <h2>ITIL 4: CI Lifecycle</h2>
-  <p>Now that you've built the CMDB, the theory has context:</p>
+<!-- 12: SCENARIO CHALLENGE -->
+<div class="slide">
+  <div class="tag" style="color:var(--orange)">Act 3 &bull; Prove It Works</div>
+  <h2>Scenario: DB Server CPU at 97%</h2>
+  <div class="box-orange box">Thursday 3:47 PM. Grafana shows <code>UPI DB Server 01</code> CPU at 97% for 12 minutes. PostgreSQL connection pool: 490/500. Settlement batch stuck at 47 min (normally 12 min).</div>
+  <h3 style="color:var(--orange)">Using your CMDB, answer these 5 questions:</h3>
   <table>
-    <tr><th>Stage</th><th>What We Did</th><th>In Real Life</th></tr>
-    <tr><td>1. Identify</td><td>Registered 12 CIs across 6 classes</td><td>Discovery tools auto-scan networks in production</td></tr>
-    <tr><td>2. Control</td><td>Set Support group &amp; Managed by</td><td>Only owners can modify CIs; changes need approval</td></tr>
-    <tr><td>3. Status</td><td>Set Operational status = Operational</td><td>Status changes when CI goes to maintenance/retired</td></tr>
-    <tr><td>4. Verify</td><td>Found a SPOF (both DBs on same server)</td><td>Monthly CMDB audits catch drift, orphans, duplicates</td></tr>
+    <tr><th>#</th><th>Question</th><th>Where to look</th></tr>
+    <tr><td>1</td><td>What runs on DB Server 01?</td><td>Check "Runs" relationships on the server</td></tr>
+    <tr><td>2</td><td>If PostgreSQL Primary dies, which services break?</td><td>Check "Used by" upstream from PostgreSQL</td></tr>
+    <tr><td>3</td><td>Can we failover to the Replica?</td><td>Check Replica's "Runs on" &mdash; same server!</td></tr>
+    <tr><td>4</td><td>Who gets paged?</td><td>Check Support group &amp; Managed by</td></tr>
+    <tr><td>5</td><td>What's the blast radius for end users?</td><td>Trace the full chain to UPI Payment Platform</td></tr>
+  </table>
+  <div class="foot"><span>Lab 07 &bull; Scenario Challenge</span><span>12</span></div>
+</div>
+
+<!-- 13: ITIL THEORY -->
+<div class="slide">
+  <div class="tag">Act 3 &bull; The Theory (Now It Makes Sense)</div>
+  <h2>ITIL 4: CI Lifecycle</h2>
+  <table>
+    <tr><th>Stage</th><th>What We Did</th><th>In Production</th></tr>
+    <tr><td>1. Identify</td><td>Registered 12 CIs across 6 classes</td><td>Discovery tools auto-scan networks</td></tr>
+    <tr><td>2. Control</td><td>Set Support group &amp; Managed by</td><td>Only owners can modify; changes need approval</td></tr>
+    <tr><td>3. Status</td><td>All CIs set to Operational</td><td>Status changes during maintenance/retirement</td></tr>
+    <tr><td>4. Verify</td><td>Found a SPOF!</td><td>Monthly audits catch drift, orphans, duplicates</td></tr>
   </table>
   <h3>How CMDB feeds every future lab</h3>
   <table>
     <tr><th>Lab</th><th>Practice</th><th>Uses CMDB for</th></tr>
-    <tr><td>Lab 09</td><td>Service Level Mgmt</td><td>SLAs attach to CIs &rarr; breach pages the right team</td></tr>
+    <tr><td>Lab 09</td><td>Service Level Mgmt</td><td>SLAs attach to CIs &rarr; breach pages correct team</td></tr>
     <tr><td>Lab 12</td><td>Event Mgmt</td><td>Alert &rarr; find CI by hostname &rarr; auto-create incident</td></tr>
     <tr><td>Lab 13</td><td>Incident Mgmt</td><td>CI on incident &rarr; blast radius + auto-assignment</td></tr>
     <tr><td>Lab 14</td><td>Problem Mgmt</td><td>Trace root cause through dependency chains</td></tr>
     <tr><td>Lab 15</td><td>Change Mgmt</td><td>"What breaks if I change this?" &rarr; impact analysis</td></tr>
   </table>
-  <div class="foot"><span>Lab 07 &bull; ITIL Theory</span><span>12</span></div>
+  <div class="foot"><span>Lab 07 &bull; ITIL Theory</span><span>13</span></div>
 </div>
 
-<!-- 13: GOVERNANCE -->
-<div class="slide s-light">
-  <div class="tag">Act 3: Keep It Healthy</div>
+<!-- 14: GOVERNANCE -->
+<div class="slide">
+  <div class="tag">Act 3 &bull; Keep It Healthy</div>
   <h2>A stale CMDB is worse than no CMDB</h2>
-  <p>If the data is wrong, people stop trusting it. Then they go back to Slack threads at 2 AM.</p>
+  <p>If the data is wrong, people stop trusting it. Then it's back to Slack threads at 2 AM.</p>
   <table>
-    <tr><th>Problem</th><th>How to Detect</th><th>How to Fix</th></tr>
-    <tr><td>Orphan CIs</td><td>Filter: relationship count = 0</td><td>Add dependencies or retire the CI</td></tr>
-    <tr><td>Duplicates</td><td>Sort by hostname, look for repeats</td><td>Merge records, enable dedup rules</td></tr>
-    <tr><td>Stale CIs</td><td>Filter: updated > 90 days ago</td><td>Verify with infra team; retire if decommissioned</td></tr>
+    <tr><th>Problem</th><th>How to Detect</th><th>Fix</th></tr>
+    <tr><td>Orphan CIs</td><td>Filter: relationship count = 0</td><td>Add dependencies or retire</td></tr>
+    <tr><td>Duplicates</td><td>Sort by hostname, spot repeats</td><td>Merge records, enable dedup</td></tr>
+    <tr><td>Stale CIs</td><td>Filter: updated > 90 days ago</td><td>Verify with infra team</td></tr>
     <tr><td>Missing owners</td><td>Filter: support group is empty</td><td>Every CI must have an owner</td></tr>
   </table>
-  <div class="box-orange box"><strong>Rule:</strong> Every CI must have: Name + Class + Status + Support Group + at least 1 relationship. If any is missing, it's incomplete.</div>
-  <div class="box-blue box"><strong>CI status changes in production go through Change Management (Lab 15).</strong> Never modify a CI's status without a change record.</div>
-  <div class="foot"><span>Lab 07 &bull; Governance</span><span>13</span></div>
+  <div class="box-orange box"><strong>Rule:</strong> Every CI must have: Name + Class + Status + Support Group + at least 1 relationship.</div>
+  <div class="box-blue box"><strong>CI status changes in production go through Change Management (Lab 15).</strong> Never modify a CI without a change record.</div>
+  <div class="foot"><span>Lab 07 &bull; Governance</span><span>14</span></div>
 </div>
 
-<!-- 14: EXERCISES -->
-<div class="slide s-light">
+<!-- 15: EXERCISES -->
+<div class="slide">
   <div class="tag">Your Turn</div>
   <h2>Practice Exercises</h2>
   <table>
-    <tr><th>#</th><th>Challenge</th><th>Difficulty</th></tr>
-    <tr><td>1</td><td><strong>Add a CI:</strong> Create "UPI Dispute Service" (port 8083). Add Depends on &rarr; PostgreSQL, Runs on &rarr; App Srv 02, Contained by &rarr; Platform.</td><td style="color:var(--green)">Beginner</td></tr>
-    <tr><td>2</td><td><strong>Maintenance:</strong> Mark PostgreSQL Replica as "In Maintenance". What happens in the Service Map? Check the History tab.</td><td style="color:var(--green)">Beginner</td></tr>
-    <tr><td>3</td><td><strong>Impact statement:</strong> Manager asks: "We need to patch App Server 01 this weekend." Write a 3-line impact statement using CMDB data.</td><td style="color:var(--orange)">Intermediate</td></tr>
-    <tr><td>4</td><td><strong>Orphan hunt:</strong> Create a CI without any relationships. Then write a filter to find all orphan CIs. How would you automate this check?</td><td style="color:var(--orange)">Intermediate</td></tr>
-    <tr><td>5</td><td><strong>Custom field:</strong> Add "Compliance Status" (Compliant / Non-Compliant / Pending) to <code>cmdb_ci</code>. Set values for all 12 UPI CIs.</td><td style="color:var(--red)">Advanced</td></tr>
+    <tr><th>#</th><th>Challenge</th><th>Level</th></tr>
+    <tr><td>1</td><td><strong>Add a CI:</strong> Create "UPI Dispute Service" (port 8083). Add relationships: Depends on PostgreSQL, Runs on App Srv 02, Contained by Platform.</td><td style="color:var(--green)">Beginner</td></tr>
+    <tr><td>2</td><td><strong>Maintenance:</strong> Mark PostgreSQL Replica as "In Maintenance". What does the Service Map show? Check the History tab.</td><td style="color:var(--green)">Beginner</td></tr>
+    <tr><td>3</td><td><strong>Impact statement:</strong> Manager asks: "We need to patch App Server 01 this weekend." Write a 3-line impact statement using CMDB.</td><td style="color:var(--orange)">Intermediate</td></tr>
+    <tr><td>4</td><td><strong>Orphan hunt:</strong> Create a CI without relationships. Write a filter to find all orphan CIs.</td><td style="color:var(--orange)">Intermediate</td></tr>
+    <tr><td>5</td><td><strong>Custom field:</strong> Add "Compliance Status" (Compliant/Non-Compliant/Pending) to <code>cmdb_ci</code>.</td><td style="color:var(--red)">Advanced</td></tr>
   </table>
-  <div class="box-green box"><strong>Time-saver:</strong> Run the Background Script from the lab guide Appendix to create all 12 CIs + 21 relationships in 2 minutes. Then focus on exercises.</div>
-  <div class="foot"><span>Lab 07 &bull; Exercises</span><span>14</span></div>
+  <div class="box-green box"><strong>Time-saver:</strong> Run the Background Script from the lab Appendix to create all 12 CIs + 21 relationships in 2 minutes. Then focus on exercises.</div>
+  <div class="foot"><span>Lab 07 &bull; Exercises</span><span>15</span></div>
 </div>
 
-<!-- 15: KEY TAKEAWAYS -->
-<div class="slide s-dark">
+<!-- 16: KEY TAKEAWAYS -->
+<div class="slide">
   <div class="tag">Summary</div>
   <h2>What We Built &amp; Why It Matters</h2>
   <table>
     <tr><th>What We Did</th><th>The Story Behind It</th></tr>
-    <tr><td>Created 12 CIs</td><td>Every UPI component is now searchable, not stuck in someone's head</td></tr>
-    <tr><td>Built 21 relationships</td><td>Priya can click "View Map" at 2 AM instead of messaging Slack</td></tr>
-    <tr><td>Discovered a SPOF</td><td>Both DBs on same server &mdash; invisible without CMDB. Now it's a tracked risk.</td></tr>
-    <tr><td>Set ownership</td><td>Incidents auto-assign to Platform Engineering, not "who's online in Slack?"</td></tr>
-    <tr><td>Learned governance</td><td>A stale CMDB is worse than no CMDB &mdash; trust requires accuracy</td></tr>
+    <tr><td>Created 12 CIs</td><td>Every UPI component is searchable, not stuck in someone's head</td></tr>
+    <tr><td>Built 21 relationships</td><td>Priya clicks "View Map" at 2 AM instead of messaging Slack</td></tr>
+    <tr><td>Discovered a SPOF</td><td>Both DBs on same server &mdash; invisible without CMDB</td></tr>
+    <tr><td>Set ownership</td><td>Incidents auto-assign to Platform Engineering</td></tr>
+    <tr><td>Learned governance</td><td>Stale CMDB = back to Slack threads</td></tr>
   </table>
-  <div class="box-dark box" style="margin-top:.6em">
-    <strong>The story continues &rarr;</strong><br>
+  <div class="box-dark box">
+    <strong>The story continues...</strong><br><br>
     <strong>Lab 08:</strong> Define "UPI Payment Processing" as a Business Service on top of these CIs.<br>
-    <strong>Lab 09:</strong> Attach SLAs to these CIs so the timer starts automatically on incidents.<br>
-    <strong>Lab 13:</strong> Chaos injection &rarr; incident with CI attached &rarr; blast radius visible &rarr; SLA clock ticking.<br>
-    <strong>Lab 14:</strong> That SPOF we found? It becomes a Problem record with a Change Request to fix it.
+    <strong>Lab 09:</strong> Attach SLAs so the timer starts automatically on incidents.<br>
+    <strong>Lab 13:</strong> Chaos injection &rarr; incident with CI &rarr; blast radius visible &rarr; SLA clock ticking.<br>
+    <strong>Lab 14:</strong> That SPOF? It becomes a Problem record with a Change Request to fix it.
   </div>
-  <div class="foot"><span>Lab 07 &bull; ITIL: Service Configuration Management</span><span>15</span></div>
+  <div class="foot"><span>Lab 07 &bull; ITIL: Service Configuration Management</span><span>16</span></div>
 </div>
 
 </div>
-<div class="counter" id="sc">1 / 15</div>
+<div class="counter" id="sc">1 / 16</div>
 <script>
 const S=document.querySelectorAll('.slide');let c=0;
 function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
