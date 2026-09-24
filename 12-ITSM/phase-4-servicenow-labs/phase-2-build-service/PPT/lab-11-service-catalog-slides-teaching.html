@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 11: Service Catalog & Request Management — Teaching Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f0;overflow:hidden;-webkit-font-smoothing:antialiased}
+
+/* Deck & Slide */
+.deck{width:100vw;height:100vh;position:relative}
+.slide{
+  position:absolute;inset:0;display:none;
+  padding:60px 80px;
+  overflow-y:auto;
+  background:#ffffff;color:#1a1a1a;
+}
+.slide.active{display:flex;flex-direction:column}
+
+/* Colors */
+:root{
+  --text:#1a1a1a;
+  --text2:#444;
+  --muted:#888;
+  --accent:#1d4ed8;
+  --green:#047857;
+  --red:#b91c1c;
+  --orange:#c2410c;
+  --purple:#6d28d9;
+  --bg-subtle:#f7f8fa;
+  --border:#e5e7eb;
+}
+
+/* Typography — generous sizing */
+.label{
+  font-size:13px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:var(--accent);
+  margin-bottom:8px;
+}
+.label-red{color:var(--red)}
+.label-green{color:var(--green)}
+.label-orange{color:var(--orange)}
+.label-purple{color:var(--purple)}
+
+h1{font-size:52px;font-weight:800;line-height:1.15;color:var(--text);margin-bottom:16px}
+h2{font-size:40px;font-weight:700;line-height:1.2;color:var(--text);margin-bottom:20px}
+h3{font-size:22px;font-weight:700;color:var(--accent);margin:24px 0 8px}
+p{font-size:20px;line-height:1.7;color:var(--text2);margin-bottom:8px}
+.lead{font-size:24px;line-height:1.6;color:var(--text2)}
+.big{font-size:30px;font-weight:700;color:var(--accent);line-height:1.4}
+
+/* Lists */
+ul.bl{list-style:none;padding:0;margin:8px 0}
+ul.bl li{
+  font-size:20px;line-height:1.6;color:var(--text2);
+  padding:6px 0 6px 28px;position:relative;
+}
+ul.bl li::before{
+  content:'';position:absolute;left:0;top:14px;
+  width:10px;height:10px;border-radius:50%;background:var(--accent);
+}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th{
+  font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);text-align:left;
+  padding:10px 14px;border-bottom:2px solid var(--border);
+}
+td{
+  font-size:18px;line-height:1.5;color:var(--text2);
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  vertical-align:top;
+}
+td:first-child{font-weight:600;color:var(--accent);white-space:nowrap}
+tr:nth-child(even) td{background:var(--bg-subtle)}
+
+/* Callout boxes */
+.box{border-radius:12px;padding:20px 24px;margin:16px 0;font-size:18px;line-height:1.6}
+.box-blue{background:#eff6ff;border-left:5px solid var(--accent);color:#1e3a5f}
+.box-green{background:#ecfdf5;border-left:5px solid var(--green);color:#064e3b}
+.box-red{background:#fef2f2;border-left:5px solid var(--red);color:#7f1d1d}
+.box-orange{background:#fff7ed;border-left:5px solid var(--orange);color:#7c2d12}
+.box-gray{background:#f7f8fa;border-left:5px solid #cbd5e1;color:var(--text)}
+.box-purple{background:#f5f3ff;border-left:5px solid var(--purple);color:#3b0764}
+
+/* Code */
+pre{
+  background:var(--bg-subtle);color:var(--text);
+  border:1px solid var(--border);border-radius:12px;
+  padding:20px 24px;
+  font-family:'JetBrains Mono',Consolas,monospace;
+  font-size:16px;line-height:1.6;
+  overflow-x:auto;margin:12px 0;
+}
+code{
+  font-family:'JetBrains Mono',Consolas,monospace;
+  background:var(--bg-subtle);padding:2px 8px;border-radius:6px;
+  font-size:17px;color:var(--accent);
+}
+
+/* Layout */
+.cols{display:flex;gap:48px;margin:12px 0}
+.cols>div{flex:1}
+
+/* Timeline */
+.timeline{position:relative;padding-left:32px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:3px;background:var(--border);border-radius:2px}
+.tl-item{position:relative;padding:8px 0;font-size:19px;line-height:1.6;color:var(--text2)}
+.tl-item::before{
+  content:'';position:absolute;left:-25px;top:14px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--red);border:3px solid #fff;
+  box-shadow:0 0 0 2px var(--border);
+}
+.tl-ok .tl-item::before{background:var(--green)}
+.tl-time{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:17px;color:var(--red);margin-right:8px}
+.tl-ok .tl-time{color:var(--green)}
+
+/* Number hero */
+.num-block{text-align:center;padding:16px}
+.num-block .num{font-size:72px;font-weight:900;color:var(--accent);line-height:1}
+.num-block .num-label{font-size:16px;font-weight:600;color:var(--muted);margin-top:6px}
+
+/* Analogy box — teaching-specific */
+.analogy{
+  background:#fefce8;border-left:5px solid #ca8a04;border-radius:12px;
+  padding:20px 24px;margin:16px 0;font-size:18px;line-height:1.6;color:#713f12;
+}
+.analogy strong{color:#92400e}
+
+/* Footer */
+.foot{
+  margin-top:auto;padding-top:12px;
+  display:flex;justify-content:space-between;
+  font-size:13px;color:var(--muted);font-weight:500;
+  border-top:1px solid var(--border);
+}
+
+/* Badge */
+.badge{
+  display:inline-block;font-size:13px;font-weight:700;
+  padding:6px 14px;border-radius:8px;letter-spacing:.5px;
+}
+
+/* Counter */
+.counter{
+  position:fixed;top:12px;right:16px;
+  background:rgba(0,0,0,.05);color:var(--muted);
+  font:700 13px/1 'JetBrains Mono',monospace;
+  padding:6px 12px;border-radius:6px;z-index:99;
+}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1: TITLE -->
+<div class="slide active">
+  <div style="margin-top:8vh">
+    <div class="label">Lab 11 &bull; ITIL Practice: Service Request Management</div>
+    <h1 style="font-size:56px">Service Catalog &amp;<br>Request Management</h1>
+    <p class="lead" style="max-width:65%">A story about a fintech merchant onboarding that takes 2 weeks of emails, and how a self-service catalog turns it into a 10-minute submission with automatic tracking.</p>
+    <div style="margin-top:32px">
+      <span class="badge" style="background:var(--accent);color:#fff">90 min</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--text);margin-left:8px">Builds on Labs 07-10</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--muted);margin-left:8px">PDI: Zurich</span>
+      <span class="badge" style="background:#fef9c3;color:#854d0e;margin-left:8px">Teaching Edition</span>
+    </div>
+  </div>
+  <div class="foot"><span>ServiceNow ITSM Labs &bull; NPCI UPI Scenario</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 2: THE PROBLEM -->
+<div class="slide">
+  <div class="label label-red">Act 1 &bull; The Problem</div>
+  <h2>Merchant Onboarding Today</h2>
+  <div class="timeline">
+    <div class="tl-item"><span class="tl-time">Day 1</span> QuickPay Solutions (a fintech company) emails Priya: "We want to onboard as a UPI merchant."</div>
+    <div class="tl-item"><span class="tl-time">Day 2</span> Priya forwards the email to Sanjay for approval. Sanjay is in meetings. No reply.</div>
+    <div class="tl-item"><span class="tl-time">Day 4</span> Sanjay approves via email. Priya creates a row in the Excel tracker. Emails Meera for document verification.</div>
+    <div class="tl-item"><span class="tl-time">Day 7</span> Meera completes doc verification. Emails Ravi to configure the merchant in the UPI Switch.</div>
+    <div class="tl-item"><span class="tl-time">Day 10</span> Ravi finishes config. But no one told QuickPay. Priya discovers via a follow-up email.</div>
+    <div class="tl-item"><span class="tl-time">Day 14</span> QuickPay finally gets confirmation. Two weeks of emails, manual approvals, and Excel tracking.</div>
+  </div>
+  <div class="box-red box"><strong>2 weeks. 23 emails. 1 Excel spreadsheet. Zero visibility for the merchant. No audit trail.</strong></div>
+  <div class="foot"><span>Lab 11 &bull; The Problem</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 3: WHAT IF -->
+<div class="slide">
+  <div class="label label-green">Act 1 &bull; What If?</div>
+  <h2>Imagine a Self-Service Catalog</h2>
+  <div class="timeline tl-ok">
+    <div class="tl-item"><span class="tl-time">10 min</span> QuickPay submits a "Request Merchant Onboarding" form in the Service Portal. Fills in merchant name, business type, integration type, expected TPS.</div>
+    <div class="tl-item"><span class="tl-time">Auto</span> Request (REQ) created. Approval routed to Sanjay automatically. Sanjay gets a notification.</div>
+    <div class="tl-item"><span class="tl-time">2 hrs</span> Sanjay opens "My Approvals," clicks Approve. Approval auto-routes to Ravi (sequential).</div>
+    <div class="tl-item"><span class="tl-time">4 hrs</span> Ravi approves. Two fulfillment tasks auto-created: (1) Verify docs, (2) Configure in UPI Switch.</div>
+    <div class="tl-item"><span class="tl-time">Day 3</span> Both tasks completed. RITM auto-closes. REQ auto-closes. QuickPay notified automatically.</div>
+  </div>
+  <div class="cols" style="margin-top:12px">
+    <div class="num-block"><div class="num" style="color:var(--red)">14d</div><div class="num-label">Without Service Catalog</div></div>
+    <div class="num-block"><div class="num" style="color:var(--green)">3d</div><div class="num-label">With Service Catalog</div></div>
+    <div class="num-block"><div class="num" style="color:var(--green)">0</div><div class="num-label">Emails needed</div></div>
+  </div>
+  <div class="foot"><span>Lab 11 &bull; The Vision</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 4: REQUEST vs INCIDENT — concept -->
+<div class="slide">
+  <div class="label">Act 1 &bull; The Critical Distinction</div>
+  <h2>Service Request vs Incident</h2>
+  <p class="big">One of the most commonly confused concepts in ITSM.</p>
+  <div class="analogy">
+    <strong>Think of it this way — the restaurant analogy:</strong><br><br>
+    A <strong>Service Request</strong> is like ordering food from a menu. You look at the options, pick what you want, and the kitchen fulfills it. Everything is expected and pre-planned.<br><br>
+    An <strong>Incident</strong> is like complaining that your food arrived cold or wrong. Something has broken or gone wrong unexpectedly — someone needs to investigate and fix it.
+  </div>
+  <div class="box-blue box"><strong>ITIL 4 definition:</strong> A service request is a request from a user that initiates a service action which has been agreed as a normal part of service delivery. It is <strong>pre-defined, pre-approved, and follows a standard fulfillment model</strong>.</div>
+  <div class="foot"><span>Lab 11 &bull; Request vs Incident</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 5: REQUEST vs INCIDENT — comparison table -->
+<div class="slide">
+  <div class="label">Act 1 &bull; The Critical Distinction</div>
+  <h2>Service Request vs Incident — Side by Side</h2>
+  <table>
+    <tr><th>Aspect</th><th>Service Request</th><th>Incident</th></tr>
+    <tr><td>Nature</td><td>Planned, expected</td><td>Unplanned, unexpected</td></tr>
+    <tr><td>Risk</td><td>Low / None</td><td>Varies (can be critical)</td></tr>
+    <tr><td>Pre-approved?</td><td>Yes (follows a model)</td><td>No (needs investigation)</td></tr>
+    <tr><td>Example</td><td>"Give me API access"</td><td>"The API is returning 500 errors"</td></tr>
+    <tr><td>Goal</td><td>Fulfill a known need</td><td>Restore normal service</td></tr>
+    <tr><td>Table</td><td><code>sc_req_item</code> (RITM)</td><td><code>incident</code></td></tr>
+  </table>
+  <div class="analogy">
+    <strong>Quick test — which is which?</strong><br>
+    "Please provision a new database for our UAT environment." &rarr; Service Request (ordering from the menu)<br>
+    "Our production database just went down." &rarr; Incident (the food arrived wrong)
+  </div>
+  <div class="foot"><span>Lab 11 &bull; Request vs Incident</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 6: SHOPPING CART ANALOGY — concept -->
+<div class="slide">
+  <div class="label">Act 1 &bull; The Lifecycle</div>
+  <h2>Before the Tables: The Shopping Cart Analogy</h2>
+  <p class="big">ServiceNow models the request lifecycle exactly like an online shopping cart.</p>
+  <div class="analogy">
+    <strong>Imagine you're shopping on Amazon:</strong><br><br>
+    You add 3 items to your cart and place <strong>one order</strong> &mdash; that's the <strong>REQ</strong> (the cart/order).<br><br>
+    Each product in your cart ships separately and is tracked individually &mdash; each product is an <strong>RITM</strong> (Request Item).<br><br>
+    Each shipment requires several steps to fulfill it: picking, packing, dispatching &mdash; each step is an <strong>SCTASK</strong> (Service Catalog Task).<br><br>
+    Your order (REQ) isn't "delivered" until all products (RITMs) are delivered. A product (RITM) isn't delivered until all fulfillment steps (SCTASKs) are done.
+  </div>
+  <div class="foot"><span>Lab 11 &bull; Lifecycle</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 7: REQ > RITM > SCTASK — technical detail -->
+<div class="slide">
+  <div class="label">Act 1 &bull; The Lifecycle</div>
+  <h2>REQ &rarr; RITM &rarr; SCTASK — The Three Tables</h2>
+  <pre>
+sc_request (REQ)              -- The shopping cart (overall request)
+    |
+    +-- sc_req_item (RITM)    -- Individual item ordered (one per catalog item)
+            |
+            +-- sc_task (SCTASK) -- Fulfillment step 1 (e.g., "Verify documents")
+            +-- sc_task (SCTASK) -- Fulfillment step 2 (e.g., "Configure in UPI Switch")
+  </pre>
+  <table>
+    <tr><th>Table</th><th>Prefix</th><th>Lifecycle Rule</th></tr>
+    <tr><td>sc_request</td><td>REQ</td><td>Does not close until all RITMs close</td></tr>
+    <tr><td>sc_req_item</td><td>RITM</td><td>Does not close until all SCTASKs close</td></tr>
+    <tr><td>sc_task</td><td>SCTASK</td><td>Assigned to fulfillment groups; closed when work is done</td></tr>
+  </table>
+  <pre style="margin-top:8px">
+REQ States:     Open --> Approved --> Closed Complete
+RITM States:    Open --> Approved --> Work in Progress --> Closed Complete
+SCTASK States:  Open --> Work in Progress --> Closed Complete
+Approval:       Requested --> Approved / Rejected
+  </pre>
+  <div class="foot"><span>Lab 11 &bull; Lifecycle</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 8: WHAT IS A SERVICE CATALOG — concept -->
+<div class="slide">
+  <div class="label">Act 1 &bull; Architecture</div>
+  <h2>What Is a Service Catalog?</h2>
+  <p class="big">A structured, self-service menu of everything IT (or any department) can offer.</p>
+  <div class="cols" style="margin-top:16px">
+    <div>
+      <h3>Without a catalog</h3>
+      <ul class="bl">
+        <li>Users email IT with free-text requests</li>
+        <li>Each request handled differently depending on who picks it up</li>
+        <li>No standard form = missing information = back-and-forth emails</li>
+        <li>No automatic routing, no SLA, no visibility</li>
+      </ul>
+    </div>
+    <div>
+      <h3>With a catalog</h3>
+      <ul class="bl">
+        <li>Users browse pre-defined items and pick what they need</li>
+        <li>Each item has a standard form &mdash; no missing info</li>
+        <li>Approval and fulfillment are automated and repeatable</li>
+        <li>Full audit trail, SLA tracking, email notifications</li>
+      </ul>
+    </div>
+  </div>
+  <div class="analogy">
+    <strong>In simple terms:</strong> A Service Catalog is like a restaurant menu with prices, ingredients, and estimated wait times listed. Users order from the menu &mdash; no guessing, no negotiating, just pick and submit.
+  </div>
+  <div class="foot"><span>Lab 11 &bull; Architecture</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 9: CATALOG ARCHITECTURE — the tree -->
+<div class="slide">
+  <div class="label">Act 1 &bull; Architecture</div>
+  <h2>Service Catalog Architecture — The Full Tree</h2>
+  <pre>
+Service Catalog (sc_catalog)
+    |
+    +-- Category: Access &amp; Onboarding
+    |       +-- Catalog Item: Request API Access
+    |       |       +-- Variables (API Name, Environment, Purpose)
+    |       |       +-- Catalog Client Scripts (Production warning)
+    |       |       +-- Approval Definition (conditional: Prod only)
+    |       |       +-- Execution Plan (1 SCTASK)
+    |       +-- Catalog Item: Request Team Member Access
+    |
+    +-- Category: Merchant Services
+    |       +-- Catalog Item: Request Merchant Onboarding
+    |               +-- Variables (Merchant Name, Business Type, TPS...)
+    |               +-- Approval (sequential: Manager then Tech Lead)
+    |               +-- Execution Plan (2 SCTASKs, sequential)
+    |
+    +-- Category: Report an Issue
+    |       +-- Record Producer: Report UPI Payment Issue
+    |               (Creates an Incident, not an RITM!)
+    |
+    +-- Category: Infrastructure Requests
+    +-- Category: Compliance &amp; Security
+  </pre>
+  <div class="box-orange box"><strong>Record Producer</strong> = looks like a catalog item to the user, but creates a record on a different table (e.g., Incident, Problem) instead of an RITM. More on this shortly.</div>
+  <div class="foot"><span>Lab 11 &bull; Architecture</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 10: BUILD CATEGORIES -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Build the Catalog</div>
+  <h2>Step 1: Create Category Structure</h2>
+  <p>Navigate to <code>Service Catalog &gt; Catalog Definitions &gt; Maintain Categories</code></p>
+  <table>
+    <tr><th>#</th><th>Category</th><th>Parent</th><th>Purpose</th></tr>
+    <tr><td>0</td><td>UPI Platform Services</td><td>(top-level)</td><td>Parent container for all UPI catalog items</td></tr>
+    <tr><td>1</td><td>Access &amp; Onboarding</td><td>UPI Platform Services</td><td>API access, team member access requests</td></tr>
+    <tr><td>2</td><td>Merchant Services</td><td>UPI Platform Services</td><td>Merchant onboarding and lifecycle</td></tr>
+    <tr><td>3</td><td>Report an Issue</td><td>UPI Platform Services</td><td>Record producers for incidents/problems</td></tr>
+    <tr><td>4</td><td>Infrastructure Requests</td><td>UPI Platform Services</td><td>New environments, resource provisioning</td></tr>
+    <tr><td>5</td><td>Compliance &amp; Security</td><td>UPI Platform Services</td><td>Audit reports, security reviews</td></tr>
+  </table>
+  <div class="box-blue box"><strong>1 parent + 5 sub-categories.</strong> This creates a clean hierarchy in the Service Portal. Users browse to UPI Platform Services, then drill into the relevant category.</div>
+  <div class="foot"><span>Lab 11 &bull; Categories</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 11: CATALOG ITEMS -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Build the Items</div>
+  <h2>Step 2: Create 6 Catalog Items</h2>
+  <table>
+    <tr><th>#</th><th>Item Name</th><th>Category</th><th>Type</th><th>Delivery</th></tr>
+    <tr><td>1</td><td>Request Merchant Onboarding</td><td>Merchant Services</td><td>Catalog Item</td><td>5 Days</td></tr>
+    <tr><td>2</td><td>Request API Access</td><td>Access &amp; Onboarding</td><td>Catalog Item</td><td>2 Days</td></tr>
+    <tr><td>3</td><td>Report UPI Payment Issue</td><td>Report an Issue</td><td>Record Producer</td><td>--</td></tr>
+    <tr><td>4</td><td>Request New Environment</td><td>Infrastructure</td><td>Catalog Item</td><td>10 Days</td></tr>
+    <tr><td>5</td><td>Request Compliance Audit</td><td>Compliance</td><td>Catalog Item</td><td>3 Days</td></tr>
+    <tr><td>6</td><td>Request Team Member Access</td><td>Access &amp; Onboarding</td><td>Catalog Item</td><td>1 Day</td></tr>
+  </table>
+  <div class="cols" style="margin-top:8px">
+    <div>
+      <h3>Each item has:</h3>
+      <ul class="bl">
+        <li><strong>Variables</strong> &mdash; form fields the user fills in</li>
+        <li><strong>Approval</strong> &mdash; who must approve</li>
+        <li><strong>Execution Plan</strong> &mdash; fulfillment tasks (SCTASKs)</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Variable types used:</h3>
+      <ul class="bl">
+        <li>Single Line Text, Multi Line Text</li>
+        <li>Select Box (dropdowns)</li>
+        <li>Reference (user/group lookup)</li>
+        <li>Date, Integer, Check Box</li>
+        <li>Multi Row Variable Set</li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 11 &bull; Catalog Items</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 12: MERCHANT ONBOARDING DEEP DIVE -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Deep Dive</div>
+  <h2>Item 1: Request Merchant Onboarding</h2>
+  <div class="cols">
+    <div>
+      <h3>Variables (form fields)</h3>
+      <table>
+        <tr><th>Order</th><th>Variable</th><th>Type</th></tr>
+        <tr><td>100</td><td>Merchant Name</td><td>Text (mandatory)</td></tr>
+        <tr><td>200</td><td>Business Type</td><td>Select: Retail, E-commerce, Govt, Education</td></tr>
+        <tr><td>300</td><td>Merchant ID</td><td>Text (mandatory)</td></tr>
+        <tr><td>400</td><td>Integration Type</td><td>Select: SDK, API, Plugin</td></tr>
+        <tr><td>500</td><td>Expected TPS</td><td>Integer (mandatory)</td></tr>
+        <tr><td>600</td><td>Go-live Date</td><td>Date (mandatory)</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Sequential Approval</h3>
+      <pre style="font-size:15px">
+Order 100: Sanjay Manager
+  |-- If approved -->
+Order 200: Ravi Kumar (Tech Lead)
+  |-- If approved -->
+Fulfillment tasks created
+      </pre>
+      <h3>Fulfillment Tasks</h3>
+      <table>
+        <tr><th>Order</th><th>Task</th><th>Group</th></tr>
+        <tr><td>100</td><td>Verify merchant documents</td><td>Service Desk</td></tr>
+        <tr><td>200</td><td>Configure in UPI Switch</td><td>Platform Eng</td></tr>
+      </table>
+      <p style="font-size:16px;color:var(--muted)">Task 2 starts only after Task 1 completes (sequential).</p>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 11 &bull; Merchant Onboarding</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 13: WHAT IS A RECORD PRODUCER — simple explanation -->
+<div class="slide">
+  <div class="label label-orange">Act 2 &bull; Special Item</div>
+  <h2>What Is a Record Producer?</h2>
+  <p class="big">A disguised form &mdash; looks like a catalog item, but creates a different kind of record.</p>
+  <div class="analogy">
+    <strong>In simple terms:</strong><br><br>
+    Normally, when a user submits a catalog item, ServiceNow creates an <strong>RITM</strong> (a Request Item record).<br><br>
+    A <strong>Record Producer</strong> is a form that sits inside the Service Catalog, looks exactly like a catalog item to the user, but when submitted it creates a record on a <em>completely different table</em> &mdash; such as an Incident, a Problem, or a Change Request.<br><br>
+    <strong>Why is this useful?</strong> Your users only know one place to go: the Service Catalog. Whether they need to request something new (RITM) or report a problem (Incident), they go to the same portal. The Record Producer routes it to the right place behind the scenes.
+  </div>
+  <div class="box-orange box">
+    <strong>In this lab:</strong> "Report UPI Payment Issue" is a Record Producer. The user submits it from the catalog, but an <strong>Incident</strong> is created — not a REQ/RITM. The incident is pre-populated with the values the user entered.
+  </div>
+  <div class="foot"><span>Lab 11 &bull; Record Producer Concept</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 14: RECORD PRODUCER — detail -->
+<div class="slide">
+  <div class="label label-orange">Act 2 &bull; Special Item</div>
+  <h2>Record Producer: Report UPI Payment Issue</h2>
+  <p class="big">Looks like a catalog item. Creates an Incident, not an RITM.</p>
+  <div class="cols">
+    <div>
+      <h3>User sees this form</h3>
+      <table>
+        <tr><th>Variable</th><th>Example Value</th></tr>
+        <tr><td>UPI Transaction ID</td><td>UPI202409151430ABCD</td></tr>
+        <tr><td>Amount (INR)</td><td>15,000.50</td></tr>
+        <tr><td>Error Code</td><td>U28 - Transaction timed out</td></tr>
+        <tr><td>Timestamp</td><td>2024-09-15 14:30</td></tr>
+        <tr><td>Remitter Bank</td><td>State Bank of India</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>System creates this</h3>
+      <pre style="font-size:14px">
+// Record Producer Script
+current.category = 'software';
+current.subcategory = 'UPI';
+current.impact = 2;
+current.urgency = 2;
+current.assignment_group
+  .setDisplayValue('Platform Engineering');
+current.short_description =
+  'UPI Payment Issue - Transaction: '
+  + producer.transaction_id;
+      </pre>
+      <div class="box-green box" style="margin-top:8px"><strong>Result:</strong> User submits via catalog, but an <strong>Incident</strong> record is created &mdash; not a REQ/RITM.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 11 &bull; Record Producer</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 15: CLIENT SCRIPTS — concept -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Dynamic Forms</div>
+  <h2>What Are Catalog Client Scripts?</h2>
+  <p class="big">JavaScript that runs in the user's browser to make forms intelligent.</p>
+  <div class="analogy">
+    <strong>In simple terms:</strong><br><br>
+    Without Client Scripts, a form just sits there passively. It shows the same fields to everyone regardless of what they select.<br><br>
+    With a <strong>Catalog Client Script</strong>, the form reacts to what the user is doing in real time. Change a dropdown, and the form can show a warning, reveal hidden fields, make a field mandatory, or clear a value &mdash; all without a page reload.<br><br>
+    <strong>The key distinction:</strong> Client Scripts run <em>in the browser</em> (client-side). They cannot access the database directly. For database lookups, you use a GlideAjax call. For display logic, Client Scripts are the right tool.
+  </div>
+  <div class="box-blue box">
+    <strong>Three types of Catalog Client Scripts:</strong> &nbsp;
+    <strong>onLoad</strong> (runs when the form opens) &bull;
+    <strong>onChange</strong> (runs when a specific field value changes) &bull;
+    <strong>onSubmit</strong> (runs when the user clicks Order Now)
+  </div>
+  <div class="foot"><span>Lab 11 &bull; Client Scripts Concept</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 16: CLIENT SCRIPTS & UI POLICIES — examples -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Dynamic Forms</div>
+  <h2>Client Scripts &amp; UI Policies — Examples</h2>
+  <div class="cols">
+    <div>
+      <h3>Client Script: Production Warning</h3>
+      <p>When user selects "Production" on Request API Access:</p>
+      <pre style="font-size:14px">
+function onChange(control, oldValue,
+                  newValue, isLoading) {
+  if (isLoading) return;
+  if (newValue === 'production') {
+    g_form.showFieldMsg(
+      'target_environment',
+      'Production access requires
+       Tech Lead approval.',
+      'warning'
+    );
+  } else {
+    g_form.hideFieldMsg(
+      'target_environment');
+  }
+}
+      </pre>
+    </div>
+    <div>
+      <h3>UI Policy: Conditional Mandatory</h3>
+      <p>When Integration Type = "API" on Merchant Onboarding:</p>
+      <table>
+        <tr><th>Condition</th><th>Action</th></tr>
+        <tr><td>integration_type = api</td><td>Make "API Doc Acknowledged" checkbox mandatory</td></tr>
+        <tr><td>Reverse if false</td><td>Checkbox reverts to optional for SDK/Plugin</td></tr>
+      </table>
+      <h3 style="margin-top:16px">Conditional Approval</h3>
+      <table>
+        <tr><th>Environment</th><th>Approval</th></tr>
+        <tr><td>Sandbox / UAT</td><td>Auto-approved (no approval needed)</td></tr>
+        <tr><td>Production</td><td>Requires Ravi Kumar's approval</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 11 &bull; Dynamic Forms</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 17: WHAT IS A VARIABLE SET — concept -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Reusability</div>
+  <h2>What Is a Variable Set &mdash; and Why Reuse?</h2>
+  <p class="big">A named group of variables you define once and attach to many catalog items.</p>
+  <div class="analogy">
+    <strong>In simple terms:</strong><br><br>
+    Imagine every catalog item at NPCI needs to capture "UPI Transaction ID", "Related UPI Service", and "Environment." Without variable sets, you'd add those three fields to every single catalog item individually. If the "Environment" dropdown options change, you'd have to update 10 different items.<br><br>
+    A <strong>Variable Set</strong> is like a shared template. You define those three fields once in a Variable Set called "UPI Common Info," then attach it to any catalog items that need it. Update the variable set once &mdash; all attached items get the update automatically.
+  </div>
+  <div class="box-blue box">
+    <strong>Two types of Variable Sets:</strong><br>
+    <strong>Single-row</strong> &mdash; a fixed set of fields (e.g., UPI Common Info with 3 fields).<br>
+    <strong>Multi-row</strong> &mdash; a repeating table where users can add multiple rows (e.g., specifying multiple server components with CPU/RAM/Storage for each).
+  </div>
+  <div class="foot"><span>Lab 11 &bull; Variable Sets Concept</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 18: VARIABLE SETS — detail -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Reusability</div>
+  <h2>Variable Sets: Write Once, Reuse Everywhere</h2>
+  <div class="cols">
+    <div>
+      <h3>UPI Common Info (Variable Set)</h3>
+      <table>
+        <tr><th>Variable</th><th>Type</th></tr>
+        <tr><td>UPI Transaction ID</td><td>Text (optional)</td></tr>
+        <tr><td>Related UPI Service</td><td>Select: Core Switch, Settlement, Dispute, Portal, Analytics</td></tr>
+        <tr><td>Environment</td><td>Select: Prod, Staging, UAT, Dev</td></tr>
+      </table>
+      <p style="margin-top:8px">Attach this set to <strong>3 catalog items</strong> &mdash; all three get these fields without duplication.</p>
+    </div>
+    <div>
+      <h3>Multi Row Variable Set</h3>
+      <p>For "Request New Environment" &mdash; users add multiple rows of resource specs:</p>
+      <table>
+        <tr><th>Component</th><th>CPU</th><th>Memory</th><th>Storage</th></tr>
+        <tr><td>UPI Txn Service</td><td>8 cores</td><td>16 GB</td><td>100 GB</td></tr>
+        <tr><td>PostgreSQL</td><td>16 cores</td><td>64 GB</td><td>500 GB</td></tr>
+        <tr><td>Redis</td><td>4 cores</td><td>32 GB</td><td>50 GB</td></tr>
+      </table>
+      <p style="font-size:16px;color:var(--muted)">Users click "Add Row" to specify each component's requirements.</p>
+    </div>
+  </div>
+  <div class="box-blue box"><strong>Best practice:</strong> Use order increments of 100 (100, 200, 300) to leave room for future additions. A Variable Set with Order 50 appears before item variables starting at 100.</div>
+  <div class="foot"><span>Lab 11 &bull; Variable Sets</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 19: END-TO-END TEST 1 -->
+<div class="slide">
+  <div class="label label-green">Act 3 &bull; End-to-End Test</div>
+  <h2>Test 1: Priya Requests API Access</h2>
+  <div class="timeline tl-ok">
+    <div class="tl-item"><span class="tl-time">Priya</span> Impersonate Priya Sharma. Navigate to Service Catalog &rarr; Access &amp; Onboarding &rarr; Request API Access.</div>
+    <div class="tl-item"><span class="tl-time">Priya</span> Fill in: Transaction API, Production, "Real-time monitoring dashboard for NOC," NOC team. <strong>Warning appears</strong> for Production.</div>
+    <div class="tl-item"><span class="tl-time">Priya</span> Click <strong>Order Now</strong>. Note the REQ number.</div>
+    <div class="tl-item"><span class="tl-time">Ravi</span> Impersonate Ravi Kumar. Navigate to <strong>My Approvals</strong>. Find the approval. Click <strong>Approve</strong>.</div>
+    <div class="tl-item"><span class="tl-time">Ravi</span> Navigate to Catalog Tasks. Find "Provision API credentials." Add work notes. Close the task.</div>
+    <div class="tl-item"><span class="tl-time">Priya</span> Switch back to Priya. Navigate to <strong>My Requests</strong>. Confirm: <strong>Closed Complete</strong>.</div>
+  </div>
+  <div class="box-green box"><strong>Verify the chain:</strong> REQ &rarr; RITM &rarr; SCTASK. All three should show Closed Complete. Full audit trail in the Activity Log.</div>
+  <div class="foot"><span>Lab 11 &bull; Test 1</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 20: END-TO-END TEST 2 -->
+<div class="slide">
+  <div class="label label-green">Act 3 &bull; End-to-End Test</div>
+  <h2>Test 2: Merchant Onboarding (Full Lifecycle)</h2>
+  <div class="timeline tl-ok">
+    <div class="tl-item"><span class="tl-time">Submit</span> Priya orders "Request Merchant Onboarding": QuickPay Solutions, E-commerce, MERCH-QPS-2024-001, API, 500 TPS.</div>
+    <div class="tl-item"><span class="tl-time">Approve 1</span> Sanjay Manager approves (Order 100). Ravi's approval is now generated (Order 200).</div>
+    <div class="tl-item"><span class="tl-time">Approve 2</span> Ravi Kumar approves. Fulfillment tasks created.</div>
+    <div class="tl-item"><span class="tl-time">Task 1</span> Meera (Service Desk) verifies merchant documents: GST, PAN, bank account. Closes task.</div>
+    <div class="tl-item"><span class="tl-time">Task 2</span> Ravi (Platform Eng) configures merchant in UPI Switch. MCC code, limits, settlement. Closes task.</div>
+    <div class="tl-item"><span class="tl-time">Auto</span> Both SCTASKs complete &rarr; RITM auto-closes &rarr; REQ auto-closes &rarr; QuickPay notified.</div>
+  </div>
+  <pre style="font-size:14px;margin-top:8px">
+Activity Log Timeline:
+REQ created --> RITM created --> Approval requested (Sanjay) --> Approved (Sanjay)
+--> Approval requested (Ravi) --> Approved (Ravi) --> SCTASK 1 created
+--> SCTASK 1 completed --> SCTASK 2 created --> SCTASK 2 completed
+--> RITM closed --> REQ closed
+  </pre>
+  <div class="foot"><span>Lab 11 &bull; Test 2</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 21: CONCEPT CHECK -->
+<div class="slide">
+  <div class="label label-purple">Act 3 &bull; Concept Check</div>
+  <h2>Stop &amp; Check — Do You Understand These?</h2>
+  <p style="color:var(--muted);font-size:18px;margin-bottom:16px">Before the exercises, make sure you can answer each of these out loud.</p>
+  <table>
+    <tr><th>#</th><th>Question</th><th>Answer is on slide...</th></tr>
+    <tr><td>1</td><td>A user calls the help desk saying they cannot log in. Is this a Service Request or an Incident?</td><td>Slides 4–5</td></tr>
+    <tr><td>2</td><td>Priya submits a single catalog item. How many REQs are created? How many RITMs?</td><td>Slides 6–7</td></tr>
+    <tr><td>3</td><td>A user submits "Report UPI Payment Issue." Where does the record land — sc_req_item or incident?</td><td>Slides 13–14</td></tr>
+    <tr><td>4</td><td>Why can't a Client Script query the database directly?</td><td>Slide 15</td></tr>
+    <tr><td>5</td><td>You need to add a "Region" dropdown to 8 catalog items. What should you use — individual variables or a Variable Set?</td><td>Slides 17–18</td></tr>
+    <tr><td>6</td><td>Sanjay has approved the merchant onboarding request, but RITM is still "Open." Why might that be?</td><td>Slide 7</td></tr>
+  </table>
+  <div class="analogy"><strong>Teaching tip:</strong> These are deliberately picked to surface the most common misconceptions. Have students answer verbally before moving on.</div>
+  <div class="foot"><span>Lab 11 &bull; Concept Check</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 22: EXERCISES -->
+<div class="slide">
+  <div class="label">Your Turn</div>
+  <h2>Practice Exercises</h2>
+  <table>
+    <tr><th>#</th><th>Challenge</th><th>Level</th></tr>
+    <tr><td>1</td><td><strong>Create item:</strong> "Request UPI Transaction Limit Increase" with Merchant ID, current limit, new limit, justification. Add approval and 1 SCTASK.</td><td style="color:var(--green)">Beginner</td></tr>
+    <tr><td>2</td><td><strong>Record Producer:</strong> Create "Report Settlement Discrepancy" that creates a Problem record with batch ID, expected/actual amounts.</td><td style="color:var(--orange)">Intermediate</td></tr>
+    <tr><td>3</td><td><strong>Order Guide:</strong> Create "New Team Member Setup" that bundles Request Team Member Access + Request API Access into one guided order.</td><td style="color:var(--orange)">Intermediate</td></tr>
+    <tr><td>4</td><td><strong>Client Script:</strong> Validate UPI Transaction ID format on the Record Producer &mdash; must start with "UPI" and be at least 10 characters.</td><td style="color:var(--orange)">Intermediate</td></tr>
+    <tr><td>5</td><td><strong>Report:</strong> Create a bar chart showing "Top 10 Most Requested Catalog Items" from the sc_req_item table.</td><td style="color:var(--red)">Advanced</td></tr>
+  </table>
+  <div class="box-green box"><strong>Background Scripts:</strong> The lab appendix includes scripts to create all categories, items, and variables programmatically via Scripts - Background.</div>
+  <div class="foot"><span>Lab 11 &bull; Exercises</span><span>Teaching Edition</span></div>
+</div>
+
+<!-- 23: TAKEAWAYS -->
+<div class="slide">
+  <div class="label">Summary</div>
+  <h2>What We Built &amp; Why It Matters</h2>
+  <table>
+    <tr><th>What we did</th><th>The story behind it</th></tr>
+    <tr><td>1 parent + 5 categories</td><td>UPI Platform Services &mdash; organized self-service catalog</td></tr>
+    <tr><td>5 Catalog Items</td><td>Merchant onboarding, API access, environments, compliance, team access</td></tr>
+    <tr><td>1 Record Producer</td><td>Report UPI Payment Issue &mdash; creates Incident from catalog</td></tr>
+    <tr><td>25+ Variables</td><td>Dynamic forms with dropdowns, references, multi-row variable sets</td></tr>
+    <tr><td>3 Approval Patterns</td><td>Simple, sequential (Manager then Tech Lead), conditional (Prod only)</td></tr>
+    <tr><td>Multi-stage SCTASKs</td><td>Sequential fulfillment: verify docs, then configure &mdash; in order</td></tr>
+    <tr><td>Client Scripts + UI Policies</td><td>Production warning, conditional mandatory fields, dynamic show/hide</td></tr>
+    <tr><td>2 End-to-End Tests</td><td>Submit as Priya, approve as Sanjay/Ravi, fulfill as Meera/Ravi</td></tr>
+  </table>
+  <div class="box-gray box" style="margin-top:16px">
+    <strong>The story continues...</strong><br><br>
+    <strong>Lab 12:</strong> Event Management &mdash; operational monitoring integration for the UPI platform<br>
+    <strong>Lab 13:</strong> Incident Management &mdash; CI + KB + SLA all come together in real incidents<br>
+    <strong>Lab 14:</strong> Problem Management &mdash; root cause analysis, Known Errors feed KEDB<br>
+    <strong>Lab 15:</strong> Change Management &mdash; that SPOF from Lab 07? Time to fix it properly.
+  </div>
+  <div class="foot"><span>Lab 11 &bull; ITIL: Service Request Management</span><span>Teaching Edition</span></div>
+</div>
+
+</div>
+<div class="counter" id="sc">1 / 23</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();show(c+1)}
+  if(e.key==='ArrowLeft'){e.preventDefault();show(c-1)}
+  if(e.key==='Home'){e.preventDefault();show(0)}
+  if(e.key==='End'){e.preventDefault();show(S.length-1)}
+});
+document.addEventListener('click',e=>{if(e.clientX>window.innerWidth/2)show(c+1);else show(c-1)});
+show(0);
+</script>
+</body>
+</html>

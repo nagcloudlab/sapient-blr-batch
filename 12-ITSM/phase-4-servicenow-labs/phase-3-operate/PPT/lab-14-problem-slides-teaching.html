@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 14: Problem Management (Teaching Edition)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f0;overflow:hidden;-webkit-font-smoothing:antialiased}
+
+/* Deck & Slide */
+.deck{width:100vw;height:100vh;position:relative}
+.slide{
+  position:absolute;inset:0;display:none;
+  padding:60px 80px;
+  overflow-y:auto;
+  background:#ffffff;color:#1a1a1a;
+}
+.slide.active{display:flex;flex-direction:column}
+
+/* Colors */
+:root{
+  --text:#1a1a1a;
+  --text2:#444;
+  --muted:#888;
+  --accent:#1d4ed8;
+  --green:#047857;
+  --red:#b91c1c;
+  --orange:#c2410c;
+  --bg-subtle:#f7f8fa;
+  --border:#e5e7eb;
+  --teach:#7c3aed;
+  --teach-bg:#f5f3ff;
+  --teach-border:#c4b5fd;
+}
+
+/* Typography */
+.label{
+  font-size:13px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:var(--accent);
+  margin-bottom:8px;
+}
+.label-red{color:var(--red)}
+.label-green{color:var(--green)}
+.label-orange{color:var(--orange)}
+.label-teach{color:var(--teach)}
+
+h1{font-size:52px;font-weight:800;line-height:1.15;color:var(--text);margin-bottom:16px}
+h2{font-size:40px;font-weight:700;line-height:1.2;color:var(--text);margin-bottom:20px}
+h3{font-size:22px;font-weight:700;color:var(--accent);margin:24px 0 8px}
+p{font-size:20px;line-height:1.7;color:var(--text2);margin-bottom:8px}
+.lead{font-size:24px;line-height:1.6;color:var(--text2)}
+.big{font-size:30px;font-weight:700;color:var(--accent);line-height:1.4}
+
+/* Lists */
+ul.bl{list-style:none;padding:0;margin:8px 0}
+ul.bl li{
+  font-size:20px;line-height:1.6;color:var(--text2);
+  padding:6px 0 6px 28px;position:relative;
+}
+ul.bl li::before{
+  content:'';position:absolute;left:0;top:14px;
+  width:10px;height:10px;border-radius:50%;background:var(--accent);
+}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th{
+  font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);text-align:left;
+  padding:10px 14px;border-bottom:2px solid var(--border);
+}
+td{
+  font-size:18px;line-height:1.5;color:var(--text2);
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  vertical-align:top;
+}
+td:first-child{font-weight:600;color:var(--accent);white-space:nowrap}
+tr:nth-child(even) td{background:var(--bg-subtle)}
+
+/* Callout boxes */
+.box{border-radius:12px;padding:20px 24px;margin:16px 0;font-size:18px;line-height:1.6}
+.box-blue{background:#eff6ff;border-left:5px solid var(--accent);color:#1e3a5f}
+.box-green{background:#ecfdf5;border-left:5px solid var(--green);color:#064e3b}
+.box-red{background:#fef2f2;border-left:5px solid var(--red);color:#7f1d1d}
+.box-orange{background:#fff7ed;border-left:5px solid var(--orange);color:#7c2d12}
+.box-gray{background:#f7f8fa;border-left:5px solid #cbd5e1;color:var(--text)}
+.box-teach{background:var(--teach-bg);border-left:5px solid var(--teach);color:#3b0764;font-size:18px;line-height:1.6}
+
+/* Code */
+pre{
+  background:var(--bg-subtle);color:var(--text);
+  border:1px solid var(--border);border-radius:12px;
+  padding:20px 24px;
+  font-family:'JetBrains Mono',Consolas,monospace;
+  font-size:16px;line-height:1.6;
+  overflow-x:auto;margin:12px 0;
+}
+code{
+  font-family:'JetBrains Mono',Consolas,monospace;
+  background:var(--bg-subtle);padding:2px 8px;border-radius:6px;
+  font-size:17px;color:var(--accent);
+}
+
+/* Layout */
+.cols{display:flex;gap:48px;margin:12px 0}
+.cols>div{flex:1}
+
+/* Timeline */
+.timeline{position:relative;padding-left:32px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:3px;background:var(--border);border-radius:2px}
+.tl-item{position:relative;padding:8px 0;font-size:19px;line-height:1.6;color:var(--text2)}
+.tl-item::before{
+  content:'';position:absolute;left:-25px;top:14px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--red);border:3px solid #fff;
+  box-shadow:0 0 0 2px var(--border);
+}
+.tl-ok .tl-item::before{background:var(--green)}
+.tl-time{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:17px;color:var(--red);margin-right:8px}
+.tl-ok .tl-time{color:var(--green)}
+
+/* Number hero */
+.num-block{text-align:center;padding:16px}
+.num-block .num{font-size:72px;font-weight:900;color:var(--accent);line-height:1}
+.num-block .num-label{font-size:16px;font-weight:600;color:var(--muted);margin-top:6px}
+
+/* Footer */
+.foot{
+  margin-top:auto;padding-top:12px;
+  display:flex;justify-content:space-between;
+  font-size:13px;color:var(--muted);font-weight:500;
+  border-top:1px solid var(--border);
+}
+.foot-teach{color:var(--teach);font-weight:700}
+
+/* Badge */
+.badge{
+  display:inline-block;font-size:13px;font-weight:700;
+  padding:6px 14px;border-radius:8px;letter-spacing:.5px;
+}
+
+/* Counter */
+.counter{
+  position:fixed;top:12px;right:16px;
+  background:rgba(0,0,0,.05);color:var(--muted);
+  font:700 13px/1 'JetBrains Mono',monospace;
+  padding:6px 12px;border-radius:6px;z-index:99;
+}
+
+/* Teaching edition banner */
+.teach-banner{
+  display:inline-block;
+  background:var(--teach-bg);
+  border:2px solid var(--teach-border);
+  color:var(--teach);
+  font-size:13px;font-weight:700;letter-spacing:2px;
+  text-transform:uppercase;
+  padding:4px 14px;border-radius:6px;
+  margin-bottom:12px;
+}
+
+/* Step number for sequences */
+.step-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:36px;height:36px;border-radius:50%;
+  background:var(--accent);color:#fff;
+  font-size:18px;font-weight:800;
+  margin-right:12px;flex-shrink:0;
+}
+.step-row{display:flex;align-items:flex-start;margin:12px 0;font-size:20px;color:var(--text2);line-height:1.5}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1: TITLE -->
+<div class="slide active">
+  <div style="margin-top:8vh">
+    <div class="teach-banner">Teaching Edition</div>
+    <div class="label">Lab 14 &bull; ITIL Practice: Problem Management</div>
+    <h1 style="font-size:56px">Problem<br>Management</h1>
+    <p class="lead" style="max-width:70%">The same CI &mdash; UPI Transaction Service &mdash; has had 4 incidents this month. Meera keeps fixing the symptom, but it keeps coming back. Time to ask: WHY does it keep failing?</p>
+    <div style="margin-top:32px">
+      <span class="badge" style="background:var(--accent);color:#fff">75 min</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--text);margin-left:8px">Builds on Labs 12-13</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--muted);margin-left:8px">PDI: Zurich</span>
+      <span class="badge" style="background:var(--teach-bg);color:var(--teach);margin-left:8px">Teaching Edition</span>
+    </div>
+  </div>
+  <div class="foot"><span>ServiceNow ITSM Labs &bull; NPCI UPI Scenario</span><span class="foot-teach">Teaching Edition</span></div>
+</div>
+
+<!-- 2: THE PATTERN -->
+<div class="slide">
+  <div class="label label-red">Act 1 &bull; The Pattern</div>
+  <h2>4 incidents. Same CI. Same month.</h2>
+  <div class="timeline">
+    <div class="tl-item"><span class="tl-time">Day 3</span> [AUTO] UPI transaction failure rate above 50% &mdash; <strong>P1 Critical</strong></div>
+    <div class="tl-item"><span class="tl-time">Day 8</span> [AUTO] UPI settlement failures detected &mdash; P3 Moderate</div>
+    <div class="tl-item"><span class="tl-time">Day 15</span> [AUTO] High HTTP 5xx error rate on upi-transaction-service &mdash; P3 Moderate</div>
+    <div class="tl-item"><span class="tl-time">Day 22</span> [AUTO] UPI Transaction Service is DOWN &mdash; <strong>P1 Critical</strong></div>
+  </div>
+  <div class="cols" style="margin-top:12px">
+    <div>
+      <h3 style="color:var(--red)">The common thread</h3>
+      <table>
+        <tr><th>Field</th><th>All 4 incidents share</th></tr>
+        <tr><td>CI</td><td>UPI Transaction Service</td></tr>
+        <tr><td>Category</td><td>Software</td></tr>
+        <tr><td>Group</td><td>Platform Engineering</td></tr>
+        <tr><td>Source</td><td>Auto-created by Prometheus</td></tr>
+      </table>
+    </div>
+    <div class="num-block">
+      <div class="num" style="color:var(--red)">4</div>
+      <div class="num-label">incidents, 1 root cause</div>
+    </div>
+  </div>
+  <div class="box-red box"><strong>Meera fixes the symptom each time. The service recovers. But it keeps happening.</strong> Incident Management restores service. Problem Management asks WHY.</div>
+  <div class="foot"><span>Lab 14 &bull; The Pattern</span><span class="foot-teach">Teaching Edition &bull; 2</span></div>
+</div>
+
+<!-- 3: INCIDENT vs PROBLEM - THE DISTINCTION -->
+<div class="slide">
+  <div class="label">Act 1 &bull; Core Distinction</div>
+  <h2>Incident vs Problem</h2>
+  <div class="cols">
+    <div>
+      <h3 style="color:var(--red)">Incident = Symptom</h3>
+      <pre style="font-size:17px;border-color:var(--red)">
+"The UPI service is failing
+ -- restore it NOW!"
+
+Goal:  Restore service ASAP
+Focus: Speed
+Ask:   WHAT is broken?
+When:  Reactive (fire alarm)
+      </pre>
+    </div>
+    <div>
+      <h3 style="color:var(--accent)">Problem = Root Cause</h3>
+      <pre style="font-size:17px;border-color:var(--accent)">
+"WHY do UPI payments
+ keep failing?"
+
+Goal:  Prevent recurrence
+Focus: Depth
+Ask:   WHY did it break?
+When:  After pattern detected
+      </pre>
+    </div>
+  </div>
+  <div class="box-blue box"><strong>Analogy:</strong> Incident = taking aspirin for a headache. Problem = figuring out you need glasses. Incident management gives you relief. Problem management gives you the cure.</div>
+  <div class="foot"><span>Lab 14 &bull; Incident vs Problem</span><span class="foot-teach">Teaching Edition &bull; 3</span></div>
+</div>
+
+<!-- 4: IN SIMPLE TERMS - INCIDENT vs PROBLEM -->
+<div class="slide">
+  <div class="label label-teach">Teaching Note &bull; In Simple Terms</div>
+  <h2>Why the aspirin analogy matters</h2>
+  <div class="box-teach box" style="font-size:20px;margin-bottom:24px">
+    <strong>In simple terms:</strong> Every time Meera gets a headache alert, she takes aspirin (fixes the incident). The headache goes away. But it comes back next week. A Problem Manager asks: "Why do you keep getting headaches?" The answer might be: "You need glasses." That is the root cause &mdash; and fixing it means the headache never returns.
+  </div>
+  <div class="cols">
+    <div>
+      <h3 style="color:var(--red)">Incident Management world</h3>
+      <ul class="bl">
+        <li>Alert fires &rarr; engineer wakes up</li>
+        <li>Restarts the service &rarr; alert clears</li>
+        <li>Goes back to sleep</li>
+        <li>Same alert fires next week</li>
+        <li>Cycle repeats forever</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color:var(--accent)">Problem Management world</h3>
+      <ul class="bl">
+        <li>Notices: this has happened 4 times</li>
+        <li>Opens a Problem record</li>
+        <li>Investigates the actual cause</li>
+        <li>Documents it + a workaround</li>
+        <li>Fixes it once, permanently</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box-green box"><strong>The business value:</strong> Without Problem Management, teams spend all their time fighting fires. With it, they stop fires from starting in the first place. This is the shift from reactive IT to proactive IT.</div>
+  <div class="foot"><span>Lab 14 &bull; Simple Terms</span><span class="foot-teach">Teaching Edition &bull; 4</span></div>
+</div>
+
+<!-- 5: HOW THEY CONNECT -->
+<div class="slide">
+  <div class="label">Act 1 &bull; The Chain</div>
+  <h2>One root cause, many symptoms</h2>
+  <pre style="font-size:15px">
+Problem: PRB0040001 -- UPI Transaction Service instability
+   |
+   |  "One root cause caused all these incidents"
+   |
+   +--- INC: [AUTO] UPI transaction failure rate above 50%
+   +--- INC: [AUTO] UPI settlement failures detected
+   +--- INC: [AUTO] High HTTP 5xx error rate on upi-transaction-service
+   +--- INC: [AUTO] UPI Transaction Service is DOWN
+   |
+   |  "Investigation reveals the root cause"
+   |
+   +--- Known Error: Unprotected chaos endpoints + no circuit breaker
+   |
+   |  "The permanent fix goes through Change Management"
+   |
+   +--- CHG: Secure chaos endpoints + add circuit breaker
+  </pre>
+  <div class="box-green box"><strong>The full ITSM chain:</strong> Detection (Prometheus) &rarr; Incidents (ServiceNow) &rarr; Problem (RCA) &rarr; Known Error (KEDB) &rarr; Change Request (permanent fix) &rarr; Problem Closed</div>
+  <div class="foot"><span>Lab 14 &bull; The Chain</span><span class="foot-teach">Teaching Edition &bull; 5</span></div>
+</div>
+
+<!-- 6: HOW THEY CONNECT - SIMPLE TERMS -->
+<div class="slide">
+  <div class="label label-teach">Teaching Note &bull; In Simple Terms</div>
+  <h2>How Incidents, Problems and Changes connect</h2>
+  <div class="box-teach box" style="font-size:20px;margin-bottom:20px">
+    <strong>In simple terms:</strong> Think of it like a leaking roof. The incident is each bucket you place to catch drips. The problem is investigating why the roof leaks. The Known Error is writing down "the roof leaks when it rains hard because a tile is cracked". The Change Request is hiring someone to replace the tile permanently.
+  </div>
+  <div class="step-row"><span class="step-num">1</span><div><strong>Incidents</strong> are the buckets &mdash; quick reactions that stop immediate pain. Multiple incidents can share the same root cause.</div></div>
+  <div class="step-row"><span class="step-num">2</span><div><strong>Problem</strong> is the investigation &mdash; "why does the roof keep leaking?" It groups all related incidents together.</div></div>
+  <div class="step-row"><span class="step-num">3</span><div><strong>Known Error</strong> is the written-down knowledge &mdash; "we know the cause, here is how to work around it until it is fixed."</div></div>
+  <div class="step-row"><span class="step-num">4</span><div><strong>Change Request</strong> is the permanent repair &mdash; requires approval, planning, and controlled deployment.</div></div>
+  <div class="foot"><span>Lab 14 &bull; The Chain (Simple Terms)</span><span class="foot-teach">Teaching Edition &bull; 6</span></div>
+</div>
+
+<!-- 7: CREATE THE PROBLEM -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Create</div>
+  <h2>Create the Problem record</h2>
+  <p>Navigate to <strong>Problem > Create New</strong> (or type <code>problem.do</code>)</p>
+  <table>
+    <tr><th>Field</th><th>Value</th></tr>
+    <tr><td>Short description</td><td>UPI Transaction Service recurring failures causing payment disruptions</td></tr>
+    <tr><td>Category</td><td>Software</td></tr>
+    <tr><td>Impact</td><td>1 - High</td></tr>
+    <tr><td>Urgency</td><td>1 - High</td></tr>
+    <tr><td>Assignment group</td><td>Platform Engineering</td></tr>
+    <tr><td>Assigned to</td><td>Ravi Kumar</td></tr>
+  </table>
+  <p style="margin-top:12px"><strong>Description:</strong> Multiple incidents reported within a short time window indicating UPI Transaction Service instability. Transaction failure rate exceeded 50%, settlement service failures, HTTP 5xx errors, and complete service outage. Impact: All UPI payment processing affected. Detected by: Prometheus + AlertManager.</p>
+  <div class="box-blue box"><strong>After submit:</strong> Link all 4 [AUTO] incidents to this Problem via the <code>Problem</code> field on each incident form. This creates the "one root cause, many symptoms" relationship.</div>
+  <div class="foot"><span>Lab 14 &bull; Create Problem</span><span class="foot-teach">Teaching Edition &bull; 7</span></div>
+</div>
+
+<!-- 8: WHAT IS ROOT CAUSE ANALYSIS -->
+<div class="slide">
+  <div class="label label-teach">Teaching Note &bull; What Is RCA</div>
+  <h2>What is Root Cause Analysis?</h2>
+  <div class="box-teach box" style="font-size:20px;margin-bottom:20px">
+    <strong>In simple terms:</strong> Root Cause Analysis (RCA) is a structured way of asking "what really caused this?" It goes deeper than the surface symptom to find the underlying reason so the same thing cannot happen again.
+  </div>
+  <div class="cols">
+    <div>
+      <h3 style="color:var(--red)">Without RCA</h3>
+      <ul class="bl">
+        <li>Service fails &rarr; restart it</li>
+        <li>Feels solved... until next time</li>
+        <li>Team burned out from repeat alerts</li>
+        <li>No one knows why it really failed</li>
+        <li>No improvement over time</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color:var(--green)">With RCA</h3>
+      <ul class="bl">
+        <li>Service fails &rarr; restart it (Incident)</li>
+        <li>Then ask: why did it fail?</li>
+        <li>Dig into logs, metrics, code</li>
+        <li>Find the actual design flaw</li>
+        <li>Fix it once &mdash; no more recurrence</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box-blue box"><strong>RCA is not about blame.</strong> It is about finding the system or process weakness that allowed the failure to happen. The question is not "who broke it?" but "what in our design, process, or monitoring allowed this to go undetected?"</div>
+  <div class="foot"><span>Lab 14 &bull; What Is RCA</span><span class="foot-teach">Teaching Edition &bull; 8</span></div>
+</div>
+
+<!-- 9: WHAT IS THE 5 WHYS TECHNIQUE -->
+<div class="slide">
+  <div class="label label-teach">Teaching Note &bull; The 5 Whys Technique</div>
+  <h2>What is the 5 Whys technique?</h2>
+  <div class="box-teach box" style="font-size:20px;margin-bottom:20px">
+    <strong>In simple terms:</strong> The 5 Whys is the simplest RCA technique. You start with the symptom and keep asking "but WHY did that happen?" until you cannot go deeper. Usually 5 levels is enough to reach the true root cause.
+  </div>
+  <p style="font-size:20px;color:var(--text2);margin-bottom:8px"><strong>Example from everyday life (before the UPI example):</strong></p>
+  <div class="box-gray box" style="font-size:18px">
+    <strong>Problem:</strong> The car won't start.<br>
+    <strong>Why 1:</strong> The battery is dead. &rarr; <strong>Why 2:</strong> The alternator failed. &rarr; <strong>Why 3:</strong> The alternator belt broke. &rarr; <strong>Why 4:</strong> The belt was worn and was never replaced. &rarr; <strong>Why 5:</strong> The car was never serviced on schedule.<br><br>
+    <strong>Root Cause:</strong> No preventive maintenance schedule. Fix = set up a maintenance calendar. If you stopped at Why 1 (replace battery), the new battery would also die soon.
+  </div>
+  <div class="box-blue box"><strong>Key rule:</strong> Do not stop at the first answer. Each answer becomes the next question. Keep going until you hit a process, design, or policy gap &mdash; something you can actually fix permanently.</div>
+  <div class="foot"><span>Lab 14 &bull; 5 Whys Technique</span><span class="foot-teach">Teaching Edition &bull; 9</span></div>
+</div>
+
+<!-- 10: ROOT CAUSE ANALYSIS: THE 5 WHYS -->
+<div class="slide">
+  <div class="label label-orange">Act 2 &bull; RCA</div>
+  <h2>Root Cause Analysis: the 5 Whys</h2>
+  <pre style="font-size:17px;border-color:var(--orange)">
+WHY #1: Why did UPI payments fail?
+        --> Transaction failure rate spiked from 0% to 80% instantaneously.
+
+WHY #2: Why did it spike instantaneously (not gradually)?
+        --> Something toggled the service into a failure state externally.
+            Not resource exhaustion (JVM heap at 45%, latency normal).
+
+WHY #3: Why could something toggle the service externally?
+        --> The service exposes /chaos/enable, /chaos/down, /chaos/latency
+            endpoints with NO authentication.
+
+WHY #4: Why are chaos endpoints exposed without authentication?
+        --> They were added for testing and never secured for production.
+            No code review caught the missing auth.
+
+WHY #5: Why did settlements also fail?
+        --> No circuit breaker between Settlement and Transaction services.
+            Failures cascade with no fallback or timeout.
+  </pre>
+  <div class="box-orange box"><strong>Root Cause:</strong> Unprotected chaos engineering endpoints + missing circuit breaker pattern. Any network-reachable client can trigger a production outage.</div>
+  <div class="foot"><span>Lab 14 &bull; 5 Whys</span><span class="foot-teach">Teaching Edition &bull; 10</span></div>
+</div>
+
+<!-- 11: DOCUMENT FINDINGS - ROOT CAUSE -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Document (1 of 3)</div>
+  <h2>Document findings: Cause Notes</h2>
+  <p>On the Problem form, fill in the <strong>Analysis Information</strong> tab. Start with the <strong>Cause Notes</strong> section.</p>
+  <div class="box-teach box" style="font-size:19px;margin-bottom:16px">
+    <strong>In simple terms:</strong> Cause Notes answer the question: "What exactly is broken, and why?" Be precise. A vague cause note like "service was unstable" is useless. A good cause note names the specific technical flaw.
+  </div>
+  <h3 style="color:var(--red)">Cause Notes to document</h3>
+  <ul class="bl">
+    <li><code>/chaos/*</code> endpoints have no authentication or authorisation</li>
+    <li>Any network-reachable client can call <code>/chaos/enable</code> and trigger a production outage</li>
+    <li>No circuit breaker exists between Settlement Service and Transaction Service</li>
+    <li>When Transaction Service fails, Settlement Service has no fallback &mdash; failures cascade</li>
+    <li>No network segmentation restricts access to chaos endpoints</li>
+    <li>Chaos endpoints were added for testing and were never reviewed or secured before production</li>
+  </ul>
+  <div class="box-red box"><strong>Why document this carefully?</strong> If the same issue appears in 6 months, the new engineer can read the Cause Notes and immediately understand what happened without re-investigating from scratch.</div>
+  <div class="foot"><span>Lab 14 &bull; Cause Notes</span><span class="foot-teach">Teaching Edition &bull; 11</span></div>
+</div>
+
+<!-- 12: DOCUMENT FINDINGS - WORKAROUND -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Document (2 of 3)</div>
+  <h2>Document findings: Workaround</h2>
+  <div class="box-teach box" style="font-size:19px;margin-bottom:16px">
+    <strong>In simple terms:</strong> The workaround is the "quick plaster" &mdash; it stops the bleeding right now but is not the permanent cure. It must be fast, reliable, and clear enough that anyone on the team can follow it at 3am during an outage.
+  </div>
+  <h3 style="color:var(--orange)">Workaround steps</h3>
+  <ul class="bl">
+    <li>Run <code>curl -X POST http://&lt;service-host&gt;:8080/chaos/disable</code></li>
+    <li>Service should recover within approximately 30 seconds</li>
+    <li>If service is unresponsive: run <code>docker compose restart upi-transaction-service</code></li>
+    <li>Monitor for 15 minutes to confirm stability before closing the incident</li>
+  </ul>
+  <div class="box-orange box"><strong>Important distinction:</strong> A workaround resolves the incident (service is back up) but the Problem stays open. The Problem is only closed once the permanent fix is deployed and verified &mdash; which happens through a Change Request in Lab 15.</div>
+  <div class="foot"><span>Lab 14 &bull; Workaround</span><span class="foot-teach">Teaching Edition &bull; 12</span></div>
+</div>
+
+<!-- 13: DOCUMENT FINDINGS - FIX NOTES -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Document (3 of 3)</div>
+  <h2>Document findings: Fix Notes (permanent)</h2>
+  <div class="box-teach box" style="font-size:19px;margin-bottom:16px">
+    <strong>In simple terms:</strong> Fix Notes describe what needs to change permanently so this problem never happens again. Unlike the workaround, the permanent fix requires proper planning, testing, and approval through a Change Request.
+  </div>
+  <h3 style="color:var(--green)">Permanent fix actions</h3>
+  <ul class="bl">
+    <li><strong>SECURITY:</strong> Add Spring Security on <code>/chaos/*</code> endpoints &mdash; restrict to admin role only</li>
+    <li><strong>RESILIENCE:</strong> Implement Resilience4j circuit breaker in Settlement Service to prevent cascade failures</li>
+    <li><strong>RATE LIMIT:</strong> Add rate limiter on <code>/api/upi/pay</code> to prevent abuse</li>
+    <li><strong>MONITORING:</strong> Add alerts for circuit breaker state changes (open/closed/half-open)</li>
+    <li><strong>NETWORK:</strong> Restrict <code>/chaos/*</code> endpoints to internal management network only</li>
+  </ul>
+  <div class="box-green box"><strong>Permanent fix requires a Change Request</strong> &mdash; it will be submitted and approved in Lab 15. This is intentional: permanent changes to production must go through CAB approval to prevent new problems from being introduced.</div>
+  <div class="foot"><span>Lab 14 &bull; Fix Notes</span><span class="foot-teach">Teaching Edition &bull; 13</span></div>
+</div>
+
+<!-- 14: WHAT IS KEDB -->
+<div class="slide">
+  <div class="label label-teach">Teaching Note &bull; What Is KEDB</div>
+  <h2>What is the Known Error Database (KEDB)?</h2>
+  <div class="box-teach box" style="font-size:20px;margin-bottom:20px">
+    <strong>In simple terms:</strong> The KEDB is like a FAQ for IT agents. Whenever a known problem recurs, agents do not need to investigate from scratch. They search the KEDB, find the matching entry, apply the documented workaround, and resolve the incident in minutes instead of hours.
+  </div>
+  <div class="cols">
+    <div>
+      <h3>Without KEDB</h3>
+      <ul class="bl">
+        <li>New agent gets the alert at 2am</li>
+        <li>Has no idea what caused this before</li>
+        <li>Spends 2 hours investigating</li>
+        <li>Eventually finds the same fix</li>
+        <li>Resolution time: 2-3 hours</li>
+      </ul>
+    </div>
+    <div>
+      <h3>With KEDB</h3>
+      <ul class="bl">
+        <li>New agent gets the alert at 2am</li>
+        <li>Searches KEDB for "UPI failure"</li>
+        <li>Finds the Known Error article</li>
+        <li>Runs <code>curl .../chaos/disable</code></li>
+        <li>Resolution time: 5-10 minutes</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box-orange box"><strong>KEDB = institutional memory.</strong> Without it, every agent rediscovers the same root cause. With it, resolution time drops from hours to minutes. This directly lowers your MTTR (Mean Time to Resolve) metric.</div>
+  <div class="foot"><span>Lab 14 &bull; What Is KEDB</span><span class="foot-teach">Teaching Edition &bull; 14</span></div>
+</div>
+
+<!-- 15: KNOWN ERROR - CREATE THE ARTICLE -->
+<div class="slide">
+  <div class="label label-orange">Act 2 &bull; Known Error</div>
+  <h2>Known Error Database (KEDB)</h2>
+  <div class="cols">
+    <div>
+      <h3>Create the Known Error article</h3>
+      <p>On the Problem form, scroll to <strong>Related Links</strong> and click <strong>"Create Known Error article"</strong>.</p>
+      <table>
+        <tr><th>Section</th><th>Content</th></tr>
+        <tr><td>Symptoms</td><td>Failure rate &gt;50%, settlement failures, HTTP 5xx, service outage</td></tr>
+        <tr><td>Root Cause</td><td>Unprotected /chaos/* endpoints + no circuit breaker</td></tr>
+        <tr><td>Workaround</td><td>curl -X POST .../chaos/disable</td></tr>
+        <tr><td>Permanent Fix</td><td>Spring Security + Resilience4j (requires Change Request)</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>How KEDB works</h3>
+      <pre style="font-size:15px">
+New incident comes in
+    |
+    v
+Agent searches KEDB
+    |
+    v
+Finds matching Known Error
+    |
+    v
+Applies workaround
+    |
+    v
+Incident resolved in
+MINUTES (not hours)
+    |
+    v
+Links incident to
+existing Problem
+      </pre>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 14 &bull; Known Error</span><span class="foot-teach">Teaching Edition &bull; 15</span></div>
+</div>
+
+<!-- 16: PROBLEM LIFECYCLE -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Lifecycle</div>
+  <h2>Problem lifecycle</h2>
+  <div class="box-teach box" style="font-size:19px;margin-bottom:16px">
+    <strong>In simple terms:</strong> A Problem has its own journey from "we noticed a pattern" to "we have permanently fixed it." Unlike an incident (which closes in hours), a Problem can stay open for weeks while the permanent fix is planned and deployed.
+  </div>
+  <div class="timeline tl-ok">
+    <div class="tl-item"><span class="tl-time">New</span> Problem created from recurring incident pattern. Investigation not started.</div>
+    <div class="tl-item"><span class="tl-time">Assess</span> Investigation plan documented. Reviewing metrics, logs, code.</div>
+    <div class="tl-item"><span class="tl-time">RCA</span> Root Cause Analysis in progress. Work notes added with findings.</div>
+    <div class="tl-item"><span class="tl-time">Known Error</span> Root cause identified. Workaround documented. KEDB article published.</div>
+    <div class="tl-item"><span class="tl-time">Fix in Progress</span> Change Request submitted. Awaiting CAB approval.</div>
+    <div class="tl-item"><span class="tl-time">Resolved / Closed</span> Fix deployed and verified. No recurrence over 72 hours.</div>
+  </div>
+  <div class="box-blue box"><strong>Key difference from incidents:</strong> A Problem stays open as a Known Error until the permanent fix is deployed and verified. It can take weeks. The workaround keeps the service running in the meantime.</div>
+  <div class="foot"><span>Lab 14 &bull; Lifecycle</span><span class="foot-teach">Teaching Edition &bull; 16</span></div>
+</div>
+
+<!-- 17: WHAT IS PROACTIVE PROBLEM MANAGEMENT -->
+<div class="slide">
+  <div class="label label-teach">Teaching Note &bull; Proactive Problem Management</div>
+  <h2>What is Proactive Problem Management?</h2>
+  <div class="box-teach box" style="font-size:20px;margin-bottom:20px">
+    <strong>In simple terms:</strong> Reactive Problem Management waits for incidents to pile up before investigating. Proactive Problem Management scans the CMDB, architecture diagrams, and monitoring data to find weaknesses before they ever cause an incident. It is the difference between finding a crack in the bridge before it collapses versus after.
+  </div>
+  <div class="cols">
+    <div>
+      <h3 style="color:var(--red)">Reactive (standard)</h3>
+      <ul class="bl">
+        <li>Incident occurs &rarr; service is down</li>
+        <li>Users are already affected</li>
+        <li>Multiple incidents pile up</li>
+        <li>Pattern detected &rarr; Problem opened</li>
+        <li>Damage has already happened</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color:var(--green)">Proactive (mature)</h3>
+      <ul class="bl">
+        <li>No incidents yet</li>
+        <li>CMDB review finds a design risk</li>
+        <li>Problem opened before any failure</li>
+        <li>Fix deployed before users are affected</li>
+        <li>Zero downtime, zero disruption</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box-green box"><strong>Proactive Problem Management is the highest-maturity ITSM practice.</strong> It requires good CMDB data (Lab 07), good monitoring (Lab 12), and engineers with time to look beyond today's fires. Most teams only reach this level after mastering the reactive process first.</div>
+  <div class="foot"><span>Lab 14 &bull; Proactive Problem Management</span><span class="foot-teach">Teaching Edition &bull; 17</span></div>
+</div>
+
+<!-- 18: THE SPOF FROM LAB 07 -->
+<div class="slide">
+  <div class="label label-red">Act 3 &bull; Proactive Problem</div>
+  <h2>The SPOF from Lab 07 becomes a Problem</h2>
+  <p>Remember the discovery in Lab 07?</p>
+  <pre style="border-color:var(--red);border-width:2px">
+PostgreSQL Primary  -- runs on --> DB Server 01
+PostgreSQL Replica  -- runs on --> DB Server 01   &lt;-- SAME SERVER!
+  </pre>
+  <div class="cols">
+    <div>
+      <h3 style="color:var(--red)">The risk</h3>
+      <ul class="bl">
+        <li>Both databases on the same physical server</li>
+        <li>If DB Server 01 fails: no failover possible</li>
+        <li>Complete UPI outage with no recovery path</li>
+        <li>No incidents have happened <strong>yet</strong></li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color:var(--green)">Proactive Problem</h3>
+      <ul class="bl">
+        <li>Create a Problem <strong>before</strong> incidents occur</li>
+        <li>"UPI Settlement Service single point of failure"</li>
+        <li>Fix: Deploy 2+ replicas behind load balancer</li>
+        <li>This leads to a Change Request in Lab 15</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box-red box"><strong>Proactive Problem Management:</strong> Finding risks through CMDB analysis before they cause incidents. This is the highest-maturity ITSM practice.</div>
+  <div class="foot"><span>Lab 14 &bull; SPOF Problem</span><span class="foot-teach">Teaching Edition &bull; 18</span></div>
+</div>
+
+<!-- 19: KEY CONCEPTS -->
+<div class="slide">
+  <div class="label">Act 3 &bull; Concepts</div>
+  <h2>Key concepts</h2>
+  <table>
+    <tr><th>Concept</th><th>Definition</th></tr>
+    <tr><td>Problem</td><td>The underlying root cause of one or more incidents</td></tr>
+    <tr><td>Root Cause Analysis</td><td>Structured investigation: What happened? Why? How to prevent?</td></tr>
+    <tr><td>5 Whys</td><td>Ask "why" repeatedly until you reach the root cause (not just the symptom)</td></tr>
+    <tr><td>Known Error</td><td>Problem with identified root cause + documented workaround</td></tr>
+    <tr><td>KEDB</td><td>Known Error Database &mdash; searchable by service desk for faster resolution</td></tr>
+    <tr><td>Workaround</td><td>Temporary fix that restores service until permanent fix is deployed</td></tr>
+    <tr><td>Proactive Problem</td><td>Identified through analysis (e.g., CMDB review) before incidents occur</td></tr>
+    <tr><td>Problem &rarr; Change</td><td>Permanent fixes go through Change Management (Lab 15)</td></tr>
+  </table>
+  <div class="foot"><span>Lab 14 &bull; Concepts</span><span class="foot-teach">Teaching Edition &bull; 19</span></div>
+</div>
+
+<!-- 20: SUMMARY -->
+<div class="slide">
+  <div class="label">Summary</div>
+  <h2>What we built and why it matters</h2>
+  <table>
+    <tr><th>What we did</th><th>ITSM value</th></tr>
+    <tr><td>Identified recurring incidents</td><td>Pattern recognition &mdash; multiple symptoms, one cause</td></tr>
+    <tr><td>Created a Problem record</td><td>Shift from reactive firefighting to structured investigation</td></tr>
+    <tr><td>Performed RCA with real data</td><td>Used Prometheus/Grafana evidence in the investigation</td></tr>
+    <tr><td>Documented Known Error</td><td>Service desk resolves future incidents faster (lower MTTR)</td></tr>
+    <tr><td>Linked Problem to Change</td><td>Permanent fix follows Change Management process</td></tr>
+    <tr><td>Closed the loop</td><td>Detection &rarr; Incident &rarr; Problem &rarr; Known Error &rarr; Change &rarr; Closed</td></tr>
+  </table>
+  <div class="box-gray box" style="margin-top:16px">
+    <strong>The story continues...</strong><br><br>
+    <strong>Lab 15:</strong> The Change Request created here goes through the full change lifecycle &mdash; planning, <strong>CAB approval</strong>, implementation, and post-implementation review.<br><br>
+    <strong>The ITSM journey:</strong> CMDB (Lab 07) &rarr; Service (Lab 08) &rarr; SLA (Lab 09) &rarr; KB (Lab 10) &rarr; Events (Lab 12) &rarr; Incidents (Lab 13) &rarr; <strong>Problems (Lab 14)</strong> &rarr; Changes (Lab 15)
+  </div>
+  <div class="foot"><span>Lab 14 &bull; ITIL: Problem Management</span><span class="foot-teach">Teaching Edition &bull; 20</span></div>
+</div>
+
+</div>
+<div class="counter" id="sc">1 / 20</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();show(c+1)}
+  if(e.key==='ArrowLeft'){e.preventDefault();show(c-1)}
+  if(e.key==='Home'){e.preventDefault();show(0)}
+  if(e.key==='End'){e.preventDefault();show(S.length-1)}
+});
+document.addEventListener('click',e=>{if(e.clientX>window.innerWidth/2)show(c+1);else show(c-1)});
+show(0);
+</script>
+</body>
+</html>
