@@ -1,0 +1,47 @@
+
+  ---
+  What Students Should Add to Their Capstone
+
+  1. ITSM Process Documents (ITIL 4 aligned)
+  - Incident Management workflow for their domain (P1-P4 classification, escalation matrix)
+  - Problem Management — RCA template with at least 1 known error record
+  - Change Management — RFC template, change types (standard/normal/emergency), CAB approval flow
+  - Service Catalog — 3-5 service offerings for their domain with SLA targets
+
+  2. ServiceNow Configuration (screenshots or export)
+  - At least 2 custom tables relevant to their domain
+  - User/Group/Role setup with role tagging
+  - SLA definitions with triggers and schedules
+  - 1 catalog item with variables
+  - Change request workflow (standard + normal)
+  - Email notification rule
+
+  3. Integration with Prior Work
+  - Map SRE SLOs (from capsule-8) to ITIL SLA definitions
+  - Link Prometheus/Grafana alerts → incident creation workflow
+  - Show how observability feeds into problem management (recurring alerts → problem record → known error)
+
+  ---
+  Submission Format
+
+  Each student submits a folder/zip containing:
+  capstone-project/
+  ├── itsm/
+  │   ├── incident-management.md      # workflow, priority matrix, escalation
+  │   ├── problem-management.md       # RCA template, known error DB
+  │   ├── change-management.md        # RFC template, change types, CAB
+  │   └── service-catalog.md          # service offerings + SLA targets
+  ├── servicenow/
+  │   ├── screenshots/                # table config, SLA, catalog, notifications
+  │   └── configuration-notes.md      # what was configured and why
+  └── integration-map.md              # SRE → ITSM mapping
+
+  ---
+  Demo Flow (5-7 min per student)
+
+  1. Service Catalog (1 min) — Show domain services and SLA targets
+  2. Incident → Problem flow (2 min) — Walk through a realistic incident, show how it escalates, links to problem
+  record
+  3. ServiceNow walkthrough (2 min) — Show configured tables, SLA, catalog item, change request
+  4. SRE-to-ITSM bridge (1-2 min) — How monitoring alerts map to incident tickets, how error budgets inform change
+  freeze decisions
