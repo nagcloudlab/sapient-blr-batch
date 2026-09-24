@@ -36,12 +36,3 @@
   │   └── configuration-notes.md      # what was configured and why
   └── integration-map.md              # SRE → ITSM mapping
 
-  ---
-  Demo Flow (5-7 min per student)
-
-  1. Service Catalog (1 min) — Show domain services and SLA targets
-  2. Incident → Problem flow (2 min) — Walk through a realistic incident, show how it escalates, links to problem
-  record
-  3. ServiceNow walkthrough (2 min) — Show configured tables, SLA, catalog item, change request
-  4. SRE-to-ITSM bridge (1-2 min) — How monitoring alerts map to incident tickets, how error budgets inform change
-  freeze decisions
