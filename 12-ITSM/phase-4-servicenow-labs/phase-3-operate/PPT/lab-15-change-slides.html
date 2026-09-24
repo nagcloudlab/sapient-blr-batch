@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 15: Change Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f0;overflow:hidden;-webkit-font-smoothing:antialiased}
+
+/* Deck & Slide */
+.deck{width:100vw;height:100vh;position:relative}
+.slide{
+  position:absolute;inset:0;display:none;
+  padding:60px 80px;
+  overflow-y:auto;
+  background:#ffffff;color:#1a1a1a;
+}
+.slide.active{display:flex;flex-direction:column}
+
+/* Colors */
+:root{
+  --text:#1a1a1a;
+  --text2:#444;
+  --muted:#888;
+  --accent:#1d4ed8;
+  --green:#047857;
+  --red:#b91c1c;
+  --orange:#c2410c;
+  --bg-subtle:#f7f8fa;
+  --border:#e5e7eb;
+}
+
+/* Typography -- generous sizing */
+.label{
+  font-size:13px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:var(--accent);
+  margin-bottom:8px;
+}
+.label-red{color:var(--red)}
+.label-green{color:var(--green)}
+.label-orange{color:var(--orange)}
+
+h1{font-size:52px;font-weight:800;line-height:1.15;color:var(--text);margin-bottom:16px}
+h2{font-size:40px;font-weight:700;line-height:1.2;color:var(--text);margin-bottom:20px}
+h3{font-size:22px;font-weight:700;color:var(--accent);margin:24px 0 8px}
+p{font-size:20px;line-height:1.7;color:var(--text2);margin-bottom:8px}
+.lead{font-size:24px;line-height:1.6;color:var(--text2)}
+.big{font-size:30px;font-weight:700;color:var(--accent);line-height:1.4}
+
+/* Lists */
+ul.bl{list-style:none;padding:0;margin:8px 0}
+ul.bl li{
+  font-size:20px;line-height:1.6;color:var(--text2);
+  padding:6px 0 6px 28px;position:relative;
+}
+ul.bl li::before{
+  content:'';position:absolute;left:0;top:14px;
+  width:10px;height:10px;border-radius:50%;background:var(--accent);
+}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th{
+  font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);text-align:left;
+  padding:10px 14px;border-bottom:2px solid var(--border);
+}
+td{
+  font-size:18px;line-height:1.5;color:var(--text2);
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  vertical-align:top;
+}
+td:first-child{font-weight:600;color:var(--accent);white-space:nowrap}
+tr:nth-child(even) td{background:var(--bg-subtle)}
+
+/* Callout boxes */
+.box{border-radius:12px;padding:20px 24px;margin:16px 0;font-size:18px;line-height:1.6}
+.box-blue{background:#eff6ff;border-left:5px solid var(--accent);color:#1e3a5f}
+.box-green{background:#ecfdf5;border-left:5px solid var(--green);color:#064e3b}
+.box-red{background:#fef2f2;border-left:5px solid var(--red);color:#7f1d1d}
+.box-orange{background:#fff7ed;border-left:5px solid var(--orange);color:#7c2d12}
+.box-gray{background:#f7f8fa;border-left:5px solid #cbd5e1;color:var(--text)}
+
+/* Code */
+pre{
+  background:var(--bg-subtle);color:var(--text);
+  border:1px solid var(--border);border-radius:12px;
+  padding:20px 24px;
+  font-family:'JetBrains Mono',Consolas,monospace;
+  font-size:16px;line-height:1.6;
+  overflow-x:auto;margin:12px 0;
+}
+code{
+  font-family:'JetBrains Mono',Consolas,monospace;
+  background:var(--bg-subtle);padding:2px 8px;border-radius:6px;
+  font-size:17px;color:var(--accent);
+}
+
+/* Layout */
+.cols{display:flex;gap:48px;margin:12px 0}
+.cols>div{flex:1}
+
+/* Timeline */
+.timeline{position:relative;padding-left:32px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:3px;background:var(--border);border-radius:2px}
+.tl-item{position:relative;padding:8px 0;font-size:19px;line-height:1.6;color:var(--text2)}
+.tl-item::before{
+  content:'';position:absolute;left:-25px;top:14px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--red);border:3px solid #fff;
+  box-shadow:0 0 0 2px var(--border);
+}
+.tl-ok .tl-item::before{background:var(--green)}
+.tl-time{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:17px;color:var(--red);margin-right:8px}
+.tl-ok .tl-time{color:var(--green)}
+
+/* Number hero */
+.num-block{text-align:center;padding:16px}
+.num-block .num{font-size:72px;font-weight:900;color:var(--accent);line-height:1}
+.num-block .num-label{font-size:16px;font-weight:600;color:var(--muted);margin-top:6px}
+
+/* Footer */
+.foot{
+  margin-top:auto;padding-top:12px;
+  display:flex;justify-content:space-between;
+  font-size:13px;color:var(--muted);font-weight:500;
+  border-top:1px solid var(--border);
+}
+
+/* Badge */
+.badge{
+  display:inline-block;font-size:13px;font-weight:700;
+  padding:6px 14px;border-radius:8px;letter-spacing:.5px;
+}
+
+/* Counter */
+.counter{
+  position:fixed;top:12px;right:16px;
+  background:rgba(0,0,0,.05);color:var(--muted);
+  font:700 13px/1 'JetBrains Mono',monospace;
+  padding:6px 12px;border-radius:6px;z-index:99;
+}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1: TITLE -->
+<div class="slide active">
+  <div style="margin-top:8vh">
+    <div class="label">Lab 15 &bull; ITIL Practice: Change Enablement</div>
+    <h1 style="font-size:58px">Change<br>Management</h1>
+    <p class="lead" style="max-width:65%">Ravi has the fix. Both PostgreSQL databases on the same server -- a single point of failure. But he can't just SSH in and do it. That's how outages happen.</p>
+    <div style="margin-top:32px">
+      <span class="badge" style="background:var(--accent);color:#fff">90 min</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--text);margin-left:8px">Labs 12-14 completed</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--muted);margin-left:8px">PDI: Zurich</span>
+    </div>
+  </div>
+  <div class="foot"><span>ServiceNow ITSM Labs &bull; NPCI UPI Scenario</span><span></span></div>
+</div>
+
+<!-- 2: WHY CHANGES FAIL -->
+<div class="slide">
+  <div class="label label-red">Act 1 &bull; The Problem With "Just Fix It"</div>
+  <h2>80% of outages are caused by changes</h2>
+  <div class="cols">
+    <div>
+      <p style="font-size:22px;font-weight:600;color:var(--red);margin-bottom:16px">What happens without Change Management:</p>
+      <div class="timeline">
+        <div class="tl-item"><span class="tl-time">Mon</span> Dev pushes "quick fix" to production. No plan. No approval.</div>
+        <div class="tl-item"><span class="tl-time">Tue</span> Settlement batch fails. Nobody knows what changed.</div>
+        <div class="tl-item"><span class="tl-time">Wed</span> Hotfix for the hotfix. Introduces new bug.</div>
+        <div class="tl-item"><span class="tl-time">Thu</span> 3 incidents, 2 problems. 350+ banks affected.</div>
+      </div>
+    </div>
+    <div>
+      <div class="num-block">
+        <div class="num" style="color:var(--red)">80%</div>
+        <div class="num-label">of outages caused by uncontrolled changes</div>
+      </div>
+      <div class="num-block" style="margin-top:24px">
+        <div class="num" style="color:var(--red)">12B+</div>
+        <div class="num-label">UPI transactions/month at risk</div>
+      </div>
+    </div>
+  </div>
+  <div class="box-red box"><strong>Lab 14 found the root cause:</strong> Both PostgreSQL databases on the same server (SPOF). Ravi has the fix ready -- separate them onto different servers. But the fix must go through Change Management.</div>
+  <div class="foot"><span>Lab 15 &bull; Why Changes Fail</span><span>2</span></div>
+</div>
+
+<!-- 3: THREE CHANGE TYPES -->
+<div class="slide">
+  <div class="label">Act 1 &bull; Three Types of Change</div>
+  <h2>Normal vs Standard vs Emergency</h2>
+  <table>
+    <tr><th>Type</th><th>When to Use</th><th>Approval</th><th>UPI Example</th></tr>
+    <tr>
+      <td style="color:var(--accent)">Normal</td>
+      <td>Full lifecycle -- planning, risk assessment, CAB</td>
+      <td>CAB approval required</td>
+      <td>Separate PostgreSQL onto different servers</td>
+    </tr>
+    <tr>
+      <td style="color:var(--green)">Standard</td>
+      <td>Pre-approved, low risk, done many times</td>
+      <td>No CAB needed (pre-approved)</td>
+      <td>Add merchant VPA to whitelist</td>
+    </tr>
+    <tr>
+      <td style="color:var(--red)">Emergency</td>
+      <td>Critical production fix, act first</td>
+      <td>Verbal approval, post-review</td>
+      <td>SSL certificate expired -- all payments failing</td>
+    </tr>
+  </table>
+  <h3>State Flow Comparison</h3>
+  <pre>
+Normal:    New --> Assess --> Authorize --> Scheduled --> Implement --> Review --> Closed
+                               ^ CAB approval required
+
+Standard:  New --> Scheduled --> Implement --> Review --> Closed
+                  (pre-approved -- no CAB needed)
+
+Emergency: New --> Authorize --> Implement --> Review --> Closed
+                  (verbal approval, post-implementation CAB review)
+  </pre>
+  <div class="foot"><span>Lab 15 &bull; Change Types</span><span>3</span></div>
+</div>
+
+<!-- 4: THE 7 Rs OF CHANGE -->
+<div class="slide">
+  <div class="label">Act 1 &bull; Decision Framework</div>
+  <h2>The 7 Rs of Change Management</h2>
+  <p>Before any change is approved, the CAB must answer all 7 questions.</p>
+  <table>
+    <tr><th>#</th><th>Question</th><th>Our PostgreSQL Separation Change</th></tr>
+    <tr><td>R1</td><td><strong>RAISED</strong> -- Who raised the change?</td><td>Ravi Kumar, from Problem PRB (Lab 14)</td></tr>
+    <tr><td>R2</td><td><strong>REASON</strong> -- Why is the change needed?</td><td>SPOF: both DBs on same server = no failover</td></tr>
+    <tr><td>R3</td><td><strong>RETURN</strong> -- What's the expected benefit?</td><td>Eliminate SPOF, enable real DB failover</td></tr>
+    <tr><td>R4</td><td><strong>RISKS</strong> -- What are the risks?</td><td>Data migration errors, replication lag, downtime</td></tr>
+    <tr><td>R5</td><td><strong>RESOURCES</strong> -- What resources are needed?</td><td>New server, DBA time, 3-hour maintenance window</td></tr>
+    <tr><td>R6</td><td><strong>RESPONSIBLE</strong> -- Who is accountable?</td><td>Ravi Kumar (implement), Sanjay (approve)</td></tr>
+    <tr><td>R7</td><td><strong>RELATIONSHIP</strong> -- What other changes depend on this?</td><td>Circuit breaker (Lab 14), settlement optimization</td></tr>
+  </table>
+  <div class="box-blue box"><strong>ITIL 4:</strong> The 7 Rs ensure every change is thoroughly evaluated before authorization. Skipping any R is how outages happen.</div>
+  <div class="foot"><span>Lab 15 &bull; 7 Rs</span><span>4</span></div>
+</div>
+
+<!-- 5: DECISION TREE -->
+<div class="slide">
+  <div class="label">Act 1 &bull; Which Change Type?</div>
+  <h2>Normal vs Standard vs Emergency:<br>Decision Tree</h2>
+  <pre style="font-size:17px;line-height:1.7">
+  Is production on fire RIGHT NOW?
+    |
+    +-- YES --> Is it a P1/P2 incident actively losing revenue?
+    |             |
+    |             +-- YES --> EMERGENCY CHANGE
+    |             |           (verbal approval, fix now, review later)
+    |             |
+    |             +-- NO  --> NORMAL CHANGE (expedited)
+    |
+    +-- NO  --> Has this exact change been done 5+ times before?
+                  |
+                  +-- YES --> Is it low risk and well-documented?
+                  |             |
+                  |             +-- YES --> STANDARD CHANGE
+                  |             |           (pre-approved template)
+                  |             |
+                  |             +-- NO  --> NORMAL CHANGE
+                  |
+                  +-- NO  --> NORMAL CHANGE
+                              (full planning + CAB approval)
+  </pre>
+  <div class="box-orange box"><strong>Our PostgreSQL separation:</strong> Production is not on fire (workaround is active). Never done before. Answer = <strong>Normal Change</strong> with full CAB process.</div>
+  <div class="foot"><span>Lab 15 &bull; Decision Tree</span><span>5</span></div>
+</div>
+
+<!-- 6: NORMAL CHANGE -- CREATE -->
+<div class="slide">
+  <div class="label label-green">Act 2 &bull; Normal Change</div>
+  <h2>Create the Change Request</h2>
+  <p>Navigate to <code>Change > Create New</code> or <code>change_request.do</code></p>
+  <table>
+    <tr><th>Field</th><th>Value</th><th>Why?</th></tr>
+    <tr><td>Type</td><td>Normal</td><td>New change, needs full assessment + CAB</td></tr>
+    <tr><td>Short description</td><td>Secure UPI chaos endpoints and add circuit breaker</td><td>From Problem root cause (Lab 14)</td></tr>
+    <tr><td>Category</td><td>Software</td><td>Application-level change</td></tr>
+    <tr><td>Risk</td><td>Moderate</td><td>Affects production services, but tested in staging</td></tr>
+    <tr><td>Impact</td><td>1 - High</td><td>UPI payment processing for all users</td></tr>
+    <tr><td>Assignment group</td><td>Platform Engineering</td><td>Team that owns UPI services</td></tr>
+    <tr><td>Assigned to</td><td>Ravi Kumar</td><td>Implementer from Problem investigation</td></tr>
+  </table>
+  <div class="box-blue box"><strong>Key fields:</strong> Implementation Plan, Rollback Plan, and Test Plan must all be completed before this change can move to Assess.</div>
+  <div class="foot"><span>Lab 15 &bull; Create Normal Change</span><span>6</span></div>
+</div>
+
+<!-- 7: PLANNING DETAILS -->
+<div class="slide">
+  <div class="label label-green">Act 2 &bull; Normal Change</div>
+  <h2>Planning: Implementation + Rollback</h2>
+  <div class="cols">
+    <div>
+      <h3>Implementation Plan</h3>
+      <pre style="font-size:14px;line-height:1.5">
+1. Pre-implementation (2:00 AM):
+   - Notify ops, take config backup
+   - Verify staging tests passed
+
+2. Deploy Txn Service v2.1 (2:15 AM):
+   - Spring Security on /chaos/* endpoints
+   - Verify /chaos returns 401 without auth
+
+3. Deploy Settlement Service v2.1 (2:45 AM):
+   - Resilience4j circuit breaker
+   - Verify metrics in Prometheus
+
+4. Smoke test (3:00 AM):
+   - 100 test transactions, 100% pass
+
+5. Chaos test (3:15 AM):
+   - Verify security + circuit breaker
+
+6. Monitor (3:30-5:00 AM):
+   - Watch Grafana for 90 minutes
+      </pre>
+    </div>
+    <div>
+      <h3 style="color:var(--red)">Rollback Plan</h3>
+      <pre style="font-size:14px;line-height:1.5">
+If anything fails:
+
+1. Stop both services
+2. Revert to v2.0 Docker images
+3. docker compose up -d
+4. Verify services are healthy
+5. Re-apply workaround
+6. Notify operations team
+7. Schedule post-mortem
+
+Estimated rollback time: 15 min
+      </pre>
+      <h3>Test Plan</h3>
+      <pre style="font-size:14px;line-height:1.5">
+- Tested in staging for 5 days
+- Spring Security blocks /chaos/*
+- Circuit breaker: opens after
+  5 failures, half-opens after 30s
+- P95 latency unchanged
+- JVM heap stable under load
+      </pre>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 15 &bull; Planning</span><span>7</span></div>
+</div>
+
+<!-- 8: STATE TRANSITIONS + CAB -->
+<div class="slide">
+  <div class="label label-green">Act 2 &bull; Normal Change Lifecycle</div>
+  <h2>Walking Through the States</h2>
+  <pre style="font-size:18px;line-height:1.8;text-align:center;border:2px solid var(--accent)">
+  New  -->  Assess  -->  Authorize  -->  Scheduled  -->  Implement  -->  Review  -->  Closed
+   |          |             |               |              |              |            |
+ Create    Plans         CAB votes      Calendar       Execute       Verify        Close
+ record    complete      APPROVE        shows it       the plan      success       code
+  </pre>
+  <h3>CAB Approval Simulation</h3>
+  <div class="cols">
+    <div>
+      <ul class="bl">
+        <li>Move state to <strong>Assess</strong> -- plans verified</li>
+        <li>Move to <strong>Authorize</strong> -- submits to CAB</li>
+        <li>Add approver: <strong>Sanjay Manager</strong></li>
+        <li><strong>Impersonate</strong> Sanjay to approve</li>
+        <li>Move to <strong>Scheduled</strong> -- appears on calendar</li>
+      </ul>
+    </div>
+    <div>
+      <div class="box-blue box">
+        <strong>CAB = Change Advisory Board</strong><br><br>
+        Who's on it? Service owners, architects, security, operations.<br><br>
+        They review risk, impact, rollback plan, and maintenance window before saying "Go."
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 15 &bull; CAB Approval</span><span>8</span></div>
+</div>
+
+<!-- 9: CI IMPACT ANALYSIS -->
+<div class="slide">
+  <div class="label">Act 2 &bull; CMDB Integration</div>
+  <h2>CI Impact Analysis: "What breaks if I change this?"</h2>
+  <p>The CMDB from Lab 07 makes change impact analysis instant.</p>
+  <pre style="font-size:16px">
+Change: "Secure chaos endpoints + add circuit breaker"
+
+CI Impact Analysis (from CMDB relationships):
+
+  UPI Transaction Service (CHANGING)
+    |-- depends on --> PostgreSQL Primary    (VERIFY: DB queries still work)
+    |-- runs on   --> App Server 01          (VERIFY: enough resources for new deps)
+    |-- used by   --> UPI Production LB      (IMPACT: brief downtime during rolling restart)
+    |-- used by   --> UPI Settlement Service (IMPACT: circuit breaker changes interaction)
+
+  UPI Settlement Service (CHANGING)
+    |-- depends on --> PostgreSQL Primary    (VERIFY: batch processing compatible)
+    |-- depends on --> UPI Transaction Svc   (NEW: circuit breaker between them)
+    |-- runs on   --> App Server 02          (VERIFY: Resilience4j memory overhead)
+  </pre>
+  <div class="cols" style="margin-top:8px">
+    <div class="num-block"><div class="num">2</div><div class="num-label">CIs being changed</div></div>
+    <div class="num-block"><div class="num">4</div><div class="num-label">CIs impacted</div></div>
+    <div class="num-block"><div class="num">6</div><div class="num-label">relationships to verify</div></div>
+  </div>
+  <div class="foot"><span>Lab 15 &bull; Impact Analysis</span><span>9</span></div>
+</div>
+
+<!-- 10: IMPLEMENTATION -->
+<div class="slide">
+  <div class="label label-green">Act 2 &bull; Implementation</div>
+  <h2>Executing the Change</h2>
+  <p>State: <strong>Implement</strong>. Every step gets a work note with timestamp.</p>
+  <div class="timeline tl-ok">
+    <div class="tl-item"><span class="tl-time">02:00</span> Pre-implementation started. Ops notified, backups taken, staging verified.</div>
+    <div class="tl-item"><span class="tl-time">02:15</span> UPI Transaction Service v2.1 deployed. /chaos returns 401 without auth. /api/upi/pay still works.</div>
+    <div class="tl-item"><span class="tl-time">02:45</span> UPI Settlement Service v2.1 deployed. Circuit breaker metrics visible in Prometheus. State: CLOSED (healthy).</div>
+    <div class="tl-item"><span class="tl-time">03:00</span> Smoke test: 100 transactions, 100% success. P95 latency: 45ms (within SLA).</div>
+    <div class="tl-item"><span class="tl-time">03:15</span> Chaos test: /chaos/enable without auth = 401. Circuit breaker opens/recovers correctly.</div>
+    <div class="tl-item"><span class="tl-time">03:30</span> Monitoring phase. Grafana dashboard: all green for 90 minutes.</div>
+    <div class="tl-item"><span class="tl-time">05:00</span> Change declared <strong>SUCCESSFUL</strong>. Close code: Successful.</div>
+  </div>
+  <div class="foot"><span>Lab 15 &bull; Implementation</span><span>10</span></div>
+</div>
+
+<!-- 11: STANDARD CHANGE -->
+<div class="slide">
+  <div class="label label-green">Act 2 &bull; Standard Change</div>
+  <h2>Standard Change: Pre-Approved Template</h2>
+  <p>Low risk, done many times, well-documented. Skips Assess and Authorize.</p>
+  <div class="cols">
+    <div>
+      <h3>Example: Add Merchant VPA</h3>
+      <table>
+        <tr><th>Field</th><th>Value</th></tr>
+        <tr><td>Type</td><td>Standard</td></tr>
+        <tr><td>Short description</td><td>Add merchant VPA -- BigBasket</td></tr>
+        <tr><td>Risk</td><td>Low</td></tr>
+        <tr><td>Impact</td><td>3 - Low</td></tr>
+      </table>
+      <pre style="font-size:14px;margin-top:12px">
+Lifecycle (no CAB):
+  New --> Scheduled --> Implement
+      --> Review --> Closed
+
+Total time: 15 minutes
+      </pre>
+    </div>
+    <div>
+      <h3>Why pre-approve?</h3>
+      <table>
+        <tr><th>Standard Change Example</th><th>Times Done</th></tr>
+        <tr><td>Add merchant VPA</td><td>50+ times</td></tr>
+        <tr><td>Rotate API auth keys</td><td>Quarterly</td></tr>
+        <tr><td>Update rate limits</td><td>Monthly</td></tr>
+      </table>
+      <div class="box-green box" style="margin-top:12px"><strong>Benefit:</strong> No CAB bottleneck for routine work. The template IS the approval -- pre-reviewed, pre-tested, pre-documented.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 15 &bull; Standard Change</span><span>11</span></div>
+</div>
+
+<!-- 12: EMERGENCY CHANGE -->
+<div class="slide">
+  <div class="label label-red">Act 2 &bull; Emergency Change</div>
+  <h2>Emergency Change: SSL Certificate Expired</h2>
+  <div class="box-red box" style="font-size:20px"><strong>11:30 PM:</strong> SSL certificate on UPI payment gateway expired. All transactions returning SSL handshake failures. 500+ transactions/minute failing. Revenue loss: significant.</div>
+  <div class="timeline">
+    <div class="tl-item"><span class="tl-time">23:30</span> Incident detected by monitoring. All UPI payments failing.</div>
+    <div class="tl-item"><span class="tl-time">23:35</span> <strong>Verbal approval</strong> from VP Engineering (Sanjay). "Fix it now."</div>
+    <div class="tl-item"><span class="tl-time">23:40</span> Emergency change created in ServiceNow. Formal record.</div>
+    <div class="tl-item"><span class="tl-time">23:45</span> New SSL certificate installed. Service restored.</div>
+    <div class="tl-item"><span class="tl-time">23:50</span> Monitoring confirms 100% success rate.</div>
+  </div>
+  <div class="box-orange box"><strong>Next day -- post-implementation review:</strong><br>Root cause: No certificate expiry monitoring. Action items: (1) Add cert expiry alerts (30 days before), (2) Create Standard Change template for SSL renewal, (3) Open proactive Problem record for monitoring gap.</div>
+  <div class="foot"><span>Lab 15 &bull; Emergency Change</span><span>12</span></div>
+</div>
+
+<!-- 13: CHANGE CALENDAR + BLACKOUTS -->
+<div class="slide">
+  <div class="label">Act 3 &bull; Coordination</div>
+  <h2>Change Calendar &amp; Blackout Windows</h2>
+  <div class="cols">
+    <div>
+      <h3>Change Calendar</h3>
+      <p>All scheduled changes visible in one view. Spot conflicts before they happen.</p>
+      <pre style="font-size:14px;line-height:1.5">
+Navigate: Change > Change Calendar
+
+What you see:
+  - Your Normal Change (weekend window)
+  - Standard Changes (anytime)
+  - Other team's changes
+  - CONFLICTS highlighted in red
+      </pre>
+    </div>
+    <div>
+      <h3 style="color:var(--red)">Blackout Windows</h3>
+      <p>Periods when NO changes are permitted.</p>
+      <table>
+        <tr><th>Blackout</th><th>Period</th></tr>
+        <tr><td>Year-End Freeze</td><td>Dec 20 - Jan 3</td></tr>
+        <tr><td>Diwali Festival</td><td>UPI surges 300%+</td></tr>
+        <tr><td>Month-End</td><td>Last 3 days (settlement)</td></tr>
+        <tr><td>RBI Audit</td><td>System must be stable</td></tr>
+      </table>
+      <div class="box-red box" style="margin-top:8px"><strong>Any change scheduled during a blackout gets a warning.</strong> Emergency changes can override -- but need CISO + CTO approval.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 15 &bull; Calendar</span><span>13</span></div>
+</div>
+
+<!-- 14: FAILED CHANGE + ROLLBACK -->
+<div class="slide">
+  <div class="label label-red">Act 3 &bull; When Things Go Wrong</div>
+  <h2>Failed Change: Rollback Scenario</h2>
+  <p style="font-size:22px">Not every change succeeds. That's why the rollback plan is <strong>mandatory</strong>.</p>
+  <div class="cols">
+    <div>
+      <h3 style="color:var(--red)">Scenario: PostgreSQL 14 to 16 Upgrade</h3>
+      <div class="timeline">
+        <div class="tl-item"><span class="tl-time">02:00</span> Normal change begins. Full backup taken.</div>
+        <div class="tl-item"><span class="tl-time">02:30</span> pg_upgrade running...</div>
+        <div class="tl-item"><span class="tl-time">02:45</span> Migration script FAILS at step 3. Foreign key constraint violation on settlement_transactions.</div>
+        <div class="tl-item"><span class="tl-time">02:50</span> Decision: ROLLBACK.</div>
+        <div class="tl-item"><span class="tl-time">03:05</span> PostgreSQL 14 restored from backup. All settlements processing normally.</div>
+      </div>
+    </div>
+    <div>
+      <h3>Close as Unsuccessful</h3>
+      <table>
+        <tr><th>Field</th><th>Value</th></tr>
+        <tr><td>State</td><td>Closed</td></tr>
+        <tr><td>Close code</td><td>Unsuccessful</td></tr>
+        <tr><td>Close notes</td><td>Migration script FK violation. Rollback completed. Remediation: fix FK constraints, retest, reschedule.</td></tr>
+      </table>
+      <div class="box-blue box" style="margin-top:12px"><strong>A failed change is not a failure of process.</strong> It proves the process works -- the rollback plan saved us from a real outage.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 15 &bull; Failed Change</span><span>14</span></div>
+</div>
+
+<!-- 15: KEY CONCEPTS -->
+<div class="slide">
+  <div class="label">Summary</div>
+  <h2>Key Concepts</h2>
+  <table>
+    <tr><th>Concept</th><th>Definition</th></tr>
+    <tr><td>Normal Change</td><td>Full assessment + CAB approval required. For new, untested changes.</td></tr>
+    <tr><td>Standard Change</td><td>Pre-approved template, low risk, no CAB. For routine operations.</td></tr>
+    <tr><td>Emergency Change</td><td>Fast-track for critical issues. Fix first, review later.</td></tr>
+    <tr><td>CAB</td><td>Change Advisory Board -- reviews and approves normal changes.</td></tr>
+    <tr><td>7 Rs</td><td>Raised, Reason, Return, Risks, Resources, Responsible, Relationship.</td></tr>
+    <tr><td>Change Calendar</td><td>Visual schedule of all planned changes. Spot conflicts.</td></tr>
+    <tr><td>Blackout Window</td><td>Period when no changes are permitted (Diwali, month-end, audits).</td></tr>
+    <tr><td>Rollback Plan</td><td>Mandatory steps to undo a change if it fails.</td></tr>
+    <tr><td>CI Impact Analysis</td><td>CMDB tells you what breaks when you change something.</td></tr>
+    <tr><td>Close Code</td><td>Successful / Unsuccessful / Incomplete -- every change gets one.</td></tr>
+  </table>
+  <div class="foot"><span>Lab 15 &bull; Key Concepts</span><span>15</span></div>
+</div>
+
+<!-- 16: THE LOOP + NEXT LAB -->
+<div class="slide">
+  <div class="label">The Operational Loop</div>
+  <h2>What We Built &amp; What's Next</h2>
+  <pre style="font-size:18px;line-height:1.8;text-align:center;border:2px solid var(--accent)">
+  THE OPERATIONAL LOOP (Labs 12-16)
+
+  Monitoring (12)  -->  Incident (13)  -->  Problem (14)  -->  CHANGE (15)  -->  Release (16)
+       ^                                                                            |
+       |____________________________________________________________________________|
+                                   Deploy --> Monitor again
+  </pre>
+  <table>
+    <tr><th>What we did</th><th>The story behind it</th></tr>
+    <tr><td>Normal Change</td><td>Ravi's fix goes through proper planning, CAB, and implementation</td></tr>
+    <tr><td>Standard Change</td><td>Routine merchant onboarding -- no CAB bottleneck</td></tr>
+    <tr><td>Emergency Change</td><td>SSL expired -- fix now, review later (but always review)</td></tr>
+    <tr><td>Failed Change</td><td>Rollback plan saved us -- the process works</td></tr>
+    <tr><td>CI Impact Analysis</td><td>CMDB (Lab 07) tells CAB exactly what's affected</td></tr>
+  </table>
+  <div class="box-gray box" style="margin-top:12px">
+    <strong>The story continues...</strong><br><br>
+    <strong>Lab 16 -- Release &amp; Deployment Management:</strong> 4 changes are approved. Do we deploy them one by one (4 maintenance windows, 4 risk windows)? Or bundle into one coordinated release? Lab 16 shows how to plan, package, and deploy with canary ramp-up: 5% --> 25% --> 50% --> 100%.
+  </div>
+  <div class="foot"><span>Lab 15 &bull; ITIL: Change Enablement</span><span>16</span></div>
+</div>
+
+</div>
+<div class="counter" id="sc">1 / 16</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();show(c+1)}
+  if(e.key==='ArrowLeft'){e.preventDefault();show(c-1)}
+  if(e.key==='Home'){e.preventDefault();show(0)}
+  if(e.key==='End'){e.preventDefault();show(S.length-1)}
+});
+document.addEventListener('click',e=>{if(e.clientX>window.innerWidth/2)show(c+1);else show(c-1)});
+show(0);
+</script>
+</body>
+</html>

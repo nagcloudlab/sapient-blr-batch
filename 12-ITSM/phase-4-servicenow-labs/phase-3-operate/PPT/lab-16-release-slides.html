@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 16: Release &amp; Deployment Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f0;overflow:hidden;-webkit-font-smoothing:antialiased}
+
+/* Deck & Slide */
+.deck{width:100vw;height:100vh;position:relative}
+.slide{
+  position:absolute;inset:0;display:none;
+  padding:60px 80px;
+  overflow-y:auto;
+  background:#ffffff;color:#1a1a1a;
+}
+.slide.active{display:flex;flex-direction:column}
+
+/* Colors */
+:root{
+  --text:#1a1a1a;
+  --text2:#444;
+  --muted:#888;
+  --accent:#1d4ed8;
+  --green:#047857;
+  --red:#b91c1c;
+  --orange:#c2410c;
+  --bg-subtle:#f7f8fa;
+  --border:#e5e7eb;
+}
+
+/* Typography -- generous sizing */
+.label{
+  font-size:13px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:var(--accent);
+  margin-bottom:8px;
+}
+.label-red{color:var(--red)}
+.label-green{color:var(--green)}
+.label-orange{color:var(--orange)}
+
+h1{font-size:52px;font-weight:800;line-height:1.15;color:var(--text);margin-bottom:16px}
+h2{font-size:40px;font-weight:700;line-height:1.2;color:var(--text);margin-bottom:20px}
+h3{font-size:22px;font-weight:700;color:var(--accent);margin:24px 0 8px}
+p{font-size:20px;line-height:1.7;color:var(--text2);margin-bottom:8px}
+.lead{font-size:24px;line-height:1.6;color:var(--text2)}
+.big{font-size:30px;font-weight:700;color:var(--accent);line-height:1.4}
+
+/* Lists */
+ul.bl{list-style:none;padding:0;margin:8px 0}
+ul.bl li{
+  font-size:20px;line-height:1.6;color:var(--text2);
+  padding:6px 0 6px 28px;position:relative;
+}
+ul.bl li::before{
+  content:'';position:absolute;left:0;top:14px;
+  width:10px;height:10px;border-radius:50%;background:var(--accent);
+}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th{
+  font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);text-align:left;
+  padding:10px 14px;border-bottom:2px solid var(--border);
+}
+td{
+  font-size:18px;line-height:1.5;color:var(--text2);
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  vertical-align:top;
+}
+td:first-child{font-weight:600;color:var(--accent);white-space:nowrap}
+tr:nth-child(even) td{background:var(--bg-subtle)}
+
+/* Callout boxes */
+.box{border-radius:12px;padding:20px 24px;margin:16px 0;font-size:18px;line-height:1.6}
+.box-blue{background:#eff6ff;border-left:5px solid var(--accent);color:#1e3a5f}
+.box-green{background:#ecfdf5;border-left:5px solid var(--green);color:#064e3b}
+.box-red{background:#fef2f2;border-left:5px solid var(--red);color:#7f1d1d}
+.box-orange{background:#fff7ed;border-left:5px solid var(--orange);color:#7c2d12}
+.box-gray{background:#f7f8fa;border-left:5px solid #cbd5e1;color:var(--text)}
+
+/* Code */
+pre{
+  background:var(--bg-subtle);color:var(--text);
+  border:1px solid var(--border);border-radius:12px;
+  padding:20px 24px;
+  font-family:'JetBrains Mono',Consolas,monospace;
+  font-size:16px;line-height:1.6;
+  overflow-x:auto;margin:12px 0;
+}
+code{
+  font-family:'JetBrains Mono',Consolas,monospace;
+  background:var(--bg-subtle);padding:2px 8px;border-radius:6px;
+  font-size:17px;color:var(--accent);
+}
+
+/* Layout */
+.cols{display:flex;gap:48px;margin:12px 0}
+.cols>div{flex:1}
+
+/* Timeline */
+.timeline{position:relative;padding-left:32px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:3px;background:var(--border);border-radius:2px}
+.tl-item{position:relative;padding:8px 0;font-size:19px;line-height:1.6;color:var(--text2)}
+.tl-item::before{
+  content:'';position:absolute;left:-25px;top:14px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--red);border:3px solid #fff;
+  box-shadow:0 0 0 2px var(--border);
+}
+.tl-ok .tl-item::before{background:var(--green)}
+.tl-time{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:17px;color:var(--red);margin-right:8px}
+.tl-ok .tl-time{color:var(--green)}
+
+/* Number hero */
+.num-block{text-align:center;padding:16px}
+.num-block .num{font-size:72px;font-weight:900;color:var(--accent);line-height:1}
+.num-block .num-label{font-size:16px;font-weight:600;color:var(--muted);margin-top:6px}
+
+/* Footer */
+.foot{
+  margin-top:auto;padding-top:12px;
+  display:flex;justify-content:space-between;
+  font-size:13px;color:var(--muted);font-weight:500;
+  border-top:1px solid var(--border);
+}
+
+/* Badge */
+.badge{
+  display:inline-block;font-size:13px;font-weight:700;
+  padding:6px 14px;border-radius:8px;letter-spacing:.5px;
+}
+
+/* Counter */
+.counter{
+  position:fixed;top:12px;right:16px;
+  background:rgba(0,0,0,.05);color:var(--muted);
+  font:700 13px/1 'JetBrains Mono',monospace;
+  padding:6px 12px;border-radius:6px;z-index:99;
+}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1: TITLE -->
+<div class="slide active">
+  <div style="margin-top:8vh">
+    <div class="label">Lab 16 &bull; ITIL Practice: Release Management</div>
+    <h1 style="font-size:56px">Release &amp;<br>Deployment Management</h1>
+    <p class="lead" style="max-width:68%">4 changes are approved from Labs 14-15. Deploy them one by one -- 4 maintenance windows, 4 risk windows? Or bundle into one coordinated release?</p>
+    <div style="margin-top:32px">
+      <span class="badge" style="background:var(--accent);color:#fff">60 min</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--text);margin-left:8px">Labs 12-15 completed</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--muted);margin-left:8px">PDI: Zurich</span>
+    </div>
+  </div>
+  <div class="foot"><span>ServiceNow ITSM Labs &bull; NPCI UPI Scenario</span><span></span></div>
+</div>
+
+<!-- 2: CHANGE vs RELEASE vs DEPLOYMENT -->
+<div class="slide">
+  <div class="label">Act 1 &bull; The Distinction</div>
+  <h2>Change vs Release vs Deployment</h2>
+  <p class="big">Three different practices. Three different questions.</p>
+  <table>
+    <tr><th>Concept</th><th>Scope</th><th>Question It Answers</th><th>UPI Example</th></tr>
+    <tr>
+      <td>Change</td>
+      <td>Single unit of modification</td>
+      <td>WHAT can we change?</td>
+      <td>"Upgrade PostgreSQL 14 to 15"</td>
+    </tr>
+    <tr>
+      <td>Release</td>
+      <td>Collection of changes, tested and deployed together</td>
+      <td>WHEN and HOW do we group changes?</td>
+      <td>"UPI Platform v3.2.0" bundling 4 changes</td>
+    </tr>
+    <tr>
+      <td>Deployment</td>
+      <td>Physical act of moving a release to an environment</td>
+      <td>HOW do we technically push it?</td>
+      <td>Rolling restart, DB migration, LB config</td>
+    </tr>
+  </table>
+  <div class="box-blue box"><strong>Why not deploy one by one?</strong> 4 individual deployments = 4 maintenance windows (4 Sundays), 4 separate risk windows, 4 times NOC stays up all night, and no integration testing between changes. A release bundles them, tests them together, deploys in one coordinated window.</div>
+  <div class="foot"><span>Lab 16 &bull; Change vs Release vs Deployment</span><span>2</span></div>
+</div>
+
+<!-- 3: RELEASE TYPES -->
+<div class="slide">
+  <div class="label">Act 1 &bull; Release Types</div>
+  <h2>Major / Minor / Patch / Emergency</h2>
+  <table>
+    <tr><th>Type</th><th>When</th><th>Testing</th><th>Approval</th><th>UPI Example</th></tr>
+    <tr>
+      <td style="color:var(--accent)">Major (v3.2.0)</td>
+      <td>New features, architectural changes</td>
+      <td>Full regression</td>
+      <td>CAB mandatory</td>
+      <td>Circuit breaker + new API + DB upgrade</td>
+    </tr>
+    <tr>
+      <td style="color:var(--green)">Minor (v3.2.1)</td>
+      <td>Bug fixes, performance tuning</td>
+      <td>Targeted testing</td>
+      <td>Streamlined</td>
+      <td>Fix settlement rounding error</td>
+    </tr>
+    <tr>
+      <td style="color:var(--orange)">Patch (v3.2.1.1)</td>
+      <td>Single critical fix</td>
+      <td>Focused test</td>
+      <td>Expedited</td>
+      <td>Null pointer hotfix</td>
+    </tr>
+    <tr>
+      <td style="color:var(--red)">Emergency</td>
+      <td>Critical production fix</td>
+      <td>Bypasses normal gates</td>
+      <td>Post-review</td>
+      <td>Security vulnerability patch</td>
+    </tr>
+  </table>
+  <div class="box-orange box"><strong>Our release:</strong> UPI Platform v3.2.0 is a <strong>Major Release</strong> -- circuit breaker implementation + settlement optimization + merchant API + PostgreSQL upgrade. Full regression testing and CAB approval required.</div>
+  <div class="foot"><span>Lab 16 &bull; Release Types</span><span>3</span></div>
+</div>
+
+<!-- 4: DEPLOYMENT MODELS -->
+<div class="slide">
+  <div class="label">Act 1 &bull; How to Deploy</div>
+  <h2>4 Deployment Models</h2>
+  <div class="cols">
+    <div>
+      <h3 style="color:var(--red)">Big-Bang</h3>
+      <pre style="font-size:14px">
+Old v3.1 --> New v3.2 (all at once)
+Risk: HIGH | Rollback: Full revert
+Use: Small, tightly coupled systems
+      </pre>
+      <h3 style="color:var(--orange)">Rolling</h3>
+      <pre style="font-size:14px">
+Server 1: v3.2  (done)
+Server 2: v3.1 --> v3.2  (in progress)
+Server 3: v3.1  (waiting)
+Server 4: v3.1  (waiting)
+Risk: MEDIUM | Rollback: Stop + revert
+      </pre>
+    </div>
+    <div>
+      <h3 style="color:var(--green)">Canary (OUR STRATEGY)</h3>
+      <pre style="font-size:14px">
+95% traffic --> v3.1 (stable)
+ 5% traffic --> v3.2 (canary)
+Monitor --> if OK --> ramp up
+Risk: LOW | Rollback: Redirect traffic
+      </pre>
+      <h3 style="color:var(--accent)">Blue-Green</h3>
+      <pre style="font-size:14px">
+BLUE (v3.1) = active
+GREEN (v3.2) = standby, fully tested
+     LB switches traffic atomically
+Risk: LOW | Rollback: Switch LB back
+      </pre>
+    </div>
+  </div>
+  <div class="box-green box"><strong>Our strategy:</strong> Canary for UPI Transaction Service (gradual traffic shift). Blue-Green for UPI Settlement Service (batch processing -- switch atomically).</div>
+  <div class="foot"><span>Lab 16 &bull; Deployment Models</span><span>4</span></div>
+</div>
+
+<!-- 5: THE 4 CHANGES BUNDLED -->
+<div class="slide">
+  <div class="label label-green">Act 2 &bull; Building the Release</div>
+  <h2>UPI Platform v3.2.0 -- September Release</h2>
+  <p>4 approved changes from Labs 14-15, bundled into one coordinated release.</p>
+  <pre style="font-size:17px;line-height:1.7">
+Release: UPI Platform v3.2.0 -- September Release
+Release Manager: Sanjay Manager
+Deployment Window: Sunday 02:00 - 06:00 IST
+
+  +-- CHG001: Circuit breaker implementation (from Problem PRB, Lab 14)
+  |           --> Resilience4j in Transaction Service
+  |
+  +-- CHG002: Settlement batch optimization
+  |           --> 40% faster end-of-day processing
+  |
+  +-- CHG003: Merchant onboarding API endpoint
+  |           --> Replace manual CSV upload with REST API
+  |
+  +-- CHG004: PostgreSQL upgrade (14.x to 15.x)
+              --> Security patches + performance improvements
+  </pre>
+  <div class="cols" style="margin-top:4px">
+    <div class="num-block"><div class="num">4</div><div class="num-label">changes bundled</div></div>
+    <div class="num-block"><div class="num">7</div><div class="num-label">CIs affected</div></div>
+    <div class="num-block"><div class="num">1</div><div class="num-label">coordinated window</div></div>
+  </div>
+  <div class="foot"><span>Lab 16 &bull; Release Bundle</span><span>5</span></div>
+</div>
+
+<!-- 6: 5 PHASES WITH QUALITY GATES -->
+<div class="slide">
+  <div class="label label-green">Act 2 &bull; Release Phases</div>
+  <h2>5 Phases with Quality Gates</h2>
+  <pre style="font-size:16px;line-height:1.6;text-align:center;border:2px solid var(--accent)">
+  PLAN  --[CAB Gate]-->  BUILD  --[Auto]-->  TEST  --[UAT Gate]-->  DEPLOY  --[Auto]-->  REVIEW
+  </pre>
+  <table>
+    <tr><th>Phase</th><th>Activities</th><th>Gate (Must Pass to Proceed)</th><th>Owner</th></tr>
+    <tr>
+      <td>1. Planning</td>
+      <td>Architecture review, risk assessment, resource allocation</td>
+      <td>CAB approval</td>
+      <td>Sanjay</td>
+    </tr>
+    <tr>
+      <td>2. Build</td>
+      <td>Code freeze, merge branches, CI/CD pipeline</td>
+      <td>All integration tests pass, 0 critical defects</td>
+      <td>Ravi</td>
+    </tr>
+    <tr>
+      <td>3. UAT + Perf</td>
+      <td>User acceptance, 50K TPS load test, OWASP scan</td>
+      <td>UAT sign-off, p99 latency &lt; 200ms</td>
+      <td>Priya</td>
+    </tr>
+    <tr>
+      <td>4. Deploy</td>
+      <td>Execute deployment plan (canary ramp-up)</td>
+      <td>Smoke tests pass, error rate &lt; 0.01%</td>
+      <td>Amit</td>
+    </tr>
+    <tr>
+      <td>5. Verify</td>
+      <td>24-hour soak period, PIR, metrics validation</td>
+      <td>PIR completed, stakeholder sign-off</td>
+      <td>Priya</td>
+    </tr>
+  </table>
+  <div class="foot"><span>Lab 16 &bull; Release Phases</span><span>6</span></div>
+</div>
+
+<!-- 7: DEPLOYMENT PLAN -->
+<div class="slide">
+  <div class="label label-green">Act 2 &bull; Deployment Plan</div>
+  <h2>Sunday 02:00-06:00 IST: 9 Sequenced Tasks</h2>
+  <div class="timeline tl-ok">
+    <div class="tl-item"><span class="tl-time">02:00</span> <strong>Task 1:</strong> Pre-deployment verification. Staging matches prod. NOC online. (15 min)</div>
+    <div class="tl-item"><span class="tl-time">02:15</span> <strong>Task 2:</strong> Full PostgreSQL backup -- primary + replica. Checksums verified. (20 min)</div>
+    <div class="tl-item"><span class="tl-time">02:35</span> <strong>Task 3:</strong> PostgreSQL upgrade 14.x to 15.x. Stop replication, upgrade, rebuild stats. (30 min)</div>
+    <div class="tl-item"><span class="tl-time">03:05</span> <strong>Task 4:</strong> Deploy backend services. Circuit breaker (canary). Settlement (blue-green). (20 min)</div>
+    <div class="tl-item"><span class="tl-time">03:25</span> <strong>Task 5:</strong> Deploy merchant onboarding API. Additive -- new endpoint. (10 min)</div>
+    <div class="tl-item"><span class="tl-time">03:35</span> <strong>Task 6:</strong> Update load balancer. 5% canary split. Auto-remove if error &gt; 1%. (10 min)</div>
+    <div class="tl-item"><span class="tl-time">03:45</span> <strong>Task 7:</strong> Smoke tests. P2P, P2M, settlement batch, merchant API, DB queries. (15 min)</div>
+    <div class="tl-item"><span class="tl-time">04:00</span> <strong>Task 8:</strong> Canary ramp-up: 5% --> 25% --> 50% --> 100%. (40 min)</div>
+    <div class="tl-item"><span class="tl-time">04:40</span> <strong>Task 9:</strong> Final verification. All servers on v3.2.0. NOC dashboards green. (10 min)</div>
+  </div>
+  <p style="font-size:16px;color:var(--muted);margin-top:4px">Total: 2h 50m | Buffer remaining: 1h 10m for troubleshooting</p>
+  <div class="foot"><span>Lab 16 &bull; Deployment Plan</span><span>7</span></div>
+</div>
+
+<!-- 8: CANARY RAMP-UP -->
+<div class="slide">
+  <div class="label label-green">Act 2 &bull; Canary Traffic Ramp-Up</div>
+  <h2>5% --> 25% --> 50% --> 100%</h2>
+  <p>At each stage: monitor 10 minutes before proceeding.</p>
+  <pre style="font-size:17px;line-height:1.8;border:2px solid var(--green)">
+  04:00   5% traffic to v3.2.0   [monitor 10 min]   GREEN: proceed
+  04:10  25% traffic to v3.2.0   [monitor 10 min]   GREEN: proceed
+  04:20  50% traffic to v3.2.0   [monitor 10 min]   GREEN: proceed
+  04:30 100% traffic to v3.2.0   [deploy to all servers]
+  </pre>
+  <h3>Decision Criteria at Each Stage</h3>
+  <table>
+    <tr><th>Signal</th><th>Metric</th><th>Threshold</th><th>Action</th></tr>
+    <tr><td style="color:var(--green)">GREEN</td><td>All metrics within range</td><td>Error &lt; 0.01%, p99 &lt; 200ms, success &gt; 99.95%</td><td>Proceed to next stage</td></tr>
+    <tr><td style="color:var(--orange)">YELLOW</td><td>One metric marginal</td><td>Approaching threshold</td><td>Hold at current stage, investigate</td></tr>
+    <tr><td style="color:var(--red)">RED</td><td>Any metric breached</td><td>Error &gt; 0.01% or p99 &gt; 200ms</td><td>Immediate rollback to v3.1.x</td></tr>
+  </table>
+  <div class="box-green box"><strong>Why canary works:</strong> If v3.2.0 has a bug, only 5% of users are affected. We detect it in 10 minutes and roll back instantly. Compare to big-bang: 100% of users affected immediately.</div>
+  <div class="foot"><span>Lab 16 &bull; Canary Ramp-Up</span><span>8</span></div>
+</div>
+
+<!-- 9: CHANGE SEQUENCING + DEPENDENCIES -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Sequencing</div>
+  <h2>Deployment Order Matters</h2>
+  <p>Not all 4 changes can deploy in any order. Dependencies dictate sequence.</p>
+  <pre style="font-size:17px;line-height:1.8">
+  Deployment Sequence:
+
+    Step 1: CHG004 -- PostgreSQL Upgrade
+            Must go FIRST (other services depend on DB)
+                |
+    Step 2: CHG001 -- Circuit Breaker        CHG002 -- Settlement Optimization
+            Depends on DB being stable       Can run IN PARALLEL with Step 2
+                |                                  |
+    Step 3: CHG003 -- Merchant Onboarding API
+            Deploy LAST (new feature, lowest risk to existing)
+  </pre>
+  <div class="cols">
+    <div class="box-red box"><strong>Wrong order:</strong> Deploy circuit breaker before DB upgrade --> circuit breaker references new DB features that don't exist yet --> cascading failure.</div>
+    <div class="box-green box"><strong>Right order:</strong> DB first --> services next (parallel where possible) --> new features last. Each step verified before proceeding.</div>
+  </div>
+  <div class="foot"><span>Lab 16 &bull; Sequencing</span><span>9</span></div>
+</div>
+
+<!-- 10: RELEASE CALENDAR + BLACKOUTS -->
+<div class="slide">
+  <div class="label label-orange">Act 3 &bull; When NOT to Deploy</div>
+  <h2>Release Calendar &amp; Blackout Periods</h2>
+  <div class="cols">
+    <div>
+      <h3>Approved Maintenance Windows</h3>
+      <table>
+        <tr><th>Window</th><th>Day</th><th>Time</th><th>For</th></tr>
+        <tr><td>Primary</td><td>Sunday</td><td>02:00-06:00</td><td>Major/Minor</td></tr>
+        <tr><td>Secondary</td><td>Wednesday</td><td>02:00-04:00</td><td>Minor/Patch</td></tr>
+        <tr><td>Emergency</td><td>Any day</td><td>Any time</td><td>CISO+CTO approval</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3 style="color:var(--red)">Blackout Periods -- NO Deployments</h3>
+      <table>
+        <tr><th>Period</th><th>Why</th></tr>
+        <tr><td style="color:var(--red)">Month-End</td><td>Settlement reconciliation (last 3 days)</td></tr>
+        <tr><td style="color:var(--red)">Diwali Week</td><td>UPI surges 300-400%</td></tr>
+        <tr><td style="color:var(--red)">RBI Audit</td><td>System must be unchanged</td></tr>
+        <tr><td style="color:var(--red)">Election Days</td><td>High UPI usage for donations</td></tr>
+      </table>
+    </div>
+  </div>
+  <pre style="font-size:14px;margin-top:8px">
+  September 2026
+  Mon   Tue   Wed   Thu   Fri   Sat   Sun
+   14    15    16    17    18    19   [20 REL v3.2]  <-- Our release
+   21    22    23    24    25    26    27
+  [28   [29   [30                                    <-- BLACKOUT: Month-End
+  BLKT]  BLKT]  BLKT]                                   No deployments!
+  </pre>
+  <div class="foot"><span>Lab 16 &bull; Calendar + Blackouts</span><span>10</span></div>
+</div>
+
+<!-- 11: POST-IMPLEMENTATION REVIEW -->
+<div class="slide">
+  <div class="label label-green">Act 3 &bull; Post-Implementation Review (PIR)</div>
+  <h2>Was It Successful? What Did We Learn?</h2>
+  <div class="cols">
+    <div>
+      <h3>Deployment Results</h3>
+      <table>
+        <tr><th>Change</th><th>Result</th></tr>
+        <tr><td>PostgreSQL Upgrade</td><td style="color:var(--green)">SUCCESS (25 min delay)</td></tr>
+        <tr><td>Circuit Breaker</td><td style="color:var(--green)">SUCCESS</td></tr>
+        <tr><td>Settlement Optimization</td><td style="color:var(--green)">SUCCESS</td></tr>
+        <tr><td>Merchant API</td><td style="color:var(--green)">SUCCESS</td></tr>
+      </table>
+      <p style="margin-top:12px"><strong>Planned end:</strong> 04:50 IST<br><strong>Actual end:</strong> 05:15 IST<br><strong>Overrun:</strong> 25 minutes (PG stats rebuild slower on prod data volume)</p>
+    </div>
+    <div>
+      <h3>Metrics: Before vs After</h3>
+      <table>
+        <tr><th>Metric</th><th>Before</th><th>After</th><th>Change</th></tr>
+        <tr><td>Avg latency</td><td>145ms</td><td>128ms</td><td style="color:var(--green)">-12%</td></tr>
+        <tr><td>p99 latency</td><td>280ms</td><td>195ms</td><td style="color:var(--green)">-30%</td></tr>
+        <tr><td>Settlement batch</td><td>47 min</td><td>29 min</td><td style="color:var(--green)">-38%</td></tr>
+        <tr><td>Error rate</td><td>0.008%</td><td>0.005%</td><td style="color:var(--green)">-37%</td></tr>
+        <tr><td>DB query avg</td><td>12ms</td><td>8ms</td><td style="color:var(--green)">-33%</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 16 &bull; PIR Results</span><span>11</span></div>
+</div>
+
+<!-- 12: LESSONS LEARNED -->
+<div class="slide">
+  <div class="label">Act 3 &bull; Lessons Learned</div>
+  <h2>PIR: What to Do Differently Next Time</h2>
+  <table>
+    <tr><th>#</th><th>Issue</th><th>Impact</th><th>Action Item</th></tr>
+    <tr>
+      <td>1</td>
+      <td>PostgreSQL optimizer stats rebuild time underestimated</td>
+      <td>25-minute delay (prod data 10x staging)</td>
+      <td style="color:var(--accent)">Add 50% buffer to DB migration estimates</td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Canary health check false alarm at 25% traffic</td>
+      <td>5-minute investigation delay</td>
+      <td style="color:var(--accent)">Create separate "deployment mode" alert profiles</td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Stakeholder communication worked well (every 30 min)</td>
+      <td>Positive -- everyone informed</td>
+      <td style="color:var(--accent)">Formalize as standard deployment communication plan</td>
+    </tr>
+  </table>
+  <div class="cols" style="margin-top:16px">
+    <div class="box-green box">
+      <strong>What went well:</strong><br>
+      Canary deployment strategy proved its value. Phase gate approach prevented premature deployment. All team members were well-prepared and responsive. No rollback required.
+    </div>
+    <div class="box-blue box">
+      <strong>PIR Sign-off:</strong><br>
+      Release Manager: Sanjay Manager -- APPROVED<br>
+      NOC Lead: Priya Sharma -- APPROVED<br>
+      Engineering Lead: Ravi Kumar -- APPROVED<br><br>
+      PIR feeds into ITIL 4 <strong>Continual Improvement</strong>.
+    </div>
+  </div>
+  <div class="foot"><span>Lab 16 &bull; Lessons Learned</span><span>12</span></div>
+</div>
+
+<!-- 13: RELEASE PIPELINE -->
+<div class="slide">
+  <div class="label">Act 3 &bull; The Full Pipeline</div>
+  <h2>Release Pipeline: End to End</h2>
+  <pre style="font-size:16px;line-height:1.6;text-align:center;border:2px solid var(--accent)">
+  PLAN          BUILD          TEST           DEPLOY          REVIEW
+  +----------+  +----------+  +----------+  +----------+  +----------+
+  | Scope    |  | Code     |  | Unit     |  | Staging  |  | PIR      |
+  | Schedule |  | Compile  |  | Integr.  |  | Canary   |  | Metrics  |
+  | Risk     |  | Package  |  | Perf.    |  | Ramp-up  |  | Lessons  |
+  | Approval |  | Artifact |  | UAT      |  | Full     |  | Sign-off |
+  +----------+  +----------+  +----------+  +----------+  +----------+
+       |                           |              |
+    Gate 1:                     Gate 2:        Gate 3:
+    CAB Approval            Perf Test Pass   Smoke Test Pass
+  </pre>
+  <h3>Environments</h3>
+  <table>
+    <tr><th>Environment</th><th>Scale</th><th>Owner</th><th>Purpose</th></tr>
+    <tr><td>Dev</td><td>1 app server, 1 DB</td><td>Developers</td><td>Feature branches</td></tr>
+    <tr><td>QA</td><td>2 app servers, 1 DB</td><td>QA team</td><td>Integration testing</td></tr>
+    <tr><td>Staging</td><td>4 app servers, 2 DB</td><td>Ops team</td><td>Production mirror, synthetic traffic</td></tr>
+    <tr><td>Production</td><td>8 app servers, 2 DB, LB</td><td>NOC</td><td>Live UPI traffic</td></tr>
+  </table>
+  <div class="foot"><span>Lab 16 &bull; Pipeline</span><span>13</span></div>
+</div>
+
+<!-- 14: KEY CONCEPTS -->
+<div class="slide">
+  <div class="label">Summary</div>
+  <h2>Key Concepts</h2>
+  <table>
+    <tr><th>Concept</th><th>Definition</th></tr>
+    <tr><td>Release</td><td>Collection of changes bundled, tested, and deployed together.</td></tr>
+    <tr><td>Deployment</td><td>Physical act of moving a release to an environment.</td></tr>
+    <tr><td>Canary</td><td>Route small % of traffic to new version. Monitor. Ramp up gradually.</td></tr>
+    <tr><td>Blue-Green</td><td>Two identical environments. Switch traffic atomically. Instant rollback.</td></tr>
+    <tr><td>Release Phases</td><td>Plan --> Build --> Test --> Deploy --> Review with quality gates.</td></tr>
+    <tr><td>Quality Gate</td><td>Exit criteria that must pass before proceeding to next phase.</td></tr>
+    <tr><td>Blackout Period</td><td>No deployments allowed (Diwali, month-end, RBI audit).</td></tr>
+    <tr><td>PIR</td><td>Post-Implementation Review -- metrics, lessons, sign-off.</td></tr>
+    <tr><td>Canary Ramp-Up</td><td>5% --> 25% --> 50% --> 100%, 10 min monitoring at each stage.</td></tr>
+    <tr><td>Release Calendar</td><td>Visual view of all releases + blackouts + conflicts.</td></tr>
+  </table>
+  <div class="foot"><span>Lab 16 &bull; Key Concepts</span><span>14</span></div>
+</div>
+
+<!-- 15: THE OPERATIONAL LOOP -->
+<div class="slide">
+  <div class="label">The Operational Loop</div>
+  <h2>What We Built &amp; The Complete Loop</h2>
+  <pre style="font-size:18px;line-height:1.8;text-align:center;border:2px solid var(--accent)">
+  THE OPERATIONAL LOOP (Labs 12-16) -- COMPLETE
+
+  Monitoring (12)  -->  Incident (13)  -->  Problem (14)  -->  Change (15)  -->  RELEASE (16)
+       ^                                                                            |
+       |                                                                        Deploy
+       |                                                                            |
+       |____________________________________________________________________________|
+                                   Monitor again (the loop closes)
+  </pre>
+  <table>
+    <tr><th>What we did</th><th>The story behind it</th></tr>
+    <tr><td>4 changes bundled</td><td>One coordinated release instead of 4 separate maintenance windows</td></tr>
+    <tr><td>5 phases + gates</td><td>No phase proceeds until quality gate passes</td></tr>
+    <tr><td>Canary ramp-up</td><td>5% --> 25% --> 50% --> 100% with monitoring at each step</td></tr>
+    <tr><td>Deployment plan</td><td>9 sequenced tasks with rollback procedures for each</td></tr>
+    <tr><td>Blackout periods</td><td>Diwali, month-end, RBI audit -- when NOT to deploy</td></tr>
+    <tr><td>PIR with metrics</td><td>Before vs after comparison. Lessons feed continual improvement.</td></tr>
+  </table>
+  <div class="foot"><span>Lab 16 &bull; The Loop</span><span>15</span></div>
+</div>
+
+<!-- 16: WHAT'S NEXT -->
+<div class="slide">
+  <div class="label">What's Next</div>
+  <h2>The Loop Closes. The Story Continues.</h2>
+  <div class="cols">
+    <div>
+      <p class="big">The operational loop is now complete.</p>
+      <p style="margin-top:16px">From a Grafana alert at 2 AM to a canary-deployed release with post-implementation review -- every step tracked, approved, and measured in ServiceNow.</p>
+      <div class="box-gray box" style="margin-top:16px">
+        <strong>Next: Lab 17 -- Service Level Management</strong><br><br>
+        Now that our services are deployed and monitored, we need to formalize what "good" looks like. SLAs define the contract: 99.95% uptime, p99 &lt; 200ms, settlement within 4 hours. Lab 17 shows how to define, monitor, and report on SLAs for UPI services.
+      </div>
+    </div>
+    <div>
+      <h3>Labs 12-16: The Full Story</h3>
+      <table>
+        <tr><th>Lab</th><th>Practice</th><th>Story Beat</th></tr>
+        <tr><td>12</td><td>Event Mgmt</td><td>Grafana fires alert</td></tr>
+        <tr><td>13</td><td>Incident Mgmt</td><td>Restore service NOW</td></tr>
+        <tr><td>14</td><td>Problem Mgmt</td><td>Find the root cause</td></tr>
+        <tr><td>15</td><td>Change Mgmt</td><td>Approve the fix properly</td></tr>
+        <tr><td>16</td><td>Release Mgmt</td><td>Deploy safely at scale</td></tr>
+      </table>
+      <div class="box-blue box" style="margin-top:12px"><strong>ITIL 4 in action:</strong> These 5 practices form the core operational loop that keeps services running, improves them continuously, and ensures changes don't become the next incident.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 16 &bull; ITIL: Release Management</span><span>16</span></div>
+</div>
+
+</div>
+<div class="counter" id="sc">1 / 16</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();show(c+1)}
+  if(e.key==='ArrowLeft'){e.preventDefault();show(c-1)}
+  if(e.key==='Home'){e.preventDefault();show(0)}
+  if(e.key==='End'){e.preventDefault();show(S.length-1)}
+});
+document.addEventListener('click',e=>{if(e.clientX>window.innerWidth/2)show(c+1);else show(c-1)});
+show(0);
+</script>
+</body>
+</html>

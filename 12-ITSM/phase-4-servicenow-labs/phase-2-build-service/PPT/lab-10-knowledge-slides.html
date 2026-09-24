@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 10: Knowledge Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f0;overflow:hidden;-webkit-font-smoothing:antialiased}
+
+/* Deck & Slide */
+.deck{width:100vw;height:100vh;position:relative}
+.slide{
+  position:absolute;inset:0;display:none;
+  padding:60px 80px;
+  overflow-y:auto;
+  background:#ffffff;color:#1a1a1a;
+}
+.slide.active{display:flex;flex-direction:column}
+
+/* Colors */
+:root{
+  --text:#1a1a1a;
+  --text2:#444;
+  --muted:#888;
+  --accent:#1d4ed8;
+  --green:#047857;
+  --red:#b91c1c;
+  --orange:#c2410c;
+  --bg-subtle:#f7f8fa;
+  --border:#e5e7eb;
+}
+
+/* Typography — generous sizing */
+.label{
+  font-size:13px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:var(--accent);
+  margin-bottom:8px;
+}
+.label-red{color:var(--red)}
+.label-green{color:var(--green)}
+.label-orange{color:var(--orange)}
+
+h1{font-size:52px;font-weight:800;line-height:1.15;color:var(--text);margin-bottom:16px}
+h2{font-size:40px;font-weight:700;line-height:1.2;color:var(--text);margin-bottom:20px}
+h3{font-size:22px;font-weight:700;color:var(--accent);margin:24px 0 8px}
+p{font-size:20px;line-height:1.7;color:var(--text2);margin-bottom:8px}
+.lead{font-size:24px;line-height:1.6;color:var(--text2)}
+.big{font-size:30px;font-weight:700;color:var(--accent);line-height:1.4}
+
+/* Lists */
+ul.bl{list-style:none;padding:0;margin:8px 0}
+ul.bl li{
+  font-size:20px;line-height:1.6;color:var(--text2);
+  padding:6px 0 6px 28px;position:relative;
+}
+ul.bl li::before{
+  content:'';position:absolute;left:0;top:14px;
+  width:10px;height:10px;border-radius:50%;background:var(--accent);
+}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th{
+  font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);text-align:left;
+  padding:10px 14px;border-bottom:2px solid var(--border);
+}
+td{
+  font-size:18px;line-height:1.5;color:var(--text2);
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  vertical-align:top;
+}
+td:first-child{font-weight:600;color:var(--accent);white-space:nowrap}
+tr:nth-child(even) td{background:var(--bg-subtle)}
+
+/* Callout boxes */
+.box{border-radius:12px;padding:20px 24px;margin:16px 0;font-size:18px;line-height:1.6}
+.box-blue{background:#eff6ff;border-left:5px solid var(--accent);color:#1e3a5f}
+.box-green{background:#ecfdf5;border-left:5px solid var(--green);color:#064e3b}
+.box-red{background:#fef2f2;border-left:5px solid var(--red);color:#7f1d1d}
+.box-orange{background:#fff7ed;border-left:5px solid var(--orange);color:#7c2d12}
+.box-gray{background:#f7f8fa;border-left:5px solid #cbd5e1;color:var(--text)}
+
+/* Code */
+pre{
+  background:var(--bg-subtle);color:var(--text);
+  border:1px solid var(--border);border-radius:12px;
+  padding:20px 24px;
+  font-family:'JetBrains Mono',Consolas,monospace;
+  font-size:16px;line-height:1.6;
+  overflow-x:auto;margin:12px 0;
+}
+code{
+  font-family:'JetBrains Mono',Consolas,monospace;
+  background:var(--bg-subtle);padding:2px 8px;border-radius:6px;
+  font-size:17px;color:var(--accent);
+}
+
+/* Layout */
+.cols{display:flex;gap:48px;margin:12px 0}
+.cols>div{flex:1}
+
+/* Timeline */
+.timeline{position:relative;padding-left:32px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:3px;background:var(--border);border-radius:2px}
+.tl-item{position:relative;padding:8px 0;font-size:19px;line-height:1.6;color:var(--text2)}
+.tl-item::before{
+  content:'';position:absolute;left:-25px;top:14px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--red);border:3px solid #fff;
+  box-shadow:0 0 0 2px var(--border);
+}
+.tl-ok .tl-item::before{background:var(--green)}
+.tl-time{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:17px;color:var(--red);margin-right:8px}
+.tl-ok .tl-time{color:var(--green)}
+
+/* Number hero */
+.num-block{text-align:center;padding:16px}
+.num-block .num{font-size:72px;font-weight:900;color:var(--accent);line-height:1}
+.num-block .num-label{font-size:16px;font-weight:600;color:var(--muted);margin-top:6px}
+
+/* Footer */
+.foot{
+  margin-top:auto;padding-top:12px;
+  display:flex;justify-content:space-between;
+  font-size:13px;color:var(--muted);font-weight:500;
+  border-top:1px solid var(--border);
+}
+
+/* Badge */
+.badge{
+  display:inline-block;font-size:13px;font-weight:700;
+  padding:6px 14px;border-radius:8px;letter-spacing:.5px;
+}
+
+/* Counter */
+.counter{
+  position:fixed;top:12px;right:16px;
+  background:rgba(0,0,0,.05);color:var(--muted);
+  font:700 13px/1 'JetBrains Mono',monospace;
+  padding:6px 12px;border-radius:6px;z-index:99;
+}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1: TITLE -->
+<div class="slide active">
+  <div style="margin-top:8vh">
+    <div class="label">Lab 10 &bull; ITIL Practice: Knowledge Management</div>
+    <h1 style="font-size:60px">Knowledge<br>Management</h1>
+    <p class="lead" style="max-width:65%">A story about a 2 AM escalation that should never have happened, the DIKW model, and turning tribal knowledge into team superpowers.</p>
+    <div style="margin-top:32px">
+      <span class="badge" style="background:var(--accent);color:#fff">60 min</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--text);margin-left:8px">Builds on Labs 07-09</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--muted);margin-left:8px">PDI: Zurich</span>
+    </div>
+  </div>
+  <div class="foot"><span>ServiceNow ITSM Labs &bull; NPCI UPI Scenario</span><span></span></div>
+</div>
+
+<!-- 2: THE INCIDENT -->
+<div class="slide">
+  <div class="label label-red">Act 1 &bull; The Problem</div>
+  <h2>Tuesday, 1:47 AM</h2>
+  <div class="timeline">
+    <div class="tl-item"><span class="tl-time">01:47</span> Prometheus fires <code>UPITransactionFailureRateHigh</code>. P2 incident auto-created. Assigned to L1.</div>
+    <div class="tl-item"><span class="tl-time">01:49</span> L1 agent Meera opens the incident. Sees "UPI transaction failures spiking." She has seen this before &mdash; <strong>but cannot remember the fix.</strong></div>
+    <div class="tl-item"><span class="tl-time">01:52</span> Meera searches Slack history. Finds a thread from 3 months ago. Half the steps are outdated.</div>
+    <div class="tl-item"><span class="tl-time">01:58</span> No runbook exists. No KB article. No documented procedure. Meera escalates to L2.</div>
+    <div class="tl-item"><span class="tl-time">02:03</span> L2 engineer Ravi is woken up. He logs in, diagnoses the issue from memory.</div>
+    <div class="tl-item"><span class="tl-time">02:32</span> Fix applied &mdash; connection pool restart. Service restored.</div>
+  </div>
+  <div class="box-red box"><strong>Total resolution: 45 minutes. The actual fix took 8 minutes. The other 37 minutes were spent searching for knowledge that didn't exist.</strong></div>
+  <div class="foot"><span>Lab 10 &bull; The Problem</span><span>2</span></div>
+</div>
+
+<!-- 3: WHAT IF -->
+<div class="slide">
+  <div class="label label-green">Act 1 &bull; What If?</div>
+  <h2>Imagine Meera had a Knowledge Base</h2>
+  <div class="timeline tl-ok">
+    <div class="tl-item"><span class="tl-time">01:47</span> Alert fires. P2 incident created. Assigned to Meera.</div>
+    <div class="tl-item"><span class="tl-time">01:48</span> Meera opens the incident. ServiceNow shows <strong>"Suggested Articles"</strong> based on the short description.</div>
+    <div class="tl-item"><span class="tl-time">01:49</span> Top suggestion: <em>"Runbook: UPI Transaction Service Restart Procedure"</em> &mdash; exact match.</div>
+    <div class="tl-item"><span class="tl-time">01:50</span> Meera follows the pre-checks, executes the restart, validates recovery.</div>
+    <div class="tl-item"><span class="tl-time">01:57</span> Service restored. Ravi sleeps through the night.</div>
+  </div>
+  <div class="cols" style="margin-top:16px">
+    <div>
+      <p><strong>With a KB article, Meera:</strong></p>
+      <ul class="bl">
+        <li>Resolved in <strong>10 minutes</strong>, not 45</li>
+        <li>Did not escalate to L2</li>
+        <li>Did not wake Ravi at 2 AM</li>
+        <li>Followed a verified, approved procedure</li>
+      </ul>
+    </div>
+    <div class="num-block">
+      <div class="num" style="color:var(--green)">10m</div>
+      <div class="num-label">vs 45 min without a Knowledge Base</div>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 10 &bull; The Vision</span><span>3</span></div>
+</div>
+
+<!-- 4: THE REAL PROBLEM -->
+<div class="slide">
+  <div class="label label-red">Act 1 &bull; The Root Cause</div>
+  <h2>Tribal Knowledge is a Single Point of Failure</h2>
+  <div class="cols">
+    <div>
+      <h3 style="color:var(--red)">Today's Reality</h3>
+      <ul class="bl">
+        <li>Runbooks live in Ravi's head</li>
+        <li>Error code fixes are in old Slack threads</li>
+        <li>Onboarding takes 3 weeks of shadowing</li>
+        <li>Same incidents escalated repeatedly</li>
+        <li>When Ravi is on leave, the team is blind</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color:var(--green)">With Knowledge Management</h3>
+      <ul class="bl">
+        <li>Every common issue has a documented fix</li>
+        <li>Runbooks are version-controlled and approved</li>
+        <li>New members self-serve from Day 1</li>
+        <li>L1 resolves 70% without escalation</li>
+        <li>Knowledge survives team changes</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box-blue box"><strong>ITIL 4 Knowledge Management:</strong> Ensure stakeholders get the right information, in the proper format, at the correct level, and at the right time.</div>
+  <div class="foot"><span>Lab 10 &bull; Root Cause</span><span>4</span></div>
+</div>
+
+<!-- 5: DIKW MODEL -->
+<div class="slide">
+  <div class="label">Act 1 &bull; The Framework</div>
+  <h2>The DIKW Model</h2>
+  <p>From raw signals to actionable understanding &mdash; applied to UPI operations.</p>
+  <pre>
++--------------------------------------------------------------------+
+|                         WISDOM                                      |
+|  "Pre-scale UPI services 48 hours before festival seasons because   |
+|   transaction volumes spike 300% and cause timeout errors."         |
++--------------------------------------------------------------------+
+|                        KNOWLEDGE                                    |
+|  "UPI timeout errors (U01) increase when volume exceeds 80% of     |
+|   capacity. Restarting the service clears the pool in 5 minutes."   |
++--------------------------------------------------------------------+
+|                       INFORMATION                                   |
+|  "Between 10:00-10:15 IST, 847 transactions failed with U01.       |
+|   Memory at 94%. Uptime: 14 days without restart."                  |
++--------------------------------------------------------------------+
+|                          DATA                                       |
+|  error_code=U01, count=847, memory_pct=94, uptime_days=14          |
++--------------------------------------------------------------------+
+  </pre>
+  <div class="box-green box"><strong>KB articles live in the Knowledge layer.</strong> They convert raw data and information into documented, reusable understanding that any team member can apply.</div>
+  <div class="foot"><span>Lab 10 &bull; DIKW Model</span><span>5</span></div>
+</div>
+
+<!-- 6: KCS METHODOLOGY -->
+<div class="slide">
+  <div class="label">Act 1 &bull; The Methodology</div>
+  <h2>Knowledge-Centered Service (KCS)</h2>
+  <p class="big">Don't write docs after the fact. Capture knowledge in the workflow.</p>
+  <div class="cols" style="margin-top:16px">
+    <div>
+      <h3>KCS Principles</h3>
+      <ul class="bl">
+        <li><strong>Capture in the workflow:</strong> Resolving an incident? Document it now, not "later"</li>
+        <li><strong>Evolve with demand:</strong> Articles improve each time they are used</li>
+        <li><strong>Collective experience:</strong> Not one person's notes &mdash; the team's shared brain</li>
+        <li><strong>Reward sharing:</strong> Recognize contributors, not hoarders</li>
+      </ul>
+    </div>
+    <div>
+      <h3>In ServiceNow</h3>
+      <ul class="bl">
+        <li>"Create Knowledge" button on Incident form</li>
+        <li>Article feedback and flagging</li>
+        <li>Usage analytics (views, helpfulness)</li>
+        <li>Suggested articles on incident creation</li>
+        <li>Knowledge workflow: Draft &rarr; Review &rarr; Publish</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box-orange box"><strong>The lifecycle:</strong> Create (Draft) &rarr; Review (SME validates) &rarr; Publish (visible to team) &rarr; Archive &rarr; Retire. Every article is approved before going live.</div>
+  <div class="foot"><span>Lab 10 &bull; KCS</span><span>6</span></div>
+</div>
+
+<!-- 7: KB INTEGRATION WITH ITSM -->
+<div class="slide">
+  <div class="label">Act 1 &bull; The Big Picture</div>
+  <h2>Knowledge Feeds Every ITSM Process</h2>
+  <pre>
++-------------------+     Suggested Articles      +--------------------+
+|                   | <--------------------------- |                    |
+| Incident Mgmt    |     "Create Knowledge"       | Knowledge Mgmt     |
+|                   | ---------------------------> |                    |
++-------------------+                              +--------------------+
+                                                          ^    |
++-------------------+     Known Error Articles            |    |
+|                   | ----------------------------------->|    |
+| Problem Mgmt     |     Workaround Documentation        |    |
+|                   | <-----------------------------------|    |
++-------------------+                                          |
+                                                               |
++-------------------+     Implementation Plans                 |
+|                   | <----------------------------------------+
+| Change Mgmt      |     Rollback Procedures
++-------------------+
+  </pre>
+  <table>
+    <tr><th>Process</th><th>Knowledge Role</th><th>Example</th></tr>
+    <tr><td>Incident</td><td>Agents search KB for solutions; resolved incidents generate new articles</td><td>Meera finds restart runbook</td></tr>
+    <tr><td>Problem</td><td>Known Errors documented as KB articles (KEDB)</td><td>Memory leak workaround</td></tr>
+    <tr><td>Change</td><td>Implementation plans and rollback procedures stored in KB</td><td>DB failover procedure</td></tr>
+  </table>
+  <div class="foot"><span>Lab 10 &bull; Integration</span><span>7</span></div>
+</div>
+
+<!-- 8: BUILD KB STRUCTURE -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Build the Knowledge Base</div>
+  <h2>Step 1: Create the KB Structure</h2>
+  <p>Navigate to <code>Knowledge > Administration > Knowledge Bases</code> &rarr; click <strong>New</strong></p>
+  <table>
+    <tr><th>Field</th><th>Value</th></tr>
+    <tr><td>Title</td><td>UPI Operations Knowledge Base</td></tr>
+    <tr><td>Owner</td><td>Ravi Kumar</td></tr>
+    <tr><td>Managers</td><td>Platform Engineering group</td></tr>
+  </table>
+  <h3>7 Categories to Organize Knowledge</h3>
+  <table>
+    <tr><th>#</th><th>Category</th><th>Purpose</th></tr>
+    <tr><td>1</td><td>UPI Error Codes & Resolution</td><td>Error code reference with diagnostic steps</td></tr>
+    <tr><td>2</td><td>Runbooks & SOPs</td><td>Step-by-step operational procedures</td></tr>
+    <tr><td>3</td><td>Architecture & Design</td><td>System diagrams and integration specs</td></tr>
+    <tr><td>4</td><td>Onboarding & Training</td><td>New team member guides</td></tr>
+    <tr><td>5</td><td>Known Issues & Workarounds</td><td>KEDB &mdash; known errors with workarounds</td></tr>
+    <tr><td>6</td><td>Change Implementation Guides</td><td>Deployment and rollback procedures</td></tr>
+    <tr><td>7</td><td>Monitoring & Alerting</td><td>Grafana/Prometheus query references</td></tr>
+  </table>
+  <div class="foot"><span>Lab 10 &bull; KB Structure</span><span>8</span></div>
+</div>
+
+<!-- 9: CREATE ARTICLES -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Populate the Knowledge Base</div>
+  <h2>Step 2: Create 5 Realistic Articles</h2>
+  <table>
+    <tr><th>#</th><th>Article Title</th><th>Category</th><th>Author</th></tr>
+    <tr><td>1</td><td>UPI Error Code Reference Guide</td><td>Error Codes</td><td>Amit Verma</td></tr>
+    <tr><td>2</td><td>Runbook: UPI Transaction Service Restart</td><td>Runbooks & SOPs</td><td>Ravi Kumar</td></tr>
+    <tr><td>3</td><td>Runbook: UPI Database Failover Procedure</td><td>Runbooks & SOPs</td><td>Ravi Kumar</td></tr>
+    <tr><td>4</td><td>Troubleshooting: High Transaction Failure Rate</td><td>Known Issues</td><td>Priya Sharma</td></tr>
+    <tr><td>5</td><td>Architecture: UPI Payment Processing Flow</td><td>Architecture</td><td>Ravi Kumar</td></tr>
+  </table>
+  <div class="cols" style="margin-top:12px">
+    <div>
+      <h3>Error Code Reference (Article 1)</h3>
+      <p>Covers 8 UPI error codes: U01 (Timeout), U09 (Bank Offline), U16 (Risk Threshold), U28 (PSP Not Registered), U30 (Debit Failed), U48, U66, U78. Each with cause, diagnostic steps, and resolution.</p>
+    </div>
+    <div>
+      <h3>Restart Runbook (Article 2)</h3>
+      <p>Pre-checks (verify TPS, in-flight count, instance health) &rarr; Restart (K8s rolling restart or VM-based) &rarr; Post-validation (health check, connection pool, error rate) &rarr; Rollback if needed.</p>
+    </div>
+  </div>
+  <div class="box-blue box"><strong>Key:</strong> All articles start in <strong>Draft</strong> state. They must go through the approval workflow before they become visible to the team.</div>
+  <div class="foot"><span>Lab 10 &bull; Articles</span><span>9</span></div>
+</div>
+
+<!-- 10: KEDB -->
+<div class="slide">
+  <div class="label label-orange">Act 2 &bull; Known Error Database</div>
+  <h2>The KEDB: Where Problems Meet Knowledge</h2>
+  <p class="big">A Known Error = Identified Root Cause + Documented Workaround</p>
+  <div class="cols" style="margin-top:16px">
+    <div>
+      <h3>Example: Memory Leak (KE-UPI-007)</h3>
+      <table>
+        <tr><th>Field</th><th>Value</th></tr>
+        <tr><td>Problem</td><td>PRB0042156</td></tr>
+        <tr><td>Affected CI</td><td>upi-txn-service v2.3.x</td></tr>
+        <tr><td>Symptom</td><td>Heap memory climbs over 7-10 days, P99 latency degrades, eventual OOM crash</td></tr>
+        <tr><td>Workaround</td><td>Scheduled restart every 5 days</td></tr>
+        <tr><td>Permanent Fix</td><td>v2.4.0 (upgrade Netty, fix connection leak)</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Why KEDB matters</h3>
+      <ul class="bl">
+        <li>When the same incident repeats, L1 finds the workaround instantly</li>
+        <li>Links Problem &rarr; Known Error &rarr; KB Article</li>
+        <li>Tracks fix status: workaround vs permanent resolution</li>
+        <li>Prevents unnecessary re-investigation</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box-orange box"><strong>ITIL pattern:</strong> Incident &rarr; Problem (root cause analysis) &rarr; Known Error (workaround documented) &rarr; Change (permanent fix deployed) &rarr; Known Error retired.</div>
+  <div class="foot"><span>Lab 10 &bull; KEDB</span><span>10</span></div>
+</div>
+
+<!-- 11: KNOWLEDGE WORKFLOW -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Approval Workflow</div>
+  <h2>Article Lifecycle: Draft &rarr; Review &rarr; Publish</h2>
+  <pre>
+                          Approval
+    +-------+   Submit   +--------+   Approve   +-----------+
+    | Draft | ---------> | Review | ----------> | Published |
+    +-------+            +--------+             +-----------+
+        ^                    |                        |
+        |               Reject                    Retire
+        |                    |                        |
+        |                    v                        v
+        +<--- Rework ---+--------+             +---------+
+                                               | Retired |
+                                               +---------+
+  </pre>
+  <table>
+    <tr><th>State</th><th>Who</th><th>What Happens</th></tr>
+    <tr><td>Draft</td><td>Author (e.g., Amit)</td><td>Article is being written; not visible to end users</td></tr>
+    <tr><td>Review</td><td>SME (e.g., Ravi)</td><td>Subject matter expert validates accuracy and completeness</td></tr>
+    <tr><td>Published</td><td>System</td><td>Article is live, searchable, and appears in Suggested Articles</td></tr>
+    <tr><td>Retired</td><td>Owner</td><td>Article removed from search; retained for audit trail</td></tr>
+  </table>
+  <div class="box-green box"><strong>Versioning:</strong> Editing a published article creates a new Draft version. The published version stays live until the new version is approved. Full version history maintained for audit.</div>
+  <div class="foot"><span>Lab 10 &bull; Workflow</span><span>11</span></div>
+</div>
+
+<!-- 12: USE IT - INCIDENT + KB -->
+<div class="slide">
+  <div class="label label-green">Act 3 &bull; Prove It Works</div>
+  <h2>Scenario: Meera Uses the KB at 2 AM</h2>
+  <div class="timeline tl-ok">
+    <div class="tl-item"><span class="tl-time">Step 1</span> Create a new Incident: <em>"UPI transaction failures spiking &mdash; error code U01"</em></div>
+    <div class="tl-item"><span class="tl-time">Step 2</span> On the Incident form, look at the <strong>Suggested Articles</strong> panel (right side)</div>
+    <div class="tl-item"><span class="tl-time">Step 3</span> ServiceNow suggests: <em>"UPI Error Code Reference Guide"</em> and <em>"Runbook: UPI Transaction Service Restart"</em></div>
+    <div class="tl-item"><span class="tl-time">Step 4</span> Meera clicks the runbook. Follows pre-checks, executes restart, validates recovery.</div>
+    <div class="tl-item"><span class="tl-time">Step 5</span> Meera resolves the incident. Attaches the KB article to the incident record.</div>
+    <div class="tl-item"><span class="tl-time">Step 6</span> Resolution notes reference the KB article number &mdash; full audit trail.</div>
+  </div>
+  <div class="box-blue box"><strong>Try it now:</strong> Navigate to Incident > Create New. Type "UPI transaction failure" in the short description. Check the Knowledge panel on the right. Do the published articles appear?</div>
+  <div class="foot"><span>Lab 10 &bull; Prove It</span><span>12</span></div>
+</div>
+
+<!-- 13: EXERCISES -->
+<div class="slide">
+  <div class="label">Your Turn</div>
+  <h2>Practice Exercises</h2>
+  <table>
+    <tr><th>#</th><th>Challenge</th><th>Level</th></tr>
+    <tr><td>1</td><td><strong>Publish articles:</strong> Move all 5 articles through the workflow: Draft &rarr; Review &rarr; Published. Verify they appear in search.</td><td style="color:var(--green)">Beginner</td></tr>
+    <tr><td>2</td><td><strong>Create KEDB entry:</strong> Write a Known Error article for "Settlement batch stuck at 47 min" with symptom, workaround, and fix target.</td><td style="color:var(--green)">Beginner</td></tr>
+    <tr><td>3</td><td><strong>Test KB + Incident:</strong> Create an incident with "UPI transaction timeout U01". Verify suggested articles appear. Resolve using the KB article.</td><td style="color:var(--orange)">Intermediate</td></tr>
+    <tr><td>4</td><td><strong>Onboarding article:</strong> Create a "New Team Member Guide" article with Day 1 access requests, required reading, and 30-day milestones.</td><td style="color:var(--orange)">Intermediate</td></tr>
+    <tr><td>5</td><td><strong>Version control:</strong> Edit a published article to add new content. Observe: new Draft version created while published version stays live.</td><td style="color:var(--red)">Advanced</td></tr>
+  </table>
+  <div class="box-green box"><strong>Background Script:</strong> The lab appendix includes scripts to create all articles and categories programmatically.</div>
+  <div class="foot"><span>Lab 10 &bull; Exercises</span><span>13</span></div>
+</div>
+
+<!-- 14: TAKEAWAYS -->
+<div class="slide">
+  <div class="label">Summary</div>
+  <h2>What We Built & Why It Matters</h2>
+  <table>
+    <tr><th>What we did</th><th>The story behind it</th></tr>
+    <tr><td>1 Knowledge Base</td><td>UPI Operations KB &mdash; the single source of truth</td></tr>
+    <tr><td>7 Categories</td><td>Error codes, runbooks, architecture, onboarding, KEDB, changes, monitoring</td></tr>
+    <tr><td>5+ Articles</td><td>Real content: error code guide, restart runbook, DB failover, troubleshooting, architecture</td></tr>
+    <tr><td>KEDB</td><td>Known errors linked to Problems with workarounds and fix targets</td></tr>
+    <tr><td>Approval Workflow</td><td>Draft &rarr; Review &rarr; Publish ensures accuracy before going live</td></tr>
+    <tr><td>KB + Incident</td><td>Suggested articles appear when creating incidents &mdash; Meera resolves in 10 min, not 45</td></tr>
+  </table>
+  <div class="box-gray box" style="margin-top:16px">
+    <strong>The story continues...</strong><br><br>
+    <strong>Lab 11:</strong> Service Catalog &mdash; self-service requests for API access, merchant onboarding, environment provisioning<br>
+    <strong>Lab 13:</strong> Incident Management &mdash; KB articles suggested during incident resolution<br>
+    <strong>Lab 14:</strong> Problem Management &mdash; Known Errors feed the KEDB, workarounds published as KB articles<br>
+    <strong>Lab 15:</strong> Change Management &mdash; implementation plans and rollback procedures stored in KB
+  </div>
+  <div class="foot"><span>Lab 10 &bull; ITIL: Knowledge Management</span><span>14</span></div>
+</div>
+
+</div>
+<div class="counter" id="sc">1 / 14</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();show(c+1)}
+  if(e.key==='ArrowLeft'){e.preventDefault();show(c-1)}
+  if(e.key==='Home'){e.preventDefault();show(0)}
+  if(e.key==='End'){e.preventDefault();show(S.length-1)}
+});
+document.addEventListener('click',e=>{if(e.clientX>window.innerWidth/2)show(c+1);else show(c-1)});
+show(0);
+</script>
+</body>
+</html>

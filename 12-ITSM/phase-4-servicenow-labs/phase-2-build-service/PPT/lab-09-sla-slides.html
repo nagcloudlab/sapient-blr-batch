@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 09: SLA, SLO & SLI — Service Level Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f0;overflow:hidden;-webkit-font-smoothing:antialiased}
+
+/* Deck & Slide */
+.deck{width:100vw;height:100vh;position:relative}
+.slide{
+  position:absolute;inset:0;display:none;
+  padding:60px 80px;
+  overflow-y:auto;
+  background:#ffffff;color:#1a1a1a;
+}
+.slide.active{display:flex;flex-direction:column}
+
+/* Colors */
+:root{
+  --text:#1a1a1a;
+  --text2:#444;
+  --muted:#888;
+  --accent:#1d4ed8;
+  --green:#047857;
+  --red:#b91c1c;
+  --orange:#c2410c;
+  --bg-subtle:#f7f8fa;
+  --border:#e5e7eb;
+}
+
+/* Typography */
+.label{
+  font-size:13px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:var(--accent);
+  margin-bottom:8px;
+}
+.label-red{color:var(--red)}
+.label-green{color:var(--green)}
+.label-orange{color:var(--orange)}
+
+h1{font-size:52px;font-weight:800;line-height:1.15;color:var(--text);margin-bottom:16px}
+h2{font-size:40px;font-weight:700;line-height:1.2;color:var(--text);margin-bottom:20px}
+h3{font-size:22px;font-weight:700;color:var(--accent);margin:24px 0 8px}
+p{font-size:20px;line-height:1.7;color:var(--text2);margin-bottom:8px}
+.lead{font-size:24px;line-height:1.6;color:var(--text2)}
+.big{font-size:30px;font-weight:700;color:var(--accent);line-height:1.4}
+
+/* Lists */
+ul.bl{list-style:none;padding:0;margin:8px 0}
+ul.bl li{
+  font-size:20px;line-height:1.6;color:var(--text2);
+  padding:6px 0 6px 28px;position:relative;
+}
+ul.bl li::before{
+  content:'';position:absolute;left:0;top:14px;
+  width:10px;height:10px;border-radius:50%;background:var(--accent);
+}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th{
+  font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);text-align:left;
+  padding:10px 14px;border-bottom:2px solid var(--border);
+}
+td{
+  font-size:18px;line-height:1.5;color:var(--text2);
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  vertical-align:top;
+}
+td:first-child{font-weight:600;color:var(--accent);white-space:nowrap}
+tr:nth-child(even) td{background:var(--bg-subtle)}
+
+/* Callout boxes */
+.box{border-radius:12px;padding:20px 24px;margin:16px 0;font-size:18px;line-height:1.6}
+.box-blue{background:#eff6ff;border-left:5px solid var(--accent);color:#1e3a5f}
+.box-green{background:#ecfdf5;border-left:5px solid var(--green);color:#064e3b}
+.box-red{background:#fef2f2;border-left:5px solid var(--red);color:#7f1d1d}
+.box-orange{background:#fff7ed;border-left:5px solid var(--orange);color:#7c2d12}
+.box-gray{background:#f7f8fa;border-left:5px solid #cbd5e1;color:var(--text)}
+
+/* Code */
+pre{
+  background:var(--bg-subtle);color:var(--text);
+  border:1px solid var(--border);border-radius:12px;
+  padding:20px 24px;
+  font-family:'JetBrains Mono',Consolas,monospace;
+  font-size:16px;line-height:1.6;
+  overflow-x:auto;margin:12px 0;
+}
+code{
+  font-family:'JetBrains Mono',Consolas,monospace;
+  background:var(--bg-subtle);padding:2px 8px;border-radius:6px;
+  font-size:17px;color:var(--accent);
+}
+
+/* Layout */
+.cols{display:flex;gap:48px;margin:12px 0}
+.cols>div{flex:1}
+
+/* Timeline */
+.timeline{position:relative;padding-left:32px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:3px;background:var(--border);border-radius:2px}
+.tl-item{position:relative;padding:8px 0;font-size:19px;line-height:1.6;color:var(--text2)}
+.tl-item::before{
+  content:'';position:absolute;left:-25px;top:14px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--red);border:3px solid #fff;
+  box-shadow:0 0 0 2px var(--border);
+}
+.tl-ok .tl-item::before{background:var(--green)}
+.tl-time{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:17px;color:var(--red);margin-right:8px}
+.tl-ok .tl-time{color:var(--green)}
+
+/* Number hero */
+.num-block{text-align:center;padding:16px}
+.num-block .num{font-size:72px;font-weight:900;color:var(--accent);line-height:1}
+.num-block .num-label{font-size:16px;font-weight:600;color:var(--muted);margin-top:6px}
+
+/* Footer */
+.foot{
+  margin-top:auto;padding-top:12px;
+  display:flex;justify-content:space-between;
+  font-size:13px;color:var(--muted);font-weight:500;
+  border-top:1px solid var(--border);
+}
+
+/* Badge */
+.badge{
+  display:inline-block;font-size:13px;font-weight:700;
+  padding:6px 14px;border-radius:8px;letter-spacing:.5px;
+}
+
+/* Counter */
+.counter{
+  position:fixed;top:12px;right:16px;
+  background:rgba(0,0,0,.05);color:var(--muted);
+  font:700 13px/1 'JetBrains Mono',monospace;
+  padding:6px 12px;border-radius:6px;z-index:99;
+}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1: TITLE -->
+<div class="slide active">
+  <div style="margin-top:8vh">
+    <div class="label">Lab 09 &bull; ITIL Practice: Service Level Management</div>
+    <h1 style="font-size:56px">SLA, SLO &amp; SLI<br>Service Level Management</h1>
+    <p class="lead" style="max-width:65%">A story about an RBI mandate nobody can prove they're meeting, a P1 incident with no timer, and the watermelon that fooled everyone.</p>
+    <div style="margin-top:32px">
+      <span class="badge" style="background:var(--accent);color:#fff">90 min</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--text);margin-left:8px">Builds on Labs 07-08</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--muted);margin-left:8px">PDI: Zurich</span>
+    </div>
+  </div>
+  <div class="foot"><span>ServiceNow ITSM Labs &bull; NPCI UPI Scenario</span><span></span></div>
+</div>
+
+<!-- 2: THE PROBLEM -->
+<div class="slide">
+  <div class="label label-red">Act 1 &bull; The Problem</div>
+  <h2>RBI mandates 99.5% uptime. Are we meeting it?</h2>
+  <div class="timeline">
+    <div class="tl-item"><span class="tl-time">09:00</span> RBI audit letter arrives: <em>"Provide your UPI uptime SLA compliance for Q3."</em></div>
+    <div class="tl-item"><span class="tl-time">09:15</span> Sanjay asks the team: <em>"How fast do we respond to P1 incidents?"</em> Silence.</div>
+    <div class="tl-item"><span class="tl-time">09:30</span> <em>"What percentage of incidents breach their resolution target?"</em> Nobody knows. There are no targets.</div>
+    <div class="tl-item"><span class="tl-time">09:45</span> <em>"When a P1 fires at 2 AM, who gets notified? Is there a timer? An escalation?"</em> No, no, and no.</div>
+    <div class="tl-item"><span class="tl-time">10:00</span> Sanjay realizes: <strong>services exist (Lab 08), CIs exist (Lab 07), but there's zero accountability for response times.</strong></div>
+  </div>
+  <div class="box-red box"><strong>Without SLAs, every incident is treated equally. P1 with 10 million stuck transactions? Same urgency as a typo in a dashboard.</strong></div>
+  <div class="foot"><span>Lab 09 &bull; The Problem</span><span>2</span></div>
+</div>
+
+<!-- 3: WATERMELON SLA -->
+<div class="slide">
+  <div class="label label-orange">Act 1 &bull; The Anti-Pattern</div>
+  <h2>The Watermelon SLA</h2>
+  <p class="big">Green on the outside. Red on the inside.</p>
+  <div class="cols" style="margin-top:16px">
+    <div>
+      <h3 style="color:var(--green)">The report says</h3>
+      <ul class="bl">
+        <li>"98% of SLAs met!" &mdash; green checkmark</li>
+        <li>Response targets all hit</li>
+        <li>Resolution numbers look great</li>
+      </ul>
+      <h3 style="color:var(--red);margin-top:16px">The reality</h3>
+      <ul class="bl">
+        <li>Users wait 45 min on hold (but SLA starts at ticket creation)</li>
+        <li>Incidents "resolved" by closing without fixing</li>
+        <li>P1s downgraded to P3 to dodge breach</li>
+        <li>Customer satisfaction: 2.1 / 5.0</li>
+      </ul>
+    </div>
+    <div>
+      <h3>How to avoid</h3>
+      <ul class="bl">
+        <li>Measure <strong>outcomes</strong>, not just outputs</li>
+        <li>Track <strong>re-open rates</strong> (was it truly fixed?)</li>
+        <li>Include <strong>CSAT surveys</strong> after resolution</li>
+        <li>Audit priority changes (P1 &rarr; P3 gaming)</li>
+        <li>Use <strong>XLAs</strong> (Experience Level Agreements) alongside SLAs</li>
+      </ul>
+      <div class="box-orange box" style="margin-top:12px"><strong>XLA example:</strong> SLA says "resolved in 45 min." XLA asks: "Were you satisfied? Was your work disrupted?"</div>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 09 &bull; Watermelon SLA</span><span>3</span></div>
+</div>
+
+<!-- 4: SLA-SLO-SLI HIERARCHY -->
+<div class="slide">
+  <div class="label">Act 1 &bull; The Key Concept</div>
+  <h2>SLA vs SLO vs SLI</h2>
+  <table>
+    <tr><th>Term</th><th>What It Is</th><th>UPI Example</th></tr>
+    <tr><td>SLA</td><td>Formal <strong>agreement</strong> between provider and customer. Contains multiple SLOs. Has contractual weight.</td><td>"NPCI UPI Platform Support Agreement" signed with member banks</td></tr>
+    <tr><td>SLO</td><td>Specific <strong>measurable target</strong> within the SLA. "What we promise."</td><td>"99.95% availability per month" or "P1 resolved within 1 hour"</td></tr>
+    <tr><td>SLI</td><td>The actual <strong>metric</strong> that measures the SLO. "What we measure."</td><td>Prometheus <code>up</code> metric, <code>histogram_quantile(0.95,...)</code></td></tr>
+  </table>
+  <div class="box-blue box">
+    <strong>The hierarchy:</strong><br>
+    SLA contains multiple SLOs. Each SLO is measured by one or more SLIs.<br><br>
+    <strong>SLA</strong> &rarr; "We agree to these service levels" (Agreement)<br>
+    <strong>SLO</strong> &rarr; "Specifically, we target 99.95% uptime" (Objective)<br>
+    <strong>SLI</strong> &rarr; "We measure uptime using Prometheus <code>up</code>" (Indicator)
+  </div>
+  <div class="foot"><span>Lab 09 &bull; SLA-SLO-SLI</span><span>4</span></div>
+</div>
+
+<!-- 5: NPCI SLA REQUIREMENTS -->
+<div class="slide">
+  <div class="label">Act 1 &bull; Requirements</div>
+  <h2>NPCI UPI &mdash; real-world SLA requirements</h2>
+  <p>Based on actual NPCI and RBI regulatory requirements:</p>
+  <div class="cols">
+    <div>
+      <h3>Platform Performance</h3>
+      <table>
+        <tr><th>Metric</th><th>Target</th></tr>
+        <tr><td>UPI uptime</td><td>99.5% (NPCI mandate)</td></tr>
+        <tr><td>Max unplanned downtime</td><td>3.65 hours/month</td></tr>
+        <tr><td>E2E response</td><td>&lt; 30 seconds (RBI)</td></tr>
+        <tr><td>P95 API latency</td><td>&lt; 500ms</td></tr>
+        <tr><td>Transaction success rate</td><td>&gt; 99.5%</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Incident Response</h3>
+      <table>
+        <tr><th>Priority</th><th>Response</th><th>Resolution</th></tr>
+        <tr><td>P1 Critical</td><td>30 min</td><td>1 hour</td></tr>
+        <tr><td>P2 High</td><td>1 hour</td><td>4 hours</td></tr>
+        <tr><td>P3 Moderate</td><td>4 hours</td><td>24 hours</td></tr>
+        <tr><td>P4 Low</td><td>&mdash;</td><td>72 hours</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="box-gray box"><strong>Regulatory reporting:</strong> Major incident report to RBI within 6 hours. Monthly SLA compliance report by 5th of next month. Quarterly service review with member banks.</div>
+  <div class="foot"><span>Lab 09 &bull; Requirements</span><span>5</span></div>
+</div>
+
+<!-- 6: SERVICENOW SLA ARCHITECTURE -->
+<div class="slide">
+  <div class="label">Act 2 &bull; How It Works</div>
+  <h2>ServiceNow SLA engine &mdash; two tables</h2>
+  <div class="cols">
+    <div>
+      <h3>SLA Definition <code>contract_sla</code></h3>
+      <p>The <strong>template</strong>. You create 7 of these. They sit waiting for matching tasks.</p>
+      <ul class="bl">
+        <li>Which tasks does this apply to?</li>
+        <li>When does the clock start?</li>
+        <li>When does it pause? Stop?</li>
+        <li>What is the target duration?</li>
+        <li>What schedule applies?</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Task SLA <code>task_sla</code></h3>
+      <p>The <strong>instance</strong>. Created <strong>automatically</strong> when a matching task appears.</p>
+      <ul class="bl">
+        <li>Reference to the SLA Definition</li>
+        <li>Reference to the Task (INC0010001)</li>
+        <li>Start time, breach time</li>
+        <li>Current state (In Progress, Paused...)</li>
+        <li>Percentage elapsed</li>
+        <li>Has breached (true/false)</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box-green box"><strong>You never create Task SLAs manually.</strong> Create the SLA Definition. ServiceNow handles the rest. When Priority=1 AND State=New, the engine auto-attaches a 30-minute response timer.</div>
+  <div class="foot"><span>Lab 09 &bull; Architecture</span><span>6</span></div>
+</div>
+
+<!-- 7: SLA LIFECYCLE -->
+<div class="slide">
+  <div class="label">Act 2 &bull; SLA States</div>
+  <h2>The SLA lifecycle</h2>
+  <pre style="font-size:15px">
+START CONDITION MET (e.g., Priority = 1 AND State = New)
+    |
+    |  ServiceNow creates a task_sla record.
+    |  Breach time = now + duration (adjusted for schedule).
+    v
+CLOCK TICKING  ---------> PAUSE? (Awaiting User Info)
+    |                          |
+    |                    Clock stops. Breach time pushed forward.
+    |                    Resume when pause condition clears.
+    |                          |
+    v                          v
+STOP CONDITION MET? -----> YES --> SLA ACHIEVED (if before breach)
+    |                              SLA BREACHED (if past due)
+    | NO
+    v
+BREACH TIME REACHED -----> SLA BREACHED
+    |                       (clock keeps ticking for reporting
+    v                        "how far past breach")
+STOP CONDITION EVENTUALLY MET --> Final state recorded.
+  </pre>
+  <div class="cols" style="margin-top:8px">
+    <div class="box-green box"><strong>Achieved:</strong> Stop condition met before breach time</div>
+    <div class="box-red box"><strong>Breached:</strong> Breach time reached before stop condition</div>
+  </div>
+  <div class="foot"><span>Lab 09 &bull; SLA Lifecycle</span><span>7</span></div>
+</div>
+
+<!-- 8: BUILD 7 SLA DEFINITIONS -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Step 1</div>
+  <h2>Build 7 SLA definitions</h2>
+  <p>Navigate to <code>Service Level Management > SLA > SLA Definitions</code> &rarr; click <strong>New</strong></p>
+  <table>
+    <tr><th>Priority</th><th>SLA Name</th><th>Duration</th><th>Schedule</th><th>Start When</th><th>Stop When</th></tr>
+    <tr><td>P1</td><td>NPCI UPI - P1 Critical Response</td><td>30 min</td><td>24x7</td><td>P1 + New</td><td>In Progress / Resolved</td></tr>
+    <tr><td>P1</td><td>NPCI UPI - P1 Critical Resolution</td><td>1 hour</td><td>24x7</td><td>P1 + In Progress</td><td>Resolved</td></tr>
+    <tr><td>P2</td><td>NPCI UPI - P2 High Response</td><td>1 hour</td><td>24x7</td><td>P2 + New</td><td>In Progress / Resolved</td></tr>
+    <tr><td>P2</td><td>NPCI UPI - P2 High Resolution</td><td>4 hours</td><td>24x7</td><td>P2 + In Progress</td><td>Resolved</td></tr>
+    <tr><td>P3</td><td>NPCI UPI - P3 Moderate Response</td><td>4 hours</td><td>Business Hours</td><td>P3 + New</td><td>In Progress / Resolved</td></tr>
+    <tr><td>P3</td><td>NPCI UPI - P3 Moderate Resolution</td><td>24 hours</td><td>Business Hours</td><td>P3 + In Progress</td><td>Resolved</td></tr>
+    <tr><td>P4</td><td>NPCI UPI - P4 Low Resolution</td><td>72 hours</td><td>Business Hours</td><td>P4 + In Progress</td><td>Resolved</td></tr>
+  </table>
+  <div class="box-blue box"><strong>Pause condition for all:</strong> State = Awaiting User Info (and Awaiting Vendor for Resolution SLAs). Clock pauses while waiting on external parties.</div>
+  <div class="foot"><span>Lab 09 &bull; SLA Definitions</span><span>8</span></div>
+</div>
+
+<!-- 9: SCHEDULES -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Step 2</div>
+  <h2>Create SLA schedules</h2>
+  <p>Schedules determine <strong>when the clock ticks</strong>. A "4-hour SLA" with business hours means 4 hours of <em>business</em> time.</p>
+  <div class="cols">
+    <div>
+      <h3>NPCI 24x7 Critical Support</h3>
+      <p>For P1 and P2. Clock ticks all day, every day.</p>
+      <pre style="font-size:14px">
+Mon-Sun: 00:00 - 23:59
+Timezone: Asia/Kolkata
+      </pre>
+      <h3>NPCI Business Hours</h3>
+      <p>For P3 and P4. Mon-Sat 8 AM - 8 PM IST.</p>
+      <pre style="font-size:14px">
+Mon-Sat: 08:00 - 20:00
+Sunday:  excluded
+Holidays: excluded (child schedule)
+Timezone: Asia/Kolkata
+      </pre>
+    </div>
+    <div>
+      <h3 style="color:var(--orange)">Why this matters</h3>
+      <div class="box-orange box">
+        <strong>Scenario:</strong> P3 incident created Friday 4:00 PM.<br>
+        Schedule: Business Hours (Mon-Sat 8AM-8PM).<br><br>
+        Clock ticks: 4PM-8PM Fri = <strong>4 hours</strong><br>
+        Overnight: paused (8PM-8AM)<br>
+        Clock ticks: 8AM-8PM Sat = 12 hours (need 20 more)<br><br>
+        Without schedule: breach at 8 PM Friday<br>
+        With schedule: breach pushes to next business week
+      </div>
+      <div class="box-red box" style="margin-top:8px"><strong>Common pitfall:</strong> Setting timezone to UTC instead of Asia/Kolkata. Business hours become 1:30 PM - 1:30 AM IST. SLAs completely wrong.</div>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 09 &bull; Schedules</span><span>9</span></div>
+</div>
+
+<!-- 10: SLOs -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Step 3</div>
+  <h2>Define Service Level Objectives</h2>
+  <p>SLOs are the specific targets. Track via Performance Analytics indicators or custom tables.</p>
+  <table>
+    <tr><th>SLO</th><th>Objective</th><th>Target</th><th>Measured</th><th>Source</th></tr>
+    <tr><td>SLO1</td><td>Platform Availability</td><td>99.95%</td><td>Monthly</td><td>Prometheus <code>up</code> metric</td></tr>
+    <tr><td>SLO2</td><td>Transaction Success Rate</td><td>99.5%</td><td>Daily</td><td>Prometheus <code>http_server_requests</code></td></tr>
+    <tr><td>SLO3</td><td>P95 Transaction Latency</td><td>&lt; 500ms</td><td>Hourly</td><td>Prometheus <code>histogram_quantile</code></td></tr>
+    <tr><td>SLO4</td><td>Incident Resolution in SLA</td><td>&gt; 95%</td><td>Monthly</td><td>ServiceNow <code>task_sla</code></td></tr>
+    <tr><td>SLO5</td><td>Change Success Rate</td><td>&gt; 98%</td><td>Quarterly</td><td>ServiceNow <code>change_request</code></td></tr>
+    <tr><td>SLO6</td><td>MTTR for P1 Incidents</td><td>&lt; 30 min</td><td>Monthly</td><td>ServiceNow <code>incident</code></td></tr>
+  </table>
+  <div class="box-blue box"><strong>99.95% uptime</strong> = maximum 21.6 minutes downtime per month. That is 10x stricter than the NPCI mandate of 99.5% (3.6 hours). Your SLO should be tighter than your SLA.</div>
+  <div class="foot"><span>Lab 09 &bull; SLOs</span><span>10</span></div>
+</div>
+
+<!-- 11: SLI MAPPING FROM PROMETHEUS -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Step 4</div>
+  <h2>SLI mapping &mdash; Prometheus to ServiceNow</h2>
+  <p>How SLIs flow from infrastructure to incident to SLA clock:</p>
+  <pre style="font-size:14px">
+UPI Service (Spring Boot)
+    |  /actuator/prometheus
+    v
+Prometheus (scrapes metrics every 15s)
+    |  SLI: up, http_server_requests, histogram_quantile
+    v
+AlertManager (evaluates alert rules)
+    |  "Failure rate > 0.5% for 2 minutes" --> FIRING
+    v
+Snow Bridge (Python webhook receiver)
+    |  POST /api/now/table/incident
+    v
+ServiceNow Incident (auto-created, Priority = 1)
+    |  SLA engine: "Priority=1 AND State=New" --> MATCH
+    v
+Task SLA created: P1 Critical Response (30 min clock starts)
+  </pre>
+  <div class="box-green box"><strong>End-to-end automation:</strong> A Prometheus metric breaches an SLO &rarr; alert fires &rarr; incident created in ServiceNow &rarr; SLA timer starts &rarr; escalation notifications at 50%, 75%, 100%. No human intervention needed to start the clock.</div>
+  <div class="foot"><span>Lab 09 &bull; SLI Mapping</span><span>11</span></div>
+</div>
+
+<!-- 12: SLI-SLO-SLA TABLE -->
+<div class="slide">
+  <div class="label">Act 2 &bull; The Full Picture</div>
+  <h2>SLI &rarr; SLO &rarr; SLA mapping</h2>
+  <table>
+    <tr><th>SLI (What we measure)</th><th>SLO (What we target)</th><th>SLA Section</th></tr>
+    <tr><td>Prometheus <code>up</code> metric</td><td>99.95% availability/month</td><td>3.1 - Availability</td></tr>
+    <tr><td><code>http_server_requests</code> success vs total</td><td>99.5% success rate/day</td><td>3.2 - Transaction Reliability</td></tr>
+    <tr><td><code>histogram_quantile(0.95, ...)</code></td><td>P95 &lt; 500ms</td><td>3.3 - Performance</td></tr>
+    <tr><td><code>task_sla.has_breached</code></td><td>&gt; 95% SLAs met/month</td><td>4.1 - Support Response</td></tr>
+    <tr><td><code>change_request.close_code</code></td><td>&gt; 98% changes successful</td><td>4.2 - Change Management</td></tr>
+    <tr><td><code>incident.business_resolve_time</code> avg</td><td>MTTR &lt; 30 min for P1</td><td>4.3 - Restoration</td></tr>
+  </table>
+  <div class="box-gray box"><strong>This table is the bridge</strong> between your monitoring stack (Labs 07A/12) and your ITSM processes (Labs 13-15). SLIs from Prometheus feed SLOs that are promised in the SLA.</div>
+  <div class="foot"><span>Lab 09 &bull; Full Mapping</span><span>12</span></div>
+</div>
+
+<!-- 13: BREACH NOTIFICATIONS -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Step 5</div>
+  <h2>Breach notifications &amp; escalation</h2>
+  <p>Three-tier escalation as the SLA clock ticks:</p>
+  <pre style="font-size:15px">
+SLA Timeline:
+0%         50%              75%              100% (BREACH)
+|           |                |                |
+|           v                v                v
+|       WARNING            CRITICAL          BREACHED
+|       "50% elapsed"      "75% elapsed"     "SLA BREACHED"
+|       --> Assignment      --> Manager       --> VP/Director
+|          Group           + Assignment       + Manager
+|                            Group            + Assignment Group
+  </pre>
+  <div class="cols">
+    <div>
+      <h3>How to configure</h3>
+      <p>Navigate to <code>System Notification > Email > Notifications</code> &rarr; New</p>
+      <ul class="bl">
+        <li>Table: <code>Task SLA [task_sla]</code></li>
+        <li>Condition: <code>business_percentage >= 50</code></li>
+        <li>Filter: SLA name starts with "NPCI UPI"</li>
+        <li>Recipients: Task.Assignment group</li>
+      </ul>
+    </div>
+    <div>
+      <h3>Email subject examples</h3>
+      <pre style="font-size:13px">
+50%: [SLA WARNING] P1 Critical
+     Resolution at 50% - INC0010001
+
+75%: [SLA CRITICAL] P1 Critical
+     Resolution at 75% - MANAGER
+     ATTENTION NEEDED
+
+100%: [SLA BREACHED] P1 Critical
+      Resolution - IMMEDIATE
+      ACTION REQUIRED
+      </pre>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 09 &bull; Notifications</span><span>13</span></div>
+</div>
+
+<!-- 14: TEST IT - CREATE P1 -->
+<div class="slide">
+  <div class="label label-green">Act 3 &bull; Test It</div>
+  <h2>Create a P1 incident. Watch the SLA attach.</h2>
+  <p>Navigate to <code>Incident > Create New</code> with these values:</p>
+  <table>
+    <tr><th>Field</th><th>Value</th></tr>
+    <tr><td>Caller</td><td>Priya Sharma (NOC)</td></tr>
+    <tr><td>Short description</td><td>UPI Real-time settlement failure &mdash; all banks affected</td></tr>
+    <tr><td>Impact / Urgency</td><td>1 - High / 1 - High (auto-calculates P1)</td></tr>
+    <tr><td>Assignment Group</td><td>Platform Engineering</td></tr>
+    <tr><td>Configuration Item</td><td>UPI Settlement Service (Lab 07)</td></tr>
+    <tr><td>Business Service</td><td>UPI Payment Processing (Lab 08)</td></tr>
+  </table>
+  <p style="margin-top:12px"><strong>Click Save</strong> (not Submit). Scroll to <strong>Task SLAs</strong> related list:</p>
+  <div class="box-green box">
+    <strong>You should see:</strong> NPCI UPI - P1 Critical Response | Stage: In Progress | Planned End: now + 30 minutes<br><br>
+    The Resolution SLA has NOT started yet &mdash; it starts when State changes to "In Progress."
+  </div>
+  <div class="foot"><span>Lab 09 &bull; Test P1</span><span>14</span></div>
+</div>
+
+<!-- 15: FULL SLA LIFECYCLE TEST -->
+<div class="slide">
+  <div class="label label-green">Act 3 &bull; Full Lifecycle</div>
+  <h2>Walk through the complete SLA lifecycle</h2>
+  <div class="timeline tl-ok">
+    <div class="tl-item"><span class="tl-time">Step 1</span> <strong>Save P1 incident</strong> &mdash; Response SLA (30 min) starts. Stage: In Progress.</div>
+    <div class="tl-item"><span class="tl-time">Step 2</span> <strong>Move to In Progress</strong> &mdash; Response SLA = <strong>Achieved</strong>. Resolution SLA (1 hr) starts.</div>
+    <div class="tl-item"><span class="tl-time">Step 3</span> <strong>Set State = Awaiting User Info</strong> &mdash; Resolution SLA <strong>pauses</strong>. Breach time pushed forward.</div>
+    <div class="tl-item"><span class="tl-time">Step 4</span> <strong>Move back to In Progress</strong> &mdash; Resolution SLA <strong>resumes</strong>. Clock ticking again.</div>
+    <div class="tl-item"><span class="tl-time">Step 5</span> <strong>Resolve the incident</strong> &mdash; Resolution SLA = <strong>Achieved</strong> (if within 1 hour minus pause).</div>
+  </div>
+  <pre style="font-size:14px">
+SLA Timeline with Pause:
+
+NPCI UPI - P1 Critical Resolution (1 hour)
+|=========         ========         ==================|
+  elapsed       paused (flat)         remaining
+  20 min        (waiting on SBI      40 min
+                 for txn IDs)
+
+== = elapsed    ======== = paused    ......... = remaining
+  </pre>
+  <div class="box-blue box"><strong>Final result:</strong> Both Task SLAs show Stage = Achieved, Has Breached = false. The incident was responded to within 30 minutes and resolved within 1 hour (excluding pause time).</div>
+  <div class="foot"><span>Lab 09 &bull; Full Lifecycle</span><span>15</span></div>
+</div>
+
+<!-- 16: EXERCISES -->
+<div class="slide">
+  <div class="label">Your Turn</div>
+  <h2>Practice Exercises</h2>
+  <table>
+    <tr><th>#</th><th>Challenge</th><th>Level</th></tr>
+    <tr><td>1</td><td><strong>P1 SLA Verify:</strong> Create a P1 incident. Save. Verify Response SLA attaches. Move to In Progress within 5 min. Verify Achieved + Resolution SLA starts.</td><td style="color:var(--green)">Beginner</td></tr>
+    <tr><td>2</td><td><strong>Breach Test:</strong> Create a P3 incident. Move to In Progress. Use the Background Script to backdate <code>start_time</code> by 48 hours. Observe breach. Check System Logs > Emails.</td><td style="color:var(--orange)">Intermediate</td></tr>
+    <tr><td>3</td><td><strong>Service Request SLA:</strong> Create an SLA for <code>sc_req_item</code> table: "Merchant Onboarding Fulfillment" &mdash; 5 business days, NPCI Business Hours.</td><td style="color:var(--orange)">Intermediate</td></tr>
+    <tr><td>4</td><td><strong>SLA Compliance Report:</strong> Build a stacked bar chart: <code>task_sla</code> grouped by Task.Priority, stacked by Has Breached. Filter: NPCI UPI SLAs only.</td><td style="color:var(--orange)">Intermediate</td></tr>
+    <tr><td>5</td><td><strong>MTTR Report:</strong> Build a bar chart showing average <code>business_resolve_time</code> for P1 incidents resolved in the last 30 days. Is MTTR &lt; 30 minutes?</td><td style="color:var(--red)">Advanced</td></tr>
+  </table>
+  <div class="box-green box"><strong>Time-saver:</strong> Background Script in the lab Appendix creates all 7 SLA Definitions, 2 schedules, and 3 notification rules.</div>
+  <div class="foot"><span>Lab 09 &bull; Exercises</span><span>16</span></div>
+</div>
+
+<!-- 17: TAKEAWAYS -->
+<div class="slide">
+  <div class="label">Summary</div>
+  <h2>What We Built &amp; Why It Matters</h2>
+  <table>
+    <tr><th>What we did</th><th>The story behind it</th></tr>
+    <tr><td>7 SLA Definitions</td><td>P1-P4 response + resolution &mdash; every incident now has an automatic timer</td></tr>
+    <tr><td>2 Custom Schedules</td><td>24x7 for critical, business hours for moderate/low &mdash; fair SLA calculations</td></tr>
+    <tr><td>6 SLOs</td><td>Availability 99.95%, success rate 99.5%, MTTR &lt; 30 min &mdash; measurable targets</td></tr>
+    <tr><td>SLI Mapping</td><td>Prometheus metrics &rarr; SLO targets &rarr; automatic incident + SLA clock</td></tr>
+    <tr><td>3 Notifications</td><td>50% warning, 75% escalation, 100% breach &mdash; accountability at every stage</td></tr>
+  </table>
+  <div class="box-gray box" style="margin-top:16px">
+    <strong>The story continues...</strong><br><br>
+    <strong>Lab 10:</strong> KB articles help resolve incidents faster &mdash; improving SLA compliance<br>
+    <strong>Lab 11:</strong> Service Request SLAs for Merchant Onboarding (5 business days)<br>
+    <strong>Lab 12:</strong> Prometheus SLIs &rarr; AlertManager &rarr; Snow Bridge &rarr; incidents with SLAs ticking<br>
+    <strong>Lab 13:</strong> Full incident lifecycle WITH SLA tracking &mdash; the timer is real now
+  </div>
+  <div class="foot"><span>Lab 09 &bull; ITIL: Service Level Management</span><span>17</span></div>
+</div>
+
+</div>
+<div class="counter" id="sc">1 / 17</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();show(c+1)}
+  if(e.key==='ArrowLeft'){e.preventDefault();show(c-1)}
+  if(e.key==='Home'){e.preventDefault();show(0)}
+  if(e.key==='End'){e.preventDefault();show(S.length-1)}
+});
+document.addEventListener('click',e=>{if(e.clientX>window.innerWidth/2)show(c+1);else show(c-1)});
+show(0);
+</script>
+</body>
+</html>

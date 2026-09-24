@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 12: Deploy Demo Stack & Event Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f0;overflow:hidden;-webkit-font-smoothing:antialiased}
+
+/* Deck & Slide */
+.deck{width:100vw;height:100vh;position:relative}
+.slide{
+  position:absolute;inset:0;display:none;
+  padding:60px 80px;
+  overflow-y:auto;
+  background:#ffffff;color:#1a1a1a;
+}
+.slide.active{display:flex;flex-direction:column}
+
+/* Colors */
+:root{
+  --text:#1a1a1a;
+  --text2:#444;
+  --muted:#888;
+  --accent:#1d4ed8;
+  --green:#047857;
+  --red:#b91c1c;
+  --orange:#c2410c;
+  --bg-subtle:#f7f8fa;
+  --border:#e5e7eb;
+}
+
+/* Typography — generous sizing */
+.label{
+  font-size:13px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:var(--accent);
+  margin-bottom:8px;
+}
+.label-red{color:var(--red)}
+.label-green{color:var(--green)}
+.label-orange{color:var(--orange)}
+
+h1{font-size:52px;font-weight:800;line-height:1.15;color:var(--text);margin-bottom:16px}
+h2{font-size:40px;font-weight:700;line-height:1.2;color:var(--text);margin-bottom:20px}
+h3{font-size:22px;font-weight:700;color:var(--accent);margin:24px 0 8px}
+p{font-size:20px;line-height:1.7;color:var(--text2);margin-bottom:8px}
+.lead{font-size:24px;line-height:1.6;color:var(--text2)}
+.big{font-size:30px;font-weight:700;color:var(--accent);line-height:1.4}
+
+/* Lists */
+ul.bl{list-style:none;padding:0;margin:8px 0}
+ul.bl li{
+  font-size:20px;line-height:1.6;color:var(--text2);
+  padding:6px 0 6px 28px;position:relative;
+}
+ul.bl li::before{
+  content:'';position:absolute;left:0;top:14px;
+  width:10px;height:10px;border-radius:50%;background:var(--accent);
+}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th{
+  font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);text-align:left;
+  padding:10px 14px;border-bottom:2px solid var(--border);
+}
+td{
+  font-size:18px;line-height:1.5;color:var(--text2);
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  vertical-align:top;
+}
+td:first-child{font-weight:600;color:var(--accent);white-space:nowrap}
+tr:nth-child(even) td{background:var(--bg-subtle)}
+
+/* Callout boxes */
+.box{border-radius:12px;padding:20px 24px;margin:16px 0;font-size:18px;line-height:1.6}
+.box-blue{background:#eff6ff;border-left:5px solid var(--accent);color:#1e3a5f}
+.box-green{background:#ecfdf5;border-left:5px solid var(--green);color:#064e3b}
+.box-red{background:#fef2f2;border-left:5px solid var(--red);color:#7f1d1d}
+.box-orange{background:#fff7ed;border-left:5px solid var(--orange);color:#7c2d12}
+.box-gray{background:#f7f8fa;border-left:5px solid #cbd5e1;color:var(--text)}
+
+/* Code */
+pre{
+  background:var(--bg-subtle);color:var(--text);
+  border:1px solid var(--border);border-radius:12px;
+  padding:20px 24px;
+  font-family:'JetBrains Mono',Consolas,monospace;
+  font-size:16px;line-height:1.6;
+  overflow-x:auto;margin:12px 0;
+}
+code{
+  font-family:'JetBrains Mono',Consolas,monospace;
+  background:var(--bg-subtle);padding:2px 8px;border-radius:6px;
+  font-size:17px;color:var(--accent);
+}
+
+/* Layout */
+.cols{display:flex;gap:48px;margin:12px 0}
+.cols>div{flex:1}
+
+/* Timeline */
+.timeline{position:relative;padding-left:32px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:3px;background:var(--border);border-radius:2px}
+.tl-item{position:relative;padding:8px 0;font-size:19px;line-height:1.6;color:var(--text2)}
+.tl-item::before{
+  content:'';position:absolute;left:-25px;top:14px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--red);border:3px solid #fff;
+  box-shadow:0 0 0 2px var(--border);
+}
+.tl-ok .tl-item::before{background:var(--green)}
+.tl-time{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:17px;color:var(--red);margin-right:8px}
+.tl-ok .tl-time{color:var(--green)}
+
+/* Number hero */
+.num-block{text-align:center;padding:16px}
+.num-block .num{font-size:72px;font-weight:900;color:var(--accent);line-height:1}
+.num-block .num-label{font-size:16px;font-weight:600;color:var(--muted);margin-top:6px}
+
+/* Footer */
+.foot{
+  margin-top:auto;padding-top:12px;
+  display:flex;justify-content:space-between;
+  font-size:13px;color:var(--muted);font-weight:500;
+  border-top:1px solid var(--border);
+}
+
+/* Badge */
+.badge{
+  display:inline-block;font-size:13px;font-weight:700;
+  padding:6px 14px;border-radius:8px;letter-spacing:.5px;
+}
+
+/* Counter */
+.counter{
+  position:fixed;top:12px;right:16px;
+  background:rgba(0,0,0,.05);color:var(--muted);
+  font:700 13px/1 'JetBrains Mono',monospace;
+  padding:6px 12px;border-radius:6px;z-index:99;
+}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1: TITLE -->
+<div class="slide active">
+  <div style="margin-top:8vh">
+    <div class="label">Lab 12 &bull; ITIL Practice: Monitoring &amp; Event Management</div>
+    <h1 style="font-size:56px">Deploy Demo Stack &amp;<br>Event Management</h1>
+    <p class="lead" style="max-width:70%">We have defined CIs, services, SLAs, and KB articles in ServiceNow. But ServiceNow does not know when something actually breaks in production. This lab bridges that gap.</p>
+    <div style="margin-top:32px">
+      <span class="badge" style="background:var(--accent);color:#fff">60 min</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--text);margin-left:8px">Builds on Labs 07-11</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--muted);margin-left:8px">PDI: Zurich</span>
+    </div>
+  </div>
+  <div class="foot"><span>ServiceNow ITSM Labs &bull; NPCI UPI Scenario</span><span></span></div>
+</div>
+
+<!-- 2: THE GAP -->
+<div class="slide">
+  <div class="label label-red">Act 1 &bull; The Gap</div>
+  <h2>ServiceNow is blind to production</h2>
+  <div class="cols">
+    <div>
+      <h3 style="color:var(--green)">What we have built (Labs 07-11)</h3>
+      <ul class="bl">
+        <li>CMDB with 12 CIs and 21 relationships</li>
+        <li>Business Service: UPI Payment Processing</li>
+        <li>SLAs: P1 = 1 hr resolve, P3 = 8 hrs</li>
+        <li>Knowledge Base articles for known issues</li>
+        <li>Assignment groups and escalation paths</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color:var(--red)">What is missing</h3>
+      <ul class="bl">
+        <li>No live monitoring connected</li>
+        <li>Incidents are created manually</li>
+        <li>Nobody knows a service is down until a user calls</li>
+        <li>MTTD (Mean Time to Detect) = hours, not seconds</li>
+        <li>SLA clocks do not start until someone notices</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box-red box"><strong>The CMDB is a map. But without monitoring, nobody sounds the alarm when a road collapses.</strong></div>
+  <div class="foot"><span>Lab 12 &bull; The Gap</span><span>2</span></div>
+</div>
+
+<!-- 3: THE PIPELINE -->
+<div class="slide">
+  <div class="label">Act 1 &bull; The Pipeline</div>
+  <h2>Prometheus to ServiceNow</h2>
+  <p class="big">The 4-stage alert pipeline that closes the loop.</p>
+  <pre style="font-size:15px">
+                                 +---------------------+
+                                 |    ServiceNow PDI    |
+                                 |  (Incident created)  |
+                                 +---------^-----------+
+                                           | REST API
+                                 +---------+-----------+
+                                 |    Snow Bridge       |
+                                 |  (Webhook --> SNOW)   |
+                                 +---------^-----------+
+                                           | webhook
+                                 +---------+-----------+
+                                 |    AlertManager      |
+                                 |  (Route alerts)      |
+                                 +---------^-----------+
+                                           | alert rules
++----------------+  scrape   +-------------+---------------+
+|  Grafana       |<----------|      Prometheus              |
+|  Dashboard     |           |  (Scrape + Evaluate)         |
++----------------+           +--+--------------------+------+
+                                |                    |
+                     +----------+------+  +----------+--------+
+                     | UPI Transaction |  | UPI Settlement     |
+                     | Service (:8081) |  | Service (:8082)    |
+                     +-----------------+  +--------------------+
+  </pre>
+  <div class="box-blue box"><strong>Closed loop:</strong> Metrics scraped --> threshold breached --> alert fires --> webhook sent --> incident created --> CI attached --> SLA starts. All automatic.</div>
+  <div class="foot"><span>Lab 12 &bull; Pipeline</span><span>3</span></div>
+</div>
+
+<!-- 4: THE STACK -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Deploy</div>
+  <h2>7 containers, one <code>docker compose up</code></h2>
+  <table>
+    <tr><th>Service</th><th>Port</th><th>Tech</th><th>Purpose</th></tr>
+    <tr><td>UPI Transaction</td><td>8081</td><td>Spring Boot 3.2</td><td>Processes UPI payments (pay, status)</td></tr>
+    <tr><td>UPI Settlement</td><td>8082</td><td>Spring Boot 3.2</td><td>NPCI settlement and reconciliation</td></tr>
+    <tr><td>Snow Bridge</td><td>5005</td><td>Python / Flask</td><td>AlertManager webhook --> ServiceNow incident</td></tr>
+    <tr><td>Prometheus</td><td>9090</td><td>Prometheus</td><td>Metrics scraping + alert evaluation</td></tr>
+    <tr><td>AlertManager</td><td>9093</td><td>AlertManager</td><td>Alert routing --> Snow Bridge</td></tr>
+    <tr><td>Grafana</td><td>3000</td><td>Grafana</td><td>Dashboards (auto-provisioned)</td></tr>
+    <tr><td>Traffic Generator</td><td>--</td><td>Python</td><td>Continuous UPI payment traffic at ~2 req/s</td></tr>
+  </table>
+  <pre>
+# Configure and launch
+cd demo-e2e-incident
+cp .env.example .env        # Set SNOW_INSTANCE, SNOW_USER, SNOW_PASSWORD
+docker compose up --build -d # First build: 3-5 min (Maven downloads)
+docker compose ps            # All 7 containers healthy
+  </pre>
+  <div class="foot"><span>Lab 12 &bull; Deploy</span><span>4</span></div>
+</div>
+
+<!-- 5: NORMAL OPERATIONS -->
+<div class="slide">
+  <div class="label label-green">Act 2 &bull; Observe</div>
+  <h2>Normal operations baseline</h2>
+  <p>With traffic flowing, observe the Grafana dashboard for 5 minutes.</p>
+  <div class="cols">
+    <div>
+      <h3 style="color:var(--green)">Grafana: all green</h3>
+      <ul class="bl">
+        <li><strong>Service Health:</strong> Both services show "UP"</li>
+        <li><strong>Transactions/sec:</strong> Steady ~2 req/s, all green</li>
+        <li><strong>Failure Rate:</strong> Gauge at 0%</li>
+        <li><strong>P95 Latency:</strong> Under 1 second</li>
+        <li><strong>Settlement Status:</strong> Steady settled rate</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color:var(--green)">Prometheus: all quiet</h3>
+      <ul class="bl">
+        <li><strong>Targets</strong> (<code>/targets</code>): Both UP</li>
+        <li><strong>Alerts</strong> (<code>/alerts</code>): All Inactive</li>
+        <li>No thresholds breached</li>
+        <li>No webhooks fired</li>
+        <li>No incidents created</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box-green box"><strong>This is your baseline.</strong> Everything works. Now we break it.</div>
+  <div class="foot"><span>Lab 12 &bull; Normal State</span><span>5</span></div>
+</div>
+
+<!-- 6: CHAOS - HIGH ERROR RATE -->
+<div class="slide">
+  <div class="label label-red">Act 2 &bull; Inject Chaos</div>
+  <h2>Scenario A: 80% failure rate (P1 Critical)</h2>
+  <div class="timeline">
+    <div class="tl-item"><span class="tl-time">T+0s</span> Run <code>./chaos/inject.sh</code> &rarr; choose <strong>1</strong> (Enable 80% failure rate)</div>
+    <div class="tl-item"><span class="tl-time">T+10s</span> Grafana failure rate gauge climbs from 0% to ~80% (turns red)</div>
+    <div class="tl-item"><span class="tl-time">T+30s</span> Transaction chart shows red (failed) bars dominating. Settlements cascade-fail.</div>
+    <div class="tl-item"><span class="tl-time">T+60s</span> Prometheus fires <code>UpiHighTransactionFailureRate</code> alert</div>
+    <div class="tl-item"><span class="tl-time">T+62s</span> AlertManager routes to Snow Bridge via webhook</div>
+    <div class="tl-item"><span class="tl-time">T+63s</span> Snow Bridge creates <strong>P1 incident in ServiceNow</strong>: <code>INC00XXXXX</code></div>
+  </div>
+  <div class="box-red box"><strong>Check ServiceNow:</strong> Incident > All &rarr; find "[AUTO] UPI transaction failure rate above 50%". Priority: 1 - Critical. Category: Software. Assignment group: Platform Engineering.</div>
+  <div class="foot"><span>Lab 12 &bull; Chaos: Error Rate</span><span>6</span></div>
+</div>
+
+<!-- 7: MORE SCENARIOS -->
+<div class="slide">
+  <div class="label label-red">Act 2 &bull; More Chaos</div>
+  <h2>Scenarios B and C</h2>
+  <div class="cols">
+    <div>
+      <h3 style="color:var(--red)">B: Service DOWN (P1)</h3>
+      <ul class="bl">
+        <li>Chaos option <strong>3</strong>: Take service DOWN</li>
+        <li>Grafana: Service Health goes RED</li>
+        <li>Alert: <code>UpiTransactionServiceDown</code></li>
+        <li>New P1 incident auto-created</li>
+        <li>Fix with option <strong>4</strong>, resolve incident</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color:var(--orange)">C: High Latency (P3)</h3>
+      <ul class="bl">
+        <li>Chaos option <strong>2</strong>: Inject 5s latency</li>
+        <li>Grafana: P95 latency spikes above 3s</li>
+        <li>Alert: <code>UpiHighTransactionLatency</code></li>
+        <li>P3 incident created (Impact: Medium)</li>
+        <li>Fix with option <strong>4</strong>, resolve incident</li>
+      </ul>
+    </div>
+  </div>
+  <h3>Alert to Incident mapping</h3>
+  <table>
+    <tr><th>Alert Severity</th><th>ServiceNow Impact</th><th>ServiceNow Urgency</th><th>Priority</th></tr>
+    <tr><td style="color:var(--red)">critical</td><td>1 - High</td><td>1 - High</td><td>P1 Critical</td></tr>
+    <tr><td style="color:var(--orange)">warning</td><td>2 - Medium</td><td>2 - Medium</td><td>P3 Moderate</td></tr>
+    <tr><td style="color:var(--accent)">info</td><td>3 - Low</td><td>3 - Low</td><td>P5 Planning</td></tr>
+  </table>
+  <div class="foot"><span>Lab 12 &bull; More Chaos</span><span>7</span></div>
+</div>
+
+<!-- 8: INCIDENT LIFECYCLE -->
+<div class="slide">
+  <div class="label label-green">Act 2 &bull; Manage</div>
+  <h2>Manage the incident in ServiceNow</h2>
+  <div class="timeline tl-ok">
+    <div class="tl-item"><span class="tl-time">Step 1</span> <strong>Assign</strong> the incident to Ravi Kumar (Platform Engineering)</div>
+    <div class="tl-item"><span class="tl-time">Step 2</span> Change state to <strong>In Progress</strong></div>
+    <div class="tl-item"><span class="tl-time">Step 3</span> Add work note: "Investigating high failure rate. Checking chaos/config status."</div>
+    <div class="tl-item"><span class="tl-time">Step 4</span> In chaos script, choose <strong>4</strong> (Disable all chaos) &mdash; failure rate drops to 0%</div>
+    <div class="tl-item"><span class="tl-time">Step 5</span> Alerts auto-resolve in ~2 minutes. Snow Bridge adds resolution note.</div>
+    <div class="tl-item"><span class="tl-time">Step 6</span> Back in ServiceNow: state &rarr; <strong>Resolved</strong>. Resolution: "Configuration corrected."</div>
+  </div>
+  <div class="box-green box"><strong>Closed loop:</strong> Alert fires &rarr; incident created &rarr; fix applied &rarr; alert resolves &rarr; incident closed. No human had to detect the problem.</div>
+  <div class="foot"><span>Lab 12 &bull; Lifecycle</span><span>8</span></div>
+</div>
+
+<!-- 9: KEY METRICS -->
+<div class="slide">
+  <div class="label">Act 3 &bull; Reference</div>
+  <h2>Metrics that trigger incidents</h2>
+  <table>
+    <tr><th>Metric</th><th>Alert Name</th><th>Threshold</th><th>Priority</th></tr>
+    <tr><td><code>up{job=...}</code></td><td>UpiTransactionServiceDown</td><td>== 0 for 30s</td><td style="color:var(--red)">P1</td></tr>
+    <tr><td><code>upi_transactions_total</code></td><td>UpiHighTransactionFailureRate</td><td>> 50% for 1m</td><td style="color:var(--red)">P1</td></tr>
+    <tr><td><code>upi_transaction_duration</code></td><td>UpiHighTransactionLatency</td><td>> 3s p95 for 1m</td><td style="color:var(--orange)">P3</td></tr>
+    <tr><td><code>upi_settlements_total</code></td><td>UpiSettlementFailures</td><td>> 0.1/s for 1m</td><td style="color:var(--orange)">P3</td></tr>
+    <tr><td><code>http_server_requests</code></td><td>UpiHighHttpErrorRate</td><td>> 30% 5xx for 1m</td><td style="color:var(--orange)">P3</td></tr>
+    <tr><td><code>jvm_memory_used</code></td><td>UpiJvmHeapHigh</td><td>> 85% for 2m</td><td style="color:var(--orange)">P3</td></tr>
+  </table>
+  <div class="box-blue box"><strong>Each metric maps to a Prometheus alert rule.</strong> Each alert severity maps to a ServiceNow priority. The Snow Bridge does the translation.</div>
+  <div class="foot"><span>Lab 12 &bull; Metrics</span><span>9</span></div>
+</div>
+
+<!-- 10: KEY CONCEPTS -->
+<div class="slide">
+  <div class="label">Act 3 &bull; Concepts</div>
+  <h2>Key concepts from this lab</h2>
+  <table>
+    <tr><th>Concept</th><th>Definition</th></tr>
+    <tr><td>Observability</td><td>Understanding system state from external outputs (metrics, logs, traces)</td></tr>
+    <tr><td>Prometheus</td><td>Open-source metrics collection and alerting toolkit</td></tr>
+    <tr><td>AlertManager</td><td>Handles alert deduplication, grouping, routing, and silencing</td></tr>
+    <tr><td>Webhook</td><td>HTTP callback that delivers real-time notifications</td></tr>
+    <tr><td>Chaos Engineering</td><td>Deliberately injecting failures to test system resilience</td></tr>
+    <tr><td>MTTD</td><td>Mean Time to Detect &mdash; how fast you identify an incident</td></tr>
+    <tr><td>MTTR</td><td>Mean Time to Resolve &mdash; how fast you fix an incident</td></tr>
+    <tr><td>Closed-loop</td><td>Alert fires &rarr; incident created &rarr; fixed &rarr; alert resolves &rarr; incident closed</td></tr>
+  </table>
+  <div class="foot"><span>Lab 12 &bull; Concepts</span><span>10</span></div>
+</div>
+
+<!-- 11: WHAT'S NEXT -->
+<div class="slide">
+  <div class="label">Summary</div>
+  <h2>What we built and why it matters</h2>
+  <table>
+    <tr><th>What we did</th><th>Why it matters</th></tr>
+    <tr><td>Deployed UPI microservices</td><td>Real services = realistic incidents</td></tr>
+    <tr><td>Prometheus + Grafana</td><td>Industry-standard observability stack</td></tr>
+    <tr><td>Alert &rarr; Incident automation</td><td>Reduces MTTD from hours to seconds</td></tr>
+    <tr><td>Chaos injection</td><td>Simulates real production failures</td></tr>
+    <tr><td>Full incident lifecycle</td><td>End-to-end ITSM workflow in ServiceNow</td></tr>
+    <tr><td>Closed-loop resolution</td><td>Alert fires and resolves automatically</td></tr>
+  </table>
+  <div class="box-gray box" style="margin-top:16px">
+    <strong>The story continues...</strong><br><br>
+    <strong>Lab 13:</strong> Incident Management &mdash; full lifecycle with priorities, escalation, major incidents<br>
+    <strong>Lab 14:</strong> Problem Management &mdash; why does the same CI keep failing? Root cause analysis<br>
+    <strong>Lab 15:</strong> Change Management &mdash; deploy the permanent fix through CAB approval
+  </div>
+  <div class="foot"><span>Lab 12 &bull; ITIL: Monitoring &amp; Event Management</span><span>11</span></div>
+</div>
+
+</div>
+<div class="counter" id="sc">1 / 11</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();show(c+1)}
+  if(e.key==='ArrowLeft'){e.preventDefault();show(c-1)}
+  if(e.key==='Home'){e.preventDefault();show(0)}
+  if(e.key==='End'){e.preventDefault();show(S.length-1)}
+});
+document.addEventListener('click',e=>{if(e.clientX>window.innerWidth/2)show(c+1);else show(c-1)});
+show(0);
+</script>
+</body>
+</html>

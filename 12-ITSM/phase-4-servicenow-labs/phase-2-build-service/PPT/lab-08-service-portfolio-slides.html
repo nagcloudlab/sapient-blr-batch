@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lab 08: Service Portfolio & Business Services</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',system-ui,sans-serif;background:#f0f0f0;overflow:hidden;-webkit-font-smoothing:antialiased}
+
+/* Deck & Slide */
+.deck{width:100vw;height:100vh;position:relative}
+.slide{
+  position:absolute;inset:0;display:none;
+  padding:60px 80px;
+  overflow-y:auto;
+  background:#ffffff;color:#1a1a1a;
+}
+.slide.active{display:flex;flex-direction:column}
+
+/* Colors */
+:root{
+  --text:#1a1a1a;
+  --text2:#444;
+  --muted:#888;
+  --accent:#1d4ed8;
+  --green:#047857;
+  --red:#b91c1c;
+  --orange:#c2410c;
+  --bg-subtle:#f7f8fa;
+  --border:#e5e7eb;
+}
+
+/* Typography */
+.label{
+  font-size:13px;font-weight:700;letter-spacing:3px;
+  text-transform:uppercase;color:var(--accent);
+  margin-bottom:8px;
+}
+.label-red{color:var(--red)}
+.label-green{color:var(--green)}
+.label-orange{color:var(--orange)}
+
+h1{font-size:52px;font-weight:800;line-height:1.15;color:var(--text);margin-bottom:16px}
+h2{font-size:40px;font-weight:700;line-height:1.2;color:var(--text);margin-bottom:20px}
+h3{font-size:22px;font-weight:700;color:var(--accent);margin:24px 0 8px}
+p{font-size:20px;line-height:1.7;color:var(--text2);margin-bottom:8px}
+.lead{font-size:24px;line-height:1.6;color:var(--text2)}
+.big{font-size:30px;font-weight:700;color:var(--accent);line-height:1.4}
+
+/* Lists */
+ul.bl{list-style:none;padding:0;margin:8px 0}
+ul.bl li{
+  font-size:20px;line-height:1.6;color:var(--text2);
+  padding:6px 0 6px 28px;position:relative;
+}
+ul.bl li::before{
+  content:'';position:absolute;left:0;top:14px;
+  width:10px;height:10px;border-radius:50%;background:var(--accent);
+}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th{
+  font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;
+  color:var(--muted);text-align:left;
+  padding:10px 14px;border-bottom:2px solid var(--border);
+}
+td{
+  font-size:18px;line-height:1.5;color:var(--text2);
+  padding:10px 14px;border-bottom:1px solid var(--border);
+  vertical-align:top;
+}
+td:first-child{font-weight:600;color:var(--accent);white-space:nowrap}
+tr:nth-child(even) td{background:var(--bg-subtle)}
+
+/* Callout boxes */
+.box{border-radius:12px;padding:20px 24px;margin:16px 0;font-size:18px;line-height:1.6}
+.box-blue{background:#eff6ff;border-left:5px solid var(--accent);color:#1e3a5f}
+.box-green{background:#ecfdf5;border-left:5px solid var(--green);color:#064e3b}
+.box-red{background:#fef2f2;border-left:5px solid var(--red);color:#7f1d1d}
+.box-orange{background:#fff7ed;border-left:5px solid var(--orange);color:#7c2d12}
+.box-gray{background:#f7f8fa;border-left:5px solid #cbd5e1;color:var(--text)}
+
+/* Code */
+pre{
+  background:var(--bg-subtle);color:var(--text);
+  border:1px solid var(--border);border-radius:12px;
+  padding:20px 24px;
+  font-family:'JetBrains Mono',Consolas,monospace;
+  font-size:16px;line-height:1.6;
+  overflow-x:auto;margin:12px 0;
+}
+code{
+  font-family:'JetBrains Mono',Consolas,monospace;
+  background:var(--bg-subtle);padding:2px 8px;border-radius:6px;
+  font-size:17px;color:var(--accent);
+}
+
+/* Layout */
+.cols{display:flex;gap:48px;margin:12px 0}
+.cols>div{flex:1}
+
+/* Timeline */
+.timeline{position:relative;padding-left:32px;margin:16px 0}
+.timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:3px;background:var(--border);border-radius:2px}
+.tl-item{position:relative;padding:8px 0;font-size:19px;line-height:1.6;color:var(--text2)}
+.tl-item::before{
+  content:'';position:absolute;left:-25px;top:14px;
+  width:14px;height:14px;border-radius:50%;
+  background:var(--red);border:3px solid #fff;
+  box-shadow:0 0 0 2px var(--border);
+}
+.tl-ok .tl-item::before{background:var(--green)}
+.tl-time{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:17px;color:var(--red);margin-right:8px}
+.tl-ok .tl-time{color:var(--green)}
+
+/* Number hero */
+.num-block{text-align:center;padding:16px}
+.num-block .num{font-size:72px;font-weight:900;color:var(--accent);line-height:1}
+.num-block .num-label{font-size:16px;font-weight:600;color:var(--muted);margin-top:6px}
+
+/* Footer */
+.foot{
+  margin-top:auto;padding-top:12px;
+  display:flex;justify-content:space-between;
+  font-size:13px;color:var(--muted);font-weight:500;
+  border-top:1px solid var(--border);
+}
+
+/* Badge */
+.badge{
+  display:inline-block;font-size:13px;font-weight:700;
+  padding:6px 14px;border-radius:8px;letter-spacing:.5px;
+}
+
+/* Counter */
+.counter{
+  position:fixed;top:12px;right:16px;
+  background:rgba(0,0,0,.05);color:var(--muted);
+  font:700 13px/1 'JetBrains Mono',monospace;
+  padding:6px 12px;border-radius:6px;z-index:99;
+}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1: TITLE -->
+<div class="slide active">
+  <div style="margin-top:8vh">
+    <div class="label">Lab 08 &bull; ITIL Practice: Service Portfolio Management</div>
+    <h1 style="font-size:60px">Service Portfolio &amp;<br>Business Services</h1>
+    <p class="lead" style="max-width:65%">A story about a VP's unanswerable question, invisible services, and why CIs without a business context are just expensive inventory.</p>
+    <div style="margin-top:32px">
+      <span class="badge" style="background:var(--accent);color:#fff">60 min</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--text);margin-left:8px">Builds on Lab 07 (CMDB)</span>
+      <span class="badge" style="background:var(--bg-subtle);color:var(--muted);margin-left:8px">PDI: Zurich</span>
+    </div>
+  </div>
+  <div class="foot"><span>ServiceNow ITSM Labs &bull; NPCI UPI Scenario</span><span></span></div>
+</div>
+
+<!-- 2: THE QUESTION -->
+<div class="slide">
+  <div class="label label-red">Act 1 &bull; The Problem</div>
+  <h2>The VP asks three simple questions</h2>
+  <div class="timeline">
+    <div class="tl-item"><span class="tl-time">Mon 9:00</span> VP walks into Sanjay's office: <em>"What services does UPI run?"</em></div>
+    <div class="tl-item"><span class="tl-time">Mon 9:01</span> Sanjay: <em>"Well, there's the payment platform, and settlement, and..."</em> He opens a spreadsheet.</div>
+    <div class="tl-item"><span class="tl-time">Mon 9:03</span> VP: <em>"Which service is most critical? What does each cost? Who owns them?"</em></div>
+    <div class="tl-item"><span class="tl-time">Mon 9:05</span> Sanjay checks Confluence, an old wiki, and a PowerPoint from Q1. Different answers everywhere.</div>
+    <div class="tl-item"><span class="tl-time">Mon 9:10</span> VP: <em>"We have 12 CIs in the CMDB. But which BUSINESS SERVICE do they support? We can't manage what we can't define."</em></div>
+  </div>
+  <div class="box-red box"><strong>The CMDB tells you WHAT exists. The Service Portfolio tells you WHY it exists and WHO it serves.</strong></div>
+  <div class="foot"><span>Lab 08 &bull; The Problem</span><span>2</span></div>
+</div>
+
+<!-- 3: THE VISION -->
+<div class="slide">
+  <div class="label label-green">Act 1 &bull; The Vision</div>
+  <h2>What if Sanjay had a Service Portfolio?</h2>
+  <div class="cols">
+    <div>
+      <h3 style="color:var(--red)">Without Portfolio</h3>
+      <ul class="bl">
+        <li>CIs are orphaned records</li>
+        <li>No one knows which services exist</li>
+        <li>No ownership or accountability</li>
+        <li>Incidents lack business context</li>
+        <li>Cost allocation is impossible</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="color:var(--green)">With Portfolio</h3>
+      <ul class="bl">
+        <li>Every CI traces to a Business Service</li>
+        <li>3 services defined, owned, categorized</li>
+        <li>Impact analysis: DB down = Payment Service affected</li>
+        <li>VP sees cost, criticality, ownership at a glance</li>
+        <li>Foundation for SLAs, incidents, changes</li>
+      </ul>
+    </div>
+  </div>
+  <div class="box-green box"><strong>Today's goal:</strong> Build the Service Portfolio so every CI maps upward to a Business Service with defined ownership, criticality, and service offerings.</div>
+  <div class="foot"><span>Lab 08 &bull; The Vision</span><span>3</span></div>
+</div>
+
+<!-- 4: THREE ZONES -->
+<div class="slide">
+  <div class="label">Act 1 &bull; ITIL 4 Concept</div>
+  <h2>The Three Zones of the Service Portfolio</h2>
+  <p>The Service Portfolio is the <strong>complete set</strong> of services &mdash; not just what's live today.</p>
+  <div class="cols" style="margin-top:16px">
+    <div>
+      <table>
+        <tr><th>Zone</th><th>What</th><th>Visible?</th></tr>
+        <tr><td>Pipeline</td><td>Services under development</td><td>Internal only</td></tr>
+        <tr><td>Catalog</td><td>Live, operational services</td><td>Customers</td></tr>
+        <tr><td>Retired</td><td>Decommissioned services</td><td>Archive only</td></tr>
+      </table>
+      <div class="box-blue box" style="margin-top:16px"><strong>Key insight:</strong> The Service Catalog is a <em>subset</em> of the Service Portfolio. Portfolio = strategy. Catalog = consumption.</div>
+    </div>
+    <div>
+      <pre style="font-size:15px">
+PIPELINE (Future)
+  UPI Credit Line (proposed)
+  UPI Cross-Border (in design)
+        |
+        v
+CATALOG (Present)
+  UPI Payment Processing
+  UPI Dispute Resolution
+  UPI Merchant Onboarding
+        |
+        v
+RETIRED (Past)
+  UPI USSD Payments (2024)
+  Legacy IMPS Gateway
+      </pre>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 08 &bull; Portfolio Zones</span><span>4</span></div>
+</div>
+
+<!-- 5: SERVICE TYPES -->
+<div class="slide">
+  <div class="label">Act 1 &bull; ITIL 4 Concept</div>
+  <h2>Business vs Technical vs Application Service</h2>
+  <p>ServiceNow models services in a class hierarchy, just like CI classes.</p>
+  <table>
+    <tr><th>Service Type</th><th>Table</th><th>Audience</th><th>UPI Example</th></tr>
+    <tr><td>Business Service</td><td><code>cmdb_ci_service_business</code></td><td>Customer-facing, delivers business value</td><td>UPI Payment Processing</td></tr>
+    <tr><td>Technical Service</td><td><code>cmdb_ci_service_technical</code></td><td>Internal, underpins a Business Service</td><td>UPI Transaction Processing</td></tr>
+    <tr><td>Application Service</td><td><code>cmdb_ci_service_auto</code></td><td>Represents a running application</td><td>UPI Transaction Service (Spring Boot)</td></tr>
+  </table>
+  <div class="box-orange box"><strong>Four Dimensions applied to UPI Payment Processing:</strong><br>
+    <strong>1. Organizations &amp; People:</strong> NPCI Platform Eng, NOC, Service Desk<br>
+    <strong>2. Information &amp; Technology:</strong> PostgreSQL, Spring Boot, Prometheus<br>
+    <strong>3. Partners &amp; Suppliers:</strong> Member Banks (SBI, HDFC), RBI Compliance<br>
+    <strong>4. Value Streams:</strong> Payment initiation &rarr; Auth &rarr; Debit &rarr; Credit &rarr; Settlement
+  </div>
+  <div class="foot"><span>Lab 08 &bull; Service Types</span><span>5</span></div>
+</div>
+
+<!-- 6: THE FULL HIERARCHY -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Building the Portfolio</div>
+  <h2>The service hierarchy we will build</h2>
+  <p>Every arrow is a "Depends on" relationship. Every box is a record you create.</p>
+  <pre style="font-size:14px">
+BUSINESS SERVICES (this lab)
+  UPI Payment Processing -------- Owner: Sanjay Manager | Criticality: 1
+  UPI Dispute Resolution -------- Owner: Sanjay Manager | Criticality: 2
+  UPI Merchant Onboarding ------- Owner: Sanjay Manager | Criticality: 2
+              |
+              | depends on
+              v
+TECHNICAL SERVICES (this lab)
+  UPI Transaction Processing ---- Owner: Ravi Kumar
+  UPI Settlement & Reconciliation  Owner: Ravi Kumar
+  UPI Database Service ----------- Owner: Ravi Kumar
+  UPI Monitoring & Observability - Owner: Ravi Kumar
+  UPI Network & Load Balancing --- Owner: Ravi Kumar
+              |
+              | depends on
+              v
+CIs FROM LAB 07
+  Txn Service, Stl Service, PostgreSQL, App Servers, LB, Prometheus, Grafana
+  </pre>
+  <div class="cols">
+    <div class="num-block"><div class="num">3</div><div class="num-label">Business Services</div></div>
+    <div class="num-block"><div class="num">5</div><div class="num-label">Technical Services</div></div>
+    <div class="num-block"><div class="num">23</div><div class="num-label">Relationships</div></div>
+    <div class="num-block"><div class="num">10</div><div class="num-label">Service Offerings</div></div>
+  </div>
+  <div class="foot"><span>Lab 08 &bull; Hierarchy</span><span>6</span></div>
+</div>
+
+<!-- 7: CREATE BUSINESS SERVICES -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Step 1</div>
+  <h2>Create Business Services</h2>
+  <p>Navigate to <code>Service Portfolio > Services > Business Services</code> &rarr; click <strong>New</strong></p>
+  <table>
+    <tr><th>Service Name</th><th>Status</th><th>Criticality</th><th>Owner</th><th>Managed By</th></tr>
+    <tr><td>UPI Payment Processing</td><td>Catalog</td><td>1 - Most Critical</td><td>Sanjay Manager</td><td>Ravi Kumar</td></tr>
+    <tr><td>UPI Dispute Resolution</td><td>Catalog</td><td>2 - Somewhat Critical</td><td>Sanjay Manager</td><td>Ravi Kumar</td></tr>
+    <tr><td>UPI Merchant Onboarding</td><td>Catalog</td><td>2 - Somewhat Critical</td><td>Sanjay Manager</td><td>Amit Verma</td></tr>
+  </table>
+  <div class="box-blue box"><strong>Key fields on each:</strong> Service classification = Business Service, Operational status = Operational, Support group = Platform Engineering, Used for = Production.</div>
+  <div class="box-green box"><strong>UPI Payment Processing description:</strong> End-to-end UPI payment processing handling real-time fund transfers between banks. 10B+ transactions/month across 350+ member banks. 99.95% uptime SLA.</div>
+  <div class="foot"><span>Lab 08 &bull; Business Services</span><span>7</span></div>
+</div>
+
+<!-- 8: CREATE TECHNICAL SERVICES -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Step 2</div>
+  <h2>Create Technical Services</h2>
+  <p>Navigate to <code>Service Portfolio > Services > Technical Services</code> &rarr; click <strong>New</strong></p>
+  <table>
+    <tr><th>Technical Service</th><th>Criticality</th><th>What It Does</th></tr>
+    <tr><td>UPI Transaction Processing</td><td>1 - Most Critical</td><td>Core switching engine: VPA resolution, PSP routing, debit/credit orchestration</td></tr>
+    <tr><td>UPI Settlement & Reconciliation</td><td>1 - Most Critical</td><td>End-of-day net settlement, NACH file generation, multi-lateral netting</td></tr>
+    <tr><td>UPI Database Service</td><td>1 - Most Critical</td><td>PostgreSQL cluster: transaction records, VPA mappings, 300K+ writes/sec</td></tr>
+    <tr><td>UPI Monitoring & Observability</td><td>2 - Somewhat Critical</td><td>Prometheus + Grafana + Snow Bridge monitoring stack</td></tr>
+    <tr><td>UPI Network & Load Balancing</td><td>1 - Most Critical</td><td>Layer 7 LB, SSL termination, 50K+ concurrent connections</td></tr>
+  </table>
+  <div class="box-gray box"><strong>All Technical Services:</strong> Owner = Ravi Kumar, Support group = Platform Engineering, Service status = Catalog, Operational status = Operational</div>
+  <div class="foot"><span>Lab 08 &bull; Technical Services</span><span>8</span></div>
+</div>
+
+<!-- 9: LINK DEPENDENCIES -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Step 3</div>
+  <h2>Link dependencies &mdash; make the map come alive</h2>
+  <div class="cols">
+    <div>
+      <h3>Business &rarr; Technical</h3>
+      <table>
+        <tr><th>Business Service</th><th>Depends On</th></tr>
+        <tr><td>Payment Processing</td><td>All 5 Technical Services</td></tr>
+        <tr><td>Dispute Resolution</td><td>Transaction Processing, Database</td></tr>
+        <tr><td>Merchant Onboarding</td><td>Database, Network & LB</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Technical &rarr; CIs (Lab 07)</h3>
+      <table>
+        <tr><th>Technical Service</th><th>Depends On (CIs)</th></tr>
+        <tr><td>Transaction Processing</td><td>Txn Svc, App01, App02, LB</td></tr>
+        <tr><td>Settlement & Recon</td><td>Stl Svc, App01, App02</td></tr>
+        <tr><td>Database Service</td><td>PG Primary, Replica, DB Srv</td></tr>
+        <tr><td>Monitoring</td><td>Prometheus, Grafana, Bridge</td></tr>
+        <tr><td>Network & LB</td><td>UPI Production LB</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="box-blue box"><strong>How to create:</strong> Open a service &rarr; scroll to <strong>Depends on::Used by</strong> related list &rarr; click <strong>New</strong> &rarr; set Parent and Child &rarr; Submit. Relationship type: <code>Depends on::Used by</code>.</div>
+  <div class="foot"><span>Lab 08 &bull; Dependencies</span><span>9</span></div>
+</div>
+
+<!-- 10: IMPACT ANALYSIS -->
+<div class="slide">
+  <div class="label label-red">Act 2 &bull; The Payoff</div>
+  <h2>Impact analysis: PostgreSQL goes down</h2>
+  <p style="font-size:22px">With the dependency chain built, ServiceNow can trace impact automatically:</p>
+  <pre style="font-size:15px;border-color:var(--red);border-width:2px">
+PostgreSQL Primary (CI) goes down
+    |
+    v  (Used by)
+UPI Database Service (Technical Service)
+    |
+    v  (Used by)
+UPI Payment Processing (Business Service)   -- ALL UPI payments affected
+UPI Dispute Resolution (Business Service)   -- Disputes cannot be processed
+UPI Merchant Onboarding (Business Service)  -- Onboarding halted
+  </pre>
+  <div class="cols">
+    <div class="box-red box"><strong>Without Portfolio:</strong> "The database is down." Nobody knows the business impact. Takes 30 minutes to figure out who's affected.</div>
+    <div class="box-green box"><strong>With Portfolio:</strong> "UPI Payment Processing, Dispute Resolution, and Merchant Onboarding are all impacted." Instant. Automated. Accurate.</div>
+  </div>
+  <div class="foot"><span>Lab 08 &bull; Impact Analysis</span><span>10</span></div>
+</div>
+
+<!-- 11: SERVICE OFFERINGS -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Step 4</div>
+  <h2>Service Offerings &mdash; what consumers actually get</h2>
+  <p>Offerings bridge the Service Portfolio and the Service Catalog (Lab 11).</p>
+  <div class="cols">
+    <div>
+      <h3>UPI Payment Processing</h3>
+      <table>
+        <tr><th>Offering</th><th>Availability</th></tr>
+        <tr><td>Real-time P2P Transfer</td><td>24x7</td></tr>
+        <tr><td>Merchant Payment (P2M)</td><td>24x7</td></tr>
+        <tr><td>UPI Bill Payment</td><td>24x7</td></tr>
+        <tr><td>UPI Autopay</td><td>24x7</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Other Services</h3>
+      <table>
+        <tr><th>Offering</th><th>Service</th></tr>
+        <tr><td>Transaction Dispute Filing</td><td>Dispute Resolution</td></tr>
+        <tr><td>Chargeback Processing</td><td>Dispute Resolution</td></tr>
+        <tr><td>Dispute Status Inquiry</td><td>Dispute Resolution</td></tr>
+        <tr><td>New Merchant Registration</td><td>Merchant Onboarding</td></tr>
+        <tr><td>QR Code Generation</td><td>Merchant Onboarding</td></tr>
+        <tr><td>Settlement Configuration</td><td>Merchant Onboarding</td></tr>
+      </table>
+    </div>
+  </div>
+  <div class="box-gray box"><strong>Navigate to:</strong> <code>Service Portfolio > Service Offerings</code> &rarr; New &rarr; set Name, Service, Status, Description.</div>
+  <div class="foot"><span>Lab 08 &bull; Offerings</span><span>11</span></div>
+</div>
+
+<!-- 12: SUPPORT TIERS & OWNERSHIP -->
+<div class="slide">
+  <div class="label">Act 2 &bull; Step 5</div>
+  <h2>Service ownership &amp; support tiers</h2>
+  <div class="cols">
+    <div>
+      <h3>Service Roles (ITIL 4)</h3>
+      <table>
+        <tr><th>Role</th><th>Person</th><th>Responsibility</th></tr>
+        <tr><td>Service Owner</td><td>Sanjay Manager</td><td>Accountable for delivery</td></tr>
+        <tr><td>Service Manager</td><td>Ravi Kumar</td><td>End-to-end technical delivery</td></tr>
+        <tr><td>Process Owner</td><td>Vijay Admin</td><td>Owns the Portfolio process</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Support Tiers</h3>
+      <pre style="font-size:14px">
+L0 - Self-Service
+  KB articles, Catalog forms, FAQs
+
+L1 - Service Desk / NOC
+  Meera Joshi, Priya Sharma
+  Basic triage, password resets
+
+L2 - Platform Engineering
+  Amit Verma
+  App issues, config changes
+
+L3 - Senior Engineering
+  Ravi Kumar
+  Code fixes, DB recovery
+  Escalates to: Sanjay Manager
+      </pre>
+    </div>
+  </div>
+  <div class="foot"><span>Lab 08 &bull; Ownership</span><span>12</span></div>
+</div>
+
+<!-- 13: SCENARIO CHALLENGE -->
+<div class="slide">
+  <div class="label label-orange">Act 3 &bull; Prove It Works</div>
+  <h2>Scenario challenge: Retire a service</h2>
+  <div class="box-orange box" style="font-size:20px">Management decides to retire "UPI Dispute Resolution." Sanjay opens ServiceNow and changes Service Status to Retired.</div>
+  <h3 style="color:var(--orange)">Using your Service Portfolio, answer:</h3>
+  <table>
+    <tr><th>#</th><th>Question</th><th>Answer</th></tr>
+    <tr><td>1</td><td>Does it disappear from Business Services list?</td><td>Depends on your list filter (Status = Catalog won't show it)</td></tr>
+    <tr><td>2</td><td>Can you still see it in All Services?</td><td>Yes &mdash; retired services remain in the Portfolio</td></tr>
+    <tr><td>3</td><td>Are dependent Technical Services also retired?</td><td>NO. Transaction Processing and Database Service are shared.</td></tr>
+    <tr><td>4</td><td>What must you do before retiring?</td><td>Impact analysis: check all "Used by" relationships first.</td></tr>
+  </table>
+  <div class="box-red box"><strong>Retiring a Business Service does NOT cascade.</strong> Technical Services may be shared by multiple Business Services. This is why dependency mapping matters.</div>
+  <div class="foot"><span>Lab 08 &bull; Scenario</span><span>13</span></div>
+</div>
+
+<!-- 14: EXERCISES -->
+<div class="slide">
+  <div class="label">Your Turn</div>
+  <h2>Practice Exercises</h2>
+  <table>
+    <tr><th>#</th><th>Challenge</th><th>Level</th></tr>
+    <tr><td>1</td><td><strong>New Business Service:</strong> Create "UPI QR Code Payments" (Criticality: 2, Owner: Sanjay). Verify 4 Business Services in the list.</td><td style="color:var(--green)">Beginner</td></tr>
+    <tr><td>2</td><td><strong>New Technical Service:</strong> Create "UPI QR Generation Engine". Link it to QR Code Payments and to UPI Production LB.</td><td style="color:var(--green)">Beginner</td></tr>
+    <tr><td>3</td><td><strong>Pipeline Offering:</strong> Create "International Remittance" offering under UPI Payment Processing with Status = Pipeline. Why is it not in the Catalog?</td><td style="color:var(--orange)">Intermediate</td></tr>
+    <tr><td>4</td><td><strong>Reports:</strong> Create a Bar chart grouped by Service Classification and a Pie chart by Business Criticality. Filter: Name starts with "UPI".</td><td style="color:var(--orange)">Intermediate</td></tr>
+    <tr><td>5</td><td><strong>Retire & Revert:</strong> Retire UPI Dispute Resolution. Observe what happens. Then revert. Document your findings.</td><td style="color:var(--red)">Advanced</td></tr>
+  </table>
+  <div class="box-green box"><strong>Time-saver:</strong> Background Script from the lab Appendix creates all 3 Business Services, 5 Technical Services, 10 Offerings, and 23 relationships in 2 minutes.</div>
+  <div class="foot"><span>Lab 08 &bull; Exercises</span><span>14</span></div>
+</div>
+
+<!-- 15: TAKEAWAYS -->
+<div class="slide">
+  <div class="label">Summary</div>
+  <h2>What We Built &amp; Why It Matters</h2>
+  <table>
+    <tr><th>What we did</th><th>The story behind it</th></tr>
+    <tr><td>3 Business Services</td><td>VP can now answer: "What services does UPI run?"</td></tr>
+    <tr><td>5 Technical Services</td><td>Every technology component traces to business value</td></tr>
+    <tr><td>23 Relationships</td><td>DB down = instant impact on 3 Business Services</td></tr>
+    <tr><td>10 Service Offerings</td><td>Consumers know exactly what they can request</td></tr>
+    <tr><td>Ownership & Tiers</td><td>Incidents auto-route to the right team via service context</td></tr>
+  </table>
+  <div class="box-gray box" style="margin-top:16px">
+    <strong>The story continues...</strong><br><br>
+    <strong>Lab 09:</strong> Attach SLAs to these Business Services &mdash; P1 incidents get a 1-hour resolution timer<br>
+    <strong>Lab 10:</strong> KB articles reference Business and Technical Services for faster resolution<br>
+    <strong>Lab 11:</strong> Service Offerings become Catalog Items with approval workflows<br>
+    <strong>Lab 13:</strong> Incidents auto-populate the Business Service field using these dependency chains
+  </div>
+  <div class="foot"><span>Lab 08 &bull; ITIL: Service Portfolio Management</span><span>15</span></div>
+</div>
+
+</div>
+<div class="counter" id="sc">1 / 15</div>
+<script>
+const S=document.querySelectorAll('.slide');let c=0;
+function show(n){S[c].classList.remove('active');c=Math.max(0,Math.min(n,S.length-1));S[c].classList.add('active');document.getElementById('sc').textContent=(c+1)+' / '+S.length;S[c].scrollTop=0}
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'||e.key===' '){e.preventDefault();show(c+1)}
+  if(e.key==='ArrowLeft'){e.preventDefault();show(c-1)}
+  if(e.key==='Home'){e.preventDefault();show(0)}
+  if(e.key==='End'){e.preventDefault();show(S.length-1)}
+});
+document.addEventListener('click',e=>{if(e.clientX>window.innerWidth/2)show(c+1);else show(c-1)});
+show(0);
+</script>
+</body>
+</html>
