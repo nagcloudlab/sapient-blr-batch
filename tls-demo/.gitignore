@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.pcap
+*.pcapng
+phase2/certs/
+phase2/certs-backup.*/
+phase3/certs/
+phase3/certs-backup.*/
