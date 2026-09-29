@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: return-service
+  labels:
+    app: return-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: return-service
+  template:
+    metadata:
+      labels:
+        app: return-service
+    spec:
+      containers:
+      - name: return-service
+        image: return-service:latest
+        ports:
+        - containerPort: 8080
+        env:
+        - name: MONGO_URI
+          value: "mongodb://admin:password123@mongo:27017/returnsdb"
+        - name: JWT_SECRET
+          value: "mysecretkey12345"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: return-service
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    targetPort: 8080
+    nodePort: 30080
+  selector:
+    app: return-service
+
+# PROBLEMS (for training — do NOT reveal to students):
+# 1. Only 1 replica — no high availability
+# 2. image:latest tag — unpredictable deployments
+# 3. Hardcoded DB credentials in plain text — use Secrets
+# 4. Hardcoded JWT secret — use Secrets
+# 5. No resource requests/limits — can starve the node
+# 6. No liveness/readiness probes — K8s can't manage health
+# 7. No imagePullPolicy specified (defaults vary)
+# 8. NodePort exposes service directly — use Ingress in production
+# 9. No namespace specified
+# 10. No security context (runAsNonRoot, readOnlyRootFilesystem)

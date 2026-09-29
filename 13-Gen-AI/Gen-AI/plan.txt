@@ -1,0 +1,7 @@
+ 1-7:   TECHNIQUES  — How to talk to AI
+  8-9:   PATTERNS    — How AI fits into systems
+  10:    CLIMAX      — Everything combined
+  11:    PLOT TWIST  — AI fails
+  12:    CHALLENGE   — Students prove skills
+  13-15: DAILY WORK  — Code review, testing, post-mortems
+  16:    ENTERPRISE  — RAG: YOUR knowledge + AI = enterprise-grade

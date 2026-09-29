@@ -1,13 +1,12 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const db = new Database(path.join(__dirname, 'upi.db'));
+const dbPath = process.env.UPI_DB_PATH || path.join(__dirname, 'upi.db');
+const db = new Database(dbPath);
 
-// Enable WAL mode for better concurrency
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
-// Create tables
 db.exec(`
   CREATE TABLE IF NOT EXISTS accounts (
     vpa TEXT PRIMARY KEY,

@@ -1,0 +1,14 @@
+FROM openjdk:17
+COPY target/*.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# PROBLEMS (for training — do NOT reveal to students):
+# 1. No multi-stage build — image is 500MB+ instead of ~200MB
+# 2. Runs as root — security risk
+# 3. No HEALTHCHECK — K8s can't probe liveness
+# 4. No .dockerignore mentioned — copies everything
+# 5. No memory limits for JVM (-Xmx/-Xms)
+# 6. Uses full JDK instead of JRE/slim
+# 7. No LABEL for metadata
+# 8. No specific JAR name — glob pattern is fragile

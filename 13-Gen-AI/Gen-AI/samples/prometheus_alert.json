@@ -1,0 +1,30 @@
+{
+  "status": "firing",
+  "labels": {
+    "alertname": "HighErrorRate",
+    "service": "return-service",
+    "namespace": "production",
+    "severity": "critical",
+    "team": "sustain-engineering"
+  },
+  "annotations": {
+    "summary": "return-service error rate exceeds 25% for 5 minutes",
+    "description": "The return-service in production namespace has an error rate of 38.7% (threshold: 25%). HTTP 5xx responses have spiked from 2% baseline to 38.7% starting at 14:22 UTC.",
+    "dashboard": "https://grafana.internal/d/return-service",
+    "runbook": "https://wiki.internal/runbooks/return-service-high-error-rate"
+  },
+  "startsAt": "2026-09-28T14:22:00Z",
+  "endsAt": "0001-01-01T00:00:00Z",
+  "generatorURL": "https://prometheus.internal/graph?g0.expr=rate(http_server_requests_seconds_count{status=~\"5..\",service=\"return-service\"}[5m])/rate(http_server_requests_seconds_count{service=\"return-service\"}[5m])",
+  "relatedMetrics": {
+    "http_5xx_rate": "38.7%",
+    "http_2xx_rate": "61.3%",
+    "p99_latency_ms": 12450,
+    "p50_latency_ms": 3200,
+    "active_db_connections": "50/50",
+    "pending_db_requests": 23,
+    "pod_restart_count": 0,
+    "memory_usage_percent": 87.3,
+    "cpu_usage_percent": 45.2
+  }
+}
